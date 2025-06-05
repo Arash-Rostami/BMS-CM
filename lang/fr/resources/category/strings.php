@@ -1,0 +1,57 @@
+<?php
+
+return [
+    'general' => [
+        'model_label'         => 'Catégorie',
+        'plural_model_label'  => 'Catégories',
+        'navigation_group'    => 'Données de base',
+        'options' => [
+            'base_level' => '❶ Catégorie de base',
+            'sub_level'  => '❷ Sous-catégorie ',
+            'line'       => '❸ Ligne',
+            'model'      => '❹ Modèle',
+        ],
+    ],
+    'form' => [
+        'name'                           => 'Nom (Persan)',
+        'english_name'                   => 'Nom (Anglais)',
+        'description'                    => 'Description',
+        'parent'                         => 'Catégorie parente',
+        'level'                          => 'Niveau',
+        'active'                         => 'Actif',
+        'creator'                        => 'Créé par',
+        'updater'                        => 'Dernière mise à jour par',
+        'validation_name'                => 'Seuls les caractères persans sont autorisés.',
+        'validation_name_unique'         => 'Ce nom persan existe déjà.',
+        'validation_english_name'        => 'Seuls les caractères anglais et espaces sont autorisés.',
+        'validation_english_name_unique' => 'Ce nom anglais existe déjà.',
+        'validation_level'               => 'Le niveau doit être un entier.',
+        'level_helper'    => "0 = Catégorie de base ┆ 1 = Sous-catégorie ┆ 2 = Ligne ┆ 3 = Modèle ┆ 4+ = Niveaux supplémentaires",
+        'tooltips' => [
+            'base_level' => '❶ Catégorie de base',
+            'sub_level'  => '❷ Sous-catégorie ',
+            'line'       => '❸ Ligne',
+            'model'      => '❹ Modèle',
+        ],
+    ],
+    'table' => [
+        'name'           => 'Nom (Persan)',
+        'english_name'   => 'Nom (Anglais)',
+        'description'    => 'Description',
+        'parent'         => 'Catégorie parente',
+        'level'          => 'Niveau',
+        'active'         => 'Actif',
+        'inactive'         => 'Inactif',
+        'creator'        => 'Créé par',
+        'updater'        => 'Dernière mise à jour par',
+        'created_at'     => 'Date de création',
+        'updated_at'     => 'Dernière mise à jour',
+        'deleted_at'     => 'Date de suppression',
+    ],
+    'filters' => [
+        'level' => 'Niveau de catégorie',
+        'level_placeholder' => 'Sélectionnez le niveau...',
+        'ancestors'   => 'Catégories de niveau supérieur',
+        'descendants' => 'Catégories de niveau inférieur',
+    ],
+];

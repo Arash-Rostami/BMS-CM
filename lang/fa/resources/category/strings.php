@@ -1,0 +1,57 @@
+<?php
+
+return [
+    'general' => [
+        'model_label' => 'دسته‌بندی',
+        'plural_model_label' => 'دسته‌بندی‌ها',
+        'navigation_group' => 'اطلاعات پایه',
+        'options' => [
+            'base_level' => '❶ دسته‌بندی پایه',
+            'sub_level' => '❷ زیر‌دسته',
+            'line' => '❸ خط محصول',
+            'model' => '❹ مدل',
+        ],
+    ],
+    'form' => [
+        'name' => 'نام (فارسی)',
+        'english_name' => 'نام (انگلیسی)',
+        'description' => 'توضیحات',
+        'parent' => 'دسته‌بندی مادر',
+        'level' => 'سطح',
+        'active' => 'فعال',
+        'creator' => 'ایجاد شده توسط',
+        'updater' => 'آخرین به‌روزرسانی توسط',
+        'validation_name' => 'فقط حروف فارسی مجاز هستند.',
+        'validation_name_unique' => 'این نام فارسی قبلاً ثبت شده است.',
+        'validation_english_name' => 'فقط حروف انگلیسی و فاصله مجاز است.',
+        'validation_english_name_unique' => 'این نام انگلیسی قبلاً ثبت شده است.',
+        'validation_level' => 'سطح باید عدد صحیح باشد.',
+        'level_helper' => "0 = دسته‌بندی پایه ┆ 1 = زیر‌دسته ┆ 2 = خط محصول ┆ 3 = مدل ┆ 4+ = دسته های دیگر",
+        'tooltips' => [
+            'base_level' => '❶ دسته‌بندی پایه',
+            'sub_level' => '❷ زیر‌دسته',
+            'line' => '❸ خط محصول',
+            'model' => '❹ مدل',
+        ],
+    ],
+    'table' => [
+        'name' => 'نام (فارسی)',
+        'english_name' => 'نام (انگلیسی)',
+        'description' => 'توضیحات',
+        'parent' => 'دسته‌بندی مادر',
+        'level' => 'سطح',
+        'active' => 'فعال',
+        'inactive' => 'غیر فعال',
+        'creator' => 'ایجاد شده توسط',
+        'updater' => 'آخرین به‌روزرسانی توسط',
+        'created_at' => 'تاریخ ایجاد',
+        'updated_at' => 'آخرین به‌روزرسانی',
+        'deleted_at' => 'تاریخ حذف',
+    ],
+    'filters' => [
+        'level' => 'سطح دسته‌بندی',
+        'level_placeholder' => 'سطح را انتخاب کنید...',
+        'ancestors'   => 'دسته‌بندی‌های سطح بالاتر',
+        'descendants' => 'دسته‌بندی‌های سطح پایین‌تر',
+    ],
+];

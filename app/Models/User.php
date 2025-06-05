@@ -2,47 +2,57 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Traits\User\DashboardAccess;
+use App\Models\Traits\User\IpLookup;
+use App\Models\Traits\User\Relationships;
+use App\Models\Traits\User\Setting;
+use App\Models\Traits\User\UserImage;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
+use Filament\Panel\Concerns\HasAvatars;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser, HasAvatar, CanResetPassword
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes, HasAvatars, UserImage,
+        DashboardAccess, Relationships, IpLookup, Setting;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
+        'phone',
         'email',
         'password',
+        'last_log_in',
+        'last_log_out',
+        'department_id',
+        'position',
+        'role',
+        'image',
+        'status',
+        'ip',
+        'company',
+        'settings',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
+        'deleted_at',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_log_in' => 'datetime',
+            'last_log_out' => 'datetime',
+            'settings' => 'json',
+            'deleted_at' => 'datetime',
         ];
     }
 }

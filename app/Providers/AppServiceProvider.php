@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Configurators\FilamentAssets;
+use App\Configurators\LanguageSwitcher;
+use App\Models\Category;
+use App\Observers\CategoryObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +15,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
     }
 
     /**
@@ -19,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        LanguageSwitcher::configure();
+        FilamentAssets::register();
+        Category::observe(CategoryObserver::class);
     }
 }

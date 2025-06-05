@@ -1,0 +1,23 @@
+@font-face {
+    font-family: 'Roboto';
+    src: url('/resources/fonts/Roboto.woff2') format('woff2'),
+    url('/resources/fonts/Roboto.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'IranYekan';
+    src: url('/resources/fonts/Iranyekan.woff') format('woff'),
+    url('/resources/fonts/Iranyekan.ttf') format('ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+html[lang="en"] body, .fi-body {
+    font-family: 'IranYekan', sans-serif !important;
+}
