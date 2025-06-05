@@ -47,5 +47,5 @@ Thumbs.db
 storage/*.key
 /.vagrant
 temp/
-/tests/
+/tests
 auth.json
