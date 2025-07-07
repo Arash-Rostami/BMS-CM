@@ -15,8 +15,7 @@ trait Form
             ->label(__('resources/category/strings.form.name'))
             ->required()
             ->maxLength(255)
-            ->maxLength(255)
-            ->rule('regex:/^[\x{0600}-\x{06FF}\s]+$/u')
+            ->rule(['string', 'max:255'])
             ->unique(column: 'name', ignoreRecord: true)
             ->placeholder(__('resources/category/strings.form.validation_name'))
             ->validationMessages([
@@ -32,7 +31,7 @@ trait Form
             ->label(__('resources/category/strings.form.english_name'))
             ->required()
             ->maxLength(255)
-            ->rule('regex:/^[A-Za-z\s]+$/')
+            ->rule(['string', 'max:255'])
             ->unique(column: 'english_name', ignoreRecord: true)
             ->placeholder(__('resources/category/strings.form.validation_english_name'))
             ->validationMessages([

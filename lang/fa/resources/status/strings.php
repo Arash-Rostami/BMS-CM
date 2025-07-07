@@ -8,7 +8,9 @@ return [
     ],
     'form' => [
         'type' => 'نوع',
+        'custom' => 'سایر ...',
         'english_type' => 'نوع (انگلیسی)',
+        'english_custom' => 'Other',
         'name' => 'نام (فارسی)',
         'english_name' => 'نام (انگلیسی)',
         'creator' => 'ایجاد شده توسط',

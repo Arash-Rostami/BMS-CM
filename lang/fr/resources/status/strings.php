@@ -8,7 +8,9 @@ return [
     ],
     'form' => [
         'type' => 'Type (Persan)',
+        'custom' => 'Autre...',
         'english_type' => 'Type (Anglais)',
+        'english_custom' => 'Autre...',
         'name' => 'Nom (Persan)',
         'english_name' => 'Nom (Anglais)',
         'creator' => 'Créé par',

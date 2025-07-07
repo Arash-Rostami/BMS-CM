@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\Master\StatusResource\Traits;
 
-use Filament\Tables\Filters\TrashedFilter;
+use App\Models\Status;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 
 trait Filters
 {
@@ -28,5 +29,21 @@ trait Filters
             ->relationship('updater', 'name')
             ->searchable()
             ->preload();
+    }
+
+    public static function getTypeFilter(): SelectFilter
+    {
+        $column = app()->getLocale() === 'fa' ? 'type' : 'english_type';
+
+        return SelectFilter::make($column)
+            ->label(__('resources/status/strings.table.' . $column))
+            ->multiple()
+            ->searchable()
+            ->options(fn(): array => Status::query()
+                ->distinct($column)
+                ->orderBy($column)
+                ->pluck($column, $column)
+                ->toArray()
+            );
     }
 }

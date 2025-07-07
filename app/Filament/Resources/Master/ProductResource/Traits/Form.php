@@ -24,11 +24,10 @@ trait Form
             ->required(fn(Get $get) => $get('use_custom_name') === true)
             ->visible(fn($get) => $get('use_custom_name'))
             ->maxLength(255)
-            ->rule('regex:/^[\x{0600}-\x{06FF}\s]+$/u')
+            ->rule(['string', 'max:255'])
             ->unique(table: 'products', column: 'name', ignoreRecord: true)
             ->placeholder(__('resources/product/strings.form.validation_name_placeholder'))
             ->validationMessages([
-                'regex' => __('resources/product/strings.form.validation_name'),
                 'unique' => __('resources/product/strings.form.validation_name_unique'),
                 'required' => __('resources/product/strings.form.validation_name_required')
             ])
@@ -43,11 +42,10 @@ trait Form
             ->required(fn(Get $get) => $get('use_custom_name') === true)
             ->visible(fn($get) => $get('use_custom_name'))
             ->maxLength(255)
-            ->rule('regex:/^[A-Za-z0-9\s-]+$/')
+            ->rule(['string', 'max:255'])
             ->unique(table: 'products', column: 'english_name', ignoreRecord: true)
             ->placeholder(__('resources/product/strings.form.validation_english_name_placeholder'))
             ->validationMessages([
-                'regex' => __('resources/product/strings.form.validation_english_name'),
                 'unique' => __('resources/product/strings.form.validation_english_name_unique'),
                 'required' => __('resources/product/strings.form.validation_english_name_required')
             ])

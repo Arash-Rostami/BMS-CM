@@ -3,19 +3,19 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\Master\StatusResource\Exports\StatusExporter;
-use App\Filament\Resources\Master\StatusResource\Traits\Form as StatusForm;
-use App\Filament\Resources\Master\StatusResource\Traits\Table as StatusTable;
-use App\Filament\Resources\Master\StatusResource\Traits\InfoList as StatusInfolist;
 use App\Filament\Resources\Master\StatusResource\Traits\Filters as StatusFilters;
+use App\Filament\Resources\Master\StatusResource\Traits\Form as StatusForm;
+use App\Filament\Resources\Master\StatusResource\Traits\InfoList as StatusInfolist;
+use App\Filament\Resources\Master\StatusResource\Traits\Table as StatusTable;
 use App\Models\Status;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
-use Filament\Infolists\Infolist;
-use Filament\Infolists\Components;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -34,7 +34,11 @@ class StatusResource extends Resource
                 Forms\Components\Section::make()
                     ->schema([
                         static::getType(),
+                        static::getCustomType(),
+                        static::getTypeCustomField(),
                         static::getEnglishType(),
+                        static::getCustomEnglishType(),
+                        static::getEnglishTypeCustomField(),
                         static::getName(),
                         static::getEnglishName(),
                     ])->columns(2),
@@ -45,16 +49,17 @@ class StatusResource extends Resource
     {
         return $table
             ->columns([
-                static::showName(),
-                static::showEnglishName(),
                 static::showType(),
                 static::showEnglishType(),
+                static::showName(),
+                static::showEnglishName(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
             ])
             ->filters([
+                static::getTypeFilter(),
                 static::getThrashedFilter(),
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
