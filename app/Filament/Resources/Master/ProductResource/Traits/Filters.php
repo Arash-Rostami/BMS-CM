@@ -71,4 +71,12 @@ trait Filters
             ->searchable()
             ->preload();
     }
+
+    public static function getActiveFilter(): TernaryFilter
+    {
+        return TernaryFilter::make('is_active')
+            ->label(__('resources/product/strings.table.is_active'))
+            ->trueLabel(__('resources/product/strings.table.only_active'))
+            ->falseLabel(__('resources/product/strings.table.only_inactive'));
+    }
 }

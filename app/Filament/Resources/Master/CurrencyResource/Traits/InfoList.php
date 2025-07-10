@@ -25,6 +25,14 @@ trait Infolist
             ->label(__('resources/currency/strings.form.description'));
     }
 
+    public static function viewIsActive(): TextEntry
+    {
+        return Components\TextEntry::make('is_active')
+            ->label(__('resources/currency/strings.form.is_active'))
+            ->formatStateUsing(fn(bool $state): string => $state ? '✅' : '❌')
+            ->color(fn(bool $state): string => $state ? 'success' : 'danger');
+    }
+
     public static function viewCreator(): TextEntry
     {
         return Components\TextEntry::make('creator.name')

@@ -22,6 +22,7 @@ class BankExporter extends Exporter
             ExportColumn::make('name'),
             ExportColumn::make('english_name'),
             ExportColumn::make('description'),
+            ExportColumn::make('is_active')->label('Active'),
             ExportColumn::make('creator.name'),
             ExportColumn::make('updater.name'),
             ExportColumn::make('created_at'),

@@ -4,6 +4,7 @@ namespace App\Models\Traits\Category;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Specification;
 use App\Models\Target;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -58,6 +59,11 @@ trait Relationships
             'category_id',
             'id'
         );
+    }
+
+    public function specifications()
+    {
+        return $this->morphMany(Specification::class, 'specifiable');
     }
 
     public function targets()

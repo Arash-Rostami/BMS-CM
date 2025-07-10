@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Master\BankResource\Traits;
 
-use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components;
+use Filament\Infolists\Components\TextEntry;
 
 
 trait InfoList
@@ -24,6 +24,14 @@ trait InfoList
     {
         return Components\TextEntry::make('description')
             ->label(__('resources/bank/strings.form.description'));
+    }
+
+    public static function viewIsActive(): TextEntry
+    {
+        return Components\TextEntry::make('is_active')
+            ->label(__('resources/bank/strings.form.is_active'))
+            ->formatStateUsing(fn(bool $state): string => $state ? '✅' : '❌')
+            ->color(fn(bool $state): string => $state ? 'success' : 'danger');
     }
 
     public static function viewCreator(): TextEntry

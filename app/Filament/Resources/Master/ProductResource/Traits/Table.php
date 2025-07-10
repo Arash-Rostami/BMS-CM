@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Master\ProductResource\Traits;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
 use App\Filament\Resources\Master\ProductResource\Enums\InStockStatus;
+use Filament\Tables\Columns\ToggleColumn;
 
 trait Table
 {
@@ -67,6 +68,32 @@ trait Table
             ->toggleable(isToggledHiddenByDefault: true)
             ->icon(fn(bool $state): string => InStockStatus::tryFrom((int)$state)?->getIcon() ?? 'heroicon-o-question-mark-circle')
             ->color(fn(bool $state): string => InStockStatus::tryFrom((int)$state)?->getColor() ?? 'gray');
+    }
+
+    public static function showIsActive(): ToggleColumn
+    {
+        return ToggleColumn::make('is_active')
+            ->label(__('resources/product/strings.table.is_active'))
+            ->onIcon('heroicon-o-check-circle')
+            ->offIcon('heroicon-o-x-circle')
+            ->onColor('success')
+            ->offColor('danger')
+            ->toggleable(isToggledHiddenByDefault: true)
+            ->sortable();
+    }
+
+    public static function showRollSheetType(): TextColumn
+    {
+        return TextColumn::make('roll_sheet_type')
+            ->label(__('resources/product/strings.table.roll_sheet_type'))
+            ->getStateUsing(fn($record) => $record->determineRollOrSheetType())
+            ->badge()
+            ->color(fn($state) => match ($state) {
+                'Roll' => 'success',
+                'Sheet' => 'info',
+                default => 'gray',
+            })
+            ->toggleable(isToggledHiddenByDefault: true);
     }
 
     public static function showCreator(): TextColumn

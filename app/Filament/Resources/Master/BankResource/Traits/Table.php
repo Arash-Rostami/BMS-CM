@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Master\BankResource\Traits;
 
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 
 trait Table
 {
@@ -68,5 +69,17 @@ trait Table
             ->dateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function showIsActive(): ToggleColumn
+    {
+        return ToggleColumn::make('is_active')
+            ->label(__('resources/bank/strings.table.is_active'))
+            ->onIcon('heroicon-o-check-circle')
+            ->offIcon('heroicon-o-x-circle')
+            ->onColor('success')
+            ->offColor('danger')
+            ->toggleable()
+            ->sortable();
     }
 }

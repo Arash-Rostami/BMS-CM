@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\Master\CurrencyResource\Traits;
 
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 
 trait Form
 {
@@ -13,7 +14,7 @@ trait Form
             ->label(__('resources/currency/strings.form.name'))
             ->required()
             ->maxLength(255)
-            ->rule('regex:/^[\x{0600}-\x{06FF}\s]+$/u')
+            ->rule('regex:/^[\x{0600}-\x{06FF}\s\p{P}\d\*]+$/u')
             ->unique(column: 'name', ignoreRecord: true)
             ->placeholder(__('resources/currency/strings.form.validation_name'))
             ->validationMessages([
@@ -29,7 +30,7 @@ trait Form
             ->label(__('resources/currency/strings.form.english_name'))
             ->required()
             ->maxLength(255)
-            ->rule('regex:/^[A-Za-z\s]+$/')
+            ->rule('regex:/^[A-Za-z\s\p{P}\d\*]+$/')
             ->unique(column: 'english_name', ignoreRecord: true)
             ->placeholder(__('resources/currency/strings.form.validation_english_name'))
             ->validationMessages([
@@ -44,6 +45,20 @@ trait Form
         return Textarea::make('description')
             ->label(__('resources/currency/strings.form.description'))
             ->maxLength(65535)
+            ->columnSpanFull()
             ->nullable();
+    }
+
+    public static function getIsActive(): Toggle
+    {
+        return Toggle::make('is_active')
+            ->label(__('resources/currency/strings.form.is_active'))
+            ->default(true)
+            ->inline(false)
+            ->onIcon('heroicon-s-check-circle')
+            ->offIcon('heroicon-s-x-circle')
+            ->onColor('success')
+            ->offColor('danger')
+            ->helperText(__('resources/currency/strings.form.helper_is_active'));
     }
 }

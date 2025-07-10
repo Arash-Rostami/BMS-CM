@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('code')->unique()->comment('Unique product code');
 
             $table->boolean('in_stock')->default(true);
+            $table->boolean('is_active')->default(true)->comment('true = active, false = inactive');
+
 
             $table->foreignId('user_id')->nullable();
             $table->foreignId('updated_by_id')->nullable();

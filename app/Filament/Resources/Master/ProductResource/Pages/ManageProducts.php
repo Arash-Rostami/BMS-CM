@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Master\ProductResource\Pages;
 use App\Filament\Resources\ProductResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
-use Illuminate\Support\Str;
 
 class ManageProducts extends ManageRecords
 {

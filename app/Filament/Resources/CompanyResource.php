@@ -38,6 +38,7 @@ class CompanyResource extends Resource
                         static::getName(),
                         static::getEnglishName(),
                         static::getDescription(),
+                        static::getIsActive(),
                     ])->columns(2),
             ]);
     }
@@ -49,12 +50,14 @@ class CompanyResource extends Resource
                 static::showName(),
                 static::showEnglishName(),
                 static::showDescription(),
+                static::showIsActive(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
             ])
             ->filters([
+                static::getActiveFilter(),
                 static::getThrashedFilter(),
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
@@ -89,6 +92,7 @@ class CompanyResource extends Resource
                         static::viewName(),
                         static::viewEnglishName(),
                         static::viewDescription(),
+                        static::viewIsActive(),
                         static::viewCreator(),
                         static::viewUpdater(),
                         static::viewCreatedAt(),
@@ -129,7 +133,7 @@ class CompanyResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::count();
+        return static::getModel()::active()->count();
     }
 
     public static function getNavigationBadgeColor(): ?string

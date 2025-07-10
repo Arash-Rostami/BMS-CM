@@ -17,10 +17,10 @@ class Status extends Model
 
     protected $fillable = [
         'type',
+        'english_type',
         'name',
         'english_name',
         'user_id',
         'updated_by_id',
     ];
-
 }

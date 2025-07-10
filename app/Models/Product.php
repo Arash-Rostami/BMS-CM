@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\General\HasScope;
 use App\Models\Traits\General\HasSlug;
 use App\Models\Traits\General\Localization;
 use App\Models\Traits\General\Relationships;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, HasSlug,
+    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, HasSlug, HasScope,
         UserStamps, Localization, ValueTypeEstimator, RollSheetEstimator, CustomizedLabel;
 
     protected $table = 'products';
@@ -28,6 +29,7 @@ class Product extends Model
         'description',
         'code',
         'in_stock',
+        'is_active',
         'user_id',
         'updated_by_id',
         'category_id',
@@ -36,6 +38,7 @@ class Product extends Model
 
     protected $casts = [
         'in_stock' => 'boolean',
+        'is_active' => 'boolean',
         'attributes' => 'array',
     ];
 }

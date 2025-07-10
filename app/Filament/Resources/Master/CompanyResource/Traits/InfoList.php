@@ -25,6 +25,13 @@ trait Infolist
         return Components\TextEntry::make('description')
             ->label(__('resources/company/strings.form.description'));
     }
+    public static function viewIsActive(): TextEntry
+    {
+        return Components\TextEntry::make('is_active')
+            ->label(__('resources/company/strings.form.is_active'))
+            ->formatStateUsing(fn(bool $state): string => $state ? '✅' : '❌')
+            ->color(fn(bool $state): string => $state ? 'success' : 'danger');
+    }
 
     public static function viewCreator(): TextEntry
     {

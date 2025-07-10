@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name')->comment('Name of the currency');
             $table->string('english_name')->comment('Name of the currency in English');
             $table->text('description')->nullable()->comment('Description of the currency');
+            $table->boolean('is_active')->default(true)->comment('true = active, false = inactive');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('updated_by_id')->nullable();
             $table->softDeletes();

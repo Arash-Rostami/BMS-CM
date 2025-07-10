@@ -4,14 +4,16 @@
 namespace App\Filament\Resources\Master\ProductResource\Traits;
 
 use App\Models\Product;
-
-use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 
 
@@ -102,6 +104,18 @@ trait Form
             ->default(true);
     }
 
+    public static function getIsActive(): Toggle
+    {
+        return Toggle::make('is_active')
+            ->label(__('resources/product/strings.form.is_active'))
+            ->default(true)
+            ->inline(true)
+            ->onIcon('heroicon-s-check-circle')
+            ->offIcon('heroicon-s-x-circle')
+            ->onColor('success')
+            ->offColor('danger');
+    }
+
 
     public static function getAttributesJsonField(): TagsInput
     {
@@ -126,5 +140,100 @@ trait Form
                     $component->state(true);
                 }
             });
+    }
+
+    public static function doubleCheckCode(): TextInput
+    {
+        return TextInput::make('code')
+            ->label(__('resources/product/strings.form.code'))
+            ->required()
+            ->live()
+            ->afterStateUpdated(function ($state, Get $get, Set $set) {
+                if ($get('action') !== 'check') {
+                    $set('check_result', null);
+                    return;
+                }
+
+                if (empty($state)) {
+                    $set('check_result', null);
+                    return;
+                }
+
+                $set('check_result', Product::where('code', $state)->exists() ? '✅' : '❌');
+            });
+    }
+
+    public static function enquiryResponse(): Placeholder
+    {
+        return Placeholder::make('check_result')
+            ->label(__('resources/product/strings.form.check_result'))
+            ->content(fn(Get $get) => $get('check_result'))
+            ->visible(fn(Get $get) => $get('action') === 'check' && $get('check_result') !== null);
+    }
+
+
+    //SPECIFICATIONS
+
+    public static function getHsCode(): TextInput
+    {
+        return TextInput::make('hs_code')
+            ->label(__('resources/product/strings.form.hs_code'))
+            ->columnSpan(1);
+    }
+
+    public static function getImportDuty(): TextInput
+    {
+        return TextInput::make('import_duty')
+            ->label(__('resources/product/strings.form.import_duty'))
+            ->columnSpan(1);
+    }
+
+    public static function getPackagingType(): TextInput
+    {
+        return TextInput::make('packing_type')
+            ->label(__('resources/product/strings.form.packing_type'))
+            ->placeholder(__('resources/product/strings.form.packing_type_placeholder'))
+            ->columnSpan(1);
+    }
+
+    public static function getVAT(): Toggle
+    {
+        return Toggle::make('vat_exempt')
+            ->label(__('resources/product/strings.form.vat_exempt'))
+            ->columnSpan(1);
+    }
+
+    public static function getTaxId(): TextInput
+    {
+        return TextInput::make('tax_id')
+            ->label(__('resources/product/strings.form.tax_id'))
+            ->columnSpan(1);
+    }
+
+    public static function getManufacturer(): TextInput
+    {
+        return TextInput::make('manufacturer')
+            ->label(__('resources/product/strings.form.manufacturer'))
+            ->columnSpan(1);
+    }
+
+    public static function getImportLicense(): Select
+    {
+        return Select::make('import_licenses')
+            ->label(__('resources/product/strings.form.import_licenses'))
+            ->multiple()
+            ->searchable()
+            ->options(Lang::get('resources/product/strings.form.licenses'))
+            ->columnSpan(2);
+    }
+
+    public static function getExtra(): KeyValue
+    {
+        return KeyValue::make('extra')
+            ->label(__('resources/product/strings.form.extra'))
+            ->keyLabel(__('resources/product/strings.form.key_label'))
+            ->valueLabel(__('resources/product/strings.form.value_label'))
+            ->addActionLabel(__('resources/product/strings.form.add_spec_button'))
+            ->columnSpan(2);
     }
 }
