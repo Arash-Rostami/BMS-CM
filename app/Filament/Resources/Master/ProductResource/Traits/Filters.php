@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\Master\ProductResource\Traits;
 
+use App\Models\Category;
+use App\Models\Product;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\Category;
 
 
 trait Filters
@@ -78,5 +79,19 @@ trait Filters
             ->label(__('resources/product/strings.table.is_active'))
             ->trueLabel(__('resources/product/strings.table.only_active'))
             ->falseLabel(__('resources/product/strings.table.only_inactive'));
+    }
+
+    public static function getRollSheetFilter(): SelectFilter
+    {
+        return SelectFilter::make('roll_sheet_type')
+            ->label(__('resources/product/strings.table.roll_sheet_type'))
+            ->options(['Roll' => 'Roll', 'Sheet' => 'Sheet'])
+            ->query(function (Builder $query, array $data): Builder {
+                return Product::applyRollSheetSearch(
+                    $query,
+                    null,
+                    $data['value'] ?? null
+                );
+            });
     }
 }

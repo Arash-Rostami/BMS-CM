@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Master\ProductResource\Traits;
 
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\IconColumn;
 use App\Filament\Resources\Master\ProductResource\Enums\InStockStatus;
+use App\Models\Product;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Illuminate\Database\Eloquent\Builder;
+
 
 trait Table
 {
@@ -93,6 +96,7 @@ trait Table
                 'Sheet' => 'info',
                 default => 'gray',
             })
+            ->searchable(query: fn(Builder $query, string $search) => Product::applyRollSheetSearch($query, $search))
             ->toggleable(isToggledHiddenByDefault: true);
     }
 

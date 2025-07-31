@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\Master\CompanyResource\Exports\CompanyExporter;
 use App\Filament\Resources\Master\CompanyResource\Traits\Form as CompanyForm;
 use App\Filament\Resources\Master\CompanyResource\Traits\Table as CompanyTable;
-use App\Filament\Resources\Master\CompanyResource\Traits\InfoList as CompanyInfolist;
+use App\Filament\Resources\Master\CompanyResource\Traits\Infolist as CompanyInfolist;
 use App\Filament\Resources\Master\CompanyResource\Traits\Filters as CompanyFilters;
 use App\Models\Company;
 use Filament\Forms;
@@ -26,6 +26,8 @@ class CompanyResource extends Resource
 
     protected static ?string $model = Company::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
+
+    protected static ?int $navigationSort = 3;
 
 
 

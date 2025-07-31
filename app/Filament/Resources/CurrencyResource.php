@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\Master\CurrencyResource\Exports\CurrencyExporter;
 use App\Filament\Resources\Master\CurrencyResource\Traits\Form as CurrencyForm;
 use App\Filament\Resources\Master\CurrencyResource\Traits\Table as CurrencyTable;
-use App\Filament\Resources\Master\CurrencyResource\Traits\InfoList as CurrencyInfolist;
+use App\Filament\Resources\Master\CurrencyResource\Traits\Infolist as CurrencyInfolist;
 use App\Filament\Resources\Master\CurrencyResource\Traits\Filters as CurrencyFilters;
 use App\Models\Currency;
 use Filament\Forms;
@@ -26,6 +26,8 @@ class CurrencyResource extends Resource
 
     protected static ?string $model = Currency::class;
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
+
+    protected static ?int $navigationSort = 5;
 
 
     public static function form(Form $form): Form

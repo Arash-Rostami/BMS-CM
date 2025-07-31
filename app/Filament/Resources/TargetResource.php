@@ -7,7 +7,7 @@ use App\Filament\Resources\Operational\TargetResource\Enums\Status;
 use App\Filament\Resources\Operational\TargetResource\Pages\ManageTargets;
 use App\Filament\Resources\Operational\TargetResource\Traits\Form as TargetForm;
 use App\Filament\Resources\Operational\TargetResource\Traits\Table as TargetTable;
-use App\Filament\Resources\Operational\TargetResource\Traits\InfoList as TargetInfolist;
+use App\Filament\Resources\Operational\TargetResource\Traits\Infolist as TargetInfolist;
 use App\Filament\Resources\Operational\TargetResource\Traits\Filters as TargetFilters;
 use Filament\Tables\Actions\ActionGroup;
 use App\Models\Target;
@@ -30,6 +30,9 @@ class TargetResource extends Resource
     protected static ?string $model = Target::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-cube';
+
+    protected static ?int $navigationSort = 1;
+
 
     public static function form(Form $form): Form
     {

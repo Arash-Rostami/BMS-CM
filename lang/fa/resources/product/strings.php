@@ -35,6 +35,7 @@ return [
         'validation_code_required' => 'این کد باید وارد شود.',
         'validation_code_placeholder' => 'کد محصول را وارد کنید',
         'classify_by_name' => 'فعال‌سازی نام‌گذاری سفارشی',
+        'validation_required' => 'پر کردن این فیلد الزامی است.',
         // 'Specifications' section and its fields
         'tab2'    => 'مشخصات',
         'specifications' => 'مشخصات',
