@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('invoice_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('proforma_invoice_id')->constrained('proforma_invoices')->onDelete('cascade');
+            $table->foreignId('product_id')->constrained('products');
+            $table->string('description')->nullable()->comment('Item description in local language');
+            $table->string('english_description')->nullable()->comment('Item description in English');
+            $table->string('origin')->nullable()->comment('Country of origin (ISO code)');
+            $table->string('hs_code')->nullable()->comment('Harmonized System code for customs');
+            $table->unsignedInteger('quantity')->nullable()->comment('Number of units');
+            $table->decimal('net_weight', 10, 3)->nullable()->comment('Weight per unit (kg), net');
+            $table->decimal('gross_weight', 10, 3)->nullable()->comment('Weight per unit (kg), gross');
+            $table->decimal('unit_price', 15, 2)->nullable()->comment('Price per unit in invoice currency');
+            $table->decimal('total_amount', 15, 2)->nullable()->comment('quantity × unit_price');
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('invoice_items');
+    }
+};

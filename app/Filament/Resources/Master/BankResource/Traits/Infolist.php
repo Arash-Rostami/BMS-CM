@@ -6,7 +6,7 @@ use Filament\Infolists\Components;
 use Filament\Infolists\Components\TextEntry;
 
 
-trait InfoList
+trait Infolist
 {
     public static function viewName(): TextEntry
     {

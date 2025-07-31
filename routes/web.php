@@ -1,9 +1,10 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/', fn () => redirect()->to('dashboard'));
+Route::get('/', fn() => redirect()->to('dashboard'));
 
 
 Route::get('/clear', function () {
@@ -22,5 +23,9 @@ Route::get('/clear', function () {
 
     return "All caches have been cleared and storage symlink created successfully!";
 });
+
+
+Route::get('/attachments/{attachment}/download', [AttachmentController::class, 'download'])
+    ->name('attachments.download');
 
 Route::fallback(fn() => view('errors.404'));

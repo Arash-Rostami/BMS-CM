@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Company\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\HasScope;
 use App\Models\Traits\General\Localization;
 use App\Models\Traits\General\Relationships;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Company extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, UserStamps, Localization, HasScope;
+    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, UserStamps, Localization, HasScope;
 
     protected $fillable = [
         'name',
@@ -21,7 +22,6 @@ class Company extends Model
         'user_id',
         'updated_by_id',
     ];
-
 
     protected $casts = [
         'deleted_at' => 'datetime',

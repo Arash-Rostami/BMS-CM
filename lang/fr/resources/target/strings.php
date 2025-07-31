@@ -65,7 +65,6 @@ return [
         'achieved' => 'Atteint',
     ],
     'metrics' => [
-        't'     => 'Tonne',
         'mt'    => 'Tonne métrique',
         'kg'    => 'Kilogramme',
         'lb'    => 'Livre',

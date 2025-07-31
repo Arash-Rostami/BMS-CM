@@ -35,6 +35,7 @@ return [
         'validation_code_required' => 'Ce code est requis.',
         'validation_code_placeholder' => 'Entrez le code produit',
         'classify_by_name' => 'Activer la nomination personnalisée',
+        'validation_required' => 'Ce code est requis.',
         // 'Specifications' section and its fields
         'tab2' => 'Spécifications',
         'specifications' => 'Spécifications',

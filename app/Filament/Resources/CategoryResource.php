@@ -6,7 +6,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\Master\CategoryResource\Exports\CategoryExporter;
 use App\Filament\Resources\Master\CategoryResource\Traits\Form as CategoryForm;
 use App\Filament\Resources\Master\CategoryResource\Traits\Table as CategoryTable;
-use App\Filament\Resources\Master\CategoryResource\Traits\InfoList as CategoryInfolist;
+use App\Filament\Resources\Master\CategoryResource\Traits\Infolist as CategoryInfolist;
 use App\Filament\Resources\Master\CategoryResource\Traits\Filters as CategoryFilters;
 use Filament\Tables\Actions\ActionGroup;
 use App\Filament\Resources\Master\CategoryResource\RelationManagers;
@@ -27,6 +27,7 @@ class CategoryResource extends Resource
 
     protected static ?string $model = Category::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

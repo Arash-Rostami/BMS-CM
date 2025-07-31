@@ -94,6 +94,7 @@ trait CategoryDrilldown
             ->options(fn($get) => // If level 0, show top‑level (parent_id = 0), else children of selected parent
                 $options[$get("categories." . ($level - 1)) ?? 0] ?? []
             )
+            ->required()
             ->visible(fn($get) =>
                 // Always show level 0; for others only if parent has children
                 $level === 0
@@ -109,6 +110,10 @@ trait CategoryDrilldown
                 if (empty($options[$state] ?? [])) {
                     $set('chain_complete', true);
                 }
-            });
+            })
+            ->validationMessages([
+                'required' => __('resources/product/strings.form.validation_required')
+            ])
+            ->validationAttribute(__('resources/product/strings.form.category'));
     }
 }

@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\Master\UserResource\Exports\UserExporter;
 use App\Filament\Resources\Master\UserResource\Traits\Form as UserForm;
 use App\Filament\Resources\Master\UserResource\Traits\Table as TableTrait;
-use App\Filament\Resources\Master\UserResource\Traits\InfoList as UserInfolist;
+use App\Filament\Resources\Master\UserResource\Traits\Infolist as UserInfolist;
 use App\Filament\Resources\Master\UserResource\Traits\Filters;
 use App\Models\User;
 use Filament\Forms;
@@ -27,6 +27,7 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
+    protected static ?int $navigationSort = 7;
 
     public static function form(Form $form): Form
     {

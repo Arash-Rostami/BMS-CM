@@ -61,6 +61,7 @@ trait Form
         return DatePicker::make('start_from')
             ->label(__('resources/target/strings.form.start_from'))
             ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
+            ->native(false)
             ->required()
             ->validationMessages([
                 'required' => __('resources/target/strings.form.validation_required'),
@@ -72,6 +73,7 @@ trait Form
         return DatePicker::make('end_in')
             ->label(__('resources/target/strings.form.end_in'))
             ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
+            ->native(false)
             ->required()
             ->after('start_from')
             ->validationMessages([

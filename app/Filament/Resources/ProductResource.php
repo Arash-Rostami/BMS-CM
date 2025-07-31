@@ -7,7 +7,7 @@ use App\Filament\Resources\Master\ProductResource\Pages\ManageProducts;
 use App\Filament\Resources\Master\ProductResource\Traits\CategoryDrilldown;
 use App\Filament\Resources\Master\ProductResource\Traits\Filters as ProductFilters;
 use App\Filament\Resources\Master\ProductResource\Traits\Form as ProductForm;
-use App\Filament\Resources\Master\ProductResource\Traits\InfoList as ProductInfolist;
+use App\Filament\Resources\Master\ProductResource\Traits\Infolist as ProductInfolist;
 use App\Filament\Resources\Master\ProductResource\Traits\Table as ProductTable;
 use App\Models\Product;
 use Filament\Forms\Components\Group;
@@ -38,6 +38,9 @@ class ProductResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
+    protected static ?int $navigationSort = 2;
+
+
     public static function form(Form $form): Form
     {
         return $form
@@ -47,6 +50,7 @@ class ProductResource extends Resource
                         'check' => __('resources/product/strings.form.action_check'),
                         'create' => __('resources/product/strings.form.action_create'),
                     ])
+                    ->required()
                     ->reactive()
                     ->visibleOn('create')
                     ->label(__('resources/product/strings.form.choose_action')),
@@ -138,6 +142,7 @@ class ProductResource extends Resource
                 static::getActiveFilter(),
                 static::getCategoryFilter(),
                 static::getInStockFilter(),
+                static::getRollSheetFilter(),
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
                 static::getTrashedFilter(),

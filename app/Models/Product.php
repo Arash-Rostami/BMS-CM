@@ -6,9 +6,10 @@ use App\Models\Traits\General\HasScope;
 use App\Models\Traits\General\HasSlug;
 use App\Models\Traits\General\Localization;
 use App\Models\Traits\General\Relationships;
-use App\Models\Traits\Product\CustomizedLabel;
-use App\Models\Traits\Product\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\UserStamps;
+use App\Models\Traits\Product\CustomizedLabel;
+use App\Models\Traits\Product\HasScope as HasExclusiveScope;
+use App\Models\Traits\Product\Relationships as ExclusiveRelationships;
 use App\Models\Traits\Product\RollSheetEstimator;
 use App\Models\Traits\Product\ValueTypeEstimator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,8 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, HasSlug, HasScope,
-        UserStamps, Localization, ValueTypeEstimator, RollSheetEstimator, CustomizedLabel;
+    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, HasSlug, HasScope, HasExclusiveScope, UserStamps, Localization, ValueTypeEstimator, RollSheetEstimator, CustomizedLabel;
 
     protected $table = 'products';
 

@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\Master\StatusResource\Exports\StatusExporter;
 use App\Filament\Resources\Master\StatusResource\Traits\Filters as StatusFilters;
 use App\Filament\Resources\Master\StatusResource\Traits\Form as StatusForm;
-use App\Filament\Resources\Master\StatusResource\Traits\InfoList as StatusInfolist;
+use App\Filament\Resources\Master\StatusResource\Traits\Infolist as StatusInfolist;
 use App\Filament\Resources\Master\StatusResource\Traits\Table as StatusTable;
 use App\Models\Status;
 use Filament\Forms;
@@ -26,6 +26,8 @@ class StatusResource extends Resource
 
     protected static ?string $model = Status::class;
     protected static ?string $navigationIcon = 'heroicon-o-tag';
+
+    protected static ?int $navigationSort = 6;
 
     public static function form(Form $form): Form
     {

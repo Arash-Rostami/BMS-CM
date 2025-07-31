@@ -1,0 +1,271 @@
+<?php
+
+namespace App\Filament\Resources\Operational\ProformaInvoiceResource\Traits;
+
+use App\Services\Country;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\TextEntry;
+use Illuminate\Support\Facades\Storage;
+
+trait Infolist
+{
+    // Main Invoice Details
+    public static function viewInvoiceNo(): TextEntry
+    {
+        return TextEntry::make('invoice_no')
+            ->label(__('resources/proformaInvoice/strings.form.invoice_no'));
+    }
+
+    public static function viewSellerCompany(): TextEntry
+    {
+        return TextEntry::make('sellerCompany.name')
+            ->label(__('resources/proformaInvoice/strings.form.seller_company'));
+    }
+
+    public static function viewConsigneeCompany(): TextEntry
+    {
+        return TextEntry::make('consigneeCompany.name')
+            ->label(__('resources/proformaInvoice/strings.form.consignee_company'));
+    }
+
+    public static function viewInvoiceDate(): TextEntry
+    {
+        return TextEntry::make('invoice_date')
+            ->label(__('resources/proformaInvoice/strings.form.invoice_date'))
+            ->formatStateUsing(fn($state) => toPersianDate($state));
+    }
+
+    public static function viewValidityDate(): TextEntry
+    {
+        return TextEntry::make('validity_date')
+            ->label(__('resources/proformaInvoice/strings.form.validity_date'))
+            ->formatStateUsing(fn($state) => toPersianDate($state));
+    }
+
+    public static function viewMainCurrency(): TextEntry
+    {
+        return TextEntry::make('mainCurrency.name')
+            ->label(__('resources/proformaInvoice/strings.form.main_currency'));
+    }
+
+    public static function viewSecondaryCurrency(): TextEntry
+    {
+        return TextEntry::make('secondaryCurrency.name')
+            ->label(__('resources/proformaInvoice/strings.form.secondary_currency'));
+    }
+
+    public static function viewContractNo(): TextEntry
+    {
+        return TextEntry::make('contract_no')
+            ->label(__('resources/proformaInvoice/strings.form.contract_no'));
+    }
+
+    public static function viewBuyerCommCardNum(): TextEntry
+    {
+        return TextEntry::make('buyer_comm_card_num')
+            ->label(__('resources/proformaInvoice/strings.form.buyer_comm_card_num'));
+    }
+
+    public static function viewTransportMode(): TextEntry
+    {
+        return TextEntry::make('transport_mode')
+            ->label(__('resources/proformaInvoice/strings.form.transport_mode'))
+            ->formatStateUsing(fn(?string $state): ?string => $state ? __('resources/proformaInvoice/strings.general.transport_modes.' . $state) : null);
+    }
+
+    public static function viewDeliveryTerms(): TextEntry
+    {
+        return TextEntry::make('delivery_terms')
+            ->label(__('resources/proformaInvoice/strings.form.delivery_terms'))
+            ->formatStateUsing(fn(?string $state): ?string => $state ? __('resources/proformaInvoice/strings.general.delivery_terms.' . $state) : null);
+    }
+
+    public static function viewBeneficiaryCountry(): TextEntry
+    {
+        return TextEntry::make('beneficiary_country')
+            ->label(__('resources/proformaInvoice/strings.form.beneficiary_country'))
+            ->formatStateUsing(fn($state) => app(Country::class)->getCountryNameByCode($state) ?? $state);
+    }
+
+    public static function viewOriginCountry(): TextEntry
+    {
+        return TextEntry::make('origin_country')
+            ->label(__('resources/proformaInvoice/strings.form.origin_country'))
+            ->formatStateUsing(fn($state) => app(Country::class)->getCountryNameByCode($state) ?? $state);
+    }
+
+    public static function viewDestinationCountry(): TextEntry
+    {
+        return TextEntry::make('destination_country')
+            ->label(__('resources/proformaInvoice/strings.form.destination_country'))
+            ->formatStateUsing(fn($state) => app(Country::class)->getCountryNameByCode($state) ?? $state);
+    }
+
+    public static function viewPortOfLoading(): TextEntry
+    {
+        return TextEntry::make('port_of_loading')
+            ->label(__('resources/proformaInvoice/strings.form.port_of_loading'));
+    }
+
+    public static function viewPortOfDischarge(): TextEntry
+    {
+        return TextEntry::make('port_of_discharge')
+            ->label(__('resources/proformaInvoice/strings.form.port_of_discharge'));
+    }
+
+    public static function viewAllowTransShipment(): TextEntry
+    {
+        return TextEntry::make('allow_trans_shipment')
+            ->label(__('resources/proformaInvoice/strings.form.allow_trans_shipment'))
+            ->formatStateUsing(fn(bool $state): string => $state ? '✅' : '❌');
+    }
+
+    public static function viewAllowPartialShipment(): TextEntry
+    {
+        return TextEntry::make('allow_partial_shipment')
+            ->label(__('resources/proformaInvoice/strings.form.allow_partial_shipment'))
+            ->formatStateUsing(fn(bool $state): string => $state ? '✅' : '❌');
+    }
+
+    public static function viewDiscount(): TextEntry
+    {
+        return TextEntry::make('discount')
+            ->label(__('resources/proformaInvoice/strings.form.discount'))
+            ->formatStateUsing(fn($state): string => isset($state) ? number_format($state, 2, '.', ',') : '')
+            ->prefix('💰');
+    }
+
+    public static function viewFreightCharges(): TextEntry
+    {
+        return TextEntry::make('freight_charges')
+            ->label(__('resources/proformaInvoice/strings.form.freight_charges'))
+            ->formatStateUsing(fn($state): string => isset($state) ? number_format($state, 2, '.', ',') : '')
+            ->prefix('💰');
+    }
+
+    public static function viewOtherCharges(): TextEntry
+    {
+        return TextEntry::make('other_charges')
+            ->label(__('resources/proformaInvoice/strings.form.other_charges'))
+            ->formatStateUsing(fn($state): string => isset($state) ? number_format($state, 2, '.', ',') : '')
+            ->prefix('💰');
+    }
+
+    public static function viewTotalCfrAmount(): TextEntry
+    {
+        return TextEntry::make('total_cfr_amount')
+            ->label(__('resources/proformaInvoice/strings.form.total_cfr_amount'))
+            ->formatStateUsing(fn($state): string => isset($state) ? number_format($state, 2, '.', ',') : '')
+            ->prefix('💰');
+    }
+
+    public static function viewCreator(): TextEntry
+    {
+        return TextEntry::make('creator.name')
+            ->label(__('resources/proformaInvoice/strings.table.creator'));
+    }
+
+    public static function viewUpdater(): TextEntry
+    {
+        return TextEntry::make('updater.name')
+            ->label(__('resources/proformaInvoice/strings.table.updater'));
+    }
+
+    public static function viewCreatedAt(): TextEntry
+    {
+        return TextEntry::make('created_at')
+            ->label(__('resources/proformaInvoice/strings.table.created_at'))
+            ->dateTime();
+    }
+
+    public static function viewUpdatedAt(): TextEntry
+    {
+        return TextEntry::make('updated_at')
+            ->label(__('resources/proformaInvoice/strings.table.updated_at'))
+            ->dateTime();
+    }
+
+    public static function viewShipmentInfo(): TextEntry
+    {
+        return TextEntry::make('shipment_info')
+            ->label(__('resources/proformaInvoice/strings.form.shipment_info'))
+            ->formatStateUsing(function ($record): string {
+                $info = [];
+                if ($record->transport_mode) {
+                    $info[] = __('resources/proformaInvoice/strings.general.transport_modes.' . $record->transport_mode);
+                }
+                if ($record->delivery_terms) {
+                    $info[] = __('resources/proformaInvoice/strings.general.delivery_terms.' . $record->delivery_terms);
+                }
+                return implode(' | ', $info);
+            });
+    }
+
+    // Purchase Requests List
+    public static function viewPurchaseRequests(): RepeatableEntry
+    {
+        return RepeatableEntry::make('purchaseRequests')
+            ->label(__('resources/proformaInvoice/strings.form.purchase_requests'))
+            ->schema([
+                TextEntry::make('formatted_name')
+                    ->label(__('resources/proformaInvoice/strings.infolist.purchase_request'))
+                    ->columnSpan(4),
+                TextEntry::make('status.name')
+                    ->label(__('resources/proformaInvoice/strings.infolist.status'))
+                    ->badge(),
+            ])->columns(5);
+    }
+
+    // Invoice Items List
+    public static function viewInvoiceItems(): RepeatableEntry
+    {
+        return RepeatableEntry::make('items')
+            ->label(__('resources/proformaInvoice/strings.infolist.invoice_items'))
+            ->schema([
+                TextEntry::make('product.name')
+                    ->label(__('resources/proformaInvoice/strings.form.product'))
+                    ->formatStateUsing(fn($record) => $record->product?->getLocalizedNameAttribute())
+                    ->columnSpan(2),
+                TextEntry::make('quantity')
+                    ->label(__('resources/proformaInvoice/strings.form.quantity')),
+                TextEntry::make('unit_price')
+                    ->label(__('resources/proformaInvoice/strings.form.unit_price'))
+                    ->formatStateUsing(fn($state): string => isset($state) ? number_format($state, 2, '.', ',') : ''),
+                TextEntry::make('total_amount')
+                    ->label(__('resources/proformaInvoice/strings.form.item_total_amount'))
+                    ->formatStateUsing(fn($state): string => isset($state) ? number_format($state, 2, '.', ',') : ''),
+                TextEntry::make('origin')
+                    ->label(__('resources/proformaInvoice/strings.form.origin')),
+                TextEntry::make('hs_code')
+                    ->label(__('resources/proformaInvoice/strings.form.hs_code')),
+                TextEntry::make('net_weight')
+                    ->label(__('resources/proformaInvoice/strings.form.net_weight')),
+                TextEntry::make('gross_weight')
+                    ->label(__('resources/proformaInvoice/strings.form.gross_weight')),
+                TextEntry::make('description')
+                    ->label(__('resources/proformaInvoice/strings.form.item_description'))
+                    ->columnSpanFull()
+                    ->visible(fn($record) => filled($record->description)),
+                TextEntry::make('english_description')
+                    ->label(__('resources/proformaInvoice/strings.form.item_english_description'))
+                    ->columnSpanFull()
+                    ->visible(fn($record) => filled($record->english_description)),
+            ])->columns(5);
+    }
+
+    // Attachments
+    public static function viewAttachments(): RepeatableEntry
+    {
+        return RepeatableEntry::make('attachments')
+            ->label(__('resources/proformaInvoice/strings.form.attachments'))
+            ->schema([
+                TextEntry::make('path')
+                    ->label('')
+                    ->formatStateUsing(fn(string $state): string => basename($state))
+                    ->tooltip(fn($record) => $record->name ?? '')
+                    ->icon('heroicon-o-document-text')
+                    ->url(fn($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
+            ])
+            ->columns(1);
+    }
+}

@@ -97,10 +97,15 @@ trait Form
             ->required()
             ->maxLength(255)
             ->rule('regex:/^[\x{0600}-\x{06FF}\s\p{P}\d\*]+$/u')
-            ->unique(column: 'name', ignoreRecord: true)
+            ->unique(
+                column: 'name',
+                ignoreRecord: true,
+                modifyRuleUsing: fn ($rule, $get) => $rule->where('type', $get('type'))
+            )
             ->placeholder(__('resources/status/strings.form.validation_name'))
             ->validationMessages([
                 'regex' => __('resources/status/strings.form.validation_name'),
+                'unique' => __('resources/status/strings.form.validation_name_unique'),
             ])
             ->validationAttribute(__('resources/status/strings.form.name'));
     }
@@ -112,10 +117,15 @@ trait Form
             ->required()
             ->maxLength(255)
             ->rule('regex:/^[A-Za-z\s\p{P}\d\*]+$/')
-            ->unique(column: 'english_name', ignoreRecord: true)
+            ->unique(
+                column: 'english_name',
+                ignoreRecord: true,
+                modifyRuleUsing: fn($rule, $get) => $rule->where('english_type', $get('english_type'))
+            )
             ->placeholder(__('resources/status/strings.form.validation_english_name'))
             ->validationMessages([
                 'regex' => __('resources/status/strings.form.validation_english_name'),
+                'unique' => __('resources/status/strings.form.validation_english_name_unique'),
             ])
             ->validationAttribute(__('resources/status/strings.form.english_name'));
     }

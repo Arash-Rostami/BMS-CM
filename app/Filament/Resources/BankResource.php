@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\Master\BankResource\Exports\BankExporter;
 use App\Filament\Resources\Master\BankResource\Traits\Form as BankForm;
 use App\Filament\Resources\Master\BankResource\Traits\Table as BankTable;
-use App\Filament\Resources\Master\BankResource\Traits\InfoList as BankInfolist;
+use App\Filament\Resources\Master\BankResource\Traits\Infolist as BankInfolist;
 use App\Filament\Resources\Master\BankResource\Traits\Filters as BankFilters;
 use App\Models\Bank;
 use Filament\Forms;
@@ -26,6 +26,8 @@ class BankResource extends Resource
 
     protected static ?string $model = Bank::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
+
+    protected static ?int $navigationSort = 4;
 
 
     public static function form(Form $form): Form

@@ -35,6 +35,7 @@ return [
         'validation_code_required' => 'This code is required.',
         'validation_code_placeholder' => 'Enter product code',
         'classify_by_name' => 'Enable Custom Naming',
+        'validation_required' => 'This field is required.',
         // 'Specifications' section and its fields
         'tab2' => 'Specifications',
         'specifications' => 'Specifications',
