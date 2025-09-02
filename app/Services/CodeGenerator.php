@@ -3,14 +3,15 @@
 namespace App\Services;
 
 use App\Models\ProformaInvoice;
+use App\Models\PurchaseOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
 class CodeGenerator
 {
     protected static array $map = [
-        'proforma-invoices' =>
-            ['model' => ProformaInvoice::class, 'prefix' => 'PI', 'field' => 'invoice_no'],
+        'purchase-orders' => ['model' => PurchaseOrder::class, 'prefix' => 'PO', 'field' => 'po_number'],
+        'proforma-invoices' => ['model' => ProformaInvoice::class, 'prefix' => 'PI', 'field' => 'invoice_no'],
     ];
 
     public static function generate(): string

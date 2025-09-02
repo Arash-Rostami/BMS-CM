@@ -13,7 +13,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PurchaseRequest extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, UserStamps, HasFormattedName, HasSearchableRelations;
+    use HasFactory,
+        SoftDeletes,
+        Relationships,
+        ExclusiveRelationships,
+        UserStamps,
+        HasFormattedName,
+        HasSearchableRelations;
 
     public const TYPE_PURCHASE_REQUEST = 'Purchase Request Status';
 

@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'Entreprise',
@@ -13,6 +12,12 @@ return [
         'description' => 'Description',
         'is_active' => 'Est actif ?',
         'helper_is_active' => 'Indique le statut actif/inactif de cet enregistrement.',
+        'basic_information' => 'Informations Générales',
+        'company_classification' => 'Classification',
+        'classification_description' => 'Définir les types d\'activités et les rôles de cette entreprise.',
+        'company_types' => 'Types d\'entreprise',
+        'company_types_helper' => 'Sélectionnez un ou plusieurs types qui décrivent cette entreprise.',
+        'company_types_description' => 'Choisissez plusieurs types pour définir le type d\'activité de cette entreprise.',
         'creator' => 'Créé par',
         'updater' => 'Dernière mise à jour par',
         'validation_name' => 'Seuls les caractères persans sont autorisés.',
@@ -27,10 +32,20 @@ return [
         'is_active' => 'Statut',
         'only_active' => 'Seulement actifs',
         'only_inactive' => 'Seulement inactifs',
+        'company_types' => 'Types',
         'creator' => 'Créé par',
         'updater' => 'Dernière mise à jour par',
         'created_at' => 'Date de création',
         'updated_at' => 'Dernière mise à jour',
         'deleted_at' => 'Date de suppression',
+    ],
+
+    'filters' => [
+        'company_types' => 'Types d\'entreprise',
+        'select_types' => 'Sélectionner les types',
+        'all_types' => 'Tous les types',
+        'types_indicator' => 'Types : :types',
+        'yes' => 'Oui',
+        'no' => 'Non',
     ],
 ];

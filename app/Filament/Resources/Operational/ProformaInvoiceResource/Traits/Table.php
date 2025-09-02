@@ -19,13 +19,28 @@ trait Table
     public static function showPurchaseRequests(): TextColumn
     {
         return TextColumn::make('purchaseRequests')
-            ->label(__('resources/proformaInvoice/strings.form.purchase_requests'))
+            ->label(__('resources/proformaInvoice/strings.table.purchase_requests'))
             ->html()
             ->default('-')
             ->getStateUsing(fn($record) => $record->purchaseRequests->pluck('formatted_name_without_date')->implode('<br>'))
             ->searchable(
                 query: fn(Builder $query, string $search) => $query->whereHas(
                     'purchaseRequests',
+                    fn(Builder $q) => $q->searchAll($search)
+                ), isIndividual: true)
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function showPurchaseOrders(): TextColumn
+    {
+        return TextColumn::make('purchaseOrders')
+            ->label(__('resources/proformaInvoice/strings.table.purchase_orders'))
+            ->html()
+            ->default('-')
+            ->getStateUsing(fn($record) => $record->purchaseOrders->pluck('formatted_name_without_date')->implode('<br>'))
+            ->searchable(
+                query: fn(Builder $query, string $search) => $query->whereHas(
+                    'purchaseOrders',
                     fn(Builder $q) => $q->searchAll($search)
                 ), isIndividual: true)
             ->toggleable();
@@ -46,7 +61,9 @@ trait Table
     {
         return TextColumn::make("sellerCompany.name")
             ->label(__('resources/proformaInvoice/strings.table.seller_company'))
-            ->searchable()
+            ->searchable(
+                query: fn(Builder $query, string $search) => $query->whereHas('sellerCompany',  fn ($q) => $q->searchCompany($search))
+            )
             ->sortable()
             ->toggleable()
             ->formatStateUsing(fn($record): ?string => $record->sellerCompany?->localized_name);
@@ -56,7 +73,8 @@ trait Table
     {
         return TextColumn::make("consigneeCompany.name")
             ->label(__('resources/proformaInvoice/strings.table.consignee_company'))
-            ->searchable()
+            ->searchable(
+                query: fn(Builder $query, string $search) => $query->whereHas('consigneeCompany', fn ($q) => $q->searchCompany($search)))
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true)
             ->formatStateUsing(fn($record): ?string => $record->consigneeCompany?->localized_name);

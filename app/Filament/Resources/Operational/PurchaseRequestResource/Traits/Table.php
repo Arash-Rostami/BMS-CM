@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Operational\PurchaseRequestResource\Traits;
 
 use App\Filament\Resources\Operational\PurchaseRequestResource\Enums\Status;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -60,8 +61,10 @@ trait Table
             ->searchable(
                 query: fn(Builder $query, string $search) => $query->orWhereHas('status', fn($q) => $q->searchStatus($search))
             )
+            ->iconPosition(IconPosition::Before)
             ->formatStateUsing(fn(?string $state): ?string => Status::tryFrom($state)?->getLabel() ?? $state)
             ->color(fn(?string $state): ?string => Status::tryFrom($state)?->getColor() ?? 'info')
+            ->icon(fn(?string $state): ?string => Status::tryFrom($state)?->getIcon() ?? 'heroicon-o-question-mark-circle')
             ->sortable();
     }
 

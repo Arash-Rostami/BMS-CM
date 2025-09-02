@@ -3,39 +3,33 @@
 namespace App\Filament\Resources\Operational\TargetResource\Traits;
 
 
+use App\Filament\Resources\Operational\TargetResource\Enums\Status as TargetStatus;
 use App\Models\Target;
+use App\Services\SmartCacheManager;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\Category;
-use App\Models\Product;
-use App\Filament\Resources\Operational\TargetResource\Enums\Status as TargetStatus;
 
 trait Filters
 {
-    public static function getTrashedFilter(): TrashedFilter
+    public static function getCreatorFilter(): SelectFilter
     {
-        return TrashedFilter::make();
+        return SelectFilter::make('user_id')
+            ->label(__('resources/target/strings.table.creator'))
+            ->relationship('creator', 'name')
+            ->searchable()
+            ->preload();
     }
 
-    public static function getYearFilter(): SelectFilter
+    public static function getMetricsFilter(): SelectFilter
     {
-        return SelectFilter::make('year')
-            ->label(__('resources/target/strings.filters.year'))
-            ->options(fn() => Target::pluck('year', 'year')->unique()->sort()->toArray())
-            ->placeholder(__('resources/target/strings.filters.year_placeholder'));
-    }
-
-    public static function getStatusFilter(): SelectFilter
-    {
-        return SelectFilter::make('status')
-            ->label(__('resources/target/strings.filters.status'))
-            ->options(TargetStatus::class)
-            ->placeholder(__('resources/target/strings.filters.status_placeholder'));
+        return SelectFilter::make('metrics')
+            ->label(__('resources/target/strings.filters.metrics'))
+            ->options(__('resources/target/strings.metrics'))
+            ->placeholder(__('resources/target/strings.filters.metrics_placeholder'));
     }
 
     public static function getQuantityFilter(): Filter
@@ -61,21 +55,17 @@ trait Filters
             );
     }
 
-    public static function getMetricsFilter(): SelectFilter
+    public static function getStatusFilter(): SelectFilter
     {
-        return SelectFilter::make('metrics')
-            ->label(__('resources/target/strings.filters.metrics'))
-            ->options(__('resources/target/strings.metrics'))
-            ->placeholder(__('resources/target/strings.filters.metrics_placeholder'));
+        return SelectFilter::make('status')
+            ->label(__('resources/target/strings.filters.status'))
+            ->options(TargetStatus::class)
+            ->placeholder(__('resources/target/strings.filters.status_placeholder'));
     }
 
-    public static function getCreatorFilter(): SelectFilter
+    public static function getTrashedFilter(): TrashedFilter
     {
-        return SelectFilter::make('user_id')
-            ->label(__('resources/target/strings.table.creator'))
-            ->relationship('creator', 'name')
-            ->searchable()
-            ->preload();
+        return TrashedFilter::make();
     }
 
     public static function getUpdaterFilter(): SelectFilter
@@ -85,5 +75,18 @@ trait Filters
             ->relationship('updater', 'name')
             ->searchable()
             ->preload();
+    }
+
+    public static function getYearFilter(): SelectFilter
+    {
+        return SelectFilter::make('year')
+            ->label(__('resources/target/strings.filters.year'))
+            ->options(fn() => SmartCacheManager::remember(
+                'Target',
+                ['filter' => 'year_options'],
+                150,
+                fn() => Target::pluck('year', 'year')->unique()->sort()->toArray()
+            ))
+            ->placeholder(__('resources/target/strings.filters.year_placeholder'));
     }
 }

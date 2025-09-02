@@ -21,6 +21,8 @@ class CompanyExporter extends Exporter
                 ->label('ID'),
             ExportColumn::make('name'),
             ExportColumn::make('english_name'),
+            ExportColumn::make('types')
+                ->formatStateUsing(fn(Company $record) => implode(', ', $record->getFormattedTypesAttribute())),
             ExportColumn::make('description'),
             ExportColumn::make('is_active')->label('Active'),
             ExportColumn::make('creator.name'),

@@ -10,25 +10,14 @@ use Str;
 
 class FileUploadManager
 {
-    public function storeTemporary(UploadedFile $file): string
-    {
-        return $file->storeAs(
-            'temp',
-            sprintf(
-                '%s-%s-%s.%s',
-                Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)),
-                now()->timestamp,
-                uniqid(),
-                $file->getClientOriginalExtension()
-            ),
-            'public'
-        );
-    }
-
     public function processTemporaryFiles(Model $record, array $paths)
     {
-        $status = Status::findBy('Attachment Status', 'Uploaded') ?? throw new \Exception("Default status 'Uploaded' not found.");
-
+        $status = SmartCacheManager::remember(
+            'Status',
+            ['type' => 'Attachment Status', 'name' => 'Uploaded'],
+            1440,
+            fn() => Status::findBy('Attachment Status', 'Uploaded')
+        ) ?? throw new \Exception("Default status 'Uploaded' not found.");
         $finalPaths = [];
         $tempDir = 'temp/';
 
@@ -57,7 +46,6 @@ class FileUploadManager
         return $this;
     }
 
-
     public function refreshComponent($record, $set)
     {
         $record->refresh();
@@ -68,10 +56,25 @@ class FileUploadManager
         return $this;
     }
 
+    public function storeTemporary(UploadedFile $file): string
+    {
+        return $file->storeAs(
+            'temp',
+            sprintf(
+                '%s-%s-%s.%s',
+                Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)),
+                now()->timestamp,
+                uniqid(),
+                $file->getClientOriginalExtension()
+            ),
+            'public'
+        );
+    }
+
     protected function makeNameAndPath(string $tempDir, mixed $path, Model $record): array
     {
-        $folder   = 'attachments/' . Str::camel(class_basename($record));
-        $newPath  = Str::replaceFirst($tempDir, $folder . '/', $path);
+        $folder = 'attachments/' . Str::camel(class_basename($record));
+        $newPath = Str::replaceFirst($tempDir, $folder . '/', $path);
 
         $name = Str::of(class_basename($record))
             ->kebab()
@@ -83,18 +86,18 @@ class FileUploadManager
         return [$newPath, $name];
     }
 
+    protected function slug(string $value): string
+    {
+        return preg_replace('/[^\p{Latin}\p{Arabic}\p{N}]+/u', '', mb_strtolower(trim($value)));
+    }
+
     protected function syncAttachments(Model $record, array $paths): void
     {
         $attachments = $record->attachments();
 
         $stale = $attachments->pluck('path')->diff($paths);
 
-        $stale->each(fn ($path) => Storage::disk('public')->delete($path));
+        $stale->each(fn($path) => Storage::disk('public')->delete($path));
         $attachments->whereIn('path', $stale)->forceDelete();
-    }
-
-    protected function slug(string $value): string
-    {
-        return preg_replace('/[^\p{Latin}\p{Arabic}\p{N}]+/u', '', mb_strtolower(trim($value)));
     }
 }

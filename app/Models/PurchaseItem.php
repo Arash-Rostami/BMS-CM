@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PurchaseItem extends Model
 {
-    use HasFactory, SoftDeletes, Relationships;
+    use HasFactory,
+        SoftDeletes,
+        Relationships;
 
     public const TYPE_PURCHASE_REQUEST = 'Purchase Item Status';
 

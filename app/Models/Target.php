@@ -15,8 +15,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Target extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, UserStamps,
-        HasMetricAttribute, HasTargetableLabel, HasYearAttribute, SearchTargetable;
+    use HasFactory,
+        SoftDeletes,
+        Relationships,
+        ExclusiveRelationships,
+        UserStamps,
+        HasMetricAttribute,
+        HasTargetableLabel,
+        HasYearAttribute,
+        SearchTargetable;
 
     protected $fillable = [
         'targetable_type',

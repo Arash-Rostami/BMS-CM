@@ -8,9 +8,15 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait ExportDefaults
 {
-    public function getQuery(): Builder
+    public static function getCompletedNotificationBody(Export $export): string
     {
-        return parent::getQuery()->limit(1000);
+        $body = 'Your export has completed and ' . number_format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
+
+        if ($failedRowsCount = $export->getFailedRowsCount()) {
+            $body .= ' ' . number_format($failedRowsCount) . ' ' . str('row')->plural($failedRowsCount) . ' failed to export.';
+        }
+
+        return $body;
     }
 
     public function getFileName(Export $export): string
@@ -22,14 +28,9 @@ trait ExportDefaults
         return "{$app}-{$model}-{$timestamp}";
     }
 
-    public static function getCompletedNotificationBody(Export $export): string
+
+    public function getQuery(): Builder
     {
-        $body = 'Your bank export has completed and ' . number_format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
-
-        if ($failedRowsCount = $export->getFailedRowsCount()) {
-            $body .= ' ' . number_format($failedRowsCount) . ' ' . str('row')->plural($failedRowsCount) . ' failed to export.';
-        }
-
-        return $body;
+        return parent::getQuery()->limit(1000);
     }
 }

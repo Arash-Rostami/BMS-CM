@@ -3,26 +3,34 @@
 namespace App\Filament\Resources\Master\CompanyResource\Traits;
 
 
-use Filament\Forms\Components\TextInput;
+use App\Models\Company;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 
 trait Form
 {
-    public static function getName(): TextInput
+    public static function getCompanyTypes(): CheckboxList
     {
-        return TextInput::make('name')
-            ->label(__('resources/company/strings.form.name'))
-            ->required()
-            ->maxLength(255)
-            ->rule('regex:/^[\x{0600}-\x{06FF}\s\p{P}\d\*]+$/u')
-            ->unique(column: 'name', ignoreRecord: true)
-            ->placeholder(__('resources/company/strings.form.validation_name'))
-            ->validationMessages([
-                'regex' => __('resources/company/strings.form.validation_name'),
-                'unique' => __('resources/company/strings.form.validation_name_unique')
-            ])
-            ->validationAttribute(__('resources/company/strings.form.name'));
+        return CheckboxList::make('types')
+            ->label(__('resources/company/strings.form.company_types'))
+            ->options(Company::getAvailableTypes())
+            ->columns(2)
+            ->columnSpanFull()
+            ->searchable()
+            ->bulkToggleable()
+            ->nullable()
+            ->helperText(__('resources/company/strings.form.company_types_description'));
+    }
+
+    public static function getDescription(): Textarea
+    {
+        return Textarea::make('description')
+            ->label(__('resources/company/strings.form.description'))
+            ->maxLength(65535)
+            ->columnSpanFull()
+            ->nullable();
     }
 
     public static function getEnglishName(): TextInput
@@ -41,15 +49,6 @@ trait Form
             ->validationAttribute(__('resources/company/strings.form.english_name'));
     }
 
-    public static function getDescription(): Textarea
-    {
-        return Textarea::make('description')
-            ->label(__('resources/company/strings.form.description'))
-            ->maxLength(65535)
-            ->columnSpanFull()
-            ->nullable();
-    }
-
     public static function getIsActive(): Toggle
     {
         return Toggle::make('is_active')
@@ -61,5 +60,21 @@ trait Form
             ->onColor('success')
             ->offColor('danger')
             ->helperText(__('resources/company/strings.form.helper_is_active'));
+    }
+
+    public static function getName(): TextInput
+    {
+        return TextInput::make('name')
+            ->label(__('resources/company/strings.form.name'))
+            ->required()
+            ->maxLength(255)
+            ->rule('regex:/^[\x{0600}-\x{06FF}\s\p{P}\d\*]+$/u')
+            ->unique(column: 'name', ignoreRecord: true)
+            ->placeholder(__('resources/company/strings.form.validation_name'))
+            ->validationMessages([
+                'regex' => __('resources/company/strings.form.validation_name'),
+                'unique' => __('resources/company/strings.form.validation_name_unique')
+            ])
+            ->validationAttribute(__('resources/company/strings.form.name'));
     }
 }

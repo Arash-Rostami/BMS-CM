@@ -11,7 +11,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Attachment extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, UserStamps;
+    use HasFactory,
+        SoftDeletes,
+        Relationships,
+        ExclusiveRelationships,
+        UserStamps;
 
     protected $fillable = [
         'attachable_id',

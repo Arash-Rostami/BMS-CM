@@ -10,19 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait Filters
 {
-    public static function getTrashedFilter(): TrashedFilter
-    {
-        return TrashedFilter::make();
-    }
 
-    public static function getSellerCompanyFilter(): SelectFilter
-    {
-        return SelectFilter::make('seller_company_id')
-            ->label(__('resources/proformaInvoice/strings.filters.seller_company'))
-            ->relationship('sellerCompany', 'name')
-            ->searchable()
-            ->preload();
-    }
 
     public static function getConsigneeCompanyFilter(): SelectFilter
     {
@@ -42,15 +30,6 @@ trait Filters
             ->preload();
     }
 
-    public static function getUpdaterFilter(): SelectFilter
-    {
-        return SelectFilter::make('updated_by_id')
-            ->label(__('resources/proformaInvoice/strings.table.updater'))
-            ->relationship('updater', 'name')
-            ->searchable()
-            ->preload();
-    }
-
     public static function getDeliveryTermsFilter(): SelectFilter
     {
         return SelectFilter::make('delivery_terms')
@@ -58,18 +37,20 @@ trait Filters
             ->options(__('resources/proformaInvoice/strings.general.delivery_terms'));
     }
 
-    public static function getTransportModeFilter(): SelectFilter
+    public static function getHasPurchaseOrdersFilter(): Filter
     {
-        return SelectFilter::make('transport_mode')
-            ->label(__('resources/proformaInvoice/strings.filters.transport_mode'))
-            ->options(__('resources/proformaInvoice/strings.general.transport_modes'));
+        return Filter::make('has_purchase_orders')
+            ->label(__('resources/proformaInvoice/strings.filters.has_purchase_orders'))
+            ->query(fn(Builder $query): Builder => $query->has('purchaseOrders'))
+            ->toggle();
     }
 
-    public static function getMainCurrencyFilter(): SelectFilter
+    public static function getHasPurchaseRequestsFilter(): Filter
     {
-        return SelectFilter::make('main_currency_id')
-            ->label(__('resources/proformaInvoice/strings.filters.main_currency'))
-            ->relationship('mainCurrency', 'name');
+        return Filter::make('has_purchase_requests')
+            ->label(__('resources/proformaInvoice/strings.filters.has_purchase_requests'))
+            ->query(fn(Builder $query): Builder => $query->has('purchaseRequests'))
+            ->toggle();
     }
 
     public static function getInvoiceDateFilter(): Filter
@@ -84,7 +65,7 @@ trait Filters
                     ->label(__('resources/proformaInvoice/strings.filters.invoice_date_until'))
                     ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
                     ->native(false),
-                ])
+            ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
                     ->when(
@@ -96,5 +77,42 @@ trait Filters
                         fn(Builder $query, $date): Builder => $query->whereDate('invoice_date', '<=', $date),
                     );
             });
+    }
+
+    public static function getMainCurrencyFilter(): SelectFilter
+    {
+        return SelectFilter::make('main_currency_id')
+            ->label(__('resources/proformaInvoice/strings.filters.main_currency'))
+            ->relationship('mainCurrency', 'name');
+    }
+
+    public static function getSellerCompanyFilter(): SelectFilter
+    {
+        return SelectFilter::make('seller_company_id')
+            ->label(__('resources/proformaInvoice/strings.filters.seller_company'))
+            ->relationship('sellerCompany', 'name')
+            ->searchable()
+            ->preload();
+    }
+
+    public static function getTransportModeFilter(): SelectFilter
+    {
+        return SelectFilter::make('transport_mode')
+            ->label(__('resources/proformaInvoice/strings.filters.transport_mode'))
+            ->options(__('resources/proformaInvoice/strings.general.transport_modes'));
+    }
+
+    public static function getTrashedFilter(): TrashedFilter
+    {
+        return TrashedFilter::make();
+    }
+
+    public static function getUpdaterFilter(): SelectFilter
+    {
+        return SelectFilter::make('updated_by_id')
+            ->label(__('resources/proformaInvoice/strings.table.updater'))
+            ->relationship('updater', 'name')
+            ->searchable()
+            ->preload();
     }
 }

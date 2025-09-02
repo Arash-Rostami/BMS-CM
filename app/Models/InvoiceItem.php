@@ -11,7 +11,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class InvoiceItem extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, Localization, HasLocalizedAttributes;
+    use HasFactory,
+        SoftDeletes,
+        Relationships,
+        Localization,
+        HasLocalizedAttributes;
 
     protected array $localizedAttributesMap = [
         'description' => [

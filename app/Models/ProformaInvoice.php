@@ -11,7 +11,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProformaInvoice extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, UserStamps;
+    use HasFactory,
+        SoftDeletes,
+        Relationships,
+        ExclusiveRelationships,
+        UserStamps;
 
 
     protected $fillable = [

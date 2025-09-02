@@ -2,7 +2,7 @@
 
 return [
 
-    'title' => 'Dashboard',
+    'title' => 'dashboard',
 
     'actions' => [
 

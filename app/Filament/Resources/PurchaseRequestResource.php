@@ -11,6 +11,7 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Infolist a
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as PurchaseRequestTable;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\TotalCostCalculation;
 use App\Models\PurchaseRequest;
+use App\Services\SmartCacheManager;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists\Components;
@@ -102,6 +103,130 @@ class PurchaseRequestResource extends Resource
             ->columns(3);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with([
+                'creator',
+                'updater',
+                'approver',
+                'attachments',
+                'costCenter',
+                'department',
+                'items',
+                'items.attachments',
+                'items.product',
+                'items.status',
+                'proformaInvoices',
+                'purchaseOrders',
+                'requester',
+                'status',
+            ])
+            ->withCount('proformaInvoices')
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return "🛒 " . $record->id;
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resources/purchaseRequest/strings.general.model_label');
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = SmartCacheManager::remember(
+            'PurchaseRequest',
+            ['user_id' => auth()->id(), 'type' => 'total_count'],
+            150,
+            fn() => static::getModel()::count()
+        );
+
+        return $count > 0 ? (string)$count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('resources/purchaseRequest/strings.general.navigation_group');
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Operational\PurchaseRequestResource\Pages\ListPurchaseRequests::route('/'),
+            'create' => Operational\PurchaseRequestResource\Pages\CreatePurchaseRequest::route('/create'),
+            'edit' => Operational\PurchaseRequestResource\Pages\EditPurchaseRequest::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources/purchaseRequest/strings.general.plural_model_label');
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            Operational\PurchaseRequestResource\RelationManagers\PurchaseOrdersRelationManager::class,
+            Operational\PurchaseRequestResource\RelationManagers\ProformaInvoicesRelationManager::class,
+        ];
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                InfoTabs::make('Details')
+                    ->tabs([
+                        Tab::make('General')
+                            ->label(__('resources/purchaseRequest/strings.infolist.tab_general'))
+                            ->icon('heroicon-o-shopping-cart')
+                            ->schema([
+                                Components\Section::make()->schema([
+                                    static::viewDepartment(),
+                                    static::viewCostCenter(),
+                                    static::viewRequester(),
+                                    static::viewRequiredByDate(),
+                                    static::viewUrgency(),
+                                    static::viewTotalCost(),
+                                    static::viewStatus(),
+                                    static::viewApprover(),
+                                    static::viewApprovalDate(),
+                                    static::viewRejectionReason(),
+                                    static::viewNotes(),
+                                    static::viewCreator(),
+                                    static::viewUpdater(),
+                                    static::viewCreatedAt(),
+                                    static::viewUpdatedAt(),
+                                ])->columns(3),
+                            ]),
+                        Tab::make('Items')
+                            ->label(__('resources/purchaseRequest/strings.infolist.tab_items'))
+                            ->icon('heroicon-o-list-bullet')
+                            ->schema([
+                                Components\Section::make()->schema([static::viewPurchaseItems()])
+                            ]),
+                        Tab::make('Documents')
+                            ->label(__('resources/purchaseRequest/strings.infolist.tab_documents'))
+                            ->icon('heroicon-o-paper-clip')
+                            ->schema([
+                                Components\Section::make()->schema([static::viewAttachments()])
+                            ])
+                            ->badge(fn($record) => $record->attachments->count())
+                            ->badgeColor('info'),
+                    ])->columnSpanFull(),
+            ]);
+    }
 
     public static function table(Table $table): Table
     {
@@ -152,7 +277,8 @@ class PurchaseRequestResource extends Resource
                 Group::make('requester.name')
                     ->label(__('resources/purchaseRequest/strings.filters.requester')),
                 Group::make('department.name')
-                    ->label(__('resources/purchaseRequest/strings.filters.department')),
+                    ->label(__('resources/purchaseRequest/strings.filters.department'))
+                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'department')),
                 Group::make('status.english_name')
                     ->label(__('resources/purchaseRequest/strings.filters.status'))
                     ->getTitleFromRecordUsing(fn($record): ?string => Status::tryFrom($record->status?->english_name)?->getLabel() ?? $record->status?->name),
@@ -160,109 +286,5 @@ class PurchaseRequestResource extends Resource
             ->striped()
             ->recordUrl(null)
             ->defaultSort('id', 'desc');
-    }
-
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                InfoTabs::make('Details')
-                    ->tabs([
-                        Tab::make('General')
-                            ->label(__('resources/purchaseRequest/strings.infolist.tab_general'))
-                            ->icon('heroicon-o-shopping-cart')
-                            ->schema([
-                                Components\Section::make()->schema([
-                                    static::viewDepartment(),
-                                    static::viewCostCenter(),
-                                    static::viewRequester(),
-                                    static::viewRequiredByDate(),
-                                    static::viewUrgency(),
-                                    static::viewTotalCost(),
-                                    static::viewStatus(),
-                                    static::viewApprover(),
-                                    static::viewApprovalDate(),
-                                    static::viewRejectionReason(),
-                                    static::viewNotes(),
-                                    static::viewCreator(),
-                                    static::viewUpdater(),
-                                    static::viewCreatedAt(),
-                                    static::viewUpdatedAt(),
-                                ])->columns(3),
-                            ]),
-                        Tab::make('Items')
-                            ->label(__('resources/purchaseRequest/strings.infolist.tab_items'))
-                            ->icon('heroicon-o-list-bullet')
-                            ->schema([
-                                Components\Section::make()->schema([static::viewPurchaseItems()])
-                            ]),
-                        Tab::make('Documents')
-                            ->label(__('resources/purchaseRequest/strings.infolist.tab_documents'))
-                            ->icon('heroicon-o-paper-clip')
-                            ->schema([
-                                Components\Section::make()->schema([static::viewAttachments()])
-                            ])
-                            ->badge(fn($record) => $record->attachments->count())
-                            ->badgeColor('info'),
-                    ])->columnSpanFull(),
-            ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            Operational\PurchaseRequestResource\RelationManagers\ProformaInvoicesRelationManager::class,
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Operational\PurchaseRequestResource\Pages\ListPurchaseRequests::route('/'),
-            'create' => Operational\PurchaseRequestResource\Pages\CreatePurchaseRequest::route('/create'),
-            'edit' => Operational\PurchaseRequestResource\Pages\EditPurchaseRequest::route('/{record}/edit'),
-        ];
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return __('resources/purchaseRequest/strings.general.navigation_group');
-    }
-
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withCount('proformaInvoices')
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
-    }
-
-
-    public static function getModelLabel(): string
-    {
-        return __('resources/purchaseRequest/strings.general.model_label');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return __('resources/purchaseRequest/strings.general.plural_model_label');
-    }
-
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
-    }
-
-    public static function getGlobalSearchResultTitle(Model $record): string
-    {
-        return "🛒 " . $record->id;
     }
 }
