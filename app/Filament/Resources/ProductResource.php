@@ -10,6 +10,7 @@ use App\Filament\Resources\Master\ProductResource\Traits\Form as ProductForm;
 use App\Filament\Resources\Master\ProductResource\Traits\Infolist as ProductInfolist;
 use App\Filament\Resources\Master\ProductResource\Traits\Table as ProductTable;
 use App\Models\Product;
+use App\Services\SmartCacheManager;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
@@ -120,52 +121,64 @@ class ProductResource extends Resource
             ]);
     }
 
-
-    public static function table(Table $table): Table
+    public static function getEloquentQuery(): Builder
     {
-        return $table
-            ->columns([
-                static::showName(),
-                static::showEnglishName(),
-                static::showCode(),
-                static::showCategory(),
-                static::showRollSheetType(),
-                static::showProductAttributes(),
-                static::showInStock(),
-                static::showIsActive(),
-                static::showCreator(),
-                static::showUpdater(),
-                static::showCreationTime(),
-                static::showUpdateTime(),
+        return parent::getEloquentQuery()
+            ->with([
+                'creator',
+                'updater',
+                'category',
+                'category.ancestors',
+                'invoiceItems',
+                'purchaseItems',
+                'specifications',
+                'targets',
             ])
-            ->filters([
-                static::getActiveFilter(),
-                static::getCategoryFilter(),
-                static::getInStockFilter(),
-                static::getRollSheetFilter(),
-                static::getCreatorFilter(),
-                static::getUpdaterFilter(),
-                static::getTrashedFilter(),
-            ])->filtersFormColumns(2)
-            ->actions([
-                ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make()
-                        ->mutateFormDataUsing(fn(array $data) => ManageProducts::setSlugAndCategory($data)),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
-                ])
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()->exporter(ProductExporter::class),
-                ])
-            ])
-            ->striped()
-            ->defaultSort('id', 'desc');
+            ->withoutGlobalScopes([SoftDeletingScope::class]);
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return "📦 " . $record->getLocalizedNameAttribute();
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resources/product/strings.general.model_label');
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = SmartCacheManager::remember(
+            'Product',
+            ['user_id' => auth()->id(), 'type' => 'total_count'],
+            3600,
+            fn() => static::getModel()::count()
+        );
+
+        return $count > 0 ? (string)$count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('resources/product/strings.general.navigation_group');
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ManageProducts::route('/'),
+        ];
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources/product/strings.general.plural_model_label');
     }
 
     public static function infolist(Infolist $infolist): Infolist
@@ -221,48 +234,50 @@ class ProductResource extends Resource
             ]);
     }
 
-
-    public static function getPages(): array
+    public static function table(Table $table): Table
     {
-        return [
-            'index' => ManageProducts::route('/'),
-        ];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([SoftDeletingScope::class])
-            ->with('category.ancestors');
-    }
-
-    public static function getModelLabel(): string
-    {
-        return __('resources/product/strings.general.model_label');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return __('resources/product/strings.general.plural_model_label');
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return __('resources/product/strings.general.navigation_group');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
-    }
-
-    public static function getGlobalSearchResultTitle(Model $record): string
-    {
-        return "📦 " . $record->getLocalizedNameAttribute();
+        return $table
+            ->columns([
+                static::showName(),
+                static::showEnglishName(),
+                static::showCode(),
+                static::showCategory(),
+                static::showRollSheetType(),
+                static::showProductAttributes(),
+                static::showInStock(),
+                static::showIsActive(),
+                static::showCreator(),
+                static::showUpdater(),
+                static::showCreationTime(),
+                static::showUpdateTime(),
+            ])
+            ->filters([
+                static::getActiveFilter(),
+                static::getCategoryFilter(),
+                static::getInStockFilter(),
+                static::getRollSheetFilter(),
+                static::getCreatorFilter(),
+                static::getUpdaterFilter(),
+                static::getTrashedFilter(),
+            ])->filtersFormColumns(2)
+            ->actions([
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make()
+                        ->mutateFormDataUsing(fn(array $data) => ManageProducts::setSlugAndCategory($data)),
+                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\RestoreAction::make(),
+                ])
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ExportBulkAction::make()->exporter(ProductExporter::class),
+                ])
+            ])
+            ->striped()
+            ->defaultSort('id', 'desc');
     }
 }

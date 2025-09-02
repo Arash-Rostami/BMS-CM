@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'شرکت',
@@ -13,6 +12,12 @@ return [
         'description' => 'توضیحات',
         'is_active' => 'فعال است؟',
         'helper_is_active' => 'وضعیت فعال/غیرفعال بودن این رکورد را مشخص می‌کند.',
+        'basic_information' => 'عمومی',
+        'company_classification' => 'طبقه‌بندی',
+        'classification_description' => 'نوع یا نقش‌های این شرکت را تعریف کنید.',
+        'company_types' => 'انواع شرکت',
+        'company_types_helper' => 'یک یا چند نوع که این شرکت را توصیف می‌کند، انتخاب کنید.',
+        'company_types_description' => 'برای تعیین نوع کسب‌وکار این شرکت، چندین نوع را انتخاب کنید.',
         'creator' => 'ایجاد شده توسط',
         'updater' => 'آخرین به‌روزرسانی توسط',
         'validation_name' => 'فقط کاراکترهای فارسی مجاز هستند.',
@@ -27,10 +32,20 @@ return [
         'is_active' => 'وضعیت',
         'only_active' => 'فقط فعال‌ها',
         'only_inactive' => 'فقط غیرفعال‌ها',
+        'company_types' => 'انواع',
         'creator' => 'ایجاد شده توسط',
         'updater' => 'آخرین به‌روزرسانی توسط',
         'created_at' => 'تاریخ ایجاد',
         'updated_at' => 'آخرین به‌روزرسانی',
         'deleted_at' => 'تاریخ حذف',
+    ],
+
+    'filters' => [
+        'company_types' => 'انواع شرکت',
+        'select_types' => 'انتخاب انواع',
+        'all_types' => 'همه‌ی انواع',
+        'types_indicator' => 'انواع: :types',
+        'yes' => 'بله',
+        'no' => 'خیر',
     ],
 ];

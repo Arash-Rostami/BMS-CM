@@ -23,3 +23,13 @@ if (!function_exists('toGregorianDate')) {
         return $date->format('Y F d');
     }
 }
+
+
+if (!function_exists('getLocalizedName')) {
+    function getLocalizedName(object $record, string $relationship): ?string
+    {
+        return app()->getLocale() === 'fa'
+            ? $record->{$relationship}?->name
+            : $record->{$relationship}?->english_name;
+    }
+}

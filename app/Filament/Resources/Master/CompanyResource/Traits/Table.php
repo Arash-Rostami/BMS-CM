@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\Master\CompanyResource\Traits;
 
 
+use App\Filament\Resources\Master\CompanyResource\Enums\Type;
+use App\Models\Company;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 
@@ -36,6 +39,21 @@ trait Table
             ->limit(50);
 
     }
+
+    public static function showCompanyTypes(): TextColumn
+    {
+
+        return TextColumn::make('formatted_types')
+            ->label(__('resources/company/strings.table.company_types'))
+            ->badge()
+            ->separator(', ')
+            ->color(fn(?string $state): ?string => Type::tryFromLocalised($state)?->getColor() ?? 'info')
+            ->icon(fn(?string $state): ?string => Type::tryFromLocalised($state)?->getIcon() ?? 'heroicon-o-question-mark-circle')
+            ->searchable(query: fn ($query, $search) => $query->whereJsonContains('types', strtolower($search)))
+            ->sortable(query: fn ($query, string $direction) => $query->orderByRaw("JSON_LENGTH(types) {$direction}"))
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
 
     public static function showIsActive(): ToggleColumn
     {

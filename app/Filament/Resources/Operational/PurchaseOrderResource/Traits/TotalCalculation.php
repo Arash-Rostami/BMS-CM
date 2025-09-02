@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Filament\Resources\Operational\PurchaseOrderResource\Traits;
+
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+
+trait TotalCalculation
+{
+    public static function updateTotal(Get $get, Set $set): void
+    {
+        $items = $get('items') ?? [];
+
+        $totalQuantity = collect($items)->sum(function ($item) {
+            return is_numeric($item['quantity'] ?? 0) ? (float)$item['quantity'] : 0;
+        });
+
+        $totalAmount = collect($items)->sum(function ($item) {
+            $quantity = is_numeric($item['quantity'] ?? 0) ? (float)$item['quantity'] : 0;
+            $price = is_numeric($item['unit_price'] ?? 0) ? (float)$item['unit_price'] : 0;
+            return $quantity * $price;
+        });
+
+        $set('total_quantity', $totalQuantity);
+        $set('total_amount', $totalAmount);
+    }
+}

@@ -96,16 +96,15 @@ class ProformaInvoicesRelationManager extends RelationManager
                 ]),
             ])
             ->groups([
-                Group::make('requester.name')
-                    ->label(__('resources/purchaseRequest/strings.filters.requester')),
-                Group::make('department.name')
-                    ->label(__('resources/purchaseRequest/strings.filters.department')),
-                Group::make('status.english_name')
-                    ->label(__('resources/purchaseRequest/strings.filters.status'))
-                    ->getTitleFromRecordUsing(fn($record): ?string => Status::tryFrom($record->status?->english_name)?->getLabel() ?? $record->status?->name),
+                Group::make('sellerCompany.name')
+                    ->label(__('resources/proformaInvoice/strings.filters.seller_company'))
+                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'sellerCompany')),
+                Group::make('consigneeCompany.name')
+                    ->label(__('resources/proformaInvoice/strings.filters.consignee_company'))
+                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'consigneeCompany')),
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('proforma_invoices.id', 'desc');
+            ->defaultSort('id', 'desc');
     }
 }

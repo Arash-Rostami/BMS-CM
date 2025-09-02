@@ -47,6 +47,68 @@ class StatusResource extends Resource
             ]);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with([
+                'creator',
+                'updater',
+            ])
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return "🏷️ " . $record->getLocalizedNameAttribute();
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resources/status/strings.general.model_label');
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('resources/status/strings.general.navigation_group');
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Master\StatusResource\Pages\ManageStatuses::route('/'),
+        ];
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources/status/strings.general.plural_model_label');
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Components\Section::make()
+                    ->schema([
+                        static::viewType(),
+                        static::viewEnglishType(),
+                        static::viewName(),
+                        static::viewEnglishName(),
+                        static::viewCreator(),
+                        static::viewUpdater(),
+                        static::viewCreatedAt(),
+                        static::viewUpdatedAt(),
+                    ])->columns(2),
+            ]);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -85,68 +147,5 @@ class StatusResource extends Resource
             ])
             ->striped()
             ->defaultSort('id', 'desc');
-    }
-
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                Components\Section::make()
-                    ->schema([
-                        static::viewType(),
-                        static::viewEnglishType(),
-                        static::viewName(),
-                        static::viewEnglishName(),
-                        static::viewCreator(),
-                        static::viewUpdater(),
-                        static::viewCreatedAt(),
-                        static::viewUpdatedAt(),
-                    ])->columns(2),
-            ]);
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Master\StatusResource\Pages\ManageStatuses::route('/'),
-        ];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
-    }
-
-    public static function getModelLabel(): string
-    {
-        return __('resources/status/strings.general.model_label');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return __('resources/status/strings.general.plural_model_label');
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return __('resources/status/strings.general.navigation_group');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
-    }
-
-    public static function getGlobalSearchResultTitle(Model $record): string
-    {
-        return "🏷️ " . $record->getLocalizedNameAttribute();
     }
 }

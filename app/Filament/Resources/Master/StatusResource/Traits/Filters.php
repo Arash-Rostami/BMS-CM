@@ -3,16 +3,12 @@
 namespace App\Filament\Resources\Master\StatusResource\Traits;
 
 use App\Models\Status;
+use App\Services\SmartCacheManager;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 
 trait Filters
 {
-    public static function getThrashedFilter(): TrashedFilter
-    {
-        return TrashedFilter::make();
-    }
-
     public static function getCreatorFilter(): SelectFilter
     {
         return SelectFilter::make('created_by_id')
@@ -22,13 +18,9 @@ trait Filters
             ->preload();
     }
 
-    public static function getUpdaterFilter(): SelectFilter
+    public static function getThrashedFilter(): TrashedFilter
     {
-        return SelectFilter::make('updated_by_id')
-            ->label(__('resources/status/strings.table.updater'))
-            ->relationship('updater', 'name')
-            ->searchable()
-            ->preload();
+        return TrashedFilter::make();
     }
 
     public static function getTypeFilter(): SelectFilter
@@ -39,11 +31,24 @@ trait Filters
             ->label(__('resources/status/strings.table.' . $column))
             ->multiple()
             ->searchable()
-            ->options(fn(): array => Status::query()
-                ->distinct($column)
-                ->orderBy($column)
-                ->pluck($column, $column)
-                ->toArray()
-            );
+            ->options(fn(): array => SmartCacheManager::remember(
+                'Status',
+                ['filter' => 'type', 'locale' => app()->getLocale()],
+                150,
+                fn() => Status::query()
+                    ->distinct($column)
+                    ->orderBy($column)
+                    ->pluck($column, $column)
+                    ->toArray()
+            ));
+    }
+
+    public static function getUpdaterFilter(): SelectFilter
+    {
+        return SelectFilter::make('updated_by_id')
+            ->label(__('resources/status/strings.table.updater'))
+            ->relationship('updater', 'name')
+            ->searchable()
+            ->preload();
     }
 }

@@ -18,7 +18,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, HasSlug, HasScope, HasExclusiveScope, UserStamps, Localization, ValueTypeEstimator, RollSheetEstimator, CustomizedLabel;
+    use HasFactory,
+        SoftDeletes,
+        Relationships,
+        ExclusiveRelationships,
+        HasSlug,
+        HasScope,
+        HasExclusiveScope,
+        UserStamps,
+        Localization,
+        ValueTypeEstimator,
+        RollSheetEstimator,
+        CustomizedLabel;
 
     protected $table = 'products';
 

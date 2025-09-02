@@ -2,23 +2,24 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\Operational\TargetResource\Exports\TargetExporter;
 use App\Filament\Resources\Operational\TargetResource\Enums\Status;
+use App\Filament\Resources\Operational\TargetResource\Exports\TargetExporter;
 use App\Filament\Resources\Operational\TargetResource\Pages\ManageTargets;
-use App\Filament\Resources\Operational\TargetResource\Traits\Form as TargetForm;
-use App\Filament\Resources\Operational\TargetResource\Traits\Table as TargetTable;
-use App\Filament\Resources\Operational\TargetResource\Traits\Infolist as TargetInfolist;
 use App\Filament\Resources\Operational\TargetResource\Traits\Filters as TargetFilters;
-use Filament\Tables\Actions\ActionGroup;
+use App\Filament\Resources\Operational\TargetResource\Traits\Form as TargetForm;
+use App\Filament\Resources\Operational\TargetResource\Traits\Infolist as TargetInfolist;
+use App\Filament\Resources\Operational\TargetResource\Traits\Table as TargetTable;
 use App\Models\Target;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Services\SmartCacheManager;
 use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Infolists\Components;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
-use Filament\Infolists\Infolist;
-use Filament\Infolists\Components;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -53,6 +54,88 @@ class TargetResource extends Resource
                         static::getAchievedAmountField(),
                         static::getDescriptionField(),
                         static::getTagField(),
+                    ])->columns(3),
+            ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with([
+                'targetable',
+                'creator',
+                'updater'
+            ])
+            ->withoutGlobalScopes([SoftDeletingScope::class]);
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return " 🎯  " .
+            $record->id;
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resources/target/strings.general.model_label');
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = SmartCacheManager::remember(
+            'Target',
+            ['user_id' => auth()->id(), 'type' => 'total_count'],
+            3600,
+            fn() => static::getModel()::count()
+        );
+
+        return $count > 0 ? (string)$count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('resources/target/strings.general.navigation_group');
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ManageTargets::route('/'),
+        ];
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources/target/strings.general.plural_model_label');
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Components\Section::make()
+                    ->schema([
+                        static::viewTargetable(),
+                        static::viewYear(),
+                        static::viewStartFrom(),
+                        static::viewEndIn(),
+                        static::viewQuantity(),
+                        static::viewAmount(),
+                        static::viewMetrics(),
+                        static::viewStatus(),
+                        static::viewAchievedQuantity(),
+                        static::viewAchievedAmount(),
+                        static::viewDescription(),
+                        static::viewTagsJson(),
+                        static::viewCreator(),
+                        static::viewUpdater(),
+                        static::viewCreatedAt(),
+                        static::viewUpdatedAt(),
                     ])->columns(3),
             ]);
     }
@@ -114,75 +197,5 @@ class TargetResource extends Resource
             ])
             ->striped()
             ->defaultSort('id', 'desc');
-    }
-
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                Components\Section::make()
-                    ->schema([
-                        static::viewTargetable(),
-                        static::viewYear(),
-                        static::viewStartFrom(),
-                        static::viewEndIn(),
-                        static::viewQuantity(),
-                        static::viewAmount(),
-                        static::viewMetrics(),
-                        static::viewStatus(),
-                        static::viewAchievedQuantity(),
-                        static::viewAchievedAmount(),
-                        static::viewDescription(),
-                        static::viewTagsJson(),
-                        static::viewCreator(),
-                        static::viewUpdater(),
-                        static::viewCreatedAt(),
-                        static::viewUpdatedAt(),
-                    ])->columns(3),
-            ]);
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => ManageTargets::route('/'),
-        ];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([SoftDeletingScope::class]);
-    }
-
-    public static function getModelLabel(): string
-    {
-        return __('resources/target/strings.general.model_label');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return __('resources/target/strings.general.plural_model_label');
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return __('resources/target/strings.general.navigation_group');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
-    }
-
-    public static function getGlobalSearchResultTitle(Model $record): string
-    {
-        return " 🎯  " .
-            $record->id;
     }
 }

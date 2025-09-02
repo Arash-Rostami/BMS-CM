@@ -16,8 +16,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model
 {
-    use HasFactory, SoftDeletes, HasSlug, Scopables, UserStamps, Localization,
-        ExclusiveRelationships, Relationships, BreadCrumbs, NestedOptions;
+    use HasFactory,
+        SoftDeletes,
+        HasSlug,
+        Scopables,
+        UserStamps,
+        Localization,
+        ExclusiveRelationships,
+        Relationships,
+        BreadCrumbs,
+        NestedOptions;
 
     protected $table = 'categories';
 

@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('proforma_invoice_purchase_request', function (Blueprint $table) {
-            $table->id();
             $table->foreignId('proforma_invoice_id')->constrained()->onDelete('cascade');
             $table->foreignId('purchase_request_id')->constrained()->onDelete('cascade');
             $table->timestamps();

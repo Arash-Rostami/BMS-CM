@@ -14,7 +14,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Currency extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, UserStamps, Localization, HasScope;
+    use HasFactory,
+        SoftDeletes,
+        Relationships,
+        ExclusiveRelationships,
+        UserStamps,
+        Localization,
+        HasScope;
 
     protected $fillable = [
         'name',

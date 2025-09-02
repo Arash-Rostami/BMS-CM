@@ -14,7 +14,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Status extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, ExclusiveRelationships, UserStamps, Localization, StatusFinder, HasSearchableRelations;
+    use HasFactory,
+        SoftDeletes,
+        Relationships,
+        ExclusiveRelationships,
+        UserStamps,
+        Localization,
+        StatusFinder,
+        HasSearchableRelations;
 
     protected $table = 'statuses';
 

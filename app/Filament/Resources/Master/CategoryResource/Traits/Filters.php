@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Master\CategoryResource\Traits;
 
 use App\Filament\Resources\Master\CategoryResource\Enums\Level;
 use App\Models\Category;
+use App\Services\SmartCacheManager;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -22,15 +23,19 @@ trait Filters
     {
         return SelectFilter::make('level')
             ->label(__('resources/category/strings.filters.level'))
-            ->options(fn() => Cache::remember('levels_filter', now()->addMinutes(5),
-                fn() => Category::pluck('level')
+            ->options(fn () => SmartCacheManager::remember(
+                'Category',
+                ['filter' => 'level'],
+                150,
+                fn () => Category::pluck('level')
                     ->unique()
                     ->sort()
-                    ->mapWithKeys(fn(int $lvl) => [
+                    ->mapWithKeys(fn (int $lvl) => [
                         $lvl => $lvl === 0
-                            ? Level::BASE->getLabel() : Level::fromLevel($lvl)->getLabel() ?? (string)$lvl
-                    ])->all())
-            )
+                            ? Level::BASE->getLabel()
+                            : Level::fromLevel($lvl)->getLabel() ?? (string) $lvl
+                    ])->all()
+            ))
             ->placeholder(__('resources/category/strings.filters.level_placeholder'));
     }
 

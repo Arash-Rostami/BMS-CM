@@ -18,8 +18,15 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, CanResetPassword
 {
-    use HasFactory, Notifiable, SoftDeletes, HasAvatars, UserImage,
-        DashboardAccess, Relationships, IpLookup, Setting;
+    use HasFactory,
+        Notifiable,
+        SoftDeletes,
+        HasAvatars,
+        UserImage,
+        DashboardAccess,
+        Relationships,
+        IpLookup,
+        Setting;
 
     protected $fillable = [
         'name',

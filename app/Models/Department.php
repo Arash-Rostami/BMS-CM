@@ -10,7 +10,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Department extends Model
 {
-    use HasFactory, Relationships, Localization, HasSearchableRelations;
+    use HasFactory,
+        Relationships,
+        Localization,
+        HasSearchableRelations;
 
 
     protected $fillable = [

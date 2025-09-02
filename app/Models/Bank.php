@@ -12,7 +12,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bank extends Model
 {
-    use HasFactory, SoftDeletes, Relationships, UserStamps, Localization, HasScope;
+    use HasFactory,
+        SoftDeletes,
+        Relationships,
+        UserStamps,
+        Localization,
+        HasScope;
 
     protected $fillable = [
         'name',

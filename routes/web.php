@@ -12,17 +12,26 @@ Route::get('/clear', function () {
         abort(403, 'Unauthorized');
     }
 
-    Artisan::call('schedule:clear-cache');
     Artisan::call('cache:clear');
     Artisan::call('config:clear');
     Artisan::call('route:clear');
     Artisan::call('view:clear');
     Artisan::call('optimize:clear');
+    Artisan::call('filament:clear-cached-components');
 
-    Artisan::call('storage:link');
+    // Rebuild caches
+    Artisan::call('config:cache');
+    Artisan::call('route:cache');
+    Artisan::call('view:cache');
+    Artisan::call('filament:cache-components');
 
-    return "All caches have been cleared and storage symlink created successfully!";
+    return response()->json([
+        'message' => 'All caches including Filament caches have been cleared successfully!',
+        'timestamp' => now()->toDateTimeString()
+    ]);
 });
+
+
 
 
 Route::get('/attachments/{attachment}/download', [AttachmentController::class, 'download'])

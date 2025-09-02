@@ -10,7 +10,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Specification extends Model
 {
-    use SoftDeletes, Relationships, ExclusiveRelationships, UserStamps;
+    use SoftDeletes,
+        Relationships,
+        ExclusiveRelationships,
+        UserStamps;
 
     protected $fillable = [
         'specifiable_type',

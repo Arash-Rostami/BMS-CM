@@ -3,13 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\Master\UserResource\Exports\UserExporter;
-use App\Filament\Resources\Master\UserResource\Traits\Form as UserForm;
-use App\Filament\Resources\Master\UserResource\Traits\Table as TableTrait;
-use App\Filament\Resources\Master\UserResource\Traits\Infolist as UserInfolist;
 use App\Filament\Resources\Master\UserResource\Traits\Filters;
+use App\Filament\Resources\Master\UserResource\Traits\Form as UserForm;
+use App\Filament\Resources\Master\UserResource\Traits\Infolist as UserInfolist;
+use App\Filament\Resources\Master\UserResource\Traits\Table as TableTrait;
 use App\Models\User;
+use App\Services\SmartCacheManager;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
@@ -17,8 +20,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Infolists\Infolist;
-use Filament\Infolists\Components;
 
 class UserResource extends Resource
 {
@@ -51,6 +52,86 @@ class UserResource extends Resource
                         static::getLastLogOut(),
                     ])->columns(2),
 
+            ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with([
+                'department',
+                'attachments',
+            ])
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return "👨🏻‍💻 " . $record->name;
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resources/user/strings.general.model_label');
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = SmartCacheManager::remember(
+            'User',
+            ['user_id' => auth()->id(), 'type' => 'total_count'],
+            3600,
+            fn() => static::getModel()::count()
+        );
+
+        return $count > 0 ? (string)$count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('resources/user/strings.general.navigation_group');
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Master\UserResource\Pages\ManageUsers::route('/'),
+        ];
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources/user/strings.general.plural_model_label');
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Components\Section::make()
+                    ->schema([
+                        static::viewName(),
+                        static::viewEmail(),
+                        static::viewPhone(),
+                        static::viewCompany(),
+                        static::viewDepartment(),
+                        static::viewPosition(),
+                        static::viewRole(),
+                        static::viewStatus(),
+                        static::viewIP(),
+                        static::viewLastLogIn(),
+                        static::viewLastLogOut(),
+                        static::viewCreatedAt(),
+                        static::viewUpdatedAt(),
+                        static::viewImage(),
+                    ])->columns(2),
             ]);
     }
 
@@ -108,74 +189,5 @@ class UserResource extends Resource
             ])
             ->striped()
             ->defaultSort('id', 'desc');
-    }
-
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                Components\Section::make()
-                    ->schema([
-                        static::viewName(),
-                        static::viewEmail(),
-                        static::viewPhone(),
-                        static::viewCompany(),
-                        static::viewDepartment(),
-                        static::viewPosition(),
-                        static::viewRole(),
-                        static::viewStatus(),
-                        static::viewIP(),
-                        static::viewLastLogIn(),
-                        static::viewLastLogOut(),
-                        static::viewCreatedAt(),
-                        static::viewUpdatedAt(),
-                        static::viewImage(),
-                    ])->columns(2),
-            ]);
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Master\UserResource\Pages\ManageUsers::route('/'),
-        ];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
-    }
-
-    public static function getModelLabel(): string
-    {
-        return __('resources/user/strings.general.model_label');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return __('resources/user/strings.general.plural_model_label');
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return __('resources/user/strings.general.navigation_group');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
-
-    public static function getGlobalSearchResultTitle(Model $record): string
-    {
-        return "👨🏻‍💻 " . $record->name;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
     }
 }
