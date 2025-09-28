@@ -349,7 +349,11 @@ trait Form
         return TextInput::make('quantity')
             ->label(__('resources/proformaInvoice/strings.form.quantity'))
             ->live(onBlur: true)
-            ->afterStateUpdated(fn(Get $get, Set $set) => $set('total_amount', number_format((($get('quantity') ?? 0)) * (($get('unit_price') ?? 0)), 2, '.', '')))
+            ->afterStateUpdated(function (Get $get, Set $set) {
+                $quantity = floatval($get('quantity') ?? 0);
+                $unitPrice = floatval($get('unit_price') ?? 0);
+                $set('total_amount', number_format($quantity * $unitPrice, 2, '.', ''));
+            })
             ->numeric()
             ->live()
             ->minValue(0.01)
@@ -375,7 +379,11 @@ trait Form
         return TextInput::make('unit_price')
             ->label(__('resources/proformaInvoice/strings.form.unit_price'))
             ->live(onBlur: true)
-            ->afterStateUpdated(fn(Get $get, Set $set) => $set('total_amount', number_format((($get('quantity') ?? 0)) * (($get('unit_price') ?? 0)), 2, '.', '')))
+            ->afterStateUpdated(function (Get $get, Set $set) {
+                $quantity = floatval($get('quantity') ?? 0);
+                $unitPrice = floatval($get('unit_price') ?? 0);
+                $set('total_amount', number_format($quantity * $unitPrice, 2, '.', ''));
+            })
             ->prefix('💰')
             ->numeric()
             ->live()

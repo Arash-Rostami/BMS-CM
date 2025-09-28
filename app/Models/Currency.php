@@ -27,6 +27,7 @@ class Currency extends Model
         'english_name',
         'description',
         'user_id',
+        'is_active',
         'updated_by_id',
     ];
 

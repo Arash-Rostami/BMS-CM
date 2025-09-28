@@ -32,6 +32,7 @@ Route::get('/clear', function () {
 });
 
 
+Route::get('/test', function () {return view('components.test');});
 
 
 Route::get('/attachments/{attachment}/download', [AttachmentController::class, 'download'])
