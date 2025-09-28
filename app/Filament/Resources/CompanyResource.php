@@ -7,6 +7,7 @@ use App\Filament\Resources\Master\CompanyResource\Traits\Filters as CompanyFilte
 use App\Filament\Resources\Master\CompanyResource\Traits\Form as CompanyForm;
 use App\Filament\Resources\Master\CompanyResource\Traits\Infolist as CompanyInfolist;
 use App\Filament\Resources\Master\CompanyResource\Traits\Table as CompanyTable;
+use App\Filament\Traits\HandleActivation;
 use App\Models\Company;
 use App\Services\SmartCacheManager;
 use Filament\Forms;
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CompanyResource extends Resource
 {
-    use CompanyForm, CompanyTable, CompanyInfolist, CompanyFilters;
+    use CompanyForm, CompanyTable, CompanyInfolist, CompanyFilters, HandleActivation;
 
     protected static ?string $model = Company::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
@@ -162,6 +163,8 @@ class CompanyResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    static::getActivateBulkAction(),
+                    static::getDeactivateBulkAction(),
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),

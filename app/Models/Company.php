@@ -30,6 +30,7 @@ class Company extends Model
         'english_name',
         'description',
         'types',
+        'is_active',
         'user_id',
         'updated_by_id',
     ];

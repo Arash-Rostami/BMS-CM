@@ -24,7 +24,8 @@ trait Relationships
     public function consigneeCompany(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'consignee_company_id')
-            ->buyers();
+            ->buyers()
+            ->where('is_active', 1);
     }
 
     public function items(): HasMany
@@ -34,12 +35,13 @@ trait Relationships
 
     public function mainCurrency(): BelongsTo
     {
-        return $this->belongsTo(Currency::class, 'main_currency_id');
+        return $this->belongsTo(Currency::class, 'main_currency_id')
+            ->where('is_active', 1);
     }
 
     public function purchaseOrders(): BelongsToMany
     {
-        return $this->belongsToMany(PurchaseOrder::class ,'proforma_invoice_purchase_order');
+        return $this->belongsToMany(PurchaseOrder::class, 'proforma_invoice_purchase_order');
     }
 
     public function purchaseRequests(): BelongsToMany
@@ -49,7 +51,8 @@ trait Relationships
 
     public function secondaryCurrency(): BelongsTo
     {
-        return $this->belongsTo(Currency::class, 'secondary_currency_id');
+        return $this->belongsTo(Currency::class, 'secondary_currency_id')
+            ->where('is_active', 1);
     }
 
     public function sellerCompany(): BelongsTo
@@ -59,6 +62,7 @@ trait Relationships
                 Company::TYPE_SUPPLIER,
                 Company::TYPE_MANUFACTURER,
                 Company::TYPE_SELLER
-            );
+            )
+            ->where('is_active', 1);
     }
 }

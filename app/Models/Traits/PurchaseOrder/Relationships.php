@@ -24,12 +24,14 @@ trait Relationships
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'buyer_id')
-            ->buyers();
+            ->buyers()
+            ->where('is_active', 1);
     }
 
     public function currency(): BelongsTo
     {
-        return $this->belongsTo(Currency::class);
+        return $this->belongsTo(Currency::class)
+            ->where('is_active', 1);
     }
 
     public function items(): HasMany
@@ -60,6 +62,7 @@ trait Relationships
                 Company::TYPE_SUPPLIER,
                 Company::TYPE_MANUFACTURER,
                 Company::TYPE_SELLER
-            );
+            )
+            ->where('is_active', 1);;
     }
 }

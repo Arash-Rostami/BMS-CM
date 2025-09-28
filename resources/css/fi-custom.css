@@ -59,8 +59,6 @@ body .fi-wi-widget .fi-section-content:hover {
     0px 4px 8px rgba(0, 0, 0, 0.06);
     padding: 0 16px;
     background-color: var(--custom-third-mid);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
 }
 
 
@@ -103,11 +101,12 @@ body .fi-wi-widget .fi-section-content:hover {
 }
 
 .fi-sidebar-item > a {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    -webkit-box-shadow: 0 0 3px var(--custom-fourth-light);
     background-color: var(--custom-second-light);
     text-decoration: none;
     color: inherit;
 }
+
 
 .dark .fi-sidebar-item > a {
     background-color: var(--filament-dark-mid);
@@ -122,6 +121,21 @@ body .fi-wi-widget .fi-section-content:hover {
 .dark .fi-sidebar-item > a:hover {
     background-color: var(--google-first-dark) !important;
 }
+
+
+.fi-sidebar-item.fi-active > a::before {
+    content: '🔹';
+    position: absolute;
+    transform: scale(75%);
+    right: -2px;
+    top: -7px;
+    bottom: 25%;
+    width: 3px;
+    animation: pulse 2s infinite;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
 
 /* Panel ScrollBar*/
 ::-webkit-scrollbar {
@@ -345,6 +359,34 @@ nav.fi-ta-pagination {
     background-color: var(--google-first-dark) !important;
 }
 
+body:has(.fi-modal-open) .fi-sidebar-item > a {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.dark body:has(.fi-modal-open) .fi-sidebar-item > a {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+body:has(.fi-modal-open) span.fi-badge,
+body:has(.fi-modal-open) ::-webkit-scrollbar {
+    display: none;
+}
+
+.dark body:has(.fi-modal-open) span.fi-badge,
+.dark body:has(.fi-modal-open) ::-webkit-scrollbar {
+    display: none;
+}
+
+body:has(.fi-modal-open) .fi-sidebar-item-icon {
+    color: #3A4E67;
+}
+
+.dark body:has(.fi-modal-open) .fi-sidebar-item-icon {
+    color: coral;
+}
+
 
 /* DropDown Menu */
 .fi-dropdown-panel:hover {
@@ -435,5 +477,20 @@ nav.fi-ta-pagination {
     }
     100% {
         opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
     }
 }

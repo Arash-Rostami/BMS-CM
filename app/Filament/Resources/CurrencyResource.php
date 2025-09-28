@@ -7,6 +7,7 @@ use App\Filament\Resources\Master\CurrencyResource\Traits\Filters as CurrencyFil
 use App\Filament\Resources\Master\CurrencyResource\Traits\Form as CurrencyForm;
 use App\Filament\Resources\Master\CurrencyResource\Traits\Infolist as CurrencyInfolist;
 use App\Filament\Resources\Master\CurrencyResource\Traits\Table as CurrencyTable;
+use App\Filament\Traits\HandleActivation;
 use App\Models\Currency;
 use App\Services\SmartCacheManager;
 use Filament\Forms;
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CurrencyResource extends Resource
 {
-    use CurrencyForm, CurrencyTable, CurrencyInfolist, CurrencyFilters;
+    use CurrencyForm, CurrencyTable, CurrencyInfolist, CurrencyFilters, HandleActivation;
 
     protected static ?string $model = Currency::class;
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
@@ -148,6 +149,8 @@ class CurrencyResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    static::getActivateBulkAction(),
+                    static::getDeactivateBulkAction(),
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),

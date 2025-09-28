@@ -70,7 +70,7 @@ class PurchaseRequestResource extends Resource
                                                 static::getItemNotesToggle(),
                                                 static::getItemAttachmentsToggle(),
                                                 static::getItemNotesField(),
-                                                static::getItemAttachmentsField(),
+//                                                static::getItemAttachmentsField(),
                                             ]
                                         )->columns(3)
 

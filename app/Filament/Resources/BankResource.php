@@ -7,6 +7,7 @@ use App\Filament\Resources\Master\BankResource\Traits\Filters as BankFilters;
 use App\Filament\Resources\Master\BankResource\Traits\Form as BankForm;
 use App\Filament\Resources\Master\BankResource\Traits\Infolist as BankInfolist;
 use App\Filament\Resources\Master\BankResource\Traits\Table as BankTable;
+use App\Filament\Traits\HandleActivation;
 use App\Models\Bank;
 use App\Services\SmartCacheManager;
 use Filament\Forms;
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BankResource extends Resource
 {
-    use BankForm, BankTable, BankInfolist, BankFilters;
+    use BankForm, BankTable, BankInfolist, BankFilters, HandleActivation;
 
     protected static ?string $model = Bank::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
@@ -148,6 +149,8 @@ class BankResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    static::getActivateBulkAction(),
+                    static::getDeactivateBulkAction(),
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
