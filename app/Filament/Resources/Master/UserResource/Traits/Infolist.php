@@ -14,7 +14,7 @@ trait Infolist
 {
     public static function viewImage(): ImageEntry
     {
-        return Components\ImageEntry::make('image')
+        return ImageEntry::make('image')
             ->label(__('resources/user/strings.form.image'))
             ->circular()
             ->size(80);
@@ -22,48 +22,48 @@ trait Infolist
 
     public static function viewName(): TextEntry
     {
-        return Components\TextEntry::make('name')
+        return TextEntry::make('name')
             ->label(__('resources/user/strings.form.name'));
     }
 
     public static function viewEmail(): TextEntry
     {
-        return Components\TextEntry::make('email')
+        return TextEntry::make('email')
             ->label(__('resources/user/strings.form.email'))
             ->copyable();
     }
 
     public static function viewPhone(): TextEntry
     {
-        return Components\TextEntry::make('phone')
+        return TextEntry::make('phone')
             ->label(__('resources/user/strings.form.phone'))
             ->copyable();
     }
 
     public static function viewCompany(): TextEntry
     {
-        return Components\TextEntry::make('company')
+        return TextEntry::make('company')
             ->label(__('resources/user/strings.form.company'))
             ->placeholder('-');
     }
 
     public static function viewDepartment(): TextEntry
     {
-        return Components\TextEntry::make('department.name')
+        return TextEntry::make('department.name')
             ->label(__('resources/user/strings.form.department'))
             ->placeholder('-');
     }
 
     public static function viewPosition(): TextEntry
     {
-        return Components\TextEntry::make('position')
+        return TextEntry::make('position')
             ->label(__('resources/user/strings.form.position'))
             ->color(fn (string $state): string => PositionStatus::tryFrom($state)?->getColor() ?? 'gray');
     }
 
     public static function viewRole(): TextEntry
     {
-        return Components\TextEntry::make('role')
+        return TextEntry::make('role')
             ->label(__('resources/user/strings.form.role'))
             ->formatStateUsing(fn (string $state): string => UserRole::tryFrom($state)?->getLabel() ?? $state)
             ->color(fn (string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray');
@@ -71,7 +71,7 @@ trait Infolist
 
     public static function viewStatus(): TextEntry
     {
-        return Components\TextEntry::make('status')
+        return TextEntry::make('status')
             ->label(__('resources/user/strings.form.status'))
             ->formatStateUsing(fn (string $state): string => UserStatus::tryFrom($state)?->getLabel() ?? $state)
             ->color(fn (string $state): string => UserStatus::tryFrom($state)?->getColor() ?? 'gray');
@@ -79,35 +79,35 @@ trait Infolist
 
     public static function viewIP(): TextEntry
     {
-        return Components\TextEntry::make('ip')
+        return TextEntry::make('ip')
             ->label(__('resources/user/strings.form.ip'))
             ->formatStateUsing(fn($state, ?Model $record): string => ($state && $record) ? "{$state} ({$record->user_country})" : '🌎 N/A');
     }
 
     public static function viewLastLogIn(): TextEntry
     {
-        return Components\TextEntry::make('last_log_in')
+        return TextEntry::make('last_log_in')
             ->label(__('resources/user/strings.form.last_log_in'))
             ->dateTime('M Y | D: H:i:s');
     }
 
     public static function viewLastLogOut(): TextEntry
     {
-        return Components\TextEntry::make('last_log_out')
+        return TextEntry::make('last_log_out')
             ->label(__('resources/user/strings.form.last_log_out'))
             ->dateTime('M Y | D: H:i:s');
     }
 
     public static function viewCreatedAt(): TextEntry
     {
-        return Components\TextEntry::make('created_at')
+        return TextEntry::make('created_at')
             ->label(__('Created At'))
             ->dateTime('M Y | D: H:i:s');
     }
 
     public static function viewUpdatedAt(): TextEntry
     {
-        return Components\TextEntry::make('updated_at')
+        return TextEntry::make('updated_at')
             ->label(__('Updated At'))
             ->dateTime('M Y | D: H:i:s');
     }

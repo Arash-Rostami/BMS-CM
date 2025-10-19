@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Traits\PurchaseItem\Relationships;
+use App\Models\Traits\PurchaseRequestItem\Relationships;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PurchaseItem extends Model
+class PurchaseRequestItem extends Model
 {
     use HasFactory,
         SoftDeletes,

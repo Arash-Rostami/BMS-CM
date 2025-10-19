@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Operational\ProformaInvoiceResource\Pages;
 
+use Filament\Actions\CreateAction;
 use App\Filament\Resources\ProformaInvoiceResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -13,7 +14,7 @@ class ListProformaInvoices extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
+            CreateAction::make()
                 ->icon('heroicon-o-sparkles')
         ];
     }

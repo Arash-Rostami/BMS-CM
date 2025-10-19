@@ -2,6 +2,22 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Master\ProductResource\Exports\ProductExporter;
 use App\Filament\Resources\Master\ProductResource\Pages\ManageProducts;
 use App\Filament\Resources\Master\ProductResource\Traits\CategoryDrilldown;
@@ -11,20 +27,11 @@ use App\Filament\Resources\Master\ProductResource\Traits\Infolist as ProductInfo
 use App\Filament\Resources\Master\ProductResource\Traits\Table as ProductTable;
 use App\Models\Product;
 use App\Services\SmartCacheManager;
-use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Infolists\Components;
-use Filament\Infolists\Components\Tabs as InfoTabs;
-use Filament\Infolists\Components\Tabs\Tab;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -37,15 +44,15 @@ class ProductResource extends Resource
 
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-archive-box';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-archive-box';
 
     protected static ?int $navigationSort = 2;
 
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Select::make('action')
                     ->options([
                         'check' => __('resources/product/strings.form.action_check'),
@@ -68,7 +75,7 @@ class ProductResource extends Resource
                 Tabs::make('Tabs')
                     ->tabs([
                         //Category & Details
-                        Tabs\Tab::make('1')
+                        Tab::make('1')
                             ->label(__('resources/product/strings.form.tab1'))
                             ->schema([
                                 Section::make(__('resources/product/strings.form.category'))
@@ -93,7 +100,7 @@ class ProductResource extends Resource
                             ])
                             ->icon('heroicon-o-cube'),
                         //Specifications
-                        Tabs\Tab::make('2')
+                        Tab::make('2')
                             ->label(__('resources/product/strings.form.tab2'))
                             ->schema([
                                 Section::make(__('resources/product/strings.form.specifications_section_title'))
@@ -116,7 +123,8 @@ class ProductResource extends Resource
                                             ]),
                                     ]),
                             ])->icon('heroicon-o-list-bullet'),
-                    ])->columnSpanFull()
+                    ])
+                    ->columnSpanFull()
                     ->visible(fn(Get $get, $operation) => $get('action') === 'create' || $operation == 'edit')
             ]);
     }
@@ -166,7 +174,7 @@ class ProductResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/product/strings.general.navigation_group');
+        return __('resources/dashboard/strings.navigation_group.base');
     }
 
     public static function getPages(): array
@@ -181,18 +189,18 @@ class ProductResource extends Resource
         return __('resources/product/strings.general.plural_model_label');
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                InfoTabs::make('Product Information')
+        return $schema
+            ->components([
+                Tabs::make('Product Information')
                     ->tabs([
                         //Product
                         Tab::make('General')
                             ->label(__('resources/product/strings.form.tab1'))
                             ->icon('heroicon-o-cube')
                             ->schema([
-                                Components\Section::make()->schema([
+                                Section::make()->schema([
                                     static::viewName(),
                                     static::viewEnglishName(),
                                     static::viewCode(),
@@ -213,7 +221,7 @@ class ProductResource extends Resource
                             ->label(__('resources/product/strings.form.tab2'))
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
-                                Components\Section::make()
+                                Section::make()
                                     ->schema([
                                         static::viewHsCode(),
                                         static::viewImportDuty(),
@@ -260,21 +268,21 @@ class ProductResource extends Resource
                 static::getUpdaterFilter(),
                 static::getTrashedFilter(),
             ])->filtersFormColumns(2)
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make()
-                        ->mutateFormDataUsing(fn(array $data) => ManageProducts::setSlugAndCategory($data)),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+                    ViewAction::make(),
+                    EditAction::make()
+                        ->mutateDataUsing(fn(array $data) => ManageProducts::setSlugAndCategory($data)),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
                 ])
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()->exporter(ProductExporter::class),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()->exporter(ProductExporter::class),
                 ])
             ])
             ->striped()

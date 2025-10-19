@@ -3,7 +3,10 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.2",
@@ -11,7 +14,7 @@
         "ext-pdo_mysql": "*",
         "bezhansalleh/filament-language-switch": "4.0",
         "filament/filament": "^4.0",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "12.31.1",
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6",
         "mokhosh/filament-jalali": "^5.0",
@@ -37,7 +40,6 @@
         "files": [
             "app/Utils/helpers.php"
         ]
-
     },
     "autoload-dev": {
         "psr-4": {

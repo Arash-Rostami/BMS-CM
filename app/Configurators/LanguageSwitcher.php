@@ -2,8 +2,8 @@
 
 namespace App\Configurators;
 
-use BezhanSalleh\FilamentLanguageSwitch\Enums\Placement;
-use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
+use BezhanSalleh\LanguageSwitch\Enums\Placement;
+use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Illuminate\Support\Facades\Vite;
 
 class LanguageSwitcher
@@ -21,7 +21,9 @@ class LanguageSwitcher
                     'fa' => Vite::asset('resources/img/flags/iran.svg'),
                     'en' => Vite::asset('resources/img/flags/usa.svg'),
                     'fr' => Vite::asset('resources/img/flags/france.svg'),
-                ]);
+                ])
+                ->flagsOnly();
+
         });
     }
 }

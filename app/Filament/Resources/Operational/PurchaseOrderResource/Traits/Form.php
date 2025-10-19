@@ -8,13 +8,13 @@ use App\Services\CodeGenerator;
 use App\Services\FileUploadManager;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 
@@ -29,6 +29,7 @@ trait Form
             ->label(__('resources/purchaseOrder/strings.form.attachments'))
             ->multiple()
             ->disk('public')
+            ->visibility('public')
             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'application/pdf', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',])
             ->maxSize(2500)
             ->previewable()
@@ -342,20 +343,20 @@ trait Form
             ->validationAttribute(__('resources/purchaseOrder/strings.form.supplier'));
     }
 
-    public static function getTotalAmountField(): Placeholder
+    public static function getTotalAmountField(): TextEntry
     {
-        return Placeholder::make('total_amount')
+        return TextEntry::make('total_amount')
             ->label(__('resources/purchaseOrder/strings.form.total_amount'))
             ->columnSpan(2)
-            ->content(fn(Get $get) => is_numeric($get('total_amount')) ? '💰 ' . number_format($get('total_amount'), 2) : $get('total_amount'));
+            ->formatStateUsing(fn(Get $get) => is_numeric($get('total_amount')) ? '💰 ' . number_format($get('total_amount'), 2) : $get('total_amount'));
     }
 
-    public static function getTotalQuantityField(): Placeholder
+    public static function getTotalQuantityField(): TextEntry
     {
-        return Placeholder::make('total_quantity')
+        return TextEntry::make('total_quantity')
             ->label(__('resources/purchaseOrder/strings.form.total_quantity'))
             ->columnSpan(2)
-            ->content(fn(Get $get) => is_numeric($get('total_quantity')) ? '📦 ' . number_format($get('total_quantity'), 2) : $get('total_quantity'));
+            ->formatStateUsing(fn(Get $get) => is_numeric($get('total_quantity')) ? '📦 ' . number_format($get('total_quantity'), 2) : $get('total_quantity'));
     }
 
     public static function getValidityDateField(): DatePicker

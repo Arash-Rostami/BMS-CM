@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Operational\PurchaseRequestResource\Pages;
 
+use Filament\Actions\DeleteAction;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\HandleStatusMutation;
 use App\Filament\Resources\PurchaseRequestResource;
 use Filament\Actions;
@@ -18,7 +19,7 @@ class EditPurchaseRequest extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 

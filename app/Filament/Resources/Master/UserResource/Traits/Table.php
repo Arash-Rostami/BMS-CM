@@ -85,7 +85,7 @@ trait Table
     {
         return ImageColumn::make('image')
             ->square()
-            ->height(30)
+            ->circular()
             ->disk('public')
             ->visibility('public')
             ->defaultImageUrl(fn($record) => $record->getFilamentAvatarUrl())

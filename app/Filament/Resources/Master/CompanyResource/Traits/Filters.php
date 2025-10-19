@@ -25,7 +25,7 @@ trait Filters
     {
         return Filter::make('company_types')
             ->label(__('resources/company/strings.filters.company_types'))
-            ->form([
+            ->schema([
                 Select::make('types')
                     ->label(__('resources/company/strings.filters.select_types'))
                     ->options(Company::getAvailableTypes())

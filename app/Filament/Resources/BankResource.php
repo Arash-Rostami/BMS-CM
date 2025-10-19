@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\Master\BankResource\Exports\BankExporter;
+use App\Filament\Resources\Master\BankResource\Pages\ManageBanks;
 use App\Filament\Resources\Master\BankResource\Traits\Filters as BankFilters;
 use App\Filament\Resources\Master\BankResource\Traits\Form as BankForm;
 use App\Filament\Resources\Master\BankResource\Traits\Infolist as BankInfolist;
@@ -10,13 +11,19 @@ use App\Filament\Resources\Master\BankResource\Traits\Table as BankTable;
 use App\Filament\Traits\HandleActivation;
 use App\Models\Bank;
 use App\Services\SmartCacheManager;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Infolists\Components;
-use Filament\Infolists\Infolist;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,22 +34,24 @@ class BankResource extends Resource
     use BankForm, BankTable, BankInfolist, BankFilters, HandleActivation;
 
     protected static ?string $model = Bank::class;
-    protected static ?string $navigationIcon = 'heroicon-o-building-library';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-library';
 
     protected static ?int $navigationSort = 4;
 
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make()
+        return $schema
+            ->components([
+                Section::make()
                     ->schema([
                         static::getName(),
                         static::getEnglishName(),
                         static::getDescription(),
                         static::getIsActive(),
-                    ])->columns(2),
+                    ])
+                    ->columnSpanFull()
+                    ->columns(2),
             ]);
     }
 
@@ -87,13 +96,13 @@ class BankResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/bank/strings.general.navigation_group');
+        return __('resources/dashboard/strings.navigation_group.base');
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Master\BankResource\Pages\ManageBanks::route('/'),
+            'index' => ManageBanks::route('/'),
         ];
     }
 
@@ -102,11 +111,11 @@ class BankResource extends Resource
         return __('resources/bank/strings.general.plural_model_label');
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Components\Section::make()
+        return $schema
+            ->components([
+                Section::make()
                     ->schema([
                         static::viewName(),
                         static::viewEnglishName(),
@@ -116,7 +125,9 @@ class BankResource extends Resource
                         static::viewUpdater(),
                         static::viewCreatedAt(),
                         static::viewUpdatedAt(),
-                    ])->columns(2),
+                    ])
+                    ->columnSpanFull()
+                    ->columns(2),
             ]);
     }
 
@@ -139,22 +150,22 @@ class BankResource extends Resource
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
             ])
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
                 ])
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+            ->toolbarActions([
+                BulkActionGroup::make([
                     static::getActivateBulkAction(),
                     static::getDeactivateBulkAction(),
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                         ->exporter(BankExporter::class)
                 ]),
             ])

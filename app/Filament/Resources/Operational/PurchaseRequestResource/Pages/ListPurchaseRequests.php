@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Operational\PurchaseRequestResource\Pages;
 
 use App\Filament\Resources\PurchaseRequestResource;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListPurchaseRequests extends ListRecords
@@ -13,7 +13,7 @@ class ListPurchaseRequests extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
+            CreateAction::make()
                 ->icon('heroicon-o-sparkles')
         ];
     }

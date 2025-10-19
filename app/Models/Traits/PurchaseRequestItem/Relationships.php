@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Traits\PurchaseItem;
+namespace App\Models\Traits\PurchaseRequestItem;
 
 use App\Models\Attachment;
 use App\Models\Product;

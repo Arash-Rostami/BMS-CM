@@ -6,7 +6,7 @@ use Filament\Forms\{Get, Set};
 
 trait TotalAmountCalculation
 {
-    public static function updateTotalAmount(Get $get, Set $set): void
+    public static function updateTotalAmount(\Filament\Schemas\Components\Utilities\Get $get, \Filament\Schemas\Components\Utilities\Set $set): void
     {
         $total = collect($get('items') ?? [])
             ->sum(fn($i) => floatval($i['quantity'] ?? 0) * floatval($i['unit_price'] ?? 0));

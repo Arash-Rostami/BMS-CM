@@ -5,7 +5,7 @@ namespace App\Models\Traits\ProformaInvoice;
 use App\Models\Attachment;
 use App\Models\Company;
 use App\Models\Currency;
-use App\Models\InvoiceItem;
+use App\Models\ProformaInvoiceItem;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,7 +30,7 @@ trait Relationships
 
     public function items(): HasMany
     {
-        return $this->hasMany(InvoiceItem::class);
+        return $this->hasMany(ProformaInvoiceItem::class);
     }
 
     public function mainCurrency(): BelongsTo

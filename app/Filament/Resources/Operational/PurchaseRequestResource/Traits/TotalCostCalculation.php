@@ -7,7 +7,7 @@ use Filament\Forms\{Get, Set};
 
 trait TotalCostCalculation
 {
-    public static function updateTotalCost(Get $get, Set $set): void
+    public static function updateTotalCost(\Filament\Schemas\Components\Utilities\Get $get, \Filament\Schemas\Components\Utilities\Set $set): void
     {
         $total = collect($get('items') ?? [])
             ->sum(fn($i) => ((float)$i['quantity'] ?? 0) * ((float)$i['estimated_cost'] ?? 0));

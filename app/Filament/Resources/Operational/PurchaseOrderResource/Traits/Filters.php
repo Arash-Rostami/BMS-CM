@@ -22,7 +22,7 @@ trait Filters
     public static function getCreationDateFilter(): Filter
     {
         return Filter::make('created_at')
-            ->form([
+            ->schema([
                 DatePicker::make('created_from')
                     ->label(__('resources/purchaseOrder/strings.filters.created_from'))
                     ->native(false),

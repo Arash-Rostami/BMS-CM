@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use Filament\Forms\Components\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Field;
 use Illuminate\Support\ServiceProvider;
 

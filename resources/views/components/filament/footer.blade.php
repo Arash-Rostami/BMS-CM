@@ -6,8 +6,8 @@
 <footer
     @if ($isSidebarCollapsible)
         x-bind:class="{
-            'lg:ps-[--sidebar-width]': ! $isSidebarFullyCollapsible,
-            'lg:ps-[--collapsed-sidebar-width]': $isSidebarFullyCollapsible && ! $isSidebarCollapsed,
+            'lg:ps-(--sidebar-width)': ! $isSidebarFullyCollapsible,
+            'lg:ps-(--collapsed-sidebar-width)': $isSidebarFullyCollapsible && ! $isSidebarCollapsed,
         }"
     @endif
     class="custom-footer"

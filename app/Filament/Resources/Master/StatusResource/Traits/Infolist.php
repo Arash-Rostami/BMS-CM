@@ -9,50 +9,50 @@ trait Infolist
 {
     public static function viewType(): TextEntry
     {
-        return Components\TextEntry::make('type')
+        return TextEntry::make('type')
             ->label(__('resources/status/strings.form.type'));
     }
 
     public static function viewEnglishType(): TextEntry
     {
-        return Components\TextEntry::make('english_type')
+        return TextEntry::make('english_type')
             ->label(__('resources/status/strings.form.english_type'));
     }
 
     public static function viewName(): TextEntry
     {
-        return Components\TextEntry::make('name')
+        return TextEntry::make('name')
             ->label(__('resources/status/strings.form.name'));
     }
 
     public static function viewEnglishName(): TextEntry
     {
-        return Components\TextEntry::make('english_name')
+        return TextEntry::make('english_name')
             ->label(__('resources/status/strings.form.english_name'));
     }
 
     public static function viewCreator(): TextEntry
     {
-        return Components\TextEntry::make('creator.name')
+        return TextEntry::make('creator.name')
             ->label(__('resources/status/strings.form.creator'));
     }
 
     public static function viewUpdater(): TextEntry
     {
-        return Components\TextEntry::make('updater.name')
+        return TextEntry::make('updater.name')
             ->label(__('resources/status/strings.form.updater'));
     }
 
     public static function viewCreatedAt(): TextEntry
     {
-        return Components\TextEntry::make('created_at')
+        return TextEntry::make('created_at')
             ->label(__('resources/status/strings.table.created_at'))
             ->dateTime('M Y | D: H:i:s');
     }
 
     public static function viewUpdatedAt(): TextEntry
     {
-        return Components\TextEntry::make('updated_at')
+        return TextEntry::make('updated_at')
             ->label(__('resources/status/strings.table.updated_at'))
             ->dateTime('M Y | D: H:i:s');
     }

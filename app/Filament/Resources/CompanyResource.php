@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\Master\CompanyResource\Exports\CompanyExporter;
+use App\Filament\Resources\Master\CompanyResource\Pages\ManageCompanies;
 use App\Filament\Resources\Master\CompanyResource\Traits\Filters as CompanyFilters;
 use App\Filament\Resources\Master\CompanyResource\Traits\Form as CompanyForm;
 use App\Filament\Resources\Master\CompanyResource\Traits\Infolist as CompanyInfolist;
@@ -10,13 +11,19 @@ use App\Filament\Resources\Master\CompanyResource\Traits\Table as CompanyTable;
 use App\Filament\Traits\HandleActivation;
 use App\Models\Company;
 use App\Services\SmartCacheManager;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Infolists\Components;
-use Filament\Infolists\Infolist;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,25 +34,26 @@ class CompanyResource extends Resource
     use CompanyForm, CompanyTable, CompanyInfolist, CompanyFilters, HandleActivation;
 
     protected static ?string $model = Company::class;
-    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';
 
     protected static ?int $navigationSort = 3;
 
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make(__('resources/company/strings.form.basic_information'))
+        return $schema
+            ->components([
+                Section::make(__('resources/company/strings.form.basic_information'))
                     ->schema([
                         static::getName(),
                         static::getEnglishName(),
                         static::getDescription(),
                         static::getIsActive(),
                     ])
+                    ->columnSpanFull()
                     ->columns(2),
 
-                Forms\Components\Section::make(__('resources/company/strings.form.company_classification'))
+                Section::make(__('resources/company/strings.form.company_classification'))
                     ->schema([
                         static::getCompanyTypes(),
                     ])
@@ -98,13 +106,13 @@ class CompanyResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/company/strings.general.navigation_group');
+        return __('resources/dashboard/strings.navigation_group.base');
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Master\CompanyResource\Pages\ManageCompanies::route('/'),
+            'index' => ManageCompanies::route('/'),
         ];
     }
 
@@ -113,11 +121,11 @@ class CompanyResource extends Resource
         return __('resources/company/strings.general.plural_model_label');
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Components\Section::make()
+        return $schema
+            ->components([
+                Section::make()
                     ->schema([
                         static::viewName(),
                         static::viewEnglishName(),
@@ -128,7 +136,9 @@ class CompanyResource extends Resource
                         static::viewUpdater(),
                         static::viewCreatedAt(),
                         static::viewUpdatedAt(),
-                    ])->columns(2),
+                    ])
+                    ->columnSpanFull()
+                    ->columns(2),
             ]);
     }
 
@@ -153,22 +163,22 @@ class CompanyResource extends Resource
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
             ])
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
                 ])
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+            ->toolbarActions([
+                BulkActionGroup::make([
                     static::getActivateBulkAction(),
                     static::getDeactivateBulkAction(),
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                         ->exporter(CompanyExporter::class)
                 ]),
             ])

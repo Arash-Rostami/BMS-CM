@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Operational\TargetResource\Traits;
 
 
+use Filament\Forms\Components\MorphToSelect\Type;
 use App\Services\PersianCalendar;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\Select;
@@ -26,11 +27,11 @@ trait Form
         return MorphToSelect::make('targetable')
             ->label(__('resources/target/strings.form.targetable'))
             ->types([
-                MorphToSelect\Type::make(Category::class)
+                Type::make(Category::class)
                     ->label(__('resources/target/strings.form.targetable_category'))
                     ->titleAttribute(app()->isLocale('fa') ? 'name' : 'english_name')
                     ->searchColumns(['name', 'english_name']),
-                MorphToSelect\Type::make(Product::class)
+                Type::make(Product::class)
                     ->label(__('resources/target/strings.form.targetable_product'))
                     ->getOptionLabelFromRecordUsing(fn(Product $r): string => $r->customized_label)
                     ->searchColumns(['code', 'name', 'english_name'])

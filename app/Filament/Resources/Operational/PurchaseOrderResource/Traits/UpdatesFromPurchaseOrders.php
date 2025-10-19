@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Traits;
 
+use Filament\Schemas\Components\Utilities\Set;
 use App\Models\PurchaseOrder;
-use Filament\Forms\Set;
 
 trait UpdatesFromPurchaseOrders
 {

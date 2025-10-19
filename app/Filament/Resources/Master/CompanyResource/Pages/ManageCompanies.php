@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Master\CompanyResource\Pages;
 
+use Filament\Actions\CreateAction;
 use App\Filament\Resources\CompanyResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
@@ -13,7 +14,7 @@ class ManageCompanies extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
+            CreateAction::make()
                 ->icon('heroicon-o-sparkles')
         ];
     }
