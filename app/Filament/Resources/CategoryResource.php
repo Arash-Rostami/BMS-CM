@@ -4,18 +4,26 @@ namespace App\Filament\Resources;
 
 
 use App\Filament\Resources\Master\CategoryResource\Exports\CategoryExporter;
+use App\Filament\Resources\Master\CategoryResource\Pages\ManageCategories;
 use App\Filament\Resources\Master\CategoryResource\RelationManagers;
 use App\Filament\Resources\Master\CategoryResource\Traits\Filters as CategoryFilters;
 use App\Filament\Resources\Master\CategoryResource\Traits\Form as CategoryForm;
 use App\Filament\Resources\Master\CategoryResource\Traits\Infolist as CategoryInfolist;
 use App\Filament\Resources\Master\CategoryResource\Traits\Table as CategoryTable;
 use App\Models\Category;
-use Filament\Forms\Form;
-use Filament\Infolists\Components;
-use Filament\Infolists\Infolist;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -26,12 +34,12 @@ class CategoryResource extends Resource
     use CategoryForm, CategoryTable, CategoryInfolist, CategoryFilters;
 
     protected static ?string $model = Category::class;
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?int $navigationSort = 1;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->components([
             static::getName(),
             static::getEnglishName(),
             static::getLevel(),
@@ -75,13 +83,13 @@ class CategoryResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/category/strings.general.navigation_group');
+        return __('resources/dashboard/strings.navigation_group.base');
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Master\CategoryResource\Pages\ManageCategories::route('/'),
+            'index' => ManageCategories::route('/'),
         ];
     }
 
@@ -90,11 +98,11 @@ class CategoryResource extends Resource
         return __('resources/category/strings.general.plural_model_label');
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Components\Section::make()
+        return $schema
+            ->components([
+                Section::make()
                     ->schema([
                         static::viewName(),
                         static::viewEnglishName(),
@@ -106,7 +114,9 @@ class CategoryResource extends Resource
                         static::viewUpdater(),
                         static::viewCreatedAt(),
                         static::viewUpdatedAt(),
-                    ])->columns(2),
+                    ])
+                    ->columnSpanFull()
+                    ->columns(2),
             ]);
     }
 
@@ -133,20 +143,20 @@ class CategoryResource extends Resource
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
             ])->filtersFormColumns(2)
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
                 ])
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()->exporter(CategoryExporter::class)
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()->exporter(CategoryExporter::class)
                 ])
             ])
             ->striped()

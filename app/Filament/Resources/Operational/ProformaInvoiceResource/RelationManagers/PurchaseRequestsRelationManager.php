@@ -2,15 +2,24 @@
 
 namespace App\Filament\Resources\Operational\ProformaInvoiceResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DetachAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Enums\Status;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Exports\PurchaseRequestExporter;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Filters as PurchaseRequestFilters;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as PurchaseRequestTable;
 use App\Filament\Resources\PurchaseRequestResource;
-use Filament\Infolists\Infolist;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -37,9 +46,9 @@ class PurchaseRequestsRelationManager extends RelationManager
         return __('resources/purchaseRequest/strings.general.plural_model_label');
     }
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Schema $schema): Schema
     {
-        return PurchaseRequestResource::infolist($infolist);
+        return PurchaseRequestResource::infolist($schema);
     }
 
     public function table(Table $table): Table
@@ -72,20 +81,20 @@ class PurchaseRequestsRelationManager extends RelationManager
                 static::getCreationDateFilter(),
             ])
             ->filtersFormColumns(2)
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DetachAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DetachAction::make(),
+                    DeleteAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                         ->exporter(PurchaseRequestExporter::class),
                 ]),
             ])

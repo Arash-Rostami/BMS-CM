@@ -7,13 +7,13 @@ use App\Models\User;
 use App\Services\FileUploadManager;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 
@@ -47,6 +47,7 @@ trait Form
             ->label(__('resources/purchaseRequest/strings.form.attachments'))
             ->multiple()
             ->disk('public')
+            ->visibility('public')
             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'application/pdf', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',])
             ->maxSize(2500)
             ->previewable()
@@ -102,6 +103,7 @@ trait Form
             ->label(__('resources/purchaseRequest/strings.form.attachments'))
             ->multiple()
             ->disk('public')
+            ->visibility('public')
             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'application/pdf', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',])
             ->maxSize(2500)
             ->previewable()
@@ -319,11 +321,11 @@ trait Form
             ->validationAttribute(__('resources/purchaseRequest/strings.form.status'));
     }
 
-    public static function getTotalEstimatedCostField(): Placeholder
+    public static function getTotalEstimatedCostField(): TextEntry
     {
-        return Placeholder::make('total_estimated_cost')
+        return TextEntry::make('total_estimated_cost')
             ->label(__('resources/purchaseRequest/strings.form.total_estimated_cost'))
-            ->content(fn(Get $get) => is_numeric($get('total_estimated_cost')) ? '💰 ' . number_format($get('total_estimated_cost'), 2) : $get('total_estimated_cost'));
+            ->formatStateUsing(fn(Get $get) => is_numeric($get('total_estimated_cost')) ? '💰 ' . number_format($get('total_estimated_cost'), 2) : $get('total_estimated_cost'));
     }
 
     public static function getUrgencyLevelField(): Select

@@ -13,7 +13,7 @@ trait Filters
     public static function getCreationDateFilter(): Filter
     {
         return Filter::make('created_at')
-            ->form([
+            ->schema([
                 DatePicker::make('created_from')
                     ->label(__('resources/purchaseRequest/strings.filters.created_from'))
                     ->when(app()->isLocale('fa'), fn($column) => $column->jalali())

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Master\ProductResource\Traits;
 
+use Filament\Support\Enums\TextSize;
 use App\Filament\Resources\Master\ProductResource\Enums\InStockStatus;
 use App\Models\Product;
 use Filament\Tables\Columns\IconColumn;
@@ -47,7 +48,7 @@ trait Table
                 ? $record->category->sortAncestors()
                 : __('resources/product/strings.table.no_category') ?? '-')
             ->tooltip(fn($record): ?string => $record->determineRollOrSheetType())
-            ->size(TextColumn\TextColumnSize::Small)
+            ->size(TextSize::Small)
             ->toggleable()
             ->sortable();
     }

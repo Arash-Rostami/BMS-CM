@@ -88,7 +88,7 @@ trait Filters
     {
 
         return Filter::make($filterName)
-            ->form([
+            ->schema([
                 Select::make('category_id')
                     ->label(__($labelKey))
                     ->options(fn() => Cache::remember("filter_{$filterName}_options", now()->addMinutes(5),

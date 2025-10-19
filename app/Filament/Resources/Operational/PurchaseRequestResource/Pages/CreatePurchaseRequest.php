@@ -25,4 +25,5 @@ class CreatePurchaseRequest extends CreateRecord
 
         return $this->mutateStatusData($data);
     }
+
 }

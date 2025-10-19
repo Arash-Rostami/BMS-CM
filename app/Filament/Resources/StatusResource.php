@@ -3,18 +3,25 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\Master\StatusResource\Exports\StatusExporter;
+use App\Filament\Resources\Master\StatusResource\Pages\ManageStatuses;
 use App\Filament\Resources\Master\StatusResource\Traits\Filters as StatusFilters;
 use App\Filament\Resources\Master\StatusResource\Traits\Form as StatusForm;
 use App\Filament\Resources\Master\StatusResource\Traits\Infolist as StatusInfolist;
 use App\Filament\Resources\Master\StatusResource\Traits\Table as StatusTable;
 use App\Models\Status;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Infolists\Components;
-use Filament\Infolists\Infolist;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -25,15 +32,15 @@ class StatusResource extends Resource
     use StatusForm, StatusTable, StatusInfolist, StatusFilters;
 
     protected static ?string $model = Status::class;
-    protected static ?string $navigationIcon = 'heroicon-o-tag';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-tag';
 
     protected static ?int $navigationSort = 6;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make()
+        return $schema
+            ->components([
+                Section::make()
                     ->schema([
                         static::getType(),
                         static::getCustomType(),
@@ -43,7 +50,9 @@ class StatusResource extends Resource
                         static::getEnglishTypeCustomField(),
                         static::getName(),
                         static::getEnglishName(),
-                    ])->columns(2),
+                    ])
+                    ->columnSpanFull()
+                    ->columns(2),
             ]);
     }
 
@@ -76,13 +85,13 @@ class StatusResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/status/strings.general.navigation_group');
+        return __('resources/dashboard/strings.navigation_group.base');
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Master\StatusResource\Pages\ManageStatuses::route('/'),
+            'index' => ManageStatuses::route('/'),
         ];
     }
 
@@ -91,11 +100,11 @@ class StatusResource extends Resource
         return __('resources/status/strings.general.plural_model_label');
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Components\Section::make()
+        return $schema
+            ->components([
+                Section::make()
                     ->schema([
                         static::viewType(),
                         static::viewEnglishType(),
@@ -105,7 +114,9 @@ class StatusResource extends Resource
                         static::viewUpdater(),
                         static::viewCreatedAt(),
                         static::viewUpdatedAt(),
-                    ])->columns(2),
+                    ])
+                    ->columnSpanFull()
+                    ->columns(2),
             ]);
     }
 
@@ -128,20 +139,20 @@ class StatusResource extends Resource
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
             ])
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                         ->exporter(StatusExporter::class)
                 ]),
             ])

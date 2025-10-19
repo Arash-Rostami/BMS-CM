@@ -56,7 +56,7 @@ trait Filters
     public static function getInvoiceDateFilter(): Filter
     {
         return Filter::make('invoice_date')
-            ->form([
+            ->schema([
                 DatePicker::make('invoice_date_from')
                     ->label(__('resources/proformaInvoice/strings.filters.invoice_date_from'))
                     ->when(app()->isLocale('fa'), fn($column) => $column->jalali())

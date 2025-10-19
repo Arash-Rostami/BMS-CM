@@ -4,7 +4,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\Operational\PurchaseRequestResource\Enums\Status;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Exports\PurchaseRequestExporter;
-use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\ViewPurchaseRequest;
+use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\CreatePurchaseRequest;
+use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\EditPurchaseRequest;
+use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\ListPurchaseRequests;
+use App\Filament\Resources\Operational\PurchaseRequestResource\RelationManagers\ProformaInvoicesRelationManager;
+use App\Filament\Resources\Operational\PurchaseRequestResource\RelationManagers\PurchaseOrdersRelationManager;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Filters as PurchaseRequestFilters;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Form as PurchaseRequestForm;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Infolist as PurchaseRequestInfolist;
@@ -12,15 +16,24 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as P
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\TotalCostCalculation;
 use App\Models\PurchaseRequest;
 use App\Services\SmartCacheManager;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Infolists\Components;
-use Filament\Infolists\Components\Tabs as InfoTabs;
-use Filament\Infolists\Components\Tabs\Tab;
-use Filament\Infolists\Infolist;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Repeater;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,18 +47,18 @@ class PurchaseRequestResource extends Resource
 
     protected static ?string $model = PurchaseRequest::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
 
     protected static ?int $navigationSort = 2;
 
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Group::make()
+        return $schema
+            ->components([
+                \Filament\Schemas\Components\Group::make()
                     ->schema([
-                        Forms\Components\Section::make(__('resources/purchaseRequest/strings.form.request_details'))
+                        Section::make(__('resources/purchaseRequest/strings.form.request_details'))
                             ->schema([
                                 static::getCostCenterIdField(),
                                 static::getRequiredByDateField(),
@@ -54,13 +67,13 @@ class PurchaseRequestResource extends Resource
                             ])
                             ->columns(2),
 
-                        Forms\Components\Section::make(__('resources/purchaseRequest/strings.form.items'))
+                        Section::make(__('resources/purchaseRequest/strings.form.items'))
                             ->heading(__('resources/purchaseRequest/strings.form.purchase_items'))
                             ->schema([
-                                Forms\Components\Repeater::make('items')
+                                Repeater::make('items')
                                     ->relationship()
                                     ->schema([
-                                        Forms\Components\Section::make()->schema(
+                                        Section::make()->schema(
                                             [
                                                 static::getItemProductIdField(),
                                                 static::getItemStatusIdField(),
@@ -76,17 +89,17 @@ class PurchaseRequestResource extends Resource
 
                                     ])
                                     ->live(true)
-                                    ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::updateTotalCost($get, $set))
-                                    ->deleteAction(fn($action) => $action->after(fn(Forms\Get $get, Forms\Set $set) => self::updateTotalCost($get, $set)))
+                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotalCost($get, $set))
+                                    ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => self::updateTotalCost($get, $set)))
                                     ->addActionLabel(__('resources/purchaseRequest/strings.form.add_purchase_item'))
                                     ->label(false)
                             ]),
                     ])
                     ->columnSpan(['lg' => 2]),
 
-                Forms\Components\Group::make()
+                \Filament\Schemas\Components\Group::make()
                     ->schema([
-                        Forms\Components\Section::make(__('resources/purchaseRequest/strings.form.status_and_notes'))
+                        Section::make(__('resources/purchaseRequest/strings.form.status_and_notes'))
                             ->schema([
                                 static::getStatusIdField(),
                                 static::getRejectionReasonField(),
@@ -147,6 +160,7 @@ class PurchaseRequestResource extends Resource
             fn() => static::getModel()::count()
         );
 
+
         return $count > 0 ? (string)$count : null;
     }
 
@@ -157,15 +171,15 @@ class PurchaseRequestResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/purchaseRequest/strings.general.navigation_group');
+        return __('resources/dashboard/strings.navigation_group.operational_first');
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Operational\PurchaseRequestResource\Pages\ListPurchaseRequests::route('/'),
-            'create' => Operational\PurchaseRequestResource\Pages\CreatePurchaseRequest::route('/create'),
-            'edit' => Operational\PurchaseRequestResource\Pages\EditPurchaseRequest::route('/{record}/edit'),
+            'index' => ListPurchaseRequests::route('/'),
+            'create' => CreatePurchaseRequest::route('/create'),
+            'edit' => EditPurchaseRequest::route('/{record}/edit'),
         ];
     }
 
@@ -177,22 +191,22 @@ class PurchaseRequestResource extends Resource
     public static function getRelations(): array
     {
         return [
-            Operational\PurchaseRequestResource\RelationManagers\PurchaseOrdersRelationManager::class,
-            Operational\PurchaseRequestResource\RelationManagers\ProformaInvoicesRelationManager::class,
+            PurchaseOrdersRelationManager::class,
+            ProformaInvoicesRelationManager::class,
         ];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                InfoTabs::make('Details')
+        return $schema
+            ->components([
+                Tabs::make('Details')
                     ->tabs([
                         Tab::make('General')
                             ->label(__('resources/purchaseRequest/strings.infolist.tab_general'))
                             ->icon('heroicon-o-shopping-cart')
                             ->schema([
-                                Components\Section::make()->schema([
+                                Section::make()->schema([
                                     static::viewDepartment(),
                                     static::viewCostCenter(),
                                     static::viewRequester(),
@@ -214,13 +228,13 @@ class PurchaseRequestResource extends Resource
                             ->label(__('resources/purchaseRequest/strings.infolist.tab_items'))
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
-                                Components\Section::make()->schema([static::viewPurchaseItems()])
+                                Section::make()->schema([static::viewPurchaseItems()])
                             ]),
                         Tab::make('Documents')
                             ->label(__('resources/purchaseRequest/strings.infolist.tab_documents'))
                             ->icon('heroicon-o-paper-clip')
                             ->schema([
-                                Components\Section::make()->schema([static::viewAttachments()])
+                                Section::make()->schema([static::viewAttachments()])
                             ])
                             ->badge(fn($record) => $record->attachments->count())
                             ->badgeColor('info'),
@@ -256,20 +270,20 @@ class PurchaseRequestResource extends Resource
                 static::getCreationDateFilter(),
             ])
             ->filtersFormColumns(2)
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                         ->exporter(PurchaseRequestExporter::class),
                 ]),
             ])

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
@@ -17,7 +18,7 @@ class FileUploadManager
             ['type' => 'Attachment Status', 'name' => 'Uploaded'],
             1440,
             fn() => Status::findBy('Attachment Status', 'Uploaded')
-        ) ?? throw new \Exception("Default status 'Uploaded' not found.");
+        ) ?? throw new Exception("Default status 'Uploaded' not found.");
         $finalPaths = [];
         $tempDir = 'temp/';
 

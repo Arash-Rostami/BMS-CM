@@ -1,7 +1,7 @@
 <?php
 
 if (!function_exists('toPersianDate')) {
-    function toPersianDate(\DateTime|string|null $date): string
+    function toPersianDate(DateTime|string|null $date): string
     {
         if (!$date) {
             return '-';
@@ -12,13 +12,13 @@ if (!function_exists('toPersianDate')) {
 }
 
 if (!function_exists('toGregorianDate')) {
-    function toGregorianDate(\DateTime|string|null $date): string
+    function toGregorianDate(DateTime|string|null $date): string
     {
         if (!$date) {
             return '-';
         }
 
-        $date = is_string($date) ? new \DateTime($date) : $date;
+        $date = is_string($date) ? new DateTime($date) : $date;
 
         return $date->format('Y F d');
     }

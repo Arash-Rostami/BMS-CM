@@ -2,6 +2,7 @@
 
 namespace App\Models\Traits\User;
 
+use Throwable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
@@ -23,7 +24,7 @@ trait IpLookup
 
                 return 'Unidentified IP';
 
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 return 'Unidentified IP';
             }
         });

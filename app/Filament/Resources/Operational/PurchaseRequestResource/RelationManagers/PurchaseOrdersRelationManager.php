@@ -2,14 +2,24 @@
 
 namespace App\Filament\Resources\Operational\PurchaseRequestResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DetachAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrderExporter;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Filters as PurchaseOrderFilters;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as PurchaseOrderTable;
 use App\Filament\Resources\PurchaseOrderResource;
-use Filament\Infolists\Infolist;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -36,9 +46,9 @@ class PurchaseOrdersRelationManager extends RelationManager
         return __('resources/purchaseOrder/strings.general.plural_model_label');
     }
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Schema $schema): Schema
     {
-        return PurchaseOrderResource::infolist($infolist);
+        return PurchaseOrderResource::infolist($schema);
     }
 
     public function table(Table $table): Table
@@ -69,25 +79,25 @@ class PurchaseOrdersRelationManager extends RelationManager
             ])
             ->filtersFormColumns(3)
             ->headerActions([
-                Tables\Actions\Action::make('create')
+                Action::make('create')
                     ->label(__('resources/proformaInvoice/strings.general.add_record'))
                     ->visible(fn(): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Authorized', 'Conditional']))
                     ->url(fn(): string => PurchaseOrderResource::getUrl('create', ['purchase_request_id' => $this->getOwnerRecord()->getKey()]))
             ])
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DetachAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DetachAction::make(),
+                    DeleteAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                         ->exporter(PurchaseOrderExporter::class),
                 ]),
             ])

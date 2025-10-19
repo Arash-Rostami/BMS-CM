@@ -2,6 +2,28 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use App\Filament\Resources\Operational\ProformaInvoiceResource\Pages\ListProformaInvoices;
+use App\Filament\Resources\Operational\ProformaInvoiceResource\Pages\CreateProformaInvoice;
+use App\Filament\Resources\Operational\ProformaInvoiceResource\Pages\EditProformaInvoice;
+use App\Filament\Resources\Operational\ProformaInvoiceResource\RelationManagers\PurchaseOrdersRelationManager;
+use App\Filament\Resources\Operational\ProformaInvoiceResource\RelationManagers\PurchaseRequestsRelationManager;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Exports\ProformaInvoiceExporter;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Pages;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Filters as ProformaInvoiceFilters;
@@ -12,15 +34,9 @@ use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\TotalAmoun
 use App\Models\ProformaInvoice;
 use App\Services\SmartCacheManager;
 use Filament\Forms;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Form;
 use Filament\Infolists\Components;
-use Filament\Infolists\Components\Tabs as InfoTabs;
-use Filament\Infolists\Components\Tabs\Tab;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -33,22 +49,24 @@ class ProformaInvoiceResource extends Resource
 
     protected static ?string $model = ProformaInvoice::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ? string $recordTitleAttribute = 'title';
+
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?int $navigationSort = 4;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Tabs::make('Proforma Invoice')
                     ->tabs([
-                        Tabs\Tab::make(__('resources/proformaInvoice/strings.form.tabs.general'))
+                        Tab::make(__('resources/proformaInvoice/strings.form.tabs.general'))
                             ->icon('heroicon-o-clipboard-document-list')
                             ->schema([
-                                Forms\Components\Group::make()
+                                \Filament\Schemas\Components\Group::make()
                                     ->schema([
-                                        Forms\Components\Section::make(__('resources/proformaInvoice/strings.form.invoice_details'))
+                                        Section::make(__('resources/proformaInvoice/strings.form.invoice_details'))
                                             ->schema([
                                                 static::getSourceTypeField(),
                                                 static::getPurchaseRequestsField(),
@@ -59,9 +77,9 @@ class ProformaInvoiceResource extends Resource
                                                 static::getConsigneeCompanyIdField(),
                                             ])->columns(2),
 
-                                        Forms\Components\Section::make(__('resources/proformaInvoice/strings.form.invoice_items'))
+                                        Section::make(__('resources/proformaInvoice/strings.form.invoice_items'))
                                             ->schema([
-                                                Forms\Components\Repeater::make('items')
+                                                Repeater::make('items')
                                                     ->relationship()
                                                     ->schema([
                                                         static::getItemProductIdField(),
@@ -79,40 +97,40 @@ class ProformaInvoiceResource extends Resource
                                                     ])
                                                     ->columns(4)
                                                     ->live(true)
-                                                    ->afterStateHydrated(function ($component, $state, Forms\Get $get, Forms\Set $set) {
+                                                    ->afterStateHydrated(function ($component, $state, Get $get, Set $set) {
                                                         if ($items = $get('items')) {
                                                             $component->state($items);
                                                         }
                                                         self::updateTotalAmount($get, $set);
                                                     })
-                                                    ->deleteAction(fn($action) => $action->after(fn(Forms\Get $get, Forms\Set $set) => self::updateTotalAmount($get, $set)))
+                                                    ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => self::updateTotalAmount($get, $set)))
                                                     ->addActionLabel(__('resources/proformaInvoice/strings.form.add_invoice_item'))
                                                     ->label(false),
                                             ]),
                                     ])->columnSpan(['lg' => 2]),
 
-                                Forms\Components\Group::make()
+                                \Filament\Schemas\Components\Group::make()
                                     ->schema([
-                                        Forms\Components\Section::make(__('resources/proformaInvoice/strings.form.shipment_and_charges'))
+                                        Section::make(__('resources/proformaInvoice/strings.form.shipment_and_charges'))
                                             ->schema([
                                                 static::getAllowPartialShipmentField(),
                                                 static::getAllowTransShipmentField(),
                                                 static::getDiscountField()
-                                                    ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::updateTotalAmount($get, $set)),
+                                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotalAmount($get, $set)),
                                                 static::getFreightChargesField()
-                                                    ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::updateTotalAmount($get, $set)),
+                                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotalAmount($get, $set)),
                                                 static::getOtherChargesField()
-                                                    ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::updateTotalAmount($get, $set)),
+                                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotalAmount($get, $set)),
                                                 static::getTotalCfrAmountField(),
                                                 static::getAttachmentsField(),
                                             ]),
                                     ])->columnSpan(['lg' => 1]),
                             ])->columns(3),
 
-                        Tabs\Tab::make(__('resources/proformaInvoice/strings.form.tabs.details'))
+                        Tab::make(__('resources/proformaInvoice/strings.form.tabs.details'))
                             ->icon('heroicon-o-cog-6-tooth')
                             ->schema([
-                                Forms\Components\Section::make(__('resources/proformaInvoice/strings.form.additional_details'))
+                                Section::make(__('resources/proformaInvoice/strings.form.additional_details'))
                                     ->schema([
                                         static::getContractNoField(),
                                         static::getBuyerCommCardNumField(),
@@ -183,15 +201,15 @@ class ProformaInvoiceResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/purchaseRequest/strings.general.navigation_group');
+        return __('resources/dashboard/strings.navigation_group.operational_first');
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProformaInvoices::route('/'),
-            'create' => Pages\CreateProformaInvoice::route('/create'),
-            'edit' => Pages\EditProformaInvoice::route('/{record}/edit'),
+            'index' => ListProformaInvoices::route('/'),
+            'create' => CreateProformaInvoice::route('/create'),
+            'edit' => EditProformaInvoice::route('/{record}/edit'),
         ];
     }
 
@@ -203,22 +221,22 @@ class ProformaInvoiceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            Operational\ProformaInvoiceResource\RelationManagers\PurchaseOrdersRelationManager::class,
-            Operational\ProformaInvoiceResource\RelationManagers\PurchaseRequestsRelationManager::class,
+            PurchaseOrdersRelationManager::class,
+            PurchaseRequestsRelationManager::class,
         ];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                InfoTabs::make('Details')
+        return $schema
+            ->components([
+                Tabs::make('Details')
                     ->tabs([
                         Tab::make('General')
                             ->label(__('resources/proformaInvoice/strings.infolist.tab_general'))
                             ->icon('heroicon-o-document-text')
                             ->schema([
-                                Components\Section::make()->schema([
+                                Section::make()->schema([
                                     static::viewInvoiceNo(),
                                     static::viewInvoiceDate(),
                                     static::viewValidityDate(),
@@ -240,7 +258,7 @@ class ProformaInvoiceResource extends Resource
                             ->label(__('resources/proformaInvoice/strings.infolist.tab_details'))
                             ->icon('heroicon-o-information-circle')
                             ->schema([
-                                Components\Section::make()->schema([
+                                Section::make()->schema([
                                     static::viewBeneficiaryCountry(),
                                     static::viewOriginCountry(),
                                     static::viewDestinationCountry(),
@@ -258,7 +276,7 @@ class ProformaInvoiceResource extends Resource
                             ->label(__('resources/proformaInvoice/strings.infolist.tab_purchase_requests'))
                             ->icon('heroicon-o-shopping-cart')
                             ->schema([
-                                Components\Section::make()->schema([static::viewPurchaseRequests()])
+                                Section::make()->schema([static::viewPurchaseRequests()])
                             ])
                             ->badge(fn($record) => $record->purchaseRequests->count())
                             ->badgeColor('primary'),
@@ -266,7 +284,7 @@ class ProformaInvoiceResource extends Resource
                             ->label(__('resources/proformaInvoice/strings.infolist.tab_items'))
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
-                                Components\Section::make()->schema([static::viewInvoiceItems()])
+                                Section::make()->schema([static::viewInvoiceItems()])
                             ])
                             ->badge(fn($record) => $record->items->count())
                             ->badgeColor('success'),
@@ -274,7 +292,7 @@ class ProformaInvoiceResource extends Resource
                             ->label(__('resources/proformaInvoice/strings.infolist.tab_documents'))
                             ->icon('heroicon-o-paper-clip')
                             ->schema([
-                                Components\Section::make()->schema([static::viewAttachments()])
+                                Section::make()->schema([static::viewAttachments()])
                             ])
                             ->badge(fn($record) => $record->attachments->count())
                             ->badgeColor('info'),
@@ -313,20 +331,20 @@ class ProformaInvoiceResource extends Resource
                 static::getHasPurchaseOrdersFilter(),
             ])
             ->filtersFormColumns(3)
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                         ->exporter(ProformaInvoiceExporter::class),
                 ]),
             ])
@@ -342,4 +360,5 @@ class ProformaInvoiceResource extends Resource
             ->recordUrl(null)
             ->defaultSort('id', 'desc');
     }
+
 }

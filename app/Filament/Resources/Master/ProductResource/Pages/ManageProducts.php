@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Master\ProductResource\Pages;
 
+use Filament\Actions\CreateAction;
 use App\Filament\Resources\ProductResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
@@ -14,9 +15,9 @@ class ManageProducts extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
+            CreateAction::make()
                 ->icon('heroicon-o-sparkles')
-                ->mutateFormDataUsing(fn(array $data) => self::setSlugAndCategory($data))
+                ->mutateDataUsing(fn(array $data) => self::setSlugAndCategory($data))
         ];
 
     }

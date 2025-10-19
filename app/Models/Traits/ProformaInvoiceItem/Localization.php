@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Traits\InvoiceItem;
+namespace App\Models\Traits\ProformaInvoiceItem;
 
 trait Localization
 {

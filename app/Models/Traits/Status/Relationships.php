@@ -3,7 +3,7 @@
 namespace App\Models\Traits\Status;
 
 use App\Models\Attachment;
-use App\Models\PurchaseItem;
+use App\Models\PurchaseRequestItem;
 use App\Models\PurchaseRequest;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -21,6 +21,6 @@ trait Relationships
 
     public function purchaseItems(): HasMany
     {
-        return $this->hasMany(PurchaseItem::class);
+        return $this->hasMany(PurchaseRequestItem::class);
     }
 }

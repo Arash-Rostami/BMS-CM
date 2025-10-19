@@ -10,14 +10,14 @@ use App\Services\Country;
 use App\Services\FileUploadManager;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 
@@ -49,6 +49,7 @@ trait Form
             ->label(__('resources/proformaInvoice/strings.form.attachments'))
             ->multiple()
             ->disk('public')
+            ->visibility('public')
             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'application/pdf', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',])
             ->maxSize(2500)
             ->previewable()
@@ -365,12 +366,12 @@ trait Form
             ->validationAttribute(__('resources/proformaInvoice/strings.form.quantity'));
     }
 
-    public static function getItemTotalAmountField(): Placeholder
+    public static function getItemTotalAmountField(): TextEntry
     {
-        return Placeholder::make('total_amount')
+        return TextEntry::make('total_amount')
             ->label(__('resources/proformaInvoice/strings.form.item_total_amount'))
             ->live()
-            ->content(fn(Get $get) => is_numeric($get('total_amount')) ? '💰 ' . number_format($get('total_amount'), 2) : $get('total_amount'));
+            ->formatStateUsing(fn(Get $get) => is_numeric($get('total_amount')) ? '💰 ' . number_format($get('total_amount'), 2) : $get('total_amount'));
 
     }
 
@@ -553,11 +554,11 @@ trait Form
             ->live();
     }
 
-    public static function getTotalCfrAmountField(): Placeholder
+    public static function getTotalCfrAmountField(): TextEntry
     {
-        return Placeholder::make('total_cfr_amount')
+        return TextEntry::make('total_cfr_amount')
             ->label(__('resources/proformaInvoice/strings.form.total_cfr_amount'))
-            ->content(fn(Get $get) => is_numeric($get('total_cfr_amount')) ? '💰 ' . number_format($get('total_cfr_amount'), 2) : $get('total_cfr_amount'));
+            ->formatStateUsing(fn(Get $get) => is_numeric($get('total_cfr_amount')) ? '💰 ' . number_format($get('total_cfr_amount'), 2) : $get('total_cfr_amount'));
     }
 
     public static function getTransportModeField(): Select

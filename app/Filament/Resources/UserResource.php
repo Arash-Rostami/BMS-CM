@@ -2,6 +2,19 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use App\Filament\Resources\Master\UserResource\Pages\ManageUsers;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Master\UserResource\Exports\UserExporter;
 use App\Filament\Resources\Master\UserResource\Traits\Filters;
 use App\Filament\Resources\Master\UserResource\Traits\Form as UserForm;
@@ -10,12 +23,9 @@ use App\Filament\Resources\Master\UserResource\Traits\Table as TableTrait;
 use App\Models\User;
 use App\Services\SmartCacheManager;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists\Components;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -26,15 +36,15 @@ class UserResource extends Resource
     use UserForm, TableTrait, UserInfolist, Filters;
 
     protected static ?string $model = User::class;
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 8;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make()
+        return $schema
+            ->components([
+                Section::make()
                     ->schema([
                         static::getName(),
                         static::getPhoneInput(),
@@ -50,7 +60,9 @@ class UserResource extends Resource
                         static::getIP(),
                         static::getLastLogIn(),
                         static::getLastLogOut(),
-                    ])->columns(2),
+                    ])
+                    ->columnSpanFull()
+                    ->columns(2),
 
             ]);
     }
@@ -96,13 +108,13 @@ class UserResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/user/strings.general.navigation_group');
+        return __('resources/dashboard/strings.navigation_group.base');
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Master\UserResource\Pages\ManageUsers::route('/'),
+            'index' => ManageUsers::route('/'),
         ];
     }
 
@@ -111,11 +123,11 @@ class UserResource extends Resource
         return __('resources/user/strings.general.plural_model_label');
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Components\Section::make()
+        return $schema
+            ->components([
+                Section::make()
                     ->schema([
                         static::viewName(),
                         static::viewEmail(),
@@ -131,7 +143,9 @@ class UserResource extends Resource
                         static::viewCreatedAt(),
                         static::viewUpdatedAt(),
                         static::viewImage(),
-                    ])->columns(2),
+                    ])
+                    ->columnSpanFull()
+                    ->columns(2),
             ]);
     }
 
@@ -163,12 +177,12 @@ class UserResource extends Resource
                 static::getStatusFilter(),
                 static::getThrashedFilter()
             ])->filtersFormColumns(2)
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
 //                    Tables\Actions\Action::make('showModal')
 //                        ->label('Show Modal')
 //                        ->icon('heroicon-o-information-circle')
@@ -178,12 +192,12 @@ class UserResource extends Resource
 //                        }),
                 ])
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                         ->exporter(UserExporter::class)
                 ]),
             ])

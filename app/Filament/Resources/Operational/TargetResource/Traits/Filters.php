@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\Operational\TargetResource\Traits;
 
 
+use Filament\Schemas\Components\Fieldset;
 use App\Filament\Resources\Operational\TargetResource\Enums\Status as TargetStatus;
 use App\Models\Target;
 use App\Services\SmartCacheManager;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -35,7 +35,7 @@ trait Filters
     public static function getQuantityFilter(): Filter
     {
         return Filter::make('quantity')
-            ->form([
+            ->schema([
                 Fieldset::make()
                     ->label(__('resources/target/strings.filters.quantity'))
                     ->columnSpanFull()

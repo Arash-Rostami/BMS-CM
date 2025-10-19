@@ -5,7 +5,7 @@ namespace App\Models\Traits\PurchaseRequest;
 use App\Models\Attachment;
 use App\Models\Department;
 use App\Models\ProformaInvoice;
-use App\Models\PurchaseItem;
+use App\Models\PurchaseRequestItem;
 use App\Models\PurchaseOrder;
 use App\Models\Status;
 use App\Models\User;
@@ -38,7 +38,7 @@ trait Relationships
 
     public function items(): HasMany
     {
-        return $this->hasMany(PurchaseItem::class);
+        return $this->hasMany(PurchaseRequestItem::class);
     }
 
     public function proformaInvoices(): BelongsToMany

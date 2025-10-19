@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Master\StatusResource\Pages;
 
+use Filament\Actions\CreateAction;
 use App\Filament\Resources\StatusResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
@@ -13,9 +14,9 @@ class ManageStatuses extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
+            CreateAction::make()
                 ->icon('heroicon-o-sparkles')
-                ->mutateFormDataUsing(fn(array $data): array => static::processCustomFields($data)),
+                ->mutateDataUsing(fn(array $data): array => static::processCustomFields($data)),
         ];
     }
 

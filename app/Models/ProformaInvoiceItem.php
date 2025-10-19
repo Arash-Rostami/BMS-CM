@@ -4,12 +4,12 @@ namespace App\Models;
 
 use App\Models\Traits\General\HasLocalizedAttributes;
 use App\Models\Traits\General\Localization;
-use App\Models\Traits\InvoiceItem\Relationships;
+use App\Models\Traits\ProformaInvoiceItem\Relationships;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class InvoiceItem extends Model
+class ProformaInvoiceItem extends Model
 {
     use HasFactory,
         SoftDeletes,

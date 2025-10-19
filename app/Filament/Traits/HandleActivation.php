@@ -2,8 +2,8 @@
 
 namespace App\Filament\Traits;
 
+use Filament\Actions\BulkAction;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
 
 trait HandleActivation

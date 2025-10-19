@@ -2,6 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Operational\TargetResource\Enums\Status;
 use App\Filament\Resources\Operational\TargetResource\Exports\TargetExporter;
 use App\Filament\Resources\Operational\TargetResource\Pages\ManageTargets;
@@ -12,12 +24,9 @@ use App\Filament\Resources\Operational\TargetResource\Traits\Table as TargetTabl
 use App\Models\Target;
 use App\Services\SmartCacheManager;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists\Components;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,17 +39,17 @@ class TargetResource extends Resource
 
     protected static ?string $model = Target::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cube';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cube';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 7;
 
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
 
-        return $form
-            ->schema([
-                Forms\Components\Section::make()
+        return $schema
+            ->components([
+                Section::make()
                     ->schema([
                         static::getTargetableField(),
                         static::getStatusField(),
@@ -54,7 +63,9 @@ class TargetResource extends Resource
                         static::getAchievedAmountField(),
                         static::getDescriptionField(),
                         static::getTagField(),
-                    ])->columns(3),
+                    ])
+                    ->columnSpanFull()
+                    ->columns(3),
             ]);
     }
 
@@ -99,7 +110,7 @@ class TargetResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/target/strings.general.navigation_group');
+        return __('resources/dashboard/strings.navigation_group.base');
     }
 
     public static function getPages(): array
@@ -114,11 +125,11 @@ class TargetResource extends Resource
         return __('resources/target/strings.general.plural_model_label');
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Components\Section::make()
+        return $schema
+            ->components([
+                Section::make()
                     ->schema([
                         static::viewTargetable(),
                         static::viewYear(),
@@ -136,7 +147,9 @@ class TargetResource extends Resource
                         static::viewUpdater(),
                         static::viewCreatedAt(),
                         static::viewUpdatedAt(),
-                    ])->columns(3),
+                    ])
+                    ->columnSpanFull()
+                    ->columns(3),
             ]);
     }
 
@@ -169,20 +182,20 @@ class TargetResource extends Resource
                 static::getUpdaterFilter(),
                 static::getTrashedFilter(),
             ])->filtersFormColumns(2)
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
                 ])
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                         ->exporter(TargetExporter::class),
                 ])
             ])

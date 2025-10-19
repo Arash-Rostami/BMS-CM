@@ -2,6 +2,27 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\ListPurchaseOrders;
+use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\CreatePurchaseOrder;
+use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\EditPurchaseOrder;
+use App\Filament\Resources\Operational\PurchaseOrderResource\RelationManagers\ProformaInvoicesRelationManager;
+use App\Filament\Resources\Operational\PurchaseOrderResource\RelationManagers\PurchaseRequestsRelationManager;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrderExporter;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Filters as PurchaseOrderFilters;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Form as PurchaseOrderForm;
@@ -12,16 +33,9 @@ use App\Models\PurchaseOrder;
 use App\Services\SmartCacheManager;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\Section;
-use Filament\Infolists\Components\Tabs;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,19 +49,19 @@ class PurchaseOrderResource extends Resource
 
     protected static ?string $model = PurchaseOrder::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-shopping-bag';
 
-    protected static ?string $navigationGroup = 'Operational';
+    protected static string | \UnitEnum | null $navigationGroup = 'Operational';
 
     protected static ?int $navigationSort = 3;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Group::make()
+        return $schema
+            ->components([
+                \Filament\Schemas\Components\Group::make()
                     ->schema([
-                        Forms\Components\Section::make(__('resources/purchaseOrder/strings.form.section_order_details'))
+                        Section::make(__('resources/purchaseOrder/strings.form.section_order_details'))
                             ->schema([
                                 static::getPurchaseRequestsField(),
                                 static::getPoNumberField(),
@@ -62,7 +76,7 @@ class PurchaseOrderResource extends Resource
                             ])->columns(3),
 
 
-                        Forms\Components\Section::make(__('resources/purchaseOrder/strings.form.section_items'))
+                        Section::make(__('resources/purchaseOrder/strings.form.section_items'))
                             ->heading(__('resources/purchaseOrder/strings.form.section_items'))
                             ->schema([
                                 Repeater::make('items')
@@ -86,9 +100,9 @@ class PurchaseOrderResource extends Resource
                     ])
                     ->columnSpan(['lg' => 2]),
 
-                Forms\Components\Group::make()
+                \Filament\Schemas\Components\Group::make()
                     ->schema([
-                        Forms\Components\Section::make(__('resources/purchaseOrder/strings.form.section_shipping_notes'))
+                        Section::make(__('resources/purchaseOrder/strings.form.section_shipping_notes'))
                             ->schema([
                                 static::getTotalQuantityField(),
                                 static::getTotalAmountField(),
@@ -153,15 +167,15 @@ class PurchaseOrderResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/purchaseOrder/strings.general.navigation_group');
+        return __('resources/dashboard/strings.navigation_group.operational_third');
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Operational\PurchaseOrderResource\Pages\ListPurchaseOrders::route('/'),
-            'create' => Operational\PurchaseOrderResource\Pages\CreatePurchaseOrder::route('/create'),
-            'edit' => Operational\PurchaseOrderResource\Pages\EditPurchaseOrder::route('/{record}/edit'),
+            'index' => ListPurchaseOrders::route('/'),
+            'create' => CreatePurchaseOrder::route('/create'),
+            'edit' => EditPurchaseOrder::route('/{record}/edit'),
         ];
     }
 
@@ -173,16 +187,16 @@ class PurchaseOrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            Operational\PurchaseOrderResource\RelationManagers\ProformaInvoicesRelationManager::class,
-            Operational\PurchaseOrderResource\RelationManagers\PurchaseRequestsRelationManager::class,
+            ProformaInvoicesRelationManager::class,
+            PurchaseRequestsRelationManager::class,
         ];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist->schema([
+        return $schema->components([
             Tabs::make('Details')->tabs([
-                Tabs\Tab::make(__('resources/purchaseOrder/strings.infolist.tab_general'))
+                Tab::make(__('resources/purchaseOrder/strings.infolist.tab_general'))
                     ->icon('heroicon-o-shopping-bag')
                     ->schema([
                         Section::make()->schema([
@@ -206,7 +220,7 @@ class PurchaseOrderResource extends Resource
                             static::viewUpdatedAt(),
                         ])->columns(3),
                     ]),
-                Tabs\Tab::make(__('resources/purchaseOrder/strings.infolist.tab_items'))
+                Tab::make(__('resources/purchaseOrder/strings.infolist.tab_items'))
                     ->icon('heroicon-o-list-bullet')
                     ->badge(fn($record) => $record->items->count())
                     ->schema([
@@ -223,7 +237,7 @@ class PurchaseOrderResource extends Resource
                                 ])->columns(7)
                         ]),
                     ]),
-                Tabs\Tab::make('Documents')
+                Tab::make('Documents')
                     ->label(__('resources/purchaseOrder/strings.infolist.tab_documents'))
                     ->icon('heroicon-o-paper-clip')
                     ->schema([Section::make()->schema([static::viewAttachments()])])
@@ -261,20 +275,20 @@ class PurchaseOrderResource extends Resource
                 static::getCreationDateFilter(),
             ])
             ->filtersFormColumns(3)
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ExportBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                         ->exporter(PurchaseOrderExporter::class),
                 ]),
             ])
