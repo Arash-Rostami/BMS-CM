@@ -362,7 +362,6 @@ trait Form
         return TextInput::make('entrance_fee')
             ->label(__('resources/registeredOrder/strings.form.entrance_fee'))
             ->numeric()
-            ->afterStateUpdated(fn(Get $get, Set $set) => static::updateItemLineTotal($get, $set))
             ->minValue(0)
             ->columnSpan(4)
             ->live(onBlur: true)
