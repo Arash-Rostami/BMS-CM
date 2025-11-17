@@ -58,6 +58,7 @@ return [
         'allocation_date' => 'تاریخ تخصیص',
         'purchase_date' => 'تاریخ خرید',
         'delivery_date' => 'تاریخ تحویل',
+        'creation_date' => 'تاریخ ایجاد',
         'documents_amount' => 'مبلغ اسناد',
         'notes' => 'یادداشت‌ها',
         'english_notes' => 'یادداشت‌های انگلیسی',
@@ -82,6 +83,7 @@ return [
     ],
     'table' => [
         'id' => 'شناسه',
+        'creation_date' => 'تاریخ ایجاد',
         'bp_number' => 'شماره BP',
         'registered_order' => 'مرتیط با سفارش',
         'targetable' => 'محصول / دسته‌بندی',

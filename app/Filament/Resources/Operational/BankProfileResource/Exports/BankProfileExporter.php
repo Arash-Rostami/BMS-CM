@@ -47,6 +47,7 @@ class BankProfileExporter extends Exporter
             ExportColumn::make('allocation_date')->label('Allocation Date'),
             ExportColumn::make('purchase_date')->label('Purchase Date'),
             ExportColumn::make('delivery_date')->label('Delivery Date'),
+            ExportColumn::make('creation_date')->label('Creation Date'),
             ExportColumn::make('notes')->label('Notes'),
 
             ExportColumn::make('commission_amount_purchased')

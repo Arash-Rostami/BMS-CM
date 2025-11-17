@@ -58,6 +58,7 @@ return [
         'allocation_date' => 'Allocation Date',
         'purchase_date' => 'Purchase Date',
         'delivery_date' => 'Delivery Date',
+        'creation_date' => 'Creation Date',
         'documents_amount' => 'Documents Amount',
         'notes' => 'Notes',
         'english_notes' => 'English Notes',
@@ -82,6 +83,7 @@ return [
     ],
     'table' => [
         'id' => 'ID',
+        'creation_date' => 'Creation Date',
         'bp_number' => 'BP Number',
         'registered_order' => 'Related To',
         'targetable' => 'Product/Category',

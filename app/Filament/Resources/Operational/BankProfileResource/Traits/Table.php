@@ -51,6 +51,15 @@ trait Table
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
+    public static function showCreationDate(): TextColumn
+    {
+        return TextColumn::make('creation_date')
+            ->label(__('resources/bankProfile/strings.table.creation_date'))
+            ->date()
+            ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
     public static function showCreator(): TextColumn
     {
         return TextColumn::make('creator.name')
