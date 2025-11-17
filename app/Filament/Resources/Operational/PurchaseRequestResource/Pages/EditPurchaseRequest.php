@@ -25,6 +25,10 @@ class EditPurchaseRequest extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        $totalCost = collect($data['items'] ?? [])
+            ->sum(fn($item) => ((float)($item['quantity'] ?? 0)) * ((float)($item['estimated_cost'] ?? 0)));
+        $data['total_estimated_cost'] = number_format($totalCost, 2, '.', '');
+
         return $this->mutateStatusData($data, $this->getRecord()->status_id);
     }
 }

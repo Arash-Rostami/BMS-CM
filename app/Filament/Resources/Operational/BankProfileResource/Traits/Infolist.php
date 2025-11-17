@@ -18,6 +18,14 @@ trait Infolist
             ->placeholder('-');
     }
 
+    public static function viewCreationDate(): TextEntry
+    {
+        return TextEntry::make('creation_date')
+            ->label(__('resources/bankProfile/strings.form.creation_date'))
+            ->date()
+            ->placeholder('-');
+    }
+
     public static function viewAttachments(): RepeatableEntry
     {
         return RepeatableEntry::make('attachments')

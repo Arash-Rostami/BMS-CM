@@ -129,6 +129,15 @@ trait Form
             ->validationAttribute(__('resources/bankProfile/strings.form.delivery_date'));
     }
 
+    public static function getCreationDateField()
+    {
+        return DatePicker::make('creation_date')
+            ->label(__('resources/bankProfile/strings.form.creation_date'))
+            ->native(false)
+            ->jalali()
+            ->validationAttribute(__('resources/bankProfile/strings.form.creation_date'));
+    }
+
     public static function getDocumentsAmountField(): TextInput
     {
         return TextInput::make('documents_amount')
