@@ -14,7 +14,7 @@ trait Filters
     {
         return SelectFilter::make('buyer_id')
             ->label(__('resources/purchaseOrder/strings.filters.buyer'))
-            ->relationship('buyer', 'name')
+            ->relationship('buyerCompany', 'name')
             ->searchable()
             ->preload();
     }
@@ -74,11 +74,11 @@ trait Filters
             ->preload();
     }
 
-    public static function getSupplierFilter(): SelectFilter
+    public static function getSellerFilter(): SelectFilter
     {
-        return SelectFilter::make('supplier_id')
-            ->label(__('resources/purchaseOrder/strings.filters.supplier'))
-            ->relationship('supplier', 'name')
+        return SelectFilter::make('seller_id')
+            ->label(__('resources/purchaseOrder/strings.filters.seller'))
+            ->relationship('sellerCompany', 'name')
             ->searchable()
             ->preload();
     }

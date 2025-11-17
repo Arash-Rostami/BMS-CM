@@ -61,7 +61,7 @@ class ProformaInvoicesRelationManager extends RelationManager
                 static::showID(),
                 static::showInvoiceNo(),
                 static::showSellerCompany(),
-                static::showConsigneeCompany(),
+                static::showBuyerCompany(),
                 static::showTotalAmount(),
                 static::showInvoiceDate(),
                 static::showCreator(),
@@ -71,7 +71,7 @@ class ProformaInvoicesRelationManager extends RelationManager
             ])
             ->filters([
                 static::getSellerCompanyFilter(),
-                static::getConsigneeCompanyFilter(),
+                static::getBuyerCompanyFilter(),
                 static::getDeliveryTermsFilter(),
                 static::getTransportModeFilter(),
                 static::getMainCurrencyFilter(),
@@ -109,12 +109,12 @@ class ProformaInvoicesRelationManager extends RelationManager
                 Group::make('sellerCompany.name')
                     ->label(__('resources/proformaInvoice/strings.filters.seller_company'))
                     ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'sellerCompany')),
-                Group::make('consigneeCompany.name')
-                    ->label(__('resources/proformaInvoice/strings.filters.consignee_company'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'consigneeCompany')),
+                Group::make('buyerCompany.name')
+                    ->label(__('resources/proformaInvoice/strings.filters.buyer_company'))
+                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('id', 'desc');
+            ->defaultSort('proforma_invoices.id', 'desc');
     }
 }

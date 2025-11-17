@@ -17,8 +17,8 @@ return new class extends Migration
             $table->date('invoice_date');
             $table->string('contract_no')->nullable();
             $table->string('buyer_comm_card_num')->nullable();
-            $table->foreignId('seller_company_id')->nullable()->constrained('companies');
-            $table->unsignedBigInteger('consignee_company_id')->nullable();
+            $table->foreignId('seller_id')->nullable()->constrained('companies');
+            $table->unsignedBigInteger('buyer_id')->nullable();
             $table->date('validity_date')->nullable()->comment('Invoice validity expiry date');
             $table->string('beneficiary_country')->nullable();
             $table->string('origin_country')->nullable();
@@ -34,7 +34,8 @@ return new class extends Migration
             $table->decimal('discount', 15, 2)->nullable();
             $table->decimal('freight_charges', 15, 2)->nullable();
             $table->decimal('other_charges', 15, 2)->nullable()->comment('Additional miscellaneous charges');
-            $table->decimal('total_cfr_amount', 15, 2)->nullable();
+            $table->decimal('total_amount', 15, 2)->nullable();
+            $table->text('notes')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('updated_by_id')->nullable();
             $table->timestamps();

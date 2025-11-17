@@ -3,15 +3,19 @@
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Traits;
 
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\UpdatesFromPurchaseRequests;
+use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\UpdatesFromProformaInvoice;
+use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\UpdatesFromRegisteredOrders;
 use App\Models\Status;
 use App\Services\CodeGenerator;
 use App\Services\FileUploadManager;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -21,61 +25,23 @@ use Illuminate\Http\UploadedFile;
 
 trait Form
 {
-    use TotalCalculation, UpdatesFromPurchaseRequests;
-
-    public static function getAttachmentsField(): FileUpload
-    {
-        return FileUpload::make('attachments')
-            ->label(__('resources/purchaseOrder/strings.form.attachments'))
-            ->multiple()
-            ->disk('public')
-            ->visibility('public')
-            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'application/pdf', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',])
-            ->maxSize(2500)
-            ->previewable()
-            ->openable()
-            ->columnSpanFull()
-            ->downloadable()
-            ->hintIconTooltip(fn($record) => $record?->attachments()->latest('id')->implode('name', "\n") ?? '')
-            ->validationMessages([
-                'accepted' => __('resources/proformaInvoice/strings.form.validation.attachments_type'),
-                'max_size' => __('resources/proformaInvoice/strings.form.validation.attachments_size'),
-            ])
-            ->validationAttribute(__('resources/proformaInvoice/strings.form.attachments'))
-            ->saveUploadedFileUsing(static function (UploadedFile $file, $state) {
-                return app(FileUploadManager::class)->storeTemporary($file);
-            })
-            ->saveRelationshipsUsing(static function ($record, array $state, Set $set) {
-                if ($record) {
-                    app(FileUploadManager::class)
-                        ->processTemporaryFiles($record, $state)
-                        ->refreshComponent($record, $set);
-                }
-            })
-            ->afterStateHydrated(static function (FileUpload $component, $state, $record) {
-                $component->state(
-                    $record?->attachments
-                        ? $record->attachments->pluck('path')->toArray()
-                        : []
-                );
-            });
-    }
+    use TotalCalculation, UpdatesFromPurchaseRequests, UpdatesFromRegisteredOrders, UpdatesFromProformaInvoice;
 
     public static function getBuyerField(): Select
     {
         return Select::make('buyer_id')
             ->label(__('resources/purchaseOrder/strings.form.buyer'))
             ->relationship(
-                name: 'buyer',
+                name: 'buyerCompany',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
             )
             ->searchable(['name', 'english_name'])
             ->preload()
             ->required()
-            ->different('supplier_id')
+            ->different('seller_id')
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
-                'different' => __('resources/purchaseOrder/strings.form.validation_supplier_buyer_different'),
+                'different' => __('resources/purchaseOrder/strings.form.validation_seller_buyer_different'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.buyer'));
     }
@@ -117,6 +83,21 @@ trait Form
             ->validationAttribute(__('resources/purchaseOrder/strings.form.incoterms'));
     }
 
+    public static function getItemDescriptionField(): Textarea
+    {
+        return Textarea::make('description')
+            ->hiddenLabel()
+            ->maxLength(65535)
+            ->reactive()
+            ->extraAttributes(fn(Get $get) => ['style' => !$get('show_notes') ? 'display: none;' : ''])
+            ->columnSpan('full')
+            ->rules(['nullable', 'string', 'max:65535'])
+            ->validationMessages([
+                'max' => __('resources/purchaseOrder/strings.form.validation_max_string'),
+            ])
+            ->validationAttribute(__('resources/purchaseOrder/strings.form.item_description'));
+    }
+
     public static function getItemGrossWeightField(): TextInput
     {
         return TextInput::make('gross_weight')
@@ -147,6 +128,21 @@ trait Form
             ->validationAttribute(__('resources/purchaseOrder/strings.form.net_weight'));
     }
 
+    public static function getItemNotesToggle(): Toggle
+    {
+        return Toggle::make('show_notes')
+            ->label(__('resources/purchaseOrder/strings.form.add_notes'))
+            ->onIcon('heroicon-s-check-circle')
+            ->offIcon('heroicon-s-x-circle')
+            ->onColor('success')
+            ->offColor('danger')
+            ->reactive()
+            ->columnSpanFull()
+            ->default(fn(Get $get) => filled($get('description')))
+            ->afterStateHydrated(fn(Set $set, Get $get) => $set('show_notes', filled($get('description'))))
+            ->afterStateUpdated(fn(?bool $state, Set $set) => !$state ? $set('description', null) : null);
+    }
+
     public static function getItemProductIdField(): Select
     {
         return Select::make('product_id')
@@ -159,6 +155,7 @@ trait Form
             ->preload()
             ->required()
             ->columnSpan(4)
+            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
             ])
@@ -258,9 +255,10 @@ trait Form
         return TextInput::make('po_number')
             ->label(__('resources/purchaseOrder/strings.form.po_number'))
             ->required()
+            ->readOnly()
             ->unique(ignoreRecord: true)
             ->maxLength(255)
-            ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate() : null)
+            ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('po_number') : null)
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
                 'unique' => __('resources/purchaseOrder/strings.form.validation_unique'),
@@ -269,10 +267,29 @@ trait Form
             ->validationAttribute(__('resources/purchaseOrder/strings.form.po_number'));
     }
 
+    public static function getProformaInvoicesField(): Select
+    {
+        return Select::make('proformaInvoices')
+            ->label(__('resources/general/strings.relevant_module.form.proforma_invoices'))
+            ->relationship(name: 'proformaInvoices')
+            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name)
+            ->columnSpanFull()
+            ->multiple()
+            ->preload()
+            ->live()
+            ->searchable()
+            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                self::populateFromPI($state, $set);
+                self::updateTotal($get, $set);
+            })
+            ->visible(fn(Get $get): bool => $get('source_type') === 'pi')
+            ->validationAttribute(__('resources/general/strings.relevant_module.form.proforma_invoices'));
+    }
+
     public static function getPurchaseRequestsField(): Select
     {
         return Select::make('purchaseRequests')
-            ->label(__('resources/purchaseOrder/strings.form.purchase_requests'))
+            ->label(__('resources/general/strings.relevant_module.form.purchase_requests'))
             ->relationship(
                 name: 'purchaseRequests',
                 modifyQueryUsing: fn($query) => $query->whereHas('status', fn($statusQuery) => $statusQuery->whereIn('english_name', ['Authorized', 'Conditional']))->latest())
@@ -282,15 +299,52 @@ trait Form
             ->preload()
             ->live()
             ->searchable()
-            ->afterStateHydrated(function ($state, Get $get, Set $set) {
-                static::populateFromPR($state, $set);
-                self::updateTotal($get, $set);
-            })
             ->afterStateUpdated(function ($state, Get $get, Set $set) {
                 static::populateFromPR($state, $set);
                 self::updateTotal($get, $set);
             })
-            ->validationAttribute(__('resources/purchaseOrder/strings.form.purchase_requests'));
+            ->visible(fn(Get $get): bool => $get('source_type') === 'pr')
+            ->validationAttribute(__('resources/general/strings.relevant_module.form.purchase_requests'));
+    }
+
+    public static function getRegisteredOrdersField(): Select
+    {
+        return Select::make('registeredOrders')
+            ->label(__('resources/general/strings.relevant_module.form.registered_orders'))
+            ->relationship(
+                name: 'registeredOrders',
+                modifyQueryUsing: fn($query) => $query->whereHas('status', fn($statusQuery) => $statusQuery->whereIn('english_name', ['Submitted']))->latest())
+            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name)
+            ->columnSpanFull()
+            ->multiple()
+            ->preload()
+            ->live()
+            ->searchable()
+            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                self::populateFromRO($state, $set);
+                self::updateTotal($get, $set);
+            })
+            ->visible(fn(Get $get): bool => $get('source_type') === 'ro')
+            ->validationAttribute(__('resources/general/strings.relevant_module.form.registered_orders'));
+    }
+
+    public static function getSellerField(): Select
+    {
+        return Select::make('seller_id')
+            ->label(__('resources/purchaseOrder/strings.form.seller'))
+            ->relationship(
+                name: 'sellerCompany',
+                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
+            )
+            ->searchable(['name', 'english_name'])
+            ->preload()
+            ->required()
+            ->different('buyer_id')
+            ->validationMessages([
+                'required' => __('resources/purchaseOrder/strings.form.validation_required'),
+                'different' => __('resources/purchaseOrder/strings.form.validation_seller_buyer_different'),
+            ])
+            ->validationAttribute(__('resources/purchaseOrder/strings.form.seller'));
     }
 
     public static function getShippingAddressField(): Textarea
@@ -304,6 +358,21 @@ trait Form
                 'max' => __('resources/purchaseOrder/strings.form.validation_max_text'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.shipping_address'));
+    }
+
+    public static function getSourceTypeField(): Radio
+    {
+        return Radio::make('source_type')
+            ->label(__('resources/general/strings.relevant_module.form.related_to'))
+            ->inline()
+            ->options([
+                'pr' => __('resources/general/strings.relevant_module.form.purchase_requests_related'),
+                'pi' => __('resources/general/strings.relevant_module.form.proforma_invoices_related'),
+                'ro' => __('resources/general/strings.relevant_module.form.registered_orders_related'),
+            ])
+            ->columnSpanFull()
+            ->default(null)
+            ->live();
     }
 
     public static function getStatusField(): Select
@@ -322,25 +391,6 @@ trait Form
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.status'));
-    }
-
-    public static function getSupplierField(): Select
-    {
-        return Select::make('supplier_id')
-            ->label(__('resources/purchaseOrder/strings.form.supplier'))
-            ->relationship(
-                name: 'supplier',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-            )
-            ->searchable(['name', 'english_name'])
-            ->preload()
-            ->required()
-            ->different('buyer_id')
-            ->validationMessages([
-                'required' => __('resources/purchaseOrder/strings.form.validation_required'),
-                'different' => __('resources/purchaseOrder/strings.form.validation_supplier_buyer_different'),
-            ])
-            ->validationAttribute(__('resources/purchaseOrder/strings.form.supplier'));
     }
 
     public static function getTotalAmountField(): TextEntry

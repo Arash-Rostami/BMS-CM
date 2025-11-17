@@ -25,11 +25,18 @@ trait UpdatesFromPurchaseOrders
             'unit_price' => $item->unit_price ?? 0,
             'hs_code' => $item->product?->specifications?->first()?->hs_code,
             'total_amount' => number_format(
-                ($item->quantity ?? 0) * ($item->estimated_cost ?? 0),
+                ($item->quantity ?? 0) * ($item->unit_price ?? 0),
                 2,
                 '.',
                 ''
             ),
+            'line_total' => number_format(
+                ($item->quantity ?? 0) * ($item->unit_price ?? 0),
+                2,
+                '.',
+                ''
+            ),
+            'show_notes' => true
         ])
         )->toArray();
 

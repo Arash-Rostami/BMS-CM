@@ -6,11 +6,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn() => redirect()->to('dashboard'));
 
-
 Route::get('/clear', function () {
-    if (!Auth::check()) {
-        abort(403, 'Unauthorized');
-    }
+    if (!Auth::check()) abort(403, 'Unauthorized');
 
     Artisan::call('cache:clear');
     Artisan::call('config:clear');
@@ -19,6 +16,15 @@ Route::get('/clear', function () {
     Artisan::call('optimize:clear');
     Artisan::call('filament:clear-cached-components');
 
+    return response()->json([
+        'message' => 'All caches, including Filament caches, have been cleared successfully!',
+        'timestamp' => now()->toDateTimeString()
+    ]);
+});
+
+Route::get('/cache', function () {
+    if (!Auth::check()) abort(403, 'Unauthorized');
+
     // Rebuild caches
     Artisan::call('config:cache');
     Artisan::call('route:cache');
@@ -26,14 +32,12 @@ Route::get('/clear', function () {
     Artisan::call('filament:cache-components');
 
     return response()->json([
-        'message' => 'All caches including Filament caches have been cleared successfully!',
+        'message' => 'All caches, including Filament caches, have been rebuilt successfully!',
         'timestamp' => now()->toDateTimeString()
     ]);
 });
 
-
-Route::get('/test', function () {return view('components.test');});
-
+Route::get('/test', function () { return view('components.test'); });
 
 Route::get('/attachments/{attachment}/download', [AttachmentController::class, 'download'])
     ->name('attachments.download');

@@ -19,6 +19,7 @@ return [
     ],
     'form' => [
         'request_details' => 'Détails de la demande',
+        'pr_number' => 'Numéro de demande d\'achat',
         'requester' => 'Demandeur',
         'department' => 'Département',
         'cost_center' => 'Centre de coût',
@@ -70,6 +71,7 @@ return [
     ],
     'table' => [
         'id' => 'ID',
+        'pr_number' => 'Numéro de demande d\'achat',
         'requester' => 'Demandeur',
         'department' => 'Département',
         'status' => 'Statut',

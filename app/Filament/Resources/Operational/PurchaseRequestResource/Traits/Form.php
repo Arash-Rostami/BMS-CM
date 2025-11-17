@@ -4,9 +4,9 @@ namespace App\Filament\Resources\Operational\PurchaseRequestResource\Traits;
 
 use App\Models\Status;
 use App\Models\User;
-use App\Services\FileUploadManager;
+use App\Services\CodeGenerator;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -15,7 +15,6 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\UploadedFile;
 
 
 trait Form
@@ -41,43 +40,6 @@ trait Form
 
     }
 
-    public static function getAttachmentsField(): FileUpload
-    {
-        return FileUpload::make('attachments')
-            ->label(__('resources/purchaseRequest/strings.form.attachments'))
-            ->multiple()
-            ->disk('public')
-            ->visibility('public')
-            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'application/pdf', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',])
-            ->maxSize(2500)
-            ->previewable()
-            ->openable()
-            ->downloadable()
-            ->hintIconTooltip(fn($record) => $record?->attachments()->latest('id')->implode('name', "\n") ?? '')
-            ->validationMessages([
-                'accepted' => __('resources/purchaseRequest/strings.form.validation_attachments_type'),
-                'max_size' => __('resources/purchaseRequest/strings.form.validation_attachments_size'),
-            ])
-            ->validationAttribute(__('resources/purchaseRequest/strings.form.attachments'))
-            ->saveUploadedFileUsing(static function (UploadedFile $file, $state) {
-                return app(FileUploadManager::class)->storeTemporary($file);
-            })
-            ->saveRelationshipsUsing(static function ($record, array $state, Set $set) {
-                if ($record) {
-                    app(FileUploadManager::class)
-                        ->processTemporaryFiles($record, $state)
-                        ->refreshComponent($record, $set);
-                }
-            })
-            ->afterStateHydrated(static function (FileUpload $component, $state, $record) {
-                $component->state(
-                    $record?->attachments
-                        ? $record->attachments->pluck('path')->toArray()
-                        : []
-                );
-            });
-    }
-
     public static function getCostCenterIdField(): Select
     {
         $department = auth()->user()?->department;
@@ -95,57 +57,6 @@ trait Form
             ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.cost_center'));
 
-    }
-
-    public static function getItemAttachmentsField(): FileUpload
-    {
-        return FileUpload::make('attachments')
-            ->label(__('resources/purchaseRequest/strings.form.attachments'))
-            ->multiple()
-            ->disk('public')
-            ->visibility('public')
-            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'application/pdf', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',])
-            ->maxSize(2500)
-            ->previewable()
-            ->openable()
-            ->downloadable()
-            ->columnSpan('full')
-            ->hintIcon('heroicon-o-question-mark-circle')
-            ->hintIconTooltip(fn($record) => $record?->attachments()->latest('id')->implode('name', "\n") ?? '')
-            ->visible(fn(Get $get) => $get('has_item_attachments'))
-            ->validationMessages([
-                'accepted' => __('resources/purchaseRequest/strings.form.validation_item_attachments_type'),
-                'max_size' => __('resources/purchaseRequest/strings.form.validation_item_attachments_size'),
-            ])
-            ->validationAttribute(__('resources/purchaseRequest/strings.form.item_attachments'))
-            ->saveUploadedFileUsing(static function (UploadedFile $file, $state) {
-                return app(FileUploadManager::class)->storeTemporary($file);
-            })
-            ->saveRelationshipsUsing(static function ($record, array $state, Set $set) {
-                if ($record) {
-                    app(FileUploadManager::class)
-                        ->processTemporaryFiles($record, $state)
-                        ->refreshComponent($record, $set);
-                }
-            })
-            ->afterStateHydrated(static function (FileUpload $component, $state, $record) {
-                $component->state(
-                    $record?->attachments
-                        ? $record->attachments->pluck('path')->toArray()
-                        : []
-                );
-            });
-    }
-
-    public
-    static function getItemAttachmentsToggle(): Toggle
-    {
-        return Toggle::make('has_item_attachments')
-            ->label(__('resources/purchaseRequest/strings.form.add_item_attachments'))
-            ->reactive()
-            ->afterStateHydrated(fn(?Model $record, Set $set) => $set('has_item_attachments', $record?->attachments()->exists()))
-            ->dehydrated(false)
-            ->disabled(fn(?Model $record) => $record?->attachments()->exists());
     }
 
     public static function getItemEstimatedCostField(): TextInput
@@ -170,7 +81,7 @@ trait Form
     public static function getItemNotesField(): Textarea
     {
         return Textarea::make('notes')
-            ->label('')
+            ->hiddenLabel()
             ->maxLength(255)
             ->reactive()
             ->extraAttributes(fn(Get $get) => ['style' => !$get('show_notes') ? 'display: none;' : ''])
@@ -217,8 +128,6 @@ trait Form
             ->validationAttribute(__('resources/purchaseRequest/strings.form.product'));
     }
 
-// Purchase Item Fields
-
     public static function getItemQuantityField(): TextInput
     {
         return TextInput::make('quantity')
@@ -238,6 +147,8 @@ trait Form
             ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.quantity'));
     }
+
+// Purchase Item Fields
 
     public static function getItemStatusIdField(): Select
     {
@@ -261,17 +172,34 @@ trait Form
             ->nullable();
     }
 
-    public static function getNotesField(): Textarea
+    public static function getNotesField(): RichEditor
     {
-        return Textarea::make('notes')
+        return RichEditor::make('notes')
             ->label(__('resources/purchaseRequest/strings.form.notes'))
-            ->rows(3)
             ->maxLength(65535)
             ->rules(['max:65535'])
+            ->toolbarButtons(['bold', 'underline', 'link', 'bulletList', 'orderedList'])
             ->validationMessages([
                 'max' => __('resources/purchaseRequest/strings.form.validation_max'),
             ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.notes'));
+    }
+
+    public static function getPrNumberField(): TextInput
+    {
+        return TextInput::make('pr_number')
+            ->label(__('resources/purchaseRequest/strings.form.pr_number'))
+            ->required()
+            ->readOnly()
+            ->maxLength(255)
+            ->unique(ignoreRecord: true)
+            ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('pr_number') : null)
+            ->validationMessages([
+                'required' => __('resources/purchaseRequest/strings.form.validation_required'),
+                'unique' => __('resources/purchaseRequest/strings.form.validation_unique'),
+                'max' => __('resources/purchaseRequest/strings.form.validation_max_string'),
+            ])
+            ->validationAttribute(__('resources/purchaseRequest/strings.form.pr_number'));
     }
 
     public static function getRejectionReasonField(): Textarea

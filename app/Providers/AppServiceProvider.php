@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Configurators\FilamentAssets;
+use App\Configurators\FilamentCustomLogin;
 use App\Configurators\LanguageSwitcher;
 use App\Models\Category;
 use App\Models\PurchaseRequest;
@@ -17,11 +18,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        FilamentCustomLogin::configure($this->app);
         LanguageSwitcher::configure();
         FilamentAssets::register();
         Category::observe(CategoryObserver::class);
         PurchaseRequest::observe(PurchaseRequestObserver::class);
-
     }
 
     /**

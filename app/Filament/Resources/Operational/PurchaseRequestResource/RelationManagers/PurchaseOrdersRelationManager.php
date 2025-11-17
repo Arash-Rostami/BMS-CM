@@ -57,7 +57,7 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->columns([
                 static::showID(),
                 static::showPoNumber(),
-                static::showSupplier(),
+                static::showSeller(),
                 static::showBuyer(),
                 static::showStatus(),
                 static::showTotalAmount(),
@@ -68,7 +68,7 @@ class PurchaseOrdersRelationManager extends RelationManager
                 static::showUpdateTime(),
             ])
             ->filters([
-                static::getSupplierFilter(),
+                static::getSellerFilter(),
                 static::getBuyerFilter(),
                 static::getStatusFilter(),
                 static::getIncotermsFilter(),
@@ -111,6 +111,6 @@ class PurchaseOrdersRelationManager extends RelationManager
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('id', 'desc');
+            ->defaultSort('purchase_orders.id', 'desc');
     }
 }

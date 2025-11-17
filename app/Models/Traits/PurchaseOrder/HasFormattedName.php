@@ -20,30 +20,29 @@ trait HasFormattedName
         $fa = app()->getLocale() === 'fa';
         $s = fn($key, $faValue, $enValue) => $fa ? $faValue : $enValue;
 
-
         $name = $this->creator?->name ?? 'N/A';
-
         $status = match ($this->status?->english_name) {
             'Approved'  => '✅ ',
             'Submitted' => '☑️ ',
-            default       => '',
+            default     => '',
         };
 
-        $id   = $status . ($this->po_number ?? $this->id);
+        $id = $this->po_number ?? $this->id;
 
         if (!$withDates) {
-            return "{$id} ┆ {$name}";
+            return $fa ? "{$status} {$name} ┆ {$id}" : "{$status} {$id} ┆ {$name}";
         }
 
         $fmt = fn($d) => $d ? ($fa ? toPersianDate($d) : toGregorianDate($d)) : 'N/A';
         $cDate = $fmt($this->created_at);
-
         [$dDate, $dLabel] =
             $this->validity_date
                 ? [$fmt($this->validity_date), $s('label', 'معتبر تا', 'Valid by')]
                 : [$fmt($this->updated_at), $s('label', 'آخرین ویرایش', 'Last Edited')];
-
         $createdLabel = $s('created', 'ایجاد', 'Created');
-        return "{$id} ┆ {$name}  🗓️ {$createdLabel}: {$cDate} ┆ {$dLabel}: {$dDate}";
+
+        return $fa
+            ? "{$status} {$name} ┆ {$id} 🗓️ {$createdLabel}: {$cDate} ┆ {$dLabel}: {$dDate}"
+            : "{$status} {$id} ┆ {$name} 🗓️ {$createdLabel}: {$cDate} ┆ {$dLabel}: {$dDate}";
     }
 }

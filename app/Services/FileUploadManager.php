@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-use Exception;
 use App\Models\Status;
+use Exception;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -13,38 +14,48 @@ class FileUploadManager
 {
     public function processTemporaryFiles(Model $record, array $paths)
     {
-        $status = SmartCacheManager::remember(
-            'Status',
-            ['type' => 'Attachment Status', 'name' => 'Uploaded'],
-            1440,
-            fn() => Status::findBy('Attachment Status', 'Uploaded')
-        ) ?? throw new Exception("Default status 'Uploaded' not found.");
-        $finalPaths = [];
-        $tempDir = 'temp/';
+        try {
+            $status = SmartCacheManager::remember(
+                'Status',
+                ['type' => 'Attachment Status', 'name' => 'Uploaded'],
+                1440,
+                fn() => Status::findBy('Attachment Status', 'Uploaded')
+            ) ?? throw new Exception("Default status 'Uploaded' not found.");
 
-        foreach ($paths as $path) {
-            if (str_starts_with($path, $tempDir)) {
-                list($newPath, $newName) = $this->makeNameAndPath($tempDir, $path, $record);
+            $finalPaths = [];
+            $tempDir = 'temp/';
 
-                Storage::disk('public')->move($path, $newPath);
-                $finalPaths[] = $newPath;
+            foreach ($paths as $path) {
+                if (str_starts_with($path, $tempDir)) {
+                    list($newPath, $newName) = $this->makeNameAndPath($tempDir, $path, $record);
+                    Storage::disk('public')->move($path, $newPath);
+                    $finalPaths[] = $newPath;
 
-                $record->attachments()
-                    ->create([
+                    $record->attachments()->create([
                         'name' => $newName,
                         'path' => $newPath,
-                        'type' => Storage::disk('public')->mimeType($newPath),
+                        'type' => Str::limit(Storage::disk('public')->mimeType($newPath), 255, ''),
                         'status_id' => $status->id,
                         'user_id' => auth()->id(),
                     ]);
-            } else {
-                $finalPaths[] = $path;
+                } else {
+                    $finalPaths[] = $path;
+                }
             }
+
+            $this->syncAttachments($record, $finalPaths);
+
+            return $this;
+        } catch (Exception $e) {
+            Notification::make()
+                ->title('⚠️')
+                ->body(__('resources/general/strings.attachments.validation.processing_failed'))
+                ->danger()
+                ->persistent()
+                ->send();
+
+            throw $e;
         }
-
-        $this->syncAttachments($record, $finalPaths);
-
-        return $this;
     }
 
     public function refreshComponent($record, $set)

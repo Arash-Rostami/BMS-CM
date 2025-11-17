@@ -13,7 +13,6 @@ trait Infolist
     {
         return TextEntry::make('formatted_types')
             ->label(__('resources/company/strings.table.company_types'))
-            ->badge()
             ->separator(', ')
             ->color(fn(?string $state): ?string => Type::tryFromLocalised($state)?->getColor() ?? 'info')
             ->icon(fn(?string $state): ?string => Type::tryFromLocalised($state)?->getIcon() ?? 'heroicon-o-question-mark-circle')

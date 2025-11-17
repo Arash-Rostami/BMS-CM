@@ -70,7 +70,15 @@ class StatusResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return "🏷️ " . $record->getLocalizedNameAttribute();
+        $date = toYmdDate($record);
+        $name = $record->getLocalizedNameAttribute() ?? '-';
+
+        return "🏷️   {$name} (📆 {$date})";
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'english_name'];
     }
 
     public static function getModelLabel(): string
@@ -157,6 +165,7 @@ class StatusResource extends Resource
                 ]),
             ])
             ->striped()
+            ->reorderableColumns()
             ->defaultSort('id', 'desc');
     }
 }

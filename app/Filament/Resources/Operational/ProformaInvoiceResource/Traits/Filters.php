@@ -12,11 +12,11 @@ trait Filters
 {
 
 
-    public static function getConsigneeCompanyFilter(): SelectFilter
+    public static function getBuyerCompanyFilter(): SelectFilter
     {
-        return SelectFilter::make('consignee_company_id')
-            ->label(__('resources/proformaInvoice/strings.filters.consignee_company'))
-            ->relationship('consigneeCompany', 'name')
+        return SelectFilter::make('buyer_id')
+            ->label(__('resources/proformaInvoice/strings.filters.buyer_company'))
+            ->relationship('buyerCompany', 'name')
             ->searchable()
             ->preload();
     }
@@ -88,7 +88,7 @@ trait Filters
 
     public static function getSellerCompanyFilter(): SelectFilter
     {
-        return SelectFilter::make('seller_company_id')
+        return SelectFilter::make('seller_id')
             ->label(__('resources/proformaInvoice/strings.filters.seller_company'))
             ->relationship('sellerCompany', 'name')
             ->searchable()

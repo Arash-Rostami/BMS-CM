@@ -13,6 +13,8 @@ trait TypeScopes
     const TYPE_WHOLESALER = 'wholesaler';
     const TYPE_SERVICE_PROVIDER = 'service_provider';
 
+    const TYPE_SERVICE_ALL_SELLERS = ['supplier', 'manufacturer', 'seller'];
+
     public static function getAvailableTypes(): array
     {
         return app()->getLocale() == 'fa'

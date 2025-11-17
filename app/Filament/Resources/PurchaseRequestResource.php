@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\General\FormComponents;
+use App\Filament\Resources\General\InfoComponents;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Enums\Status;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Exports\PurchaseRequestExporter;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\CreatePurchaseRequest;
@@ -9,6 +12,7 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\EditPurchas
 use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\ListPurchaseRequests;
 use App\Filament\Resources\Operational\PurchaseRequestResource\RelationManagers\ProformaInvoicesRelationManager;
 use App\Filament\Resources\Operational\PurchaseRequestResource\RelationManagers\PurchaseOrdersRelationManager;
+use App\Filament\Resources\Operational\PurchaseRequestResource\RelationManagers\RegisteredOrderRelationManager;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Filters as PurchaseRequestFilters;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Form as PurchaseRequestForm;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Infolist as PurchaseRequestInfolist;
@@ -16,6 +20,7 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as P
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\TotalCostCalculation;
 use App\Models\PurchaseRequest;
 use App\Services\SmartCacheManager;
+use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -47,10 +52,9 @@ class PurchaseRequestResource extends Resource
 
     protected static ?string $model = PurchaseRequest::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
 
     protected static ?int $navigationSort = 2;
-
 
     public static function form(Schema $schema): Schema
     {
@@ -60,17 +64,19 @@ class PurchaseRequestResource extends Resource
                     ->schema([
                         Section::make(__('resources/purchaseRequest/strings.form.request_details'))
                             ->schema([
+                                static::getPrNumberField(),
                                 static::getCostCenterIdField(),
                                 static::getRequiredByDateField(),
                                 static::getUrgencyLevelField(),
-                                static::getTotalEstimatedCostField(),
+                                static::getStatusIdField(),
                             ])
-                            ->columns(2),
+                            ->columns(3),
 
                         Section::make(__('resources/purchaseRequest/strings.form.items'))
                             ->heading(__('resources/purchaseRequest/strings.form.purchase_items'))
                             ->schema([
                                 Repeater::make('items')
+                                    ->hiddenLabel()
                                     ->relationship()
                                     ->schema([
                                         Section::make()->schema(
@@ -81,14 +87,12 @@ class PurchaseRequestResource extends Resource
                                                 static::getItemUnitField(),
                                                 static::getItemEstimatedCostField(),
                                                 static::getItemNotesToggle(),
-                                                static::getItemAttachmentsToggle(),
                                                 static::getItemNotesField(),
-//                                                static::getItemAttachmentsField(),
                                             ]
                                         )->columns(3)
-
                                     ])
                                     ->live(true)
+                                    ->defaultItems(0)
                                     ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotalCost($get, $set))
                                     ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => self::updateTotalCost($get, $set)))
                                     ->addActionLabel(__('resources/purchaseRequest/strings.form.add_purchase_item'))
@@ -101,14 +105,12 @@ class PurchaseRequestResource extends Resource
                     ->schema([
                         Section::make(__('resources/purchaseRequest/strings.form.status_and_notes'))
                             ->schema([
-                                static::getStatusIdField(),
+                                static::getTotalEstimatedCostField(),
                                 static::getRejectionReasonField(),
                                 static::getApproverIdField(),
                                 static::getApprovalDateField(),
                                 static::getNotesField(),
-                                static::getAttachmentsField()
-                                    ->hintIconTooltip(fn($record) => $record?->attachments()->latest('id')->implode('name', "\n") ?? '')
-
+                                FormComponents::getAttachmentsField()
                             ]),
                     ])
                     ->columnSpan(['lg' => 1]),
@@ -131,9 +133,15 @@ class PurchaseRequestResource extends Resource
                 'items.product',
                 'items.status',
                 'proformaInvoices',
+                'registeredOrders',
                 'purchaseOrders',
                 'requester',
                 'status',
+            ])
+            ->withCount([
+                'proformaInvoices',
+                'registeredOrders',
+                'purchaseOrders',
             ])
             ->withCount('proformaInvoices')
             ->withoutGlobalScopes([
@@ -143,8 +151,17 @@ class PurchaseRequestResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return "🛒 " . $record->id;
+        $date = toYmdDate($record);
+        $pr = $record->pr_number ?? '—';
+
+        return "🛒 {$pr} (📆 {$date})";
     }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['pr_number'];
+    }
+
 
     public static function getModelLabel(): string
     {
@@ -191,8 +208,9 @@ class PurchaseRequestResource extends Resource
     public static function getRelations(): array
     {
         return [
-            PurchaseOrdersRelationManager::class,
             ProformaInvoicesRelationManager::class,
+            RegisteredOrderRelationManager::class,
+            PurchaseOrdersRelationManager::class,
         ];
     }
 
@@ -207,6 +225,10 @@ class PurchaseRequestResource extends Resource
                             ->icon('heroicon-o-shopping-cart')
                             ->schema([
                                 Section::make()->schema([
+                                    InfoComponents::viewProformaInvoices(),
+                                    InfoComponents::viewRegisteredOrders(),
+                                    InfoComponents::viewPurchaseOrders(),
+                                    static::viewPrNumber(),
                                     static::viewDepartment(),
                                     static::viewCostCenter(),
                                     static::viewRequester(),
@@ -246,7 +268,12 @@ class PurchaseRequestResource extends Resource
     {
         return $table
             ->columns([
+                static::showSource(),
                 static::showID(),
+                TableComponents::showProformaInvoices(),
+                TableComponents::showRegisteredOrders(),
+                TableComponents::showPurchaseOrders(),
+                static::showPrNumber(),
                 static::showRequester(),
                 static::showDepartment(),
                 static::showCostCenter(),
@@ -269,7 +296,7 @@ class PurchaseRequestResource extends Resource
                 static::getTrashedFilter(),
                 static::getCreationDateFilter(),
             ])
-            ->filtersFormColumns(2)
+            ->filtersFormColumns(3)
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
@@ -298,7 +325,9 @@ class PurchaseRequestResource extends Resource
                     ->getTitleFromRecordUsing(fn($record): ?string => Status::tryFrom($record->status?->english_name)?->getLabel() ?? $record->status?->name),
             ])
             ->striped()
+            ->searchDebounce('1000ms')
             ->recordUrl(null)
+            ->reorderableColumns()
             ->defaultSort('id', 'desc');
     }
 }

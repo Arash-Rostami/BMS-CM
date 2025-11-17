@@ -7,7 +7,7 @@ use App\Services\CodeGenerator;
 
 trait PreparesPurchaseOrderFromPurchaseRequest
 {
-    public function afterFill(): void
+    public function afterFillFromPurchaseRequest(): void
     {
         if (request()->has('purchase_request_id')) {
             $purchaseRequestId = request()->query('purchase_request_id');
@@ -25,7 +25,7 @@ trait PreparesPurchaseOrderFromPurchaseRequest
 
                 $this->form->fill([
                     'purchaseRequests' => [$purchaseRequestId],
-                    'po_number' => CodeGenerator::generate(),
+                    'po_number' => CodeGenerator::generate('po_number'),
                     'order_date' => now()->toDateString(),
                     'validity_date' => now()->addWeek()->toDateString(),
                     'items' => $items,

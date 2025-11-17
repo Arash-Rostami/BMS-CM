@@ -31,8 +31,8 @@ trait PreparesProformaFromPurchaseOrder
                 $this->form->fill([
                     'source_type' => 'po',
                     'purchaseOrders' => [$purchaseOrderId],
-                    'po_number' => CodeGenerator::generate(),
-                    'invoice_no' => CodeGenerator::generate(),
+                    'po_number' => CodeGenerator::generate('po_number'),
+                    'invoice_no' => CodeGenerator::generate('invoice_no'),
                     'invoice_date' => now()->toDateString(),
                     'items' => $items,
                 ]);

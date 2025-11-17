@@ -16,6 +16,14 @@ trait Infolist
             ->label(__('resources/purchaseRequest/strings.form.requester'));
     }
 
+    public static function viewPrNumber(): TextEntry
+    {
+        return TextEntry::make('pr_number')
+            ->copyable()
+            ->label(__('resources/purchaseRequest/strings.form.pr_number'));
+    }
+
+
     public static function viewDepartment(): TextEntry
     {
         return TextEntry::make('department.localized_name')
@@ -39,8 +47,7 @@ trait Infolist
     {
         return TextEntry::make('urgency_level')
             ->label(__('resources/purchaseRequest/strings.form.urgency_level'))
-            ->formatStateUsing(fn(string $state): string => __('resources/purchaseRequest/strings.general.urgency.' . strtolower($state)) ?? $state)
-            ->badge();
+            ->formatStateUsing(fn(string $state): string => __('resources/purchaseRequest/strings.general.urgency.' . strtolower($state)) ?? $state);
     }
 
     public static function viewTotalCost(): TextEntry
@@ -58,7 +65,6 @@ trait Infolist
     {
         return TextEntry::make('status.english_name')
             ->label(__('resources/purchaseRequest/strings.form.status'))
-            ->badge()
             ->formatStateUsing(fn(?string $state): ?string => Status::tryFrom($state)?->getLabel() ?? $state)
             ->color(fn(?string $state): ?string => Status::tryFrom($state)?->getColor() ?? 'info');
     }
@@ -136,8 +142,7 @@ trait Infolist
                     ->money('usd', true),
                 TextEntry::make('status.name')
                     ->label(__('resources/purchaseRequest/strings.infolist.item_status'))
-                    ->formatStateUsing(fn($record) => $record->status?->getLocalizedNameAttribute())
-                    ->badge(),
+                    ->formatStateUsing(fn($record) => $record->status?->getLocalizedNameAttribute()),
                 TextEntry::make('notes')
                     ->label(__('resources/purchaseRequest/strings.infolist.item_notes'))
                     ->columnSpanFull(),

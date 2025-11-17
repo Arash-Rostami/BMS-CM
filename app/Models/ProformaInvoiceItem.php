@@ -28,13 +28,14 @@ class ProformaInvoiceItem extends Model
         'proforma_invoice_id',
         'product_id',
         'description',
-        'english_description',
         'origin',
         'hs_code',
         'quantity',
         'net_weight',
         'gross_weight',
+        'unit',
         'unit_price',
+        'freight_charges',
         'total_amount',
     ];
 

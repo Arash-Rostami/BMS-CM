@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Operational\ProformaInvoiceResource\RelationManagers;
 
+use App\Filament\Resources\PurchaseOrderResource;
+use App\Filament\Resources\RegisteredOrderResource;
+use Filament\Actions\Action;
 use Filament\Schemas\Schema;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ViewAction;
@@ -46,7 +49,7 @@ class PurchaseOrdersRelationManager extends RelationManager
 
     public function infolist(Schema $schema): Schema
     {
-        return PurchaseRequestResource::infolist($schema);
+        return PurchaseOrderResource::infolist($schema);
     }
 
     public function table(Table $table): Table
@@ -55,9 +58,8 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->recordTitleAttribute('formatted_name')
             ->columns([
                 static::showID(),
-                static::showPurchaseRequests(),
                 static::showPoNumber(),
-                static::showSupplier(),
+                static::showSeller(),
                 static::showBuyer(),
                 static::showStatus(),
                 static::showTotalAmount(),
@@ -68,7 +70,7 @@ class PurchaseOrdersRelationManager extends RelationManager
                 static::showUpdateTime(),
             ])
             ->filters([
-                static::getSupplierFilter(),
+                static::getSellerFilter(),
                 static::getBuyerFilter(),
                 static::getStatusFilter(),
                 static::getIncotermsFilter(),
@@ -78,6 +80,11 @@ class PurchaseOrdersRelationManager extends RelationManager
                 static::getCreationDateFilter(),
             ])
             ->filtersFormColumns(3)
+            ->headerActions([
+                Action::make('create')
+                    ->label(__('resources/purchaseOrder/strings.general.add_record'))
+                    ->url(fn(): string => PurchaseOrderResource::getUrl('create', ['proforma_invoice_id' => $this->getOwnerRecord()->getKey()]))
+            ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
@@ -105,6 +112,6 @@ class PurchaseOrdersRelationManager extends RelationManager
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('id', 'desc');
+            ->defaultSort('purchase_orders.id', 'desc');
     }
 }

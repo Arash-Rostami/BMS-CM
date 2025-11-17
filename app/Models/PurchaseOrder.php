@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Traits\General\Relationships;
+use App\Models\Traits\General\SellerEntity;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\PurchaseOrder\Accessors;
 use App\Models\Traits\PurchaseOrder\HasSearchableRelations;
@@ -18,6 +19,7 @@ class PurchaseOrder extends Model
         SoftDeletes,
         Relationships,
         ExclusiveRelationships,
+        SellerEntity,
         Accessors,
         HasFormattedName,
         HasSearchableRelations,
@@ -30,7 +32,7 @@ class PurchaseOrder extends Model
 
     protected $fillable = [
         'po_number',
-        'supplier_id',
+        'seller_id',
         'buyer_id',
         'status_id',
         'order_date',

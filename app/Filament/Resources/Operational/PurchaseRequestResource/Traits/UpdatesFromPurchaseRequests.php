@@ -30,6 +30,13 @@ trait UpdatesFromPurchaseRequests
                 '.',
                 ''
             ),
+            'line_total' => number_format(
+                ($item->quantity ?? 0) * ($item->estimated_cost ?? 0),
+                2,
+                '.',
+                ''
+            ),
+            'show_notes' => true
         ])
         )->toArray();
 

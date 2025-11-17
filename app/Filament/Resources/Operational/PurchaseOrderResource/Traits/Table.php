@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Traits;
 
+use App\Filament\Resources\Operational\PurchaseOrderResource\Enums\Source;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Enums\Status;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
@@ -11,13 +12,13 @@ trait Table
 {
     public static function showBuyer(): TextColumn
     {
-        return TextColumn::make('buyer.name')
+        return TextColumn::make('buyerCompany.name')
             ->label(__('resources/purchaseOrder/strings.table.buyer'))
             ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas('buyer', fn($q) => $q->searchCompany($search))
+                query: fn(Builder $query, string $search) => $query->whereHas('buyerCompany', fn($q) => $q->searchCompany($search))
             )
-            ->formatStateUsing(fn($record): ?string => $record->buyer?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn($record): ?string => $record->buyerCompany?->getLocalizedNameAttribute())
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -44,7 +45,7 @@ trait Table
         return TextColumn::make('id')
             ->label(__('resources/proformaInvoice/strings.table.id'))
             ->sortable()
-            ->searchable()
+            ->searchable(query: fn(Builder $query, string $search): Builder => $query->where('purchase_orders.id', 'like', "%{$search}%"))
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -62,23 +63,22 @@ trait Table
         return TextColumn::make('po_number')
             ->label(__('resources/purchaseOrder/strings.table.po_number'))
             ->searchable()
+            ->badge()
+            ->copyable()
             ->sortable()
             ->tooltip(fn($record) => $record->order_date->format('Y-m-d'));
     }
 
-    public static function showPurchaseRequests(): TextColumn
+    public static function showSeller(): TextColumn
     {
-        return TextColumn::make('purchaseRequests')
-            ->label(__('resources/purchaseOrder/strings.table.purchase_requests'))
-            ->html()
-            ->default('-')
-            ->getStateUsing(fn($record) => $record->purchaseRequests->pluck('formatted_name_without_date')->implode('<br>'))
+        return TextColumn::make('sellerCompany.name')
+            ->label(__('resources/purchaseOrder/strings.table.seller'))
+            ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas(
-                    'purchaseRequests',
-                    fn(Builder $q) => $q->searchAll($search)
-                ), isIndividual: true)
-            ->toggleable();
+                query: fn(Builder $query, string $search) => $query->whereHas('sellerCompany', fn($q) => $q->searchCompany($search))
+            )
+            ->toggleable()
+            ->formatStateUsing(fn($record): ?string => $record->sellerCompany?->getLocalizedNameAttribute());
     }
 
     public static function showStatus(): TextColumn
@@ -94,17 +94,6 @@ trait Table
             ->iconPosition(IconPosition::Before)
             ->icon(fn($record): ?string => Status::tryFrom($record->status?->english_name)?->getIcon() ?? 'heroicon-o-question-mark-circle')
             ->color(fn($record): string => Status::tryFrom($record->status?->english_name)?->getColor() ?? 'gray');
-    }
-
-    public static function showSupplier(): TextColumn
-    {
-        return TextColumn::make('supplier.name')
-            ->label(__('resources/purchaseOrder/strings.table.supplier'))
-            ->sortable()
-            ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas('supplier', fn($q) => $q->searchCompany($search))
-            )
-            ->formatStateUsing(fn($record): ?string => $record->supplier?->getLocalizedNameAttribute());
     }
 
     public static function showTotalAmount(): TextColumn
@@ -133,5 +122,19 @@ trait Table
             ->sortable()
             ->searchable()
             ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    protected static function showSource(): TextColumn
+    {
+        return TextColumn::make('source')
+            ->label(__('resources/general/strings.relevant_module.table.related_to'))
+            ->badge()
+            ->getStateUsing(fn($record) => Source::getAllFromRecord($record))
+            ->formatStateUsing(fn(Source $state): ?string => $state->getLabel())
+            ->tooltip(fn(Source $state): ?string => $state->getTooltip())
+            ->iconPosition(IconPosition::Before)
+            ->icon(fn(Source $state): ?string => $state->getIcon())
+            ->color(fn(Source $state): string => $state->getColor())
+            ->wrap();
     }
 }

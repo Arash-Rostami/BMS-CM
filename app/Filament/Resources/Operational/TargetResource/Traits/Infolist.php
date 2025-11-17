@@ -68,7 +68,6 @@ trait Infolist
         return TextEntry::make('status')
             ->label(__('resources/target/strings.form.status'))
             ->formatStateUsing(fn(string $state): string => TargetStatus::tryFrom($state)?->getLabel() ?? $state)
-            ->badge()
             ->color(fn(string $state): string => TargetStatus::tryFrom($state)?->getColor() ?? 'gray');
     }
 
@@ -115,7 +114,6 @@ trait Infolist
         return TextEntry::make('id')
             ->label(__('resources/target/strings.table.tags'))
             ->formatStateUsing(fn($state, $record) => implode(', ', array_values(array_unique($record->tags ?? []))))
-            ->badge()
             ->color('info');
     }
 }

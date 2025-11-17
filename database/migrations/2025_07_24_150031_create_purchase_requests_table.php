@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('purchase_requests', function (Blueprint $table) {
             $table->id();
+            $table->string('pr_number')->unique();
             $table->foreignId('requester_id')->constrained('users');
             $table->foreignId('department_id')->constrained('departments');
             $table->unsignedBigInteger('cost_center_id')->nullable();

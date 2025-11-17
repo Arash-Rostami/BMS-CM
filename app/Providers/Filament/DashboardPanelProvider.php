@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use Andreia\FilamentNordTheme\FilamentNordThemePlugin;
 use Filament\Enums\GlobalSearchPosition;
+use Filament\Enums\ThemeMode;
 use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -11,9 +12,11 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
+use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Platform;
 use Filament\Support\Enums\Width;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -31,7 +34,6 @@ class DashboardPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
             ->id('dashboard')
             ->path('dashboard')
             ->navigationGroups([
@@ -64,7 +66,6 @@ class DashboardPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -86,16 +87,24 @@ class DashboardPanelProvider extends PanelProvider
             ->databaseNotificationsPolling('10s')
             ->maxContentWidth(Width::Full)
             ->spa()
-            ->globalSearch(true, position: GlobalSearchPosition::Sidebar)
+            ->globalSearch(true, position: GlobalSearchPosition::Topbar)
+            ->globalSearchFieldSuffix(fn(): ?string => match (Platform::detect()) {
+                Platform::Windows, Platform::Linux => 'Ctrl+K',
+                Platform::Mac => '⌘K',
+                default => null,
+            })
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->globalSearchDebounce('1000ms')
             ->breadcrumbs()
             ->brandName('BMS')
-            ->brandLogo(Vite::asset('resources/img/logos/curves.png'))
+            ->brandLogo(Vite::asset('resources/img/logos/favicon.png'))
             ->brandLogoHeight('7rem')
             ->sidebarCollapsibleOnDesktop()
+            ->login()
+            ->default()
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->defaultThemeMode(ThemeMode::Dark);
     }
 }
