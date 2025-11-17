@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
+use App\Models\Traits\ProformaInvoice\HasFormattedName;
+use App\Models\Traits\ProformaInvoice\HasSearchableRelations;
 use App\Models\Traits\ProformaInvoice\Relationships as ExclusiveRelationships;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +16,8 @@ class ProformaInvoice extends Model
     use HasFactory,
         SoftDeletes,
         Relationships,
+        HasFormattedName,
+        HasSearchableRelations,
         ExclusiveRelationships,
         UserStamps;
 
@@ -23,14 +27,12 @@ class ProformaInvoice extends Model
         'invoice_date',
         'contract_no',
         'buyer_comm_card_num',
-        'seller_company_id',
-        'consignee_company_id',
+        'seller_id',
+        'buyer_id',
         'validity_date',
         'beneficiary_country',
         'origin_country',
         'destination_country',
-        'allow_trans_shipment',
-        'allow_partial_shipment',
         'transport_mode',
         'port_of_discharge',
         'port_of_loading',
@@ -40,7 +42,8 @@ class ProformaInvoice extends Model
         'discount',
         'freight_charges',
         'other_charges',
-        'total_cfr_amount',
+        'total_amount',
+        'notes',
         'user_id',
         'updated_by_id',
     ];

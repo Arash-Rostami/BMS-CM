@@ -17,7 +17,7 @@ trait Infolist
         return ImageEntry::make('image')
             ->label(__('resources/user/strings.form.image'))
             ->circular()
-            ->size(80);
+            ->imageSize(80);
     }
 
     public static function viewName(): TextEntry

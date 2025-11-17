@@ -2,22 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Master\ProductResource\Exports\ProductExporter;
 use App\Filament\Resources\Master\ProductResource\Pages\ManageProducts;
 use App\Filament\Resources\Master\ProductResource\Traits\CategoryDrilldown;
@@ -27,11 +11,25 @@ use App\Filament\Resources\Master\ProductResource\Traits\Infolist as ProductInfo
 use App\Filament\Resources\Master\ProductResource\Traits\Table as ProductTable;
 use App\Models\Product;
 use App\Services\SmartCacheManager;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
-use Filament\Infolists\Components;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -44,7 +42,7 @@ class ProductResource extends Resource
 
     protected static ?string $model = Product::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-archive-box';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-archive-box';
 
     protected static ?int $navigationSort = 2;
 
@@ -147,7 +145,15 @@ class ProductResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return "📦 " . $record->getLocalizedNameAttribute();
+        $date = toYmdDate($record);
+        $name = $record->getLocalizedNameAttribute() ?? '-';
+
+        return "📦   {$name} (📆 {$date})";
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'english_name'];
     }
 
     public static function getModelLabel(): string
@@ -286,6 +292,8 @@ class ProductResource extends Resource
                 ])
             ])
             ->striped()
+            ->searchDebounce('1000ms')
+            ->reorderableColumns()
             ->defaultSort('id', 'desc');
     }
 }

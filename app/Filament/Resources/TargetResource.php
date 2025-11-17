@@ -80,12 +80,6 @@ class TargetResource extends Resource
             ->withoutGlobalScopes([SoftDeletingScope::class]);
     }
 
-    public static function getGlobalSearchResultTitle(Model $record): string
-    {
-        return " 🎯  " .
-            $record->id;
-    }
-
     public static function getModelLabel(): string
     {
         return __('resources/target/strings.general.model_label');
@@ -209,6 +203,7 @@ class TargetResource extends Resource
                     ->label(__('resources/target/strings.table.metrics')),
             ])
             ->striped()
+            ->reorderableColumns()
             ->defaultSort('id', 'desc');
     }
 }

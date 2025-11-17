@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->id();
             $table->string('po_number')->unique()->comment('Unique Purchase Order number');
-            $table->foreignId('supplier_id')->constrained('companies');
+            $table->foreignId('seller_id')->constrained('companies');
             $table->foreignId('buyer_id')->constrained('companies');
             $table->foreignId('status_id')->constrained('statuses')->cascadeOnDelete();
             $table->date('order_date')->comment('The date the order was created');

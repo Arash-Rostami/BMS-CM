@@ -11,6 +11,7 @@ trait HasSearchableRelations
 
 
         return $query->where(fn($q) => $q->where('purchase_requests.id', 'like', "%{$term}%")
+            ->orWhere('purchase_requests.pr_number', 'like', "%{$term}%")
             ->orWhereRelation('requester', 'name', 'like', "%{$term}%")
             ->orWhereRelation('costCenter', 'name', 'like', "%{$term}%")
             ->orWhereRelation('costCenter', 'english_name', 'like', "%{$term}%")

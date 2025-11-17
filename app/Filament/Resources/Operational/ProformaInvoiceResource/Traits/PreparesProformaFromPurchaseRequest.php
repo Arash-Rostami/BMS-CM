@@ -26,7 +26,7 @@ trait PreparesProformaFromPurchaseRequest
                 $this->form->fill([
                     'source_type' => 'pr',
                     'purchaseRequests' => [$purchaseRequestId],
-                    'invoice_no' => CodeGenerator::generate(),
+                    'invoice_no' => CodeGenerator::generate('invoice_no'),
                     'invoice_date' => now()->toDateString(),
                     'validity_date' => now()->addWeek()->toDateString(),
                     'items' => $items,

@@ -164,7 +164,6 @@ trait Infolist
         return TextEntry::make('specifications.0.import_licenses')
             ->label(__('resources/product/strings.form.import_licenses'))
             ->columnSpanFull()
-            ->badge()
             ->formatStateUsing(function ($state) {
                 if (!is_string($state) || empty($state)) {
                     return $state;

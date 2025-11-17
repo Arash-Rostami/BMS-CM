@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\General\HasNameSearch;
 use App\Models\Traits\General\HasScope;
 use App\Models\Traits\General\Localization;
 use App\Models\Traits\General\Relationships;
@@ -17,6 +18,7 @@ class Bank extends Model
         Relationships,
         UserStamps,
         Localization,
+        HasNameSearch,
         HasScope;
 
     protected $fillable = [

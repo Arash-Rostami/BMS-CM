@@ -23,12 +23,12 @@ class ProformaInvoiceExporter extends Exporter
             ExportColumn::make('validity_date')->label('Validity Date'),
             ExportColumn::make("sellerCompany.name")->label('Seller'),
             ExportColumn::make("sellerCompany.english_name")->label('Seller E'),
-            ExportColumn::make("consigneeCompany.name")->label('Buyer (Consignee)'),
-            ExportColumn::make("consigneeCompany.english_name")->label('Buyer (Consignee) E'),
+            ExportColumn::make("buyerCompany.name")->label('Buyer '),
+            ExportColumn::make("buyerCompany.english_name")->label('Buyer  E'),
             ExportColumn::make('discount')->label('Discount'),
             ExportColumn::make('freight_charges')->label('Freight Charges'),
             ExportColumn::make('other_charges')->label('Other Charges'),
-            ExportColumn::make('total_cfr_amount')->label('Total Amount'),
+            ExportColumn::make('total_amount')->label('Total Amount'),
             ExportColumn::make("mainCurrency.name")->label('Main Currency'),
             ExportColumn::make("mainCurrency.english_name")->label('Main Currency E'),
             ExportColumn::make("secondaryCurrency.name")->label('Secondary Currency'),
@@ -42,12 +42,6 @@ class ProformaInvoiceExporter extends Exporter
             ExportColumn::make('beneficiary_country')->label('Beneficiary Country'),
             ExportColumn::make('port_of_loading')->label('Port of Loading'),
             ExportColumn::make('port_of_discharge')->label('Port of Discharge'),
-            ExportColumn::make('allow_partial_shipment')
-                ->label('Allow Partial Shipment')
-                ->state(fn(ProformaInvoice $record): string => $record->allow_partial_shipment ? 'Yes' : 'No'),
-            ExportColumn::make('allow_trans_shipment')
-                ->label('Allow Trans-shipment')
-                ->state(fn(ProformaInvoice $record): string => $record->allow_trans_shipment ? 'Yes' : 'No'),
 
             ExportColumn::make('items')
                 ->label('Items')

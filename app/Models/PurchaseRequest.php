@@ -24,6 +24,7 @@ class PurchaseRequest extends Model
     public const TYPE_PURCHASE_REQUEST = 'Purchase Request Status';
 
     protected $fillable = [
+        'pr_number',
         'requester_id',
         'department_id',
         'cost_center_id',

@@ -2,24 +2,23 @@
 
 namespace App\Filament\Resources\Operational\ProformaInvoiceResource\RelationManagers;
 
-use Filament\Schemas\Schema;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DetachAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Enums\Status;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Exports\PurchaseRequestExporter;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Filters as PurchaseRequestFilters;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as PurchaseRequestTable;
 use App\Filament\Resources\PurchaseRequestResource;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DetachAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -69,7 +68,6 @@ class PurchaseRequestsRelationManager extends RelationManager
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
-                static::showProformaInvoiceCount(),
             ])
             ->filters([
                 static::getDepartmentFilter(),
@@ -110,6 +108,6 @@ class PurchaseRequestsRelationManager extends RelationManager
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('id', 'desc');
+            ->defaultSort('purchase_requests.id', 'desc');
     }
 }

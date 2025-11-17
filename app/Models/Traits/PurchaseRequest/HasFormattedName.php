@@ -16,8 +16,8 @@ trait HasFormattedName
 
     private function buildFormattedName(bool $withDates): string
     {
-        $fa   = app()->getLocale() === 'fa';
-        $s    = fn($key, $faValue, $enValue) => $fa ? $faValue : $enValue;
+        $fa = app()->getLocale() === 'fa';
+        $s = fn($key, $faValue, $enValue) => $fa ? $faValue : $enValue;
 
         $status = match ($this->status?->english_name) {
             'Authorized'  => '✅ ',
@@ -30,21 +30,25 @@ trait HasFormattedName
             ?? $s('dept', 'نامشخص', 'Unknown');
 
         $name = $this->requester?->name ?? 'N/A';
-        $id   = $status . $this->id;
+        $idValue = $this->pr_number ?? $this->id;
 
         if (! $withDates) {
-            return "{$id} ┆ {$name} ({$dept})";
+            return $fa
+                ? "{$status}{$name} ┆ {$idValue} ({$dept})"
+                : "{$status}{$idValue} ┆ {$name} ({$dept})";
         }
 
-        $fmt   = fn($d) => $d ? ($fa ? toPersianDate($d) : toGregorianDate($d)) : 'N/A';
+        $fmt = fn($d) => $d ? ($fa ? toPersianDate($d) : toGregorianDate($d)) : 'N/A';
         $cDate = $fmt($this->created_at);
 
-        [$dDate, $dLabel] =
-            $this->required_by_date
-                ? [$fmt($this->required_by_date), $s('label', 'نیاز تا', 'Required by')]
-                : [$fmt($this->updated_at), $s('label', 'آخرین ویرایش', 'Last Edited')];
+        [$dDate, $dLabel] = $this->required_by_date
+            ? [$fmt($this->required_by_date), $s('label', 'نیاز تا', 'Required by')]
+            : [$fmt($this->updated_at), $s('label', 'آخرین ویرایش', 'Last Edited')];
 
         $createdLabel = $s('created', 'ایجاد', 'Created');
-        return "{$id} ┆ {$name} ({$dept}) 🗓️ {$createdLabel}: {$cDate} ┆ {$dLabel}: {$dDate}";
+
+        return $fa
+            ? "{$status}{$name} ┆ {$idValue} ({$dept}) 🗓️ {$createdLabel}: {$cDate} ┆ {$dLabel}: {$dDate}"
+            : "{$status}{$idValue} ┆ {$name} ({$dept}) 🗓️ {$createdLabel}: {$cDate} ┆ {$dLabel}: {$dDate}";
     }
 }

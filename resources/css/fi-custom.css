@@ -412,9 +412,9 @@ nav.fi-ta-pagination {
 }
 
 /* ─── MODALS ───────────────────────────────────────── */
-.fi-modal-window {
-    margin-top: 60px;
-}
+/*.fi-modal-window {*/
+/*    margin-top: 60px;*/
+/*}*/
 
 .fi-modal-window-ctn {
     backdrop-filter: brightness(150%);
@@ -484,6 +484,11 @@ body:has(.fi-modal-open) .fi-sidebar-item-icon {
 .dark body:has(.fi-modal-open) .fi-sidebar-item-icon {
     color: coral;
 }
+
+body:has(.fi-modal-open) nav.fi-topbar {
+    display: none !important;
+}
+
 
 /* DropDown Menu */
 .fi-dropdown-panel:hover {

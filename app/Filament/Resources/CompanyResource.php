@@ -69,8 +69,6 @@ class CompanyResource extends Resource
             ->with([
                 'creator',
                 'updater',
-                'soldProformaInvoices',
-                'consignedProformaInvoices',
             ])
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
@@ -79,9 +77,16 @@ class CompanyResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return "🏢 " . $record->getLocalizedNameAttribute();
+        $date = toYmdDate($record);
+        $name = $record->getLocalizedNameAttribute() ?? '-';
+
+        return "🏢    {$name} (📆 {$date})";
     }
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'english_name'];
+    }
     public static function getModelLabel(): string
     {
         return __('resources/company/strings.general.model_label');
@@ -183,6 +188,7 @@ class CompanyResource extends Resource
                 ]),
             ])
             ->striped()
+            ->reorderableColumns()
             ->defaultSort('id', 'desc');
     }
 }

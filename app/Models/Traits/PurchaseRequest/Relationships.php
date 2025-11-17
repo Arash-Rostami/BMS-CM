@@ -5,8 +5,9 @@ namespace App\Models\Traits\PurchaseRequest;
 use App\Models\Attachment;
 use App\Models\Department;
 use App\Models\ProformaInvoice;
-use App\Models\PurchaseRequestItem;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseRequestItem;
+use App\Models\RegisteredOrder;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -49,6 +50,16 @@ trait Relationships
     public function purchaseOrders(): BelongsToMany
     {
         return $this->belongsToMany(PurchaseOrder::class, 'purchase_order_purchase_request');
+    }
+
+    public function registeredOrders()
+    {
+        return $this->belongsToMany(
+            RegisteredOrder::class,
+            'registered_order_purchase_request',
+            'purchase_request_id',
+            'registered_order_id'
+        )->withTimestamps();
     }
 
     public function requester(): BelongsTo

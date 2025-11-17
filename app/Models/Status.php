@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\General\HasNameSearch;
 use App\Models\Traits\General\Localization;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
@@ -21,6 +22,7 @@ class Status extends Model
         UserStamps,
         Localization,
         StatusFinder,
+        HasNameSearch,
         HasSearchableRelations;
 
     protected $table = 'statuses';

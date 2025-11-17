@@ -16,7 +16,7 @@ return new class extends Migration
             $table->morphs('attachable');
             $table->string('name');
             $table->string('path');
-            $table->string('type', 50)->nullable()->comment('MIME type or custom file type');
+            $table->string('type', 255)->nullable()->comment('MIME type or custom file type');
             $table->foreignId('status_id')->nullable()->constrained('statuses');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('updated_by_id')->nullable();

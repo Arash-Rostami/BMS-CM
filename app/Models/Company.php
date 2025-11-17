@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Company\HasCustomSorts;
 use App\Models\Traits\Company\HasSearchableRelations;
-use App\Models\Traits\Company\Relationships as ExclusiveRelationships;
 use App\Models\Traits\Company\TypeScopes;
+use App\Models\Traits\General\HasNameSearch;
 use App\Models\Traits\General\HasScope;
 use App\Models\Traits\General\Localization;
 use App\Models\Traits\General\Relationships;
@@ -18,11 +19,12 @@ class Company extends Model
     use HasFactory,
         SoftDeletes,
         Relationships,
-        ExclusiveRelationships,
         UserStamps,
         Localization,
         HasScope,
         TypeScopes,
+        HasCustomSorts,
+        HasNameSearch,
         HasSearchableRelations;
 
     protected $fillable = [

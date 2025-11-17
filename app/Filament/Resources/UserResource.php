@@ -2,30 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use App\Filament\Resources\Master\UserResource\Pages\ManageUsers;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Master\UserResource\Exports\UserExporter;
+use App\Filament\Resources\Master\UserResource\Pages\ManageUsers;
 use App\Filament\Resources\Master\UserResource\Traits\Filters;
 use App\Filament\Resources\Master\UserResource\Traits\Form as UserForm;
 use App\Filament\Resources\Master\UserResource\Traits\Infolist as UserInfolist;
 use App\Filament\Resources\Master\UserResource\Traits\Table as TableTrait;
 use App\Models\User;
 use App\Services\SmartCacheManager;
-use Filament\Forms;
-use Filament\Infolists\Components;
+use BackedEnum;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -36,7 +34,7 @@ class UserResource extends Resource
     use UserForm, TableTrait, UserInfolist, Filters;
 
     protected static ?string $model = User::class;
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
     protected static ?int $navigationSort = 8;
 
@@ -81,7 +79,15 @@ class UserResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return "👨🏻‍💻 " . $record->name;
+        $date = toYmdDate($record);
+        $name = $record->name ?? '-';
+
+        return "👨🏻‍💻 {$name} (📆 {$date})";
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name'];
     }
 
     public static function getModelLabel(): string
@@ -202,6 +208,7 @@ class UserResource extends Resource
                 ]),
             ])
             ->striped()
+            ->reorderableColumns()
             ->defaultSort('id', 'desc');
     }
 }

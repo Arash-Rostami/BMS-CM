@@ -35,7 +35,7 @@ return [
 
         // Fields
         'po_number' => 'Numéro du bon de commande',
-        'supplier' => 'Fournisseur',
+        'seller' => 'Vendeur',
         'buyer' => 'Acheteur',
         'status' => 'Statut',
         'currency' => 'Devise',
@@ -48,6 +48,8 @@ return [
         'shipping_address' => 'Adresse de livraison',
         'packing_details' => 'Détails de l\'emballage',
         'notes' => 'Notes',
+        'add_notes' => 'Description',
+        'item_description' => 'Description',
         'product' => 'Produit',
         'quantity' => 'Quantité',
         'unit' => 'Unité',
@@ -62,7 +64,7 @@ return [
         'validation_unique' => 'Cette valeur doit être unique.',
         'validation_max_string' => 'Ce champ ne doit pas dépasser :max caractères.',
         'validation_max_text' => 'Ce champ ne doit pas dépasser :max caractères.',
-        'validation_supplier_buyer_different' => 'Le fournisseur et l\'acheteur doivent être différents.',
+        'validation_seller_buyer_different' => 'Le Vendeur et l\'acheteur doivent être différents.',
         'validation_after_or_equal_order_date' => 'Cette date doit être égale ou postérieure à la date de commande.',
         'validation_numeric' => 'Ce champ doit être un nombre.',
         'validation_min_numeric' => 'Ce champ doit être d\'au moins :min.',
@@ -72,7 +74,7 @@ return [
     ],
     'table' => [
         'po_number' => 'N° Bon de Commande',
-        'supplier' => 'Fournisseur',
+        'seller' => 'Vendeur',
         'buyer' => 'Acheteur',
         'status' => 'Statut',
         'order_date' => 'Date de Commande',
@@ -84,7 +86,9 @@ return [
         'purchase_requests' => 'Demandes d\'Achat Associées',
     ],
     'filters' => [
-        'supplier'      => 'Fournisseur',
+        'seller'      => 'Vendeur',
+        'supplier' => 'Fournisseur',
+        'manufacturer' => 'Fabricant',
         'buyer'         => 'Acheteur',
         'status'        => 'Statut',
         'currency' => 'Devise',

@@ -35,7 +35,7 @@ return [
 
         // Fields
         'po_number' => 'PO Number',
-        'supplier' => 'Supplier',
+        'seller' => 'Seller',
         'buyer' => 'Buyer',
         'status' => 'Status',
         'currency' => 'Currency',
@@ -48,13 +48,15 @@ return [
         'shipping_address' => 'Shipping Address',
         'packing_details' => 'Packing Details',
         'notes' => 'Notes',
+        'add_notes' => 'Notes',
+        'item_description' => 'Description',
         'product' => 'Product',
         'quantity' => 'Quantity',
         'unit' => 'Unit',
         'unit_price' => 'Unit Price',
         'net_weight' => 'Net Weight',
         'gross_weight' => 'Gross Weight',
-        'add_item_action' => 'Add Item',
+        'add_item_action' => 'Add Product',
         'attachments' => 'Attachments',
 
 
@@ -63,17 +65,16 @@ return [
         'validation_unique' => 'This value must be unique.',
         'validation_max_string' => 'This field must not exceed :max characters.',
         'validation_max_text' => 'This field must not exceed :max characters.',
-        'validation_supplier_buyer_different' => 'The supplier and buyer must be different.',
+        'validation_seller_buyer_different' => 'The seller and buyer must be different.',
         'validation_after_or_equal_order_date' => 'This date must be on or after the order date.',
         'validation_numeric' => 'This field must be a number.',
         'validation_min_numeric' => 'This field must be at least :min.',
         'validation_min_numeric_zero' => 'This field cannot be negative.',
-        'validation_attachments_type' => 'The file type of :attribute is not allowed.',
-        'validation_attachments_size' => 'The :attribute may not be greater than :max kilobytes.',
+
     ],
     'table' => [
         'po_number' => 'PO Number',
-        'supplier' => 'Supplier',
+        'seller' => 'Seller',
         'buyer' => 'Buyer',
         'status' => 'Status',
         'order_date' => 'Order Date',
@@ -86,7 +87,9 @@ return [
 
     ],
     'filters' => [
+        'seller' => 'Seller',
         'supplier' => 'Supplier',
+        'manufacturer' => 'Manufacturer',
         'buyer' => 'Buyer',
         'status' => 'Status',
         'currency' => 'Currency',

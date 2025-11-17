@@ -2,33 +2,57 @@
 
 namespace App\Services;
 
+use App\Models\BankProfile;
+use App\Models\Payment;
 use App\Models\ProformaInvoice;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseRequest;
+use App\Models\RegisteredOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
 class CodeGenerator
 {
     protected static array $map = [
-        'purchase-orders' => ['model' => PurchaseOrder::class, 'prefix' => 'PO', 'field' => 'po_number'],
-        'proforma-invoices' => ['model' => ProformaInvoice::class, 'prefix' => 'PI', 'field' => 'invoice_no'],
+        'purchase-requests' => [
+            'pr_number' => ['model' => PurchaseRequest::class, 'prefix' => 'PR'],
+        ],
+        'proforma-invoices' => [
+            'invoice_no' => ['model' => ProformaInvoice::class, 'prefix' => 'PI'],
+        ],
+        'registered-orders' => [
+            'ro_number' => ['model' => RegisteredOrder::class, 'prefix' => 'RO'],
+            'contract_no' => ['model' => RegisteredOrder::class, 'prefix' => 'CT'],
+        ],
+        'purchase-orders' => [
+            'po_number' => ['model' => PurchaseOrder::class, 'prefix' => 'PO'],
+        ],
+        'bank-profiles' => [
+            'bp_number' => ['model' => BankProfile::class, 'prefix' => 'BP'],
+        ],
+        'payments' => [
+            'payment_no' => ['model' => Payment::class, 'prefix' => 'P'],
+        ],
     ];
 
-    public static function generate(): string
+    public static function generate(string $field): string
     {
         $dateCode = now()->format('ymd');
         $segment = Request::segment(2);
-        $data = static::$map[$segment] ?? null;
+        $modelConfigs = static::$map[$segment] ?? null;
 
-        if (!$data) {
+        if (!$modelConfigs) {
             return "ERROR-{$dateCode}-URL";
         }
 
-        [$modelClass, $prefix, $field] = [
-            $data['model'],
-            $data['prefix'],
-            $data['field'],
-        ];
+        $data = $modelConfigs[$field] ?? null;
+
+        if (!$data) {
+            return "ERROR-{$dateCode}-FIELD";
+        }
+
+        $modelClass = $data['model'];
+        $prefix = $data['prefix'];
 
         if (!class_exists($modelClass)) {
             return "ERROR-{$dateCode}-MODEL";

@@ -13,6 +13,7 @@ trait Infolist
     public static function viewInvoiceNo(): TextEntry
     {
         return TextEntry::make('invoice_no')
+            ->copyable()
             ->label(__('resources/proformaInvoice/strings.form.invoice_no'));
     }
 
@@ -22,10 +23,10 @@ trait Infolist
             ->label(__('resources/proformaInvoice/strings.form.seller_company'));
     }
 
-    public static function viewConsigneeCompany(): TextEntry
+    public static function viewBuyerCompany(): TextEntry
     {
-        return TextEntry::make('consigneeCompany.name')
-            ->label(__('resources/proformaInvoice/strings.form.consignee_company'));
+        return TextEntry::make('buyerCompany.name')
+            ->label(__('resources/proformaInvoice/strings.form.buyer_company'));
     }
 
     public static function viewInvoiceDate(): TextEntry
@@ -57,6 +58,7 @@ trait Infolist
     public static function viewContractNo(): TextEntry
     {
         return TextEntry::make('contract_no')
+            ->copyable()
             ->label(__('resources/proformaInvoice/strings.form.contract_no'));
     }
 
@@ -113,19 +115,6 @@ trait Infolist
             ->label(__('resources/proformaInvoice/strings.form.port_of_discharge'));
     }
 
-    public static function viewAllowTransShipment(): TextEntry
-    {
-        return TextEntry::make('allow_trans_shipment')
-            ->label(__('resources/proformaInvoice/strings.form.allow_trans_shipment'))
-            ->formatStateUsing(fn(bool $state): string => $state ? '✅' : '❌');
-    }
-
-    public static function viewAllowPartialShipment(): TextEntry
-    {
-        return TextEntry::make('allow_partial_shipment')
-            ->label(__('resources/proformaInvoice/strings.form.allow_partial_shipment'))
-            ->formatStateUsing(fn(bool $state): string => $state ? '✅' : '❌');
-    }
 
     public static function viewDiscount(): TextEntry
     {
@@ -151,10 +140,10 @@ trait Infolist
             ->prefix('💰');
     }
 
-    public static function viewTotalCfrAmount(): TextEntry
+    public static function viewTotalAmount(): TextEntry
     {
-        return TextEntry::make('total_cfr_amount')
-            ->label(__('resources/proformaInvoice/strings.form.total_cfr_amount'))
+        return TextEntry::make('total_amount')
+            ->label(__('resources/proformaInvoice/strings.form.total_amount'))
             ->formatStateUsing(fn($state): string => isset($state) ? number_format($state, 2, '.', ',') : '')
             ->prefix('💰');
     }
@@ -201,20 +190,7 @@ trait Infolist
             });
     }
 
-    // Purchase Requests List
-    public static function viewPurchaseRequests(): RepeatableEntry
-    {
-        return RepeatableEntry::make('purchaseRequests')
-            ->label(__('resources/proformaInvoice/strings.form.purchase_requests'))
-            ->schema([
-                TextEntry::make('formatted_name')
-                    ->label(__('resources/proformaInvoice/strings.infolist.purchase_request'))
-                    ->columnSpan(4),
-                TextEntry::make('status.name')
-                    ->label(__('resources/proformaInvoice/strings.infolist.status'))
-                    ->badge(),
-            ])->columns(5);
-    }
+
 
     // Invoice Items List
     public static function viewInvoiceItems(): RepeatableEntry
@@ -228,6 +204,8 @@ trait Infolist
                     ->columnSpan(2),
                 TextEntry::make('quantity')
                     ->label(__('resources/proformaInvoice/strings.form.quantity')),
+                TextEntry::make('unit')
+                    ->label(__('resources/proformaInvoice/strings.form.unit')),
                 TextEntry::make('unit_price')
                     ->label(__('resources/proformaInvoice/strings.form.unit_price'))
                     ->formatStateUsing(fn($state): string => isset($state) ? number_format($state, 2, '.', ',') : ''),

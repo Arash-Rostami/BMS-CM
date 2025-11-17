@@ -28,12 +28,12 @@ return [
     'form' => [
         // Section Titles
         'section_order_details' => 'جزئیات سفارش',
-        'section_items' => 'آیتم‌های سفارش',
+        'section_items' => 'کالاهای سفارش',
         'section_shipping_notes' => 'حمل و نقل و یادداشت‌ها',
 
         // Fields
         'po_number' => 'شماره سفارش خرید',
-        'supplier' => 'تأمین کننده',
+        'seller' => 'تأمین کننده (فروشنده)',
         'buyer' => 'خریدار',
         'status' => 'وضعیت',
         'currency' => 'ارز',
@@ -46,13 +46,15 @@ return [
         'shipping_address' => 'آدرس حمل',
         'packing_details' => 'جزئیات بسته‌بندی',
         'notes' => 'یادداشت‌ها',
+        'add_notes' =>  'توضیحات ',
+        'item_description' => 'توضیحات ',
         'product' => 'محصول',
         'quantity' => 'مقدار',
         'unit' => 'واحد سنجش',
         'unit_price' => 'قیمت واحد',
         'net_weight' => 'وزن خالص ',
         'gross_weight' => 'وزن ناخالص ',
-        'add_item_action' => 'افزودن آیتم',
+        'add_item_action' => 'افزودن کالا',
         'attachments' => 'پیوست‌ها',
         'purchase_requests' => 'درخواست خرید مرتبط',
 
@@ -61,17 +63,15 @@ return [
         'validation_unique' => 'این مقدار باید منحصر به فرد باشد.',
         'validation_max_string' => 'این فیلد نباید بیشتر از :max کاراکتر باشد.',
         'validation_max_text' => 'این فیلد نباید بیشتر از :max کاراکتر باشد.',
-        'validation_supplier_buyer_different' => 'تأمین کننده و خریدار باید متفاوت باشند.',
+        'validation_seller_buyer_different' => 'تأمین کننده و خریدار باید متفاوت باشند.',
         'validation_after_or_equal_order_date' => 'این تاریخ باید برابر یا بعد از تاریخ سفارش باشد.',
         'validation_numeric' => 'این فیلد باید یک عدد باشد.',
         'validation_min_numeric' => 'این فیلد باید حداقل :min باشد.',
         'validation_min_numeric_zero' => 'این فیلد نمی‌تواند منفی باشد.',
-        'validation_attachments_type' => 'نوع فایل‌های :attribute مجاز نیست.',
-        'validation_attachments_size' => 'حجم فایل :attribute نباید بیشتر از :max کیلوبایت باشد.',
     ],
     'table' => [
         'po_number' => 'شماره سفارش',
-        'supplier' => 'تأمین کننده',
+        'seller' => ' تأمین کننده (فروشنده)',
         'buyer' => 'خریدار',
         'status' => 'وضعیت',
         'order_date' => 'تاریخ سفارش',
@@ -84,7 +84,9 @@ return [
     ],
     // Add these 'filters' and 'infolist' sections
     'filters' => [
-        'supplier' => 'تأمین کننده',
+        'seller' => 'فروشنده',
+        'supplier' => 'تأمین‌کننده',
+        'manufacturer' => 'تولیدکننده',
         'buyer' => 'خریدار',
         'status' => 'وضعیت',
         'currency' => 'ارز',

@@ -6,11 +6,26 @@ use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Support\Facades\Storage;
 
-trait InfoList
+trait Infolist
 {
+    public static function viewAttachments(): RepeatableEntry
+    {
+        return RepeatableEntry::make('attachments')
+            ->label(__('resources/proformaInvoice/strings.form.attachments'))
+            ->schema([
+                TextEntry::make('path')
+                    ->label('')
+                    ->formatStateUsing(fn(string $state): string => basename($state))
+                    ->tooltip(fn($record) => $record->name ?? '')
+                    ->icon('heroicon-o-document-text')
+                    ->url(fn($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
+            ])
+            ->columns(1);
+    }
+
     public static function viewBuyer(): TextEntry
     {
-        return TextEntry::make('buyer.name')
+        return TextEntry::make('buyerCompany.name')
             ->label(__('resources/purchaseOrder/strings.form.buyer'))
             ->placeholder('-');
     }
@@ -49,8 +64,45 @@ trait InfoList
     {
         return TextEntry::make('incoterms')
             ->label(__('resources/purchaseOrder/strings.form.incoterms'))
-            ->badge()
             ->placeholder('-');
+    }
+
+    public static function viewItemGrossWeight(): TextEntry
+    {
+        return TextEntry::make('gross_weight')
+            ->label(__('resources/purchaseOrder/strings.infolist.item_gross_weight'));
+    }
+
+    public static function viewItemNetWeight(): TextEntry
+    {
+        return TextEntry::make('net_weight')
+            ->label(__('resources/purchaseOrder/strings.infolist.item_net_weight'));
+    }
+
+    public static function viewItemProduct(): TextEntry
+    {
+        return TextEntry::make('product.name')
+            ->label(__('resources/purchaseOrder/strings.infolist.item_product'))
+            ->columnSpan(2);
+    }
+
+    public static function viewItemQuantity(): TextEntry
+    {
+        return TextEntry::make('quantity')
+            ->label(__('resources/purchaseOrder/strings.infolist.item_quantity'));
+    }
+
+    public static function viewItemUnit(): TextEntry
+    {
+        return TextEntry::make('unit')
+            ->label(__('resources/purchaseOrder/strings.infolist.item_unit'));
+    }
+
+    public static function viewItemUnitPrice(): TextEntry
+    {
+        return TextEntry::make('unit_price')
+            ->label(__('resources/purchaseOrder/strings.infolist.item_unit_price'))
+            ->money(fn($record) => $record->purchaseOrder?->currency?->symbol ?? '');
     }
 
     public static function viewNotes(): TextEntry
@@ -86,42 +138,11 @@ trait InfoList
     }
 
 
-    public static function viewItemProduct(): TextEntry
+    public static function viewSeller(): TextEntry
     {
-        return TextEntry::make('product.name')
-            ->label(__('resources/purchaseOrder/strings.infolist.item_product'))
-            ->columnSpan(2);
-    }
-
-    public static function viewItemQuantity(): TextEntry
-    {
-        return TextEntry::make('quantity')
-            ->label(__('resources/purchaseOrder/strings.infolist.item_quantity'));
-    }
-
-    public static function viewItemUnit(): TextEntry
-    {
-        return TextEntry::make('unit')
-            ->label(__('resources/purchaseOrder/strings.infolist.item_unit'));
-    }
-
-    public static function viewItemUnitPrice(): TextEntry
-    {
-        return TextEntry::make('unit_price')
-            ->label(__('resources/purchaseOrder/strings.infolist.item_unit_price'))
-            ->money(fn($record) => $record->purchaseOrder?->currency?->symbol ?? '');
-    }
-
-    public static function viewItemNetWeight(): TextEntry
-    {
-        return TextEntry::make('net_weight')
-            ->label(__('resources/purchaseOrder/strings.infolist.item_net_weight'));
-    }
-
-    public static function viewItemGrossWeight(): TextEntry
-    {
-        return TextEntry::make('gross_weight')
-            ->label(__('resources/purchaseOrder/strings.infolist.item_gross_weight'));
+        return TextEntry::make('sellerCompany.name')
+            ->label(__('resources/purchaseOrder/strings.form.seller'))
+            ->placeholder('-');
     }
 
     public static function viewShippingAddress(): TextEntry
@@ -136,14 +157,7 @@ trait InfoList
     {
         return TextEntry::make('status.name')
             ->label(__('resources/purchaseOrder/strings.form.status'))
-            ->badge()
-            ->placeholder('-');
-    }
-
-    public static function viewSupplier(): TextEntry
-    {
-        return TextEntry::make('supplier.name')
-            ->label(__('resources/purchaseOrder/strings.form.supplier'))
+            ->formatStateUsing(fn($record): ?string => $record->status?->getLocalizedNameAttribute())
             ->placeholder('-');
     }
 
@@ -181,27 +195,13 @@ trait InfoList
             ->placeholder('-');
     }
 
+    // Attachments
+
     public static function viewValidityDate(): TextEntry
     {
         return TextEntry::make('validity_date')
             ->label(__('resources/purchaseOrder/strings.form.validity_date'))
             ->date()
             ->placeholder('-');
-    }
-
-    // Attachments
-    public static function viewAttachments(): RepeatableEntry
-    {
-        return RepeatableEntry::make('attachments')
-            ->label(__('resources/proformaInvoice/strings.form.attachments'))
-            ->schema([
-                TextEntry::make('path')
-                    ->label('')
-                    ->formatStateUsing(fn(string $state): string => basename($state))
-                    ->tooltip(fn($record) => $record->name ?? '')
-                    ->icon('heroicon-o-document-text')
-                    ->url(fn($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
-            ])
-            ->columns(1);
     }
 }

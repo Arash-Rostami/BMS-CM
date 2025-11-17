@@ -111,7 +111,6 @@ class PurchaseRequestsRelationManager extends RelationManager
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('id', 'desc');
-
+            ->defaultSort('purchase_requests.id', 'desc');
     }
 }

@@ -18,6 +18,6 @@ body {
     font-family: 'Roboto', sans-serif;
 }
 
-html[lang="en"] body, .fi-body {
-    font-family: 'IranYekan', sans-serif !important;
+html[lang="fa"] body, .fi-body {
+    font-family: 'IranYekan', 'Roboto', sans-serif !important;
 }

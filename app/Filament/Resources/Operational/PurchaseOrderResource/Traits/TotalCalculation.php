@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Traits;
 
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 
 trait TotalCalculation
 {
-    public static function updateTotal(Get $get, Set $set): void
+    public static function updateTotal($get, Set $set): void
     {
         $items = $get('items') ?? [];
 
