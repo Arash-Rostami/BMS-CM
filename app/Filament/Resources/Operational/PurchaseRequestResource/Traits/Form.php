@@ -249,11 +249,13 @@ trait Form
             ->validationAttribute(__('resources/purchaseRequest/strings.form.status'));
     }
 
-    public static function getTotalEstimatedCostField(): TextEntry
+    public static function getTotalEstimatedCostField(): TextInput
     {
-        return TextEntry::make('total_estimated_cost')
+        return TextInput::make('total_estimated_cost')
             ->label(__('resources/purchaseRequest/strings.form.total_estimated_cost'))
-            ->formatStateUsing(fn(Get $get) => is_numeric($get('total_estimated_cost')) ? '💰 ' . number_format($get('total_estimated_cost'), 2) : $get('total_estimated_cost'));
+            ->readOnly()
+            ->prefix('💰')
+            ->formatStateUsing(fn(Get $get) => number_format($get('total_estimated_cost'), 2));
     }
 
     public static function getUrgencyLevelField(): Select
