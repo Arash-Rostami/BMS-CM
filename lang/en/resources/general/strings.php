@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'actions' => [
+        'view_tooltip' => 'View',
+        'edit_tooltip' => 'Edit',
+        'delete_tooltip' => 'Delete',
+        'restore_tooltip' => 'Restore',
+    ],
     'bulk' => [
         'activate' => [
             'label' => 'Activate',
@@ -31,7 +37,7 @@ return [
             'registered_orders' => 'Related Registered Orders',
         ]
     ],
-    'attachments' =>  [
+    'attachments' => [
         'attachments' => 'Attachments',
         'attachment_name' => 'Attachment Name',
         'item_attachments' => 'Item Attachments',

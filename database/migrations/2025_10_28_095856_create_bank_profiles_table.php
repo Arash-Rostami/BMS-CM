@@ -28,9 +28,12 @@ return new class extends Migration {
             $table->decimal('commission_rate', 5, 5)->default(0)->comment('Commission percentage charged (e.g., 1.50)');
             $table->decimal('exchange_rate', 15, 5)->default(0)->comment('Rate used to convert requested currency to reporting currency');
             $table->decimal('final_rate', 15, 5)->default(0)->comment('Final or effective rate after fees and adjustments');
-            $table->decimal('eur_equivalent_rate', 15, 5)->default(0)->comment('EUR conversion rate or EUR-equivalent value per unit');
+            $table->foreignId('requested_currency_id')->nullable()->constrained('currencies');
+            $table->foreignId('purchased_currency_id')->nullable()->constrained('currencies');
+            $table->decimal('conversion_rate', 15, 5)->nullable();
             $table->decimal('documents_amount', 15, 2)->default(0)->comment('Total value of documents/fees associated with the transaction');
 
+            $table->date('creation_date')->nullable()->comment('Date the record is created in Official Platform');
             $table->date('allocation_date')->nullable()->comment('Date allocation of funds was made or reserved');
             $table->date('purchase_date')->nullable()->comment('Date when purchase/execution occurred');
             $table->date('delivery_date')->nullable()->comment('Expected or actual delivery date for goods/services');

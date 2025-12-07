@@ -29,6 +29,7 @@ class RegisteredOrder extends Model
     protected $fillable = [
         'ro_number',
         'contract_no',
+        'official_registration_no',
         'seller_id',
         'buyer_id',
         'status_id',

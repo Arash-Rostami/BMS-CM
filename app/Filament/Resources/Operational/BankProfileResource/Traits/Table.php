@@ -73,8 +73,13 @@ trait Table
     {
         return TextColumn::make('registeredOrder.ro_number')
             ->label(__('resources/bankProfile/strings.table.registered_order'))
-            ->searchable()
+            ->searchable(
+                query: fn(Builder $query, string $search) => $query->whereHas(
+                    'registeredOrder',
+                    fn(Builder $q) => $q->searchAll($search)
+                ), isIndividual: true)
             ->sortable()
+            ->tooltip(fn(Model $record) => ' 💼 ' .$record->registeredOrder?->contract_no ?? ' ')
             ->iconPosition(IconPosition::Before)
             ->icon('heroicon-o-document-check')
             ->badge()

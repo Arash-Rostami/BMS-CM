@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'actions' => [
+        'view_tooltip' => 'مشاهده',
+        'edit_tooltip' => 'ویرایش',
+        'delete_tooltip' => 'حذف',
+        'restore_tooltip' => 'بازیابی',
+    ],
     'bulk' => [
         'activate' => [
             'label' => 'فعال سازی',

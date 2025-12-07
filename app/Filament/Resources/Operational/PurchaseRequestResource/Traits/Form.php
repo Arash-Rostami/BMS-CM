@@ -66,6 +66,7 @@ trait Form
             ->prefix('💰')
             ->columns(1)
             ->numeric()
+            ->hint(fn(Get $get) => delimiter($get('estimated_cost')))
             ->required()
             ->minValue(0)
             ->step(0.01)
@@ -133,6 +134,7 @@ trait Form
         return TextInput::make('quantity')
             ->label(__('resources/purchaseRequest/strings.form.quantity'))
             ->numeric()
+            ->hint(fn(Get $get) => delimiter($get('quantity')))
             ->required()
             ->default(0)
             ->numeric()
@@ -249,10 +251,12 @@ trait Form
             ->validationAttribute(__('resources/purchaseRequest/strings.form.status'));
     }
 
-    public static function getTotalEstimatedCostField(): TextEntry
+    public static function getTotalEstimatedCostField(): TextInput
     {
-        return TextEntry::make('total_estimated_cost')
+        return TextInput::make('total_estimated_cost')
             ->label(__('resources/purchaseRequest/strings.form.total_estimated_cost'))
+            ->live()
+            ->dehydrateStateUsing(fn($state) => floatval(str_replace(['💰', ',', ' '], '', $state)))
             ->formatStateUsing(fn(Get $get) => is_numeric($get('total_estimated_cost')) ? '💰 ' . number_format($get('total_estimated_cost'), 2) : $get('total_estimated_cost'));
     }
 

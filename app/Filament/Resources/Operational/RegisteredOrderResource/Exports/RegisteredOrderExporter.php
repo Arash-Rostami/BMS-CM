@@ -20,6 +20,7 @@ class RegisteredOrderExporter extends Exporter
             ExportColumn::make('id')->label('ID'),
             ExportColumn::make('ro_number')->label('RO Number'),
             ExportColumn::make('contract_no')->label('Contract Number'),
+            ExportColumn::make('official_registration_no')->label('Official Registration No'),
             ExportColumn::make('sellerCompany.name')->label('Seller'),
             ExportColumn::make('sellerCompany.english_name')->label('Seller E'),
             ExportColumn::make('buyerCompany.name')->label('Buyer'),

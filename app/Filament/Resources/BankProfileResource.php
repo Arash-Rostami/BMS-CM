@@ -78,13 +78,14 @@ class BankProfileResource extends Resource
                                     ->schema([
                                         Section::make(__('resources/bankProfile/strings.form.section_dates_notes'))
                                             ->schema([
+                                                static::getCreationDateField(),
                                                 static::getAllocationDateField(),
                                                 static::getPurchaseDateField(),
                                                 static::getDeliveryDateField(),
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField()
                                             ])
-                                            ->columns(1),
+                                            ->columns(2),
                                     ])
                                     ->columnSpan(['lg' => 1]),
                             ])->columns(3),
@@ -98,16 +99,18 @@ class BankProfileResource extends Resource
                                             ->schema([
                                                 static::getCurrencyField(),
                                                 static::getRequestedAmountField(),
+                                                static::getPurchasedCurrencyField(),
                                                 static::getPurchasedEquivalentField(),
-                                                static::getDocumentsAmountField(),
-                                                static::getCommissionRateField(),
-                                            ])->columns(3),
+                                                static::getFinalRateField(),
+                                            ])->columns(6),
 
                                         Section::make(__('resources/bankProfile/strings.form.section_rates'))
                                             ->schema([
+                                                static::getCommissionRateField(),
                                                 static::getExchangeRateField(),
-                                                static::getEurEquivalentRateField(),
-                                            ])->columns(3),
+                                                static::getConversionRateField(),
+                                                static::getDocumentsAmountField(),
+                                            ])->columns(4),
                                     ])
                                     ->columnSpan(['lg' => 2]),
                                 Group::make()
@@ -132,7 +135,8 @@ class BankProfileResource extends Resource
                 'attachments',
                 'bank',
                 'company',
-                'currency',
+                'requestedCurrency',
+                'purchasedCurrency',
                 'targetable' => fn(MorphTo $morphTo) => $morphTo->morphWith([Product::class, Category::class]),
                 'registeredOrder',
                 'status',
@@ -204,6 +208,13 @@ class BankProfileResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            RegisteredOrdersRelationManager::class,
+        ];
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema
@@ -222,6 +233,7 @@ class BankProfileResource extends Resource
                                     static::viewTargetable(),
                                     static::viewSupplySource(),
                                     static::viewStatus(),
+                                    static::viewCreationDate(),
                                     static::viewAllocationDate(),
                                     static::viewPurchaseDate(),
                                     static::viewDeliveryDate(),
@@ -237,20 +249,21 @@ class BankProfileResource extends Resource
                         ->schema([
                             Section::make()
                                 ->schema([
-                                    static::viewCurrency(),
+                                    static::viewRequestedCurrency(),
                                     static::viewRequestedAmount(),
+                                    static::viewPurchasedCurrency(),
                                     static::viewPurchasedEquivalent(),
                                     static::viewCommissionRate(),
                                     static::viewExchangeRate(),
                                     static::viewFinalRate(),
-                                    static::viewEurEquivalentRate(),
+                                    static::viewConversionRate(),
                                     static::viewDocumentsAmount(),
                                     static::viewCommissionAmountPurchased(),
-                                    static::viewCommissionEquivalentEur(),
-                                    static::viewFinalEurEquivalent(),
+                                    static::viewCommissionEquivalent(),
+                                    static::viewFinalEquivalent(),
                                     static::viewRemainingCommitment(),
-                                    static::viewTotalUsdRemittance(),
-                                    static::viewTotalEurRemittance(),
+                                    static::viewTotalPurchasedRemittance(),
+                                    static::viewTotalRequestedRemittance(),
                                     static::viewTotalRialRemittance(),
                                 ])->columns(3),
                         ]),
@@ -259,8 +272,11 @@ class BankProfileResource extends Resource
                         ->schema([
                             Section::make()->schema([static::viewAttachments()])
                         ])
-                        ->badge(fn($record) => $record->attachments->count())
-                        ->badgeColor('info'),
+                        ->label(fn($record) => tabBadge(
+                            __('resources/bankProfile/strings.infolist.tab_documents'),
+                            $record?->attachments->count() ?? 0,
+                            'info'
+                        ))
                 ])->columnSpanFull(),
             ]);
     }
@@ -319,20 +335,13 @@ class BankProfileResource extends Resource
                     ->getTitleFromRecordUsing(fn(Model $record): ?string => $record->registeredOrder?->formatted_name ?? '-'),
                 TableGroup::make('targetable_type')
                     ->label(__('resources/bankProfile/strings.groups.targetable'))
-                    ->getTitleFromRecordUsing(fn (Model $record): ?string => $record->getTargetableFormatted('table')),
+                    ->getTitleFromRecordUsing(fn(Model $record): ?string => $record->getTargetableFormatted('table')),
             ])
             ->striped()
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
             ->defaultSort('id', 'desc');
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            RegisteredOrdersRelationManager::class,
-        ];
     }
 }
 

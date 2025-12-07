@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Models\BankProfile;
+use App\Models\Custom;
 use App\Models\Payment;
 use App\Models\ProformaInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrder;
+use App\Models\Shipment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
@@ -32,6 +34,12 @@ class CodeGenerator
         ],
         'payments' => [
             'payment_no' => ['model' => Payment::class, 'prefix' => 'P'],
+        ],
+        'shipments' => [
+            'shipment_no' => ['model' => Shipment::class, 'prefix' => 'S'],
+        ],
+        'customs' => [
+            'custom_no' => ['model' => Custom::class, 'prefix' => 'CU'],
         ],
     ];
 

@@ -38,12 +38,15 @@ class BankProfile extends Model
         'order_number',
         'supply_source',
         'requested_amount',
+        'requested_currency_id',
         'purchased_equivalent',
+        'purchased_currency_id',
         'commission_rate',
         'exchange_rate',
         'final_rate',
-        'eur_equivalent_rate',
+        'conversion_rate',
         'documents_amount',
+        'creation_date',
         'allocation_date',
         'purchase_date',
         'delivery_date',
@@ -54,16 +57,18 @@ class BankProfile extends Model
 
     protected $appends = [
         'commission_amount_purchased',
-        'commission_equivalent_eur',
-        'final_eur_equivalent',
+        'commission_equivalent',
+        'final_equivalent',
+        'final_rate_display',
         'remaining_commitment',
         'total_rial_remittance',
-        'total_usd_remittance',
-        'total_eur_remittance',
+        'total_requested_remittance',
+        'total_purchased_remittance',
     ];
 
 
     protected $casts = [
+        'creation_date' => 'date',
         'allocation_date' => 'date',
         'purchase_date' => 'date',
         'delivery_date' => 'date',
@@ -72,7 +77,7 @@ class BankProfile extends Model
         'commission_rate' => 'decimal:5',
         'exchange_rate' => 'decimal:5',
         'final_rate' => 'decimal:5',
-        'eur_equivalent_rate' => 'decimal:5',
+        'conversion_rate' => 'decimal:5',
         'documents_amount' => 'decimal:2',
     ];
 }

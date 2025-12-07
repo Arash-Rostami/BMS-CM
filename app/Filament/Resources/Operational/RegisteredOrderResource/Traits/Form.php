@@ -307,6 +307,14 @@ trait Form
             ->live();
     }
 
+    public static function getOfficialRegistrationNoField(): TextInput
+    {
+        return TextInput::make('official_registration_no')
+            ->label(__('resources/registeredOrder/strings.form.official_registration_no'))
+            ->maxLength(255)
+            ->validationAttribute(__('resources/registeredOrder/strings.form.official_registration_no'));
+    }
+
     public static function getStatusField(): Select
     {
         return Select::make('status_id')
@@ -362,6 +370,7 @@ trait Form
         return TextInput::make('entrance_fee')
             ->label(__('resources/registeredOrder/strings.form.entrance_fee'))
             ->numeric()
+            ->hint(fn(Get $get) => delimiter($get('entrance_fee')))
             ->minValue(0)
             ->columnSpan(4)
             ->live(onBlur: true)
@@ -375,6 +384,7 @@ trait Form
             ->label(__('resources/registeredOrder/strings.form.extra_cost'))
             ->numeric()
             ->afterStateUpdated(fn(Get $get, Set $set) => static::updateItemLineTotal($get, $set))
+            ->hint(fn(Get $get) => delimiter($get('extra_cost')))
             ->minValue(0)
             ->columnSpan(4)
             ->live(onBlur: true)
@@ -388,6 +398,7 @@ trait Form
             ->label(__('resources/registeredOrder/strings.form.gross_weight'))
             ->prefix('⏲️')
             ->numeric()
+            ->hint(fn(Get $get) => delimiter($get('gross_weight')))
             ->minValue(0)
             ->columnSpan(4)
             ->validationMessages([
@@ -414,6 +425,7 @@ trait Form
             ->label(__('resources/registeredOrder/strings.form.net_weight'))
             ->prefix('⏲️')
             ->numeric()
+            ->hint(fn(Get $get) => delimiter($get('net_weight')))
             ->columnSpan(4)
             ->minValue(0)
             ->validationMessages([
@@ -463,6 +475,7 @@ trait Form
         return TextInput::make('shipping_cost')
             ->label(__('resources/registeredOrder/strings.form.shipping_cost'))
             ->numeric()
+            ->hint(fn(Get $get) => delimiter($get('shipping_cost')))
             ->afterStateUpdated(fn(Get $get, Set $set) => static::updateItemLineTotal($get, $set))
             ->minValue(0)
             ->columnSpan(4)

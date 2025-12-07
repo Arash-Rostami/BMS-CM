@@ -3,6 +3,20 @@ return [
     'status' => [
         'active' => 'Active',
     ],
+    'resources' => [
+        'banks' => 'Banks',
+        'companies' => 'Companies',
+        'statuses' => 'Statuses',
+        'products' => 'Products',
+        'users' => 'Users',
+        'categories' => 'Categories',
+        'targets' => 'Targets',
+        'currencies' => 'Currencies',
+        'purchase_requests' => 'Purchase requests',
+        'purchase_orders' => 'Purchase orders',
+        'proforma_invoices' => 'Proforma invoices',
+        'payments' => 'Payments',
+    ],
     'steps' => [
         'request_approval' => [
             'title' => 'Request & Approval',
@@ -17,35 +31,28 @@ return [
         'procurement_payment' => [
             'title' => 'Procurement & Payment',
             'description' => '❸ Continue process: create the purchase order and process payments',
-            'pending_payments' => 'Pending payments',
         ],
         'logistics' => [
-            'title' => 'Logistics & Clearance',
-            'description' => '❹ Complete process: create and process shipment, logistics, and customs clearance data',
+            'title' => 'Logistics and customs clearance',
+            'description' => '❹ Complete process: manage shipments and customs clearance',
         ],
     ],
     'view_requests' => 'View requests',
     'view_orders' => 'View orders',
+    'purchase_orders' => ' Purchase orders',
     'proforma' => 'View proforma invoices',
     'banks' => 'View banks',
     'payments' => 'View payments',
-    'coming_soon' => 'Coming soon',
     'submodules' => [
         'shipment' => [
-            'title' => 'Shipment',
+            'title' => 'Shipments',
             'description' => 'Track shipments',
         ],
-        'logistics' => [
-            'title' => 'Logistics',
-            'description' => 'Operations management',
-        ],
         'custom_clearance' => [
-            'title' => 'Customs clearance',
+            'title' => 'Customs',
             'description' => 'Handle customs procedures',
         ],
     ],
-    'show_submodules' => 'Show submodules',
-    'hide_submodules' => 'Hide submodules',
     'flow' => [
         'request' => 'Request',
         'order' => 'Order',

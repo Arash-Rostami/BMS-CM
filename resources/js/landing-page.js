@@ -311,3 +311,4 @@ window.addEventListener('resize', () => {
 });
 
 animate();
+

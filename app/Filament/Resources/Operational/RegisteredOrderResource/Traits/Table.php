@@ -84,6 +84,17 @@ trait Table
             ->tooltip(fn($record) => $record->order_date->format('Y-m-d'));
     }
 
+    public static function showOfficialRegistrationNo(): TextColumn
+    {
+        return TextColumn::make('official_registration_no')
+            ->label(__('resources/registeredOrder/strings.form.official_registration_no'))
+            ->searchable()
+            ->badge()
+            ->copyable()
+            ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
     public static function showCtNumber(): TextColumn
     {
         return TextColumn::make('contract_no')

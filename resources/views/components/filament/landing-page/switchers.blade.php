@@ -1,6 +1,7 @@
 <div
     class="fixed top-4 sm:top-6 {{ $isRtl ? 'left-4 sm:left-6' : 'right-4 sm:right-6' }} z-50 flex flex-col gap-2 sm:gap-3">
     <div x-data="{ open: false }" class="relative">
+        {{-- Lingo Changer--}}
         <button @click="open = !open"
                 class="cursor-pointer backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:scale-110 transition-all duration-500 ease-out shadow-2xl group"
                 :class="darkMode ? 'border-white/10' : 'border-slate-300'">
@@ -28,7 +29,7 @@
             @endforeach
         </div>
     </div>
-
+    {{-- Light/Dark Mode --}}
     <button @click="darkMode = !darkMode"
             class="backdrop-blur-[16px] cursor-pointer backdrop-saturate-[180%] bg-white/5 border rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:scale-110 transition-all duration-500 ease-out shadow-2xl group"
             :class="darkMode ? 'border-white/10' : 'border-slate-300'">
@@ -42,6 +43,7 @@
             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
         </svg>
     </button>
+    {{-- Logout Btn--}}
 
     <form method="POST" action="{{ filament()->getLogoutUrl() }}">
         @csrf
@@ -54,4 +56,15 @@
             </svg>
         </button>
     </form>
+    {{--Widget--}}
+    <button @click="open = !open"
+            class="cursor-pointer backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:scale-110 transition-all duration-500 ease-out shadow-2xl group"
+            :class="darkMode ? 'border-white/10' : 'border-slate-300'">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6" :class="darkMode ? 'text-cyan-400' : 'text-indigo-600'" fill="none"
+             stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6v6l4 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+    </button>
 </div>
+

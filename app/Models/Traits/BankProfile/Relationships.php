@@ -5,8 +5,8 @@ namespace App\Models\Traits\BankProfile;
 use App\Models\Attachment;
 use App\Models\Bank;
 use App\Models\Company;
+use App\Models\Correspondence;
 use App\Models\Currency;
-use App\Models\Product;
 use App\Models\RegisteredOrder;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,15 +32,15 @@ trait Relationships
             ->where('is_active', 1);
     }
 
-    public function currency(): BelongsTo
+    public function correspondences(): MorphMany
     {
-        return $this->belongsTo(Currency::class)
-            ->where('is_active', 1);
+        return $this->morphMany(Correspondence::class, 'correspondable');
     }
 
-    public function targetable(): MorphTo
+    public function purchasedCurrency(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->belongsTo(Currency::class, 'purchased_currency_id')
+            ->where('is_active', 1);
     }
 
     public function registeredOrder(): BelongsTo
@@ -48,9 +48,20 @@ trait Relationships
         return $this->belongsTo(RegisteredOrder::class);
     }
 
+    public function requestedCurrency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class, 'requested_currency_id')
+            ->where('is_active', 1);
+    }
+
     public function status(): BelongsTo
     {
         return $this->belongsTo(Status::class)
             ->where('english_type', static::TYPE_BANK_PROFILE);
+    }
+
+    public function targetable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

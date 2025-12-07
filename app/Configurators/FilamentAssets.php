@@ -3,7 +3,6 @@
 namespace App\Configurators;
 
 use Filament\Support\Assets\Css;
-use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 
 class FilamentAssets

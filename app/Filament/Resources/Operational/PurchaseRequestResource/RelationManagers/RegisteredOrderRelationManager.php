@@ -9,12 +9,8 @@ use App\Filament\Resources\RegisteredOrderResource;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -81,16 +77,13 @@ class RegisteredOrderRelationManager extends RelationManager
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
-                    RestoreAction::make(),
+                    EditAction::make()
+                        ->url(fn($record) => RegisteredOrderResource::getUrl('edit', ['record' => $record])),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkActionGroup::make([
-                        DeleteBulkAction::make(),
-                        RestoreBulkAction::make(),
                         ExportBulkAction::make()
                             ->exporter(RegisteredOrderExporter::class),
                     ]),

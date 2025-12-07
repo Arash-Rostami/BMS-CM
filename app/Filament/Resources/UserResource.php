@@ -135,6 +135,7 @@ class UserResource extends Resource
             ->components([
                 Section::make()
                     ->schema([
+                        static::viewImage(),
                         static::viewName(),
                         static::viewEmail(),
                         static::viewPhone(),
@@ -148,7 +149,6 @@ class UserResource extends Resource
                         static::viewLastLogOut(),
                         static::viewCreatedAt(),
                         static::viewUpdatedAt(),
-                        static::viewImage(),
                     ])
                     ->columnSpanFull()
                     ->columns(2),

@@ -1,0 +1,63 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('correspondences', function (Blueprint $table) {
+            $table->id();
+            $table->morphs('correspondable');
+            // Threading support
+            $table->foreignId('parent_id')->nullable()->constrained('correspondences')->nullOnDelete();
+            $table->string('subject')->comment('Brief title or subject of the correspondence');
+            $table->text('body')->comment('Main content/message body');
+            // Classification
+            $table->string('type')->default('note')->comment('Enum: Report, Inquiry, Warning, Note');
+            $table->string('priority')->default('normal')->comment('Enum: Low, Normal, High, Urgent');
+            $table->boolean('is_internal')->default(false)->comment('Visible only to internal staff (general access)');
+            $table->boolean('is_private')->default(false)->comment('Strict privacy: Visible only to creator and explicit recipients');
+
+            $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('updated_by_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->softDeletes();
+            $table->timestamps();
+        });
+
+
+        // Recipients Pivot Table (Audience & Read Receipts)
+        Schema::create('correspondence_recipients', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('correspondence_id')->constrained('correspondences')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+
+            // Role in conversation
+            $table->string('type')->default('to')->comment('to, cc, mention');
+
+            // Read Receipt
+            $table->timestamp('read_at')->nullable();
+
+            $table->timestamps();
+
+            // Prevent duplicate recipients for the same message
+            $table->unique(['correspondence_id', 'user_id']);
+        });
+    }
+
+
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('correspondences');
+    }
+};

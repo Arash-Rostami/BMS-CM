@@ -20,6 +20,7 @@ use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as Pur
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\TotalCalculation;
 use App\Models\PurchaseOrder;
 use App\Services\SmartCacheManager;
+use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -43,6 +44,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 
 class PurchaseOrderResource extends Resource
@@ -51,9 +53,9 @@ class PurchaseOrderResource extends Resource
 
     protected static ?string $model = PurchaseOrder::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Operational';
+    protected static string|UnitEnum|null $navigationGroup = 'Operational';
 
     protected static ?int $navigationSort = 1;
 
@@ -270,11 +272,13 @@ class PurchaseOrderResource extends Resource
                         ]),
                     ]),
                 Tab::make('Documents')
-                    ->label(__('resources/purchaseOrder/strings.infolist.tab_documents'))
                     ->icon('heroicon-o-paper-clip')
                     ->schema([Section::make()->schema([static::viewAttachments()])])
-                    ->badge(fn($record) => $record->attachments->count())
-                    ->badgeColor('info'),
+                    ->label(fn($record) => tabBadge(
+                        __('resources/purchaseOrder/strings.infolist.tab_documents'),
+                        $record?->attachments->count() ?? 0,
+                        'info'
+                    )),
             ])->columnSpanFull(),
         ]);
     }

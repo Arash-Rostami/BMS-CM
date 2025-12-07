@@ -47,6 +47,9 @@ class DashboardPanelProvider extends PanelProvider
                     ->label(fn() => __('resources/dashboard/strings.navigation_group.operational_third'))
                     ->collapsed(),
                 NavigationGroup::make()
+                    ->label(fn() => __('resources/dashboard/strings.navigation_group.operational_fourth'))
+                    ->collapsed(),
+                NavigationGroup::make()
                     ->label(fn() => __('resources/dashboard/strings.navigation_group.base'))
                     ->collapsed(),
             ])

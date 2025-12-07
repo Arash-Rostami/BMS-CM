@@ -28,6 +28,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, CanResetP
         IpLookup,
         Setting;
 
+    public const CACHE_MINUTES = 60;
     protected $fillable = [
         'name',
         'phone',
@@ -44,7 +45,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, CanResetP
         'company',
         'settings',
     ];
-
     protected $hidden = [
         'password',
         'remember_token',

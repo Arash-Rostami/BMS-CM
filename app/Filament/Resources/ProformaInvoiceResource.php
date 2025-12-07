@@ -295,13 +295,15 @@ class ProformaInvoiceResource extends Resource
                             ->badge(fn($record) => $record->items->count())
                             ->badgeColor('success'),
                         Tab::make('Documents')
-                            ->label(__('resources/proformaInvoice/strings.infolist.tab_documents'))
                             ->icon('heroicon-o-paper-clip')
                             ->schema([
                                 Section::make()->schema([static::viewAttachments()])
                             ])
-                            ->badge(fn($record) => $record->attachments->count())
-                            ->badgeColor('info'),
+                            ->label(fn($record) => tabBadge(
+                                __('resources/proformaInvoice/strings.infolist.tab_documents'),
+                                $record?->attachments->count() ?? 0,
+                                'info'
+                            )),
                     ])->columnSpanFull(),
             ]);
     }

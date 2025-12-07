@@ -80,7 +80,8 @@ class RegisteredOrderRelationManager extends RelationManager
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
+                    EditAction::make()
+                        ->url(fn($record) => RegisteredOrderResource::getUrl('edit', ['record' => $record])),
                     DeleteAction::make(),
                     RestoreAction::make(),
                 ]),

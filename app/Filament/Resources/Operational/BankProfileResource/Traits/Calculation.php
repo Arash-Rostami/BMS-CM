@@ -10,52 +10,38 @@ trait Calculation
     protected static function updateComputations(Get $get, Set $set): void
     {
         $finalRate = static::computeFinalRate($get);
-        $set('final_rate', number_format($finalRate, 5, '.', ''));
+        $set('final_rate', number_format($finalRate, 2, '.', ''));
+        $set('final_rate_display', number_format($finalRate, 2, '.', ''));
 
-        $eurEqRate = static::computeEurEquivalentRate($get);
-        $set('eur_equivalent_rate', number_format($eurEqRate, 5, '.', ''));
+        $conversionRate = static::computeConversionRate($get);
+        $set('conversion_rate', number_format($conversionRate, 2, '.', ''));
 
         $set('commission_amount_purchased', static::computeCommissionAmount($get));
-        $set('commission_equivalent_eur', static::computeCommissionEur($get));
-        $set('final_eur_equivalent', static::computeFinalEur($get, $finalRate));
+        $set('commission_equivalent', static::computeCommissionEquivalent($get));
+        $set('final_equivalent', static::computeFinalEquivalent($get, $finalRate));
         $set('remaining_commitment', static::computeRemaining($get));
         $set('total_rial_remittance', static::computeTotalRialRemittance($get));
-        $set('total_usd_remittance', static::computeTotalUsdRemittance($get));
-        $set('total_eur_remittance', static::computeTotalEurRemittance($get));
+        $set('total_requested_remittance', static::computeTotalRequestedRemittance($get));
+        $set('total_purchased_remittance', static::computeTotalPurchasedRemittance($get));
     }
 
     private static function computeCommissionAmount(Get $get): float
     {
-        $commissionRate = (float)$get('commission_rate') / 100;
-        $currencyId = self::getCurrencyId($get);
-
-        if ($currencyId === 1) { // 1 = USD
-            return (float)$get('purchased_equivalent') * $commissionRate;
-        }
-
-        return (float)$get('requested_amount') * $commissionRate;
+        return (float)$get('purchased_equivalent') * ((float)$get('commission_rate') / 100);
     }
 
-    private static function computeCommissionEur(Get $get): float
+    private static function computeCommissionEquivalent(Get $get): float
     {
         $commissionAmount = static::computeCommissionAmount($get);
-        $currencyId = self::getCurrencyId($get);
-
-        if ($currencyId !== 1) { // Not USD (assume EUR or 1:1)
-            return $commissionAmount;
-        }
-
         $requested = (float)$get('requested_amount');
         $purchased = (float)$get('purchased_equivalent');
 
-        if ($purchased == 0 || $requested == 0) {
-            return 0;
-        }
+        if ($purchased == 0 || $requested == 0) return 0;
 
         return ($requested / $purchased) * $commissionAmount;
     }
 
-    private static function computeEurEquivalentRate(Get $get): float
+    private static function computeConversionRate(Get $get): float
     {
         $requested = (float)$get('requested_amount');
         $purchased = (float)$get('purchased_equivalent');
@@ -66,14 +52,15 @@ trait Calculation
         return ($purchased / $requested) * $exchangeRate;
     }
 
-    private static function computeFinalEur(Get $get, ?float $finalRate = null): float
+    private static function computeFinalEquivalent(Get $get, ?float $finalRate = null): float
     {
         $requested = (float)$get('requested_amount');
         $purchased = (float)$get('purchased_equivalent');
         $finalRate = $finalRate ?? static::computeFinalRate($get);
 
-        if ($requested == 0) return 0;
-
+        if ($requested == 0) {
+            return 0;
+        }
         return ($purchased / $requested) * $finalRate;
     }
 
@@ -86,58 +73,30 @@ trait Calculation
 
     private static function computeRemaining(Get $get): float
     {
-        $requested = (float)$get('requested_amount');
-        $documents = (float)$get('documents_amount');
-        return $requested - $documents;
+        return (float)$get('requested_amount') - (float)$get('documents_amount');
     }
 
-    private static function computeTotalEurRemittance(Get $get): float
+    private static function computeTotalPurchasedRemittance(Get $get): float
     {
-        $currencyId = self::getCurrencyId($get);
+        $baseAmount = (float)$get('purchased_equivalent');
+        $commission = static::computeCommissionAmount($get);
+        return $baseAmount + $commission;
+    }
 
-        if ($currencyId === 1) { // 1 = USD
-            //  EUR Equivalent Base + EUR Equivalent Commission
-            $baseEurEquivalent = (float)$get('requested_amount');
-            $commissionEurEquivalent = static::computeCommissionEur($get);
-            return $baseEurEquivalent + $commissionEurEquivalent;
-        }
-
-        if ($currencyId === 2) { // 2 = EUR
-            //  Base EUR + Base EUR Commission
-            $baseAmount = (float)$get('requested_amount');
-            $commission = static::computeCommissionAmount($get);
-            return $baseAmount + $commission;
-        }
-
-        return 0.0;
+    private static function computeTotalRequestedRemittance(Get $get): float
+    {
+        $baseAmount = (float)$get('requested_amount');
+        $commissionEquivalent = static::computeCommissionEquivalent($get);
+        return $baseAmount + $commissionEquivalent;
     }
 
     private static function computeTotalRialRemittance(Get $get): float
     {
         $exchangeRate = (float)$get('exchange_rate');
-        $currencyId = self::getCurrencyId($get);
+        $purchasedCurrencyId = (int)$get('purchased_currency_id');
 
-        if ($currencyId === 2) { // 2 = EUR
-            return (float)$get('requested_amount') * $exchangeRate;
-        }
+        if ($purchasedCurrencyId !== 1) return (float)$get('requested_amount') * $exchangeRate;
 
         return (float)$get('purchased_equivalent') * $exchangeRate;
-    }
-
-    private static function computeTotalUsdRemittance(Get $get): float
-    {
-        $currencyId = self::getCurrencyId($get);
-        if ($currencyId === 1) { // 1 = USD
-            $baseAmount = (float)$get('purchased_equivalent');
-            $commission = static::computeCommissionAmount($get);
-            return $baseAmount + $commission;
-        }
-        return 0.0;
-    }
-
-    private static function getCurrencyId(Get $get): ?int
-    {
-        $id = $get('currency_id');
-        return $id ? (int)$id : null;
     }
 }

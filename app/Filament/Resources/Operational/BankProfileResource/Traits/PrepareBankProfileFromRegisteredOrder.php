@@ -18,7 +18,7 @@ trait PrepareBankProfileFromRegisteredOrder
                     'bp_number' => CodeGenerator::generate('bp_number') ?? null,
                     'registered_order_id' => $registeredOrder->id,
                     'company_id' => $registeredOrder->buyer_id,
-                    'currency_id' => $registeredOrder->currency_id,
+                    'purchased_currency_id' => $registeredOrder->currency_id,
                 ]);
             }
         }

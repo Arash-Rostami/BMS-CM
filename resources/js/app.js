@@ -1,8 +1,5 @@
 import './bootstrap';
+import './alpine-loader';
+
 import.meta.glob(['../fonts/**', '../img/**']);
 
-
-
-import Alpine from 'alpinejs'
-window.Alpine = Alpine
-Alpine.start()
