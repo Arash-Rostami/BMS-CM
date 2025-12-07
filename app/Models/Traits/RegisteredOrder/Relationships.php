@@ -5,12 +5,15 @@ namespace App\Models\Traits\RegisteredOrder;
 use App\Models\Attachment;
 use App\Models\BankProfile;
 use App\Models\Company;
+use App\Models\Correspondence;
 use App\Models\Currency;
+use App\Models\Custom;
 use App\Models\Payment;
 use App\Models\ProformaInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrderItem;
+use App\Models\Shipment;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -36,10 +39,20 @@ trait Relationships
             ->where('is_active', 1);
     }
 
+    public function correspondences(): MorphMany
+    {
+        return $this->morphMany(Correspondence::class, 'correspondable');
+    }
+
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class)
             ->where('is_active', 1);
+    }
+
+    public function customs()
+    {
+        return $this->hasMany(Custom::class);
     }
 
     public function items(): HasMany
@@ -87,6 +100,11 @@ trait Relationships
         return $this->belongsTo(Company::class, 'seller_id')
             ->ofAnyType(Company::TYPE_SERVICE_ALL_SELLERS)
             ->where('is_active', 1);
+    }
+
+    public function shipments(): HasMany
+    {
+        return $this->hasMany(Shipment::class);
     }
 
     public function status(): BelongsTo

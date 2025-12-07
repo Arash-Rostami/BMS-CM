@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('ro_number')->unique();
             $table->string('contract_no')->unique();
+            $table->string('official_registration_no')->unique();
             $table->foreignId('seller_id')->constrained('companies');
             $table->foreignId('buyer_id')->constrained('companies');
             $table->foreignId('status_id')->constrained('statuses');

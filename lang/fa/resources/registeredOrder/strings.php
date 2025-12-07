@@ -77,6 +77,7 @@ return [
         'extra_cost' => 'هزینه اضافی',
         'attachments' => 'پیوست‌ها',
         'add_item' => 'افزودن کالا',
+        'official_registration_no' => 'شماره/کد ثبت سفارش',
 
 
         'validation_required' => 'این فیلد الزامی است.',
@@ -105,6 +106,7 @@ return [
         'created_at' => 'تاریخ ایجاد',
         'updated_at' => 'تاریخ بروزرسانی',
         'purchase_orders_count' => 'تعداد سفارش‌های خرید',
+        'official_registration_no' => 'شماره/کد ثبت سفارش',
     ],
     'filters' => [
         'seller' => ' فروشنده',

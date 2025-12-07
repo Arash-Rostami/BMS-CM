@@ -3,6 +3,20 @@ return [
     'status' => [
         'active' => 'Actif',
     ],
+    'resources' => [
+        'banks' => 'Banques',
+        'companies' => 'Entreprises',
+        'statuses' => 'Statuts',
+        'products' => 'Produits',
+        'users' => 'Utilisateurs',
+        'categories' => 'Catégories',
+        'targets' => 'Objectifs',
+        'currencies' => 'Devises',
+        'purchase_requests' => 'Demandes d\'achat',
+        'purchase_orders' => 'Commandes d\'achat',
+        'proforma_invoices' => 'Factures proforma',
+        'payments' => 'Paiements',
+    ],
     'steps' => [
         'request_approval' => [
             'title' => 'Demande et approbation',
@@ -17,35 +31,28 @@ return [
         'procurement_payment' => [
             'title' => 'Approvisionnement et paiement',
             'description' => '❸ Suite du processus : créer la commande d\'achat et traiter les paiements',
-            'pending_payments' => 'Paiements en attente',
         ],
         'logistics' => [
             'title' => 'Logistique et dédouanement',
-            'description' => '❹ Finalisation du processus : créer et traiter les données d\'expédition, la logistique et le dédouanement',
+            'description' => '❹ Finalisation du processus : gérer les expéditions et le dédouanement',
         ],
     ],
     'view_requests' => 'Voir les demandes',
     'view_orders' => 'Voir les commandes',
+    'purchase_orders' => 'Bons de commande',
     'proforma' => 'Voir les facture proformas',
     'banks' => 'Voir les banques',
     'payments' => 'Voir les paiements',
-    'coming_soon' => 'Bientôt',
     'submodules' => [
         'shipment' => [
-            'title' => 'Expédition',
+            'title' => 'Expéditions',
             'description' => 'Suivi des envois',
-        ],
-        'logistics' => [
-            'title' => 'Logistique',
-            'description' => "Gestion des opérations",
         ],
         'custom_clearance' => [
             'title' => 'Dédouanement',
             'description' => 'Gestion des formalités douanières',
         ],
     ],
-    'show_submodules' => 'Afficher les sous-modules',
-    'hide_submodules' => 'Masquer les sous-modules',
     'flow' => [
         'request' => 'Demande',
         'order' => 'Commande',

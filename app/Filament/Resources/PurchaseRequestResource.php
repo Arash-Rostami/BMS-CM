@@ -94,6 +94,7 @@ class PurchaseRequestResource extends Resource
                                     ->live(true)
                                     ->defaultItems(0)
                                     ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotalCost($get, $set))
+                                    ->afterStateHydrated(fn(Get $get, Set $set) => static::updateTotalCost($get, $set))
                                     ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => self::updateTotalCost($get, $set)))
                                     ->addActionLabel(__('resources/purchaseRequest/strings.form.add_purchase_item'))
                                     ->label(false)
@@ -253,13 +254,15 @@ class PurchaseRequestResource extends Resource
                                 Section::make()->schema([static::viewPurchaseItems()])
                             ]),
                         Tab::make('Documents')
-                            ->label(__('resources/purchaseRequest/strings.infolist.tab_documents'))
                             ->icon('heroicon-o-paper-clip')
                             ->schema([
                                 Section::make()->schema([static::viewAttachments()])
                             ])
-                            ->badge(fn($record) => $record->attachments->count())
-                            ->badgeColor('info'),
+                            ->label(fn($record) => tabBadge(
+                                __('resources/purchaseRequest/strings.infolist.tab_documents'),
+                                $record?->attachments->count() ?? 0,
+                                'info'
+                            )),
                     ])->columnSpanFull(),
             ]);
     }

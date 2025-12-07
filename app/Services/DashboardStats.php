@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Models\BankProfile;
+use App\Models\Custom;
 use App\Models\Payment;
 use App\Models\ProformaInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrder;
+use App\Models\Shipment;
 use Illuminate\Support\Facades\Cache;
 
 class DashboardStats
@@ -33,6 +35,8 @@ class DashboardStats
             'bank_profiles' => BankProfile::class,
             'purchase_orders' => PurchaseOrder::class,
             'registered_orders' => RegisteredOrder::class,
+            'shipments' => Shipment::class,
+            'customs' => Custom::class,
         ];
 
         $counts = [];

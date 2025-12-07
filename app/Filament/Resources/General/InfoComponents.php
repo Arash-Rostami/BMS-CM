@@ -6,6 +6,7 @@ use Filament\Infolists\Components\TextEntry;
 
 class InfoComponents
 {
+
     protected const CSS = [
         'style' => 'position: relative; padding-bottom: 0.5rem; margin-bottom: 0.5rem; border-radius: 2px; background: linear-gradient(to right,rgba(0,0,0,0) 0%,rgba(99,102,241,0.15) 15%,rgba(99,102,241,0.25) 50%,rgba(99,102,241,0.15) 85%,rgba(0,0,0,0) 100%) bottom / 100% 2px no-repeat;'
     ];

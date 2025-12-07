@@ -3,6 +3,20 @@ return [
     'status' => [
         'active' => 'فعال',
     ],
+    'resources' => [
+        'banks' => 'بانک‌ها',
+        'companies' => 'شرکت‌ها',
+        'statuses' => 'وضعیت‌ها',
+        'products' => 'محصولات',
+        'users' => 'کاربران',
+        'categories' => 'دسته‌بندی‌ها',
+        'targets' => 'اهداف',
+        'currencies' => 'ارزها',
+        'purchase_requests' => 'درخواست‌های خرید',
+        'purchase_orders' => 'سفارشات خرید',
+        'proforma_invoices' => 'پروفورما',
+        'payments' => 'پرداخت‌ها',
+    ],
     'steps' => [
         'request_approval' => [
             'title' => 'درخواست و تأیید',
@@ -17,35 +31,28 @@ return [
         'procurement_payment' => [
             'title' => 'تدارکات و پرداخت',
             'description' => '❸ ادامه فرایند: ایجاد سفارش خرید و پردازش پرداخت ها',
-            'pending_payments' => 'پرداخت‌ها',
         ],
         'logistics' => [
-            'title' => 'لجستیک و ترخیص',
-            'description' => '❹ تکمیل فرایند: ایجاد و پردازش داده‌های محموله، لجستیک و ترخیص گمرک',
+            'title' => 'لجستیک و ترخیص ',
+            'description' => '❹ تکمیل فرایند: مدیریت محموله‌ها و ترخیص گمرکی',
         ],
     ],
-    'view_requests' => 'مشاهده درخواست‌ها',
-    'view_orders' => 'مشاهده سفارش‌ها',
-    'proforma' => 'مشاهده پروفورما',
-    'banks' => 'مشاهده بانک‌ها',
-    'payments' => 'مشاهده پرداخت‌ها',
-    'coming_soon' => 'به‌زودی',
+    'view_requests' => ' درخواست‌ها',
+    'view_orders' => ' سفارشهای ثبتی',
+    'purchase_orders' => ' سفارشهای خرید',
+    'proforma' => ' پروفورما',
+    'banks' => ' پروفایل بانکی',
+    'payments' => ' پرداخت‌ها',
     'submodules' => [
         'shipment' => [
-            'title' => 'محموله‌',
+            'title' => 'محموله‌ها',
             'description' => 'ردیابی محموله‌ها',
-        ],
-        'logistics' => [
-            'title' => 'لجستیک',
-            'description' => 'مدیریت عملیات',
         ],
         'custom_clearance' => [
             'title' => 'ترخیص گمرکی',
             'description' => 'رسیدگی به امور گمرکی',
         ],
     ],
-    'show_submodules' => 'نمایش ماژول‌ها',
-    'hide_submodules' => 'پنهان کردن ماژول‌ها',
     'flow' => [
         'request' => 'درخواست',
         'order' => 'سفارش',

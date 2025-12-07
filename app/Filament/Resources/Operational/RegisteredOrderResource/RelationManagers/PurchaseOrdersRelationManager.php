@@ -5,19 +5,14 @@ namespace App\Filament\Resources\Operational\RegisteredOrderResource\RelationMan
 use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrderExporter;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Filters as PurchaseOrderFilters;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as PurchaseOrderTable;
-use App\Filament\Resources\ProformaInvoiceResource;
 use App\Filament\Resources\PurchaseOrderResource;
 use App\Filament\Resources\PurchaseRequestResource;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DetachAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -90,16 +85,13 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
+                    EditAction::make()
+                        ->url(fn($record) => PurchaseOrderResource::getUrl('edit', ['record' => $record])),
                     DetachAction::make(),
-                    DeleteAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(PurchaseOrderExporter::class),
                 ]),

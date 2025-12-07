@@ -88,16 +88,14 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
+                    EditAction::make()
+                        ->url(fn($record) => PurchaseOrderResource::getUrl('edit', ['record' => $record])),
                     DetachAction::make(),
                     DeleteAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(PurchaseOrderExporter::class),
                 ]),

@@ -77,6 +77,7 @@ return [
         'extra_cost' => 'Coût Supplémentaire',
         'attachments' => 'Pièces Jointes',
         'add_item' => 'Ajouter un Article',
+        'official_registration_no' => 'Numéro d\'enregistrement officiel',
 
 
 
@@ -108,6 +109,7 @@ return [
         'created_at' => 'Créé le',
         'updated_at' => 'Mis à jour le',
         'purchase_orders_count' => 'Commandes d\'achat',
+        'official_registration_no' => 'Numéro d\'enregistrement officiel',
     ],
     'filters' => [
         'seller'      => 'Vendeur',

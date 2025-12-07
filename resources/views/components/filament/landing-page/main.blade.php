@@ -15,44 +15,20 @@
      'proformaInvoices'  => (int) ($counts['proforma_invoices'] ?? 0),
      'bankProfiles'      => (int) ($counts['bank_profiles'] ?? 0),
      'payments'          => (int) ($counts['payments'] ?? 0),
-     'logistics'         => 0,
+     'shipments'         => (int) ($counts['payments'] ?? 0),
+     'customs'         => (int) ($counts['customs'] ?? 0),
  ];
 @endphp
-
 
 @push('headCSS')
     @vite('resources/css/landing-page.css')
 @endpush
 
 
-<div x-data="{
-        darkMode: false,
-        showSubmodules: false,
-        hoveredStep: null,
-        loading: true
-     }"
+<div x-data="landingPage()"
      :class="darkMode ? 'dark' : 'light'"
      class="min-h-screen transition-colors duration-500"
-     dir="{{ $isRtl ? 'rtl' : 'ltr' }}"
-     x-init="
-        const KEY = 'theme';
-        let raw = null;
-        try { raw = localStorage.getItem(KEY); } catch(e) {}
-        if (raw !== null) {
-            const v = String(raw).toLowerCase();
-            darkMode = (v === '1' || v === 'true' || v === 'dark' || v === 'on');
-        }
-        document.documentElement.classList.toggle('dark', !!darkMode);
-        window.addEventListener('dark-mode-toggled', e => darkMode = e.detail);
-        $watch('darkMode', val => {
-            try { localStorage.setItem(KEY, val ? 'dark' : 'light'); } catch(e) {}
-            document.documentElement.classList.toggle('dark', !!val);
-            if (window.torusMaterial) {
-                window.torusMaterial.opacity = val ? 0.1 : 0.3;
-                window.ringMaterial.opacity  = val ? 0.2 : 0.1;
-            }
-        });
-     ">
+     dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
     <!-- Loader -->
     @include('components.filament.landing-page.loader')
 
@@ -62,11 +38,15 @@
         <!-- Language & Theme Switcher -->
         @include('components.filament.landing-page.switchers')
 
+        <!-- Tri-widget  -->
+        @include('components.filament.landing-page.widget')
+
         <!-- Dashboard Header -->
         @include('components.filament.landing-page.header')
 
         <!-- Main Workflow -->
         @include('components.filament.landing-page.workflow')
+
 
         <!-- Dashboard Footer -->
         @include('components.filament.landing-page.footer')

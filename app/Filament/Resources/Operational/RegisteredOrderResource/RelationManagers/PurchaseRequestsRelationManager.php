@@ -9,13 +9,8 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as P
 use App\Filament\Resources\PurchaseRequestResource;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DetachAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -83,16 +78,12 @@ class PurchaseRequestsRelationManager extends RelationManager
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
-                    DetachAction::make(),
-                    DeleteAction::make(),
+                    EditAction::make()
+                        ->url(fn($record) => PurchaseRequestResource::getUrl('edit', ['record' => $record])),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(PurchaseRequestExporter::class),
                 ]),

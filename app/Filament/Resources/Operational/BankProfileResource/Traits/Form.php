@@ -9,8 +9,10 @@ use App\Models\Status;
 use App\Services\CodeGenerator;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -97,18 +99,44 @@ trait Form
             ->validationAttribute(__('resources/bankProfile/strings.form.company'));
     }
 
+    public static function getConversionRateField(): TextInput
+    {
+        return TextInput::make('conversion_rate')
+            ->label(__('resources/bankProfile/strings.form.conversion_rate'))
+            ->numeric()
+            ->readOnly()
+            ->hintAction(
+                Action::make('help')
+                    ->icon('heroicon-o-question-mark-circle')
+                    ->label('')
+                    ->tooltip(__('resources/bankProfile/strings.form.tooltips.conversion_rate'))
+            )
+            ->validationAttribute(__('resources/bankProfile/strings.form.conversion_rate'));
+    }
+
+    public static function getCreationDateField()
+    {
+        return DatePicker::make('creation_date')
+            ->label(__('resources/bankProfile/strings.form.creation_date'))
+            ->native(false)
+            ->jalali()
+            ->validationAttribute(__('resources/bankProfile/strings.form.creation_date'));
+    }
+
     public static function getCurrencyField(): Select
     {
-        return Select::make('currency_id')
+        return Select::make('requested_currency_id')
             ->label(__('resources/bankProfile/strings.form.requested_currency'))
             ->relationship(
-                name: 'currency',
+                name: 'requestedCurrency',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
             )
             ->searchable()
             ->preload()
             ->required()
             ->live()
+            ->columnSpan(1)
+            ->default(fn($operation) => $operation === 'create' ? 2 : null) // 2 = EUR
             ->validationMessages([
                 'required' => __('resources/bankProfile/strings.form.validation_required')
             ])
@@ -182,7 +210,6 @@ trait Form
             ->validationAttribute(__('resources/bankProfile/strings.form.exchange_rate'));
     }
 
-
     public static function getNotesField(): Textarea
     {
         return Textarea::make('notes')
@@ -213,6 +240,27 @@ trait Form
             ->validationAttribute(__('resources/bankProfile/strings.form.purchase_date'));
     }
 
+    public static function getPurchasedCurrencyField(): Select
+    {
+        return Select::make('purchased_currency_id')
+            ->label(__('resources/bankProfile/strings.form.purchased_currency'))
+            ->relationship(
+                name: 'purchasedCurrency',
+                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
+            )
+            ->searchable()
+            ->preload()
+            ->required()
+            ->live()
+            ->columnSpan(1)
+            ->default(fn($operation) => $operation === 'create' ? 1 : null) // 2 = EUR
+            ->validationMessages([
+                'required' => __('resources/bankProfile/strings.form.validation_required')
+            ])
+            ->afterStateUpdated(fn(Get $get, Set $set) => static::updateComputations($get, $set))
+            ->validationAttribute(__('resources/bankProfile/strings.form.purchased_currency'));
+    }
+
     public static function getPurchasedEquivalentField(): TextInput
     {
         return TextInput::make('purchased_equivalent')
@@ -220,6 +268,7 @@ trait Form
             ->numeric()
             ->minValue(0)
             ->live(onBlur: true)
+            ->columnSpan(2)
             ->afterStateUpdated(fn(Get $get, Set $set) => static::updateComputations($get, $set))
             ->validationMessages([
                 'numeric' => __('resources/bankProfile/strings.form.validation_numeric'),
@@ -252,6 +301,7 @@ trait Form
             ->numeric()
             ->required()
             ->minValue(0)
+            ->columnSpan(2)
             ->live(onBlur: true)
             ->afterStateUpdated(fn(Get $get, Set $set) => static::updateComputations($get, $set))
             ->validationMessages([
@@ -288,21 +338,21 @@ trait Form
             TextEntry::make('commission_amount_purchased')
                 ->label(__('resources/bankProfile/strings.form.summary_commission_amount'))
                 ->formatStateUsing(fn(Get $get) => '💰 ' . number_format(static::computeCommissionAmount($get), 2)),
-            TextEntry::make('commission_equivalent_eur')
-                ->label(__('resources/bankProfile/strings.form.summary_commission_eur'))
-                ->formatStateUsing(fn(Get $get) => '💶 ' . number_format(static::computeCommissionEur($get), 2)),
-            TextEntry::make('final_rate')
+            TextEntry::make('commission_equivalent')
+                ->label(__('resources/bankProfile/strings.form.summary_commission_equivalent'))
+                ->formatStateUsing(fn(Get $get) => '💶 ' . number_format(static::computeCommissionEquivalent($get), 2)),
+            TextEntry::make('total_purchased_remittance')
+                ->label(__('resources/bankProfile/strings.form.summary_total_purchased'))
+                ->formatStateUsing(fn(Get $get) => '💵 ' . number_format(static::computeTotalPurchasedRemittance($get), 2)),
+            TextEntry::make('total_requested_remittance')
+                ->label(__('resources/bankProfile/strings.form.summary_total_requested'))
+                ->formatStateUsing(fn(Get $get) => '💶 ' . number_format(static::computeTotalRequestedRemittance($get), 2)),
+            TextEntry::make('final_rate_display')
                 ->label(__('resources/bankProfile/strings.form.final_rate'))
                 ->formatStateUsing(fn(Get $get) => '💹 ' . number_format((float)$get('final_rate'), 2)),
-            TextEntry::make('final_eur_equivalent')
-                ->label(__('resources/bankProfile/strings.form.summary_final_eur'))
-                ->formatStateUsing(fn(Get $get) => '💶 ' . number_format(static::computeFinalEur($get), 2)),
-            TextEntry::make('total_usd_remittance')
-                ->label(__('resources/bankProfile/strings.form.summary_total_usd'))
-                ->formatStateUsing(fn(Get $get) => '🇺🇸 ' . number_format(static::computeTotalUsdRemittance($get), 2)),
-            TextEntry::make('total_eur_remittance')
-                ->label(__('resources/bankProfile/strings.form.summary_total_eur'))
-                ->formatStateUsing(fn(Get $get) => '🇪🇺 ' . number_format(static::computeTotalEurRemittance($get), 2)),
+            TextEntry::make('final_equivalent')
+                ->label(__('resources/bankProfile/strings.form.summary_final_equivalent'))
+                ->formatStateUsing(fn(Get $get) => '💶 ' . number_format(static::computeFinalEquivalent($get), 2)),
             TextEntry::make('total_rial_remittance')
                 ->label(__('resources/bankProfile/strings.form.summary_total_rial'))
                 ->columnSpanFull()
@@ -338,5 +388,15 @@ trait Form
             ->searchable()
             ->columns(1)
             ->required();
+    }
+
+    protected static function getFinalRateField(): Hidden
+    {
+        return Hidden::make('final_rate')
+            ->live()
+            ->dehydrated()
+            ->afterStateUpdated(fn(Get $get, Set $set) => $set('final_rate_display',
+                (float)($get('exchange_rate') ?? 0) * (1 + ((float)($get('commission_rate') ?? 0) / 100))
+            ));
     }
 }

@@ -1,114 +1,101 @@
 <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl">
-    <div class="flex items-center justify-between gap-2 sm:gap-3">
-        <!-- Stage 1 -->
-        <div class="flex items-center gap-2 sm:gap-3 h-12 sm:h-14">
+    <div class="flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
+
+        <a href="{{ route('filament.dashboard.resources.categories.index') }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
-                class="flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-lg backdrop-blur-md bg-blue-500/10 border border-blue-500/30 flex-shrink-0 shadow-lg shadow-blue-500/20">
-                <span class="text-blue-500 font-bold text-sm sm:text-base">1</span>
+                class="flex items-center justify-center w-9 h-9 rounded-lg backdrop-blur-md bg-amber-500/10 border border-amber-500/30 flex-shrink-0 shadow-lg shadow-amber-500/20">
+                <x-heroicon-o-rectangle-stack class="w-5 h-5 text-amber-500"/>
             </div>
             <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'"
                   class="font-semibold text-xs sm:text-sm lg:text-base whitespace-nowrap">
-        {{ __('dashboard/strings.flow.request') }}
-      </span>
-        </div>
+                {{ __('dashboard/strings.resources.categories') ?? 'Categories' }}
+            </span>
+        </a>
 
-        <!-- Connector 1 -->
-        <div class="flex items-center justify-center h-12 sm:h-14 opacity-40">
-            <svg
-                class="block w-3 h-8 sm:w-4 sm:h-10 flex-shrink-0"
-                :class="darkMode ? 'text-slate-500' : 'text-slate-400'"
-                viewBox="0 0 12 40"
-                preserveAspectRatio="xMidYMid meet"
-                fill="none"
-                stroke="currentColor"
-                aria-hidden="true"
-            >
-                <path
-                    d="{{ $isRtl ? 'M8 2L2 20L8 38' : 'M4 2L10 20L4 38' }}"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-dasharray="3 3"
-                />
-            </svg>
-        </div>
-
-        <!-- Stage 2 -->
-        <div class="flex items-center gap-2 sm:gap-3 h-12 sm:h-14">
+        <a href="{{ route('filament.dashboard.resources.products.index') }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
-                class="flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-lg backdrop-blur-md bg-green-500/10 border border-green-500/30 flex-shrink-0 shadow-lg shadow-green-500/20">
-                <span class="text-green-500 font-bold text-sm sm:text-base">2</span>
+                class="flex items-center justify-center w-9 h-9 rounded-lg backdrop-blur-md bg-indigo-500/10 border border-indigo-500/30 flex-shrink-0 shadow-lg shadow-indigo-500/20">
+                <x-heroicon-o-archive-box class="w-5 h-5 text-indigo-500"/>
             </div>
             <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'"
                   class="font-semibold text-xs sm:text-sm lg:text-base whitespace-nowrap">
-        {{ __('dashboard/strings.flow.order') }}
-      </span>
-        </div>
+                {{ __('dashboard/strings.resources.products') ?? 'Products' }}
+            </span>
+        </a>
 
-        <!-- Connector 2  -->
-        <div class="flex items-center justify-center h-12 sm:h-14 opacity-40">
-            <svg
-                class="block w-3 h-8 sm:w-4 sm:h-10 flex-shrink-0"
-                :class="darkMode ? 'text-slate-500' : 'text-slate-400'"
-                viewBox="0 0 12 40"
-                preserveAspectRatio="xMidYMid meet"
-                fill="none"
-                stroke="currentColor"
-                aria-hidden="true"
-            >
-                <path
-                    d="{{ $isRtl ? 'M8 2L2 20L8 38' : 'M4 2L10 20L4 38' }}"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-dasharray="3 3"
-                />
-            </svg>
-        </div>
-
-        <!-- Stage 3 -->
-        <div class="flex items-center gap-2 sm:gap-3 h-12 sm:h-14">
+        <a href="{{ route('filament.dashboard.resources.companies.index') }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
-                class="flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-lg backdrop-blur-md bg-amber-500/10 border border-amber-500/30 flex-shrink-0 shadow-lg shadow-amber-500/20">
-                <span class="text-amber-500 font-bold text-sm sm:text-base">3</span>
+                class="flex items-center justify-center w-9 h-9 rounded-lg backdrop-blur-md bg-emerald-500/10 border border-emerald-500/30 flex-shrink-0 shadow-lg shadow-emerald-500/20">
+                <x-heroicon-o-building-office-2 class="w-5 h-5 text-emerald-500"/>
             </div>
             <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'"
                   class="font-semibold text-xs sm:text-sm lg:text-base whitespace-nowrap">
-        {{ __('dashboard/strings.flow.payment') }}
-      </span>
-        </div>
+                {{ __('dashboard/strings.resources.companies') ?? 'Companies' }}
+            </span>
+        </a>
 
-        <!-- Connector 3 -->
-        <div class="flex items-center justify-center h-12 sm:h-14 opacity-40">
-            <svg
-                class="block w-3 h-8 sm:w-4 sm:h-10 flex-shrink-0"
-                :class="darkMode ? 'text-slate-600' : 'text-slate-400'"
-                viewBox="0 0 12 40"
-                preserveAspectRatio="xMidYMid meet"
-                fill="none"
-                stroke="currentColor"
-                aria-hidden="true"
-            >
-                <path
-                    d="{{ $isRtl ? 'M8 2L2 20L8 38' : 'M4 2L10 20L4 38' }}"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-dasharray="3 3"
-                />
-            </svg>
-        </div>
-
-        <!-- Stage 4 -->
-        <div class="flex items-center gap-2 sm:gap-3 h-12 sm:h-14">
+        <a href="{{ route('filament.dashboard.resources.banks.index') }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
-                class="flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-lg backdrop-blur-md bg-purple-500/5 border border-purple-500/20 flex-shrink-0 shadow-lg shadow-purple-500/10">
-                <span class="text-purple-500/60 font-bold text-sm sm:text-base">4</span>
+                class="flex items-center justify-center w-9 h-9 rounded-lg backdrop-blur-md bg-sky-500/10 border border-sky-500/30 flex-shrink-0 shadow-lg shadow-sky-500/20">
+                <x-heroicon-o-building-library class="w-5 h-5 text-sky-500"/>
             </div>
-            <span :class="darkMode ? 'text-slate-400' : 'text-slate-600'"
+            <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'"
                   class="font-semibold text-xs sm:text-sm lg:text-base whitespace-nowrap">
-        {{ __('dashboard/strings.flow.logistics') }}
-      </span>
-        </div>
+                {{ __('dashboard/strings.resources.banks') ?? 'Banks' }}
+            </span>
+        </a>
+
+        <a href="{{ route('filament.dashboard.resources.currencies.index') }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
+            <div
+                class="flex items-center justify-center w-9 h-9 rounded-lg backdrop-blur-md bg-lime-500/10 border border-lime-500/30 flex-shrink-0 shadow-lg shadow-lime-500/20">
+                <x-heroicon-o-currency-dollar class="w-5 h-5 text-lime-500"/>
+            </div>
+            <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'"
+                  class="font-semibold text-xs sm:text-sm lg:text-base whitespace-nowrap">
+                {{ __('dashboard/strings.resources.currencies') ?? 'Currencies' }}
+            </span>
+        </a>
+
+        <a href="{{ route('filament.dashboard.resources.statuses.index') }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
+            <div
+                class="flex items-center justify-center w-9 h-9 rounded-lg backdrop-blur-md bg-teal-500/10 border border-teal-500/30 flex-shrink-0 shadow-lg shadow-teal-500/20">
+                <x-heroicon-o-tag class="w-5 h-5 text-teal-500"/>
+            </div>
+            <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'"
+                  class="font-semibold text-xs sm:text-sm lg:text-base whitespace-nowrap">
+                {{ __('dashboard/strings.resources.statuses') ?? 'Statuses' }}
+            </span>
+        </a>
+
+        <a href="{{ route('filament.dashboard.resources.targets.index') }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
+            <div
+                class="flex items-center justify-center w-9 h-9 rounded-lg backdrop-blur-md bg-rose-500/10 border border-rose-500/30 flex-shrink-0 shadow-lg shadow-rose-500/20">
+                <x-heroicon-o-cube class="w-5 h-5 text-rose-500"/>
+            </div>
+            <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'"
+                  class="font-semibold text-xs sm:text-sm lg:text-base whitespace-nowrap">
+                {{ __('dashboard/strings.resources.targets') ?? 'Targets' }}
+            </span>
+        </a>
+
+        <a href="{{ route('filament.dashboard.resources.users.index') }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
+            <div
+                class="flex items-center justify-center w-9 h-9 rounded-lg backdrop-blur-md bg-violet-500/10 border border-violet-500/30 flex-shrink-0 shadow-lg shadow-violet-500/20">
+                <x-heroicon-o-users class="w-5 h-5 text-violet-500"/>
+            </div>
+            <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'"
+                  class="font-semibold text-xs sm:text-sm lg:text-base whitespace-nowrap">
+                {{ __('dashboard/strings.resources.users') ?? 'Users' }}
+            </span>
+        </a>
+
     </div>
 </div>

@@ -34,7 +34,7 @@ class TableComponents
             ->default('-')
             ->wrap()
             ->formatStateUsing(fn($state) => $state?->formatted_name_without_date ?? '-')
-            ->searchable(query: fn($query, $search) => $query->whereHas('', fn($sq) => $sq->searchAll($search)), isIndividual: true)
+//            ->searchable(query: fn($query, $search) => $query->whereHas('', fn($sq) => $sq->searchAll($search)), isIndividual: true)
             ->searchable(
                 query: fn(Builder $query, string $search) => $query->whereHas(
                     'purchaseOrders',

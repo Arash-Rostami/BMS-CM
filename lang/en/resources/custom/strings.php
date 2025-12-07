@@ -1,0 +1,95 @@
+<?php
+
+return [
+    'general' => [
+        'model_label' => 'Customs & Clearance',
+        'plural_model_label' => 'Customs & Clearance',
+        'navigation_group' => 'Operational Data',
+        'add_record' => '˙⋆✮ Create New',
+        'clearance_status' => [
+            'declared' => 'Declared',
+            'documents_submitted' => 'Documents Submitted',
+            'pending_payment' => 'Pending Payment',
+            'pending_editing' => 'Pending Editing',
+            'exit_gate' => 'Exit Gate',
+            'ten_percent_remaining' => '10% Remaining',
+            'appraisal' => 'Appraisal',
+            'completed' => 'Completed',
+        ],
+        'bank_guarantee_status' => [
+            'returned' => 'Returned',
+            'not_returned' => 'Not Returned',
+        ],
+        'commitment_status' => [
+            'completed' => 'Completed',
+            'not_completed' => 'Not Completed',
+        ],
+    ],
+    'form' => [
+        'tabs' => [
+            'general' => 'General Info',
+            'dates' => 'Key Dates',
+            'status_financial' => 'Status & Financials',
+        ],
+        'section_general' => 'Declaration Details',
+        'section_dates' => 'Process Timeline',
+        'section_status' => 'Status Overview',
+        'section_financial' => 'Financial Commitments',
+        'section_notes' => 'Notes & Attachments',
+
+        'custom_no' => 'Customs No.',
+        'registered_order' => 'Registered Order',
+        'shipment' => 'Shipment',
+        'contract_no' => 'Contract No.',
+        'declaration_no' => 'Declaration No. (Kotazh)',
+        'clearance_type' => 'Clearance Type',
+
+        'clearance_date' => 'Clearance Date',
+        'doc_submission_date' => 'Doc Submission Date',
+        'ten_percent_exit_date' => '10% Exit Date',
+        'payment_due_date' => 'Payment Due Date',
+        'commitment_payment_date' => 'Commitment Payment Date',
+        'rial_return_date' => 'Rial Return Date',
+
+        'commitment_balance' => 'Commitment Balance',
+
+        'clearance_status' => 'Clearance Status',
+        'bank_guarantee_status' => 'Bank Guarantee Status',
+        'commitment_status' => 'Commitment Status',
+
+        'notes' => 'Notes',
+        'attachments' => 'Attachments',
+
+        'validation_required' => 'This field is required.',
+        'validation_numeric' => 'This field must be a number.',
+        'validation_date' => 'Please enter a valid date.',
+    ],
+    'table' => [
+        'declaration_no' => 'Declaration No.',
+        'registered_order' => 'Registered Order',
+        'shipment' => 'Related to',
+        'contract_no' => 'Contract No.',
+        'clearance_date' => 'Clearance Date',
+        'clearance_status' => 'Clearance Status',
+        'commitment_balance' => 'Commitment Bal.',
+        'created_by' => 'Created By',
+        'updated_by' => 'Updated By',
+        'created_at' => 'Created At',
+        'updated_at' => 'Updated At',
+    ],
+    'filters' => [
+        'contract_no' => 'Contract No.',
+        'registered_order' => 'Registered Order',
+        'shipment' => 'Shipment',
+        'clearance_status' => 'Clearance Status',
+        'bank_guarantee_status' => 'Bank Guarantee Status',
+        'commitment_status' => 'Commitment Status',
+        'created_from' => 'Created From',
+        'created_until' => 'Created Until',
+    ],
+    'infolist' => [
+        'tab_general' => 'General Info',
+        'tab_dates_status' => 'Dates & Status',
+        'tab_documents' => 'Attachments',
+    ],
+];

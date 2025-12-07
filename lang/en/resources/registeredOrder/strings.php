@@ -77,6 +77,8 @@ return [
         'extra_cost' => 'Extra Cost',
         'attachments' => 'Attachments',
         'add_item' => 'Add Item',
+        'official_registration_no' => 'Official Registration Number',
+
 
 
         'validation_required' => 'This field is required.',
@@ -94,6 +96,7 @@ return [
         'purchase_requests' => 'Related Purchase Requests',
         'purchase_orders' => 'Related Purchase Orders',
         'proforma_invoices' => 'Related Proforma Invoices',
+        'official_registration_no' => 'Official Registration No',
         'id' => 'ID',
         'ro_number' => 'Registered Order Number',
         'buyer' => 'Buyer',

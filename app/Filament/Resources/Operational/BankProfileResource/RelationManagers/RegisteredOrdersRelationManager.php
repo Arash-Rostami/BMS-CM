@@ -6,19 +6,13 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\Exports\Registere
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Filters as RegisteredOrderFilters;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Table as RegisteredOrderTable;
 use App\Filament\Resources\RegisteredOrderResource;
-use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
-use Filament\Tables\Grouping\Group as TableGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
@@ -82,34 +76,17 @@ class RegisteredOrdersRelationManager extends RelationManager
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
-                    RestoreAction::make(),
+                    EditAction::make()
+                        ->url(fn($record) => RegisteredOrderResource::getUrl('edit', ['record' => $record])),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkActionGroup::make([
-                        DeleteBulkAction::make(),
-                        RestoreBulkAction::make(),
                         ExportBulkAction::make()
                             ->exporter(RegisteredOrderExporter::class),
                     ]),
                 ]),
-            ])
-            ->groups([
-                TableGroup::make('buyerCompany.name')
-                    ->label(__('resources/registeredOrder/strings.filters.buyer'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
-                TableGroup::make('sellerCompanyExclusive.name')
-                    ->label(__('resources/registeredOrder/strings.filters.seller'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'sellerCompanyExclusive')),
-                TableGroup::make('supplierCompanyExclusive.name')
-                    ->label(__('resources/registeredOrder/strings.filters.supplier'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'supplierCompanyExclusive')),
-                TableGroup::make('manufacturerCompanyExclusive.name')
-                    ->label(__('resources/registeredOrder/strings.filters.manufacturer'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'manufacturerCompanyExclusive')),
             ])
             ->striped()
             ->recordUrl(null)

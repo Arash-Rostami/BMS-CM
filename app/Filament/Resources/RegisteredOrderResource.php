@@ -10,10 +10,13 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\CreateRegis
 use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\EditRegisteredOrder;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\ListRegisteredOrders;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\BankProfilesRelationManager;
+use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\CorrespondenceRelationManager;
+use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\CustomsRelationManager;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\ProformaInvoicesRelationManager;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\PurchaseOrdersRelationManager;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\PurchaseRequestsRelationManager;
+use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\ShipmentsRelationManager;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Filters as RegisteredOrderFilters;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Form as RegisteredOrderForm;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Infolist as RegisteredOrderInfolist;
@@ -79,6 +82,7 @@ class RegisteredOrderResource extends Resource
                                                 static::getPurchaseRequestsField(),
                                                 static::getRoNumberField(),
                                                 static::getContractNumberField(),
+                                                static::getOfficialRegistrationNoField(),
                                                 static::getStatusField(),
                                                 static::getOrderDateField(),
                                                 static::getValidityDateField(),
@@ -172,11 +176,13 @@ class RegisteredOrderResource extends Resource
                 'sellerCompanyExclusive',
                 'supplierCompanyExclusive',
                 'manufacturerCompanyExclusive',
+                'shipments'
             ])
             ->withCount([
                 'purchaseOrders',
                 'proformaInvoices',
                 'purchaseRequests',
+                'shipments',
             ])
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
@@ -193,7 +199,7 @@ class RegisteredOrderResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['ro_number', 'contract_no'];
+        return ['ro_number', 'contract_no', 'official_registration_no'];
     }
 
     public static function getModelLabel(): string
@@ -252,14 +258,17 @@ class RegisteredOrderResource extends Resource
             ProformaInvoicesRelationManager::class,
             BankProfilesRelationManager::class,
             PurchaseOrdersRelationManager::class,
-            PaymentsRelationManager::class
+            PaymentsRelationManager::class,
+            ShipmentsRelationManager::class,
+            CustomsRelationManager::class,
+            CorrespondenceRelationManager::class,
         ];
     }
 
     public static function infolist(Schema $schema): Schema
     {
         return $schema
-            ->components([
+            ->schema([
                 Tabs::make('Details')->tabs([
                     Tab::make(__('resources/registeredOrder/strings.infolist.tab_general'))
                         ->icon('heroicon-o-document-text')
@@ -270,6 +279,7 @@ class RegisteredOrderResource extends Resource
                                 InfoComponents::viewPurchaseOrders(),
                                 static::viewRoNumber(),
                                 static::viewCtNumber(),
+                                static::viewOfficialRegistrationNo(),
                                 static::viewOrderDate(),
                                 static::viewValidityDate(),
                                 static::viewExpectedDeliveryDate(),
@@ -306,11 +316,13 @@ class RegisteredOrderResource extends Resource
                             ]),
                         ]),
                     Tab::make(__('resources/registeredOrder/strings.infolist.tab_documents'))
-                        ->label(__('resources/registeredOrder/strings.infolist.tab_documents'))
                         ->icon('heroicon-o-paper-clip')
                         ->schema([Section::make()->schema([static::viewAttachments()])])
-                        ->badge(fn($record) => $record->attachments->count())
-                        ->badgeColor('info'),
+                        ->label(fn($record) => tabBadge(
+                            __('resources/registeredOrder/strings.infolist.tab_documents'),
+                            $record?->attachments->count() ?? 0,
+                            'info'
+                        )),
                 ])->columnSpanFull(),
             ]);
     }
@@ -327,6 +339,7 @@ class RegisteredOrderResource extends Resource
                 TableComponents::showPurchaseOrders(),
                 static::showRoNumber(),
                 static::showCtNumber(),
+                static::showOfficialRegistrationNo(),
                 static::showSeller(),
                 static::showBuyer(),
                 static::showStatus(),

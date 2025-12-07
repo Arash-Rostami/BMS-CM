@@ -1,0 +1,129 @@
+<?php
+
+return [
+    'general' => [
+        'model_label' => 'Shipment',
+        'plural_model_label' => 'Shipments',
+        'navigation_group' => 'Operational Data',
+        'add_record' => '˙⋆✮ Create New',
+    ],
+    'form' => [
+        'tabs' => [
+            'general' => 'General Info',
+            'logistics' => 'Logistics & Details',
+        ],
+        'section_general' => 'Core Information',
+        'section_docs_notes' => 'Documents & Attachments',
+        'section_dates' => 'Timeline',
+        'section_logistics' => 'Logistics Data',
+        'section_status' => 'Status Overview',
+        'section_amounts' => 'Financials & Quantities',
+
+        'shipment_no' => 'Shipment No.',
+        'registered_order' => 'Registered Order',
+        'contract_no' => 'Contract No.',
+        'carrier' => 'Carrier/Forwarder',
+        'part' => 'Part No',
+        'case_number' => 'Case Number',
+
+        'warehouse_date' => 'Warehouse Entry',
+        'exit_date' => 'Exit Date',
+        'eta' => 'ETA',
+        'etd' => 'ETD',
+
+        'bl_number' => 'B/L Number',
+        'booking_no' => 'Booking Number',
+        'container_no' => 'Container No.',
+        'container_type' => 'Container Type',
+        'container_types_with_opt' => [
+            'Standard' => [
+                '20ft Standard' => '20ft Standard',
+                '40ft Standard' => '40ft Standard',
+                '40ft High Cube' => '40ft High Cube',
+            ],
+            'Refrigerated' => [
+                '20ft Refrigerated' => '20ft Refrigerated',
+                '40ft Refrigerated' => '40ft Refrigerated',
+            ],
+            'Open Top' => [
+                '20ft Open Top' => '20ft Open Top',
+                '40ft Open Top' => '40ft Open Top',
+            ],
+            'Flat Rack' => [
+                '20ft Flat Rack' => '20ft Flat Rack',
+                '40ft Flat Rack' => '40ft Flat Rack',
+            ],
+            'Other' => [
+                'LCL' => 'LCL',
+                'Bulk' => 'Bulk',
+            ],
+        ],
+        'container_types' => ['20ft Standard' => '20ft Standard', '40ft Standard' => '40ft Standard', '40ft High Cube' => '40ft High Cube', '20ft Refrigerated' => '20ft Refrigerated', '40ft Refrigerated' => '40ft Refrigerated', '20ft Open Top' => '20ft Open Top', '40ft Open Top' => '40ft Open Top', '20ft Flat Rack' => '20ft Flat Rack', '40ft Flat Rack' => '40ft Flat Rack', 'LCL' => 'LCL', 'Bulk' => 'Bulk',],
+
+        'remittance_amount' => 'Remittance Amount',
+        'customs_quantity' => 'Remaining Qty in customs',
+        'shipped_quantity' => 'Shipped Qty',
+
+        'status' => 'Main Status',
+        'shipment_status' => 'Tracking Status',
+        'operation_status' => 'Operation Status',
+        'container_status' => 'Container Status',
+        'guarantee_status' => 'Guarantee Status',
+        'doc_status' => 'Doc Status',
+
+        'docs' => 'Documents Checklist',
+        'doc_name' => 'Document Name',
+        'doc_name_placeholder' => 'e.g. Inspection Certificate',
+        'doc_received' => 'Received',
+        'add_doc' => 'Add Document',
+        'docs_options' => [
+            'inspection' => 'Inspection Certificate',
+            'bank_commitment' => 'Bank Commitment',
+            'insurance' => 'Insurance Policy',
+            'ci' => 'Commercial Invoice (CI)',
+            'pl' => 'Packing List (PL)',
+            'co' => 'Certificate of Origin (CO)',
+            'bl' => 'Bill of Lading (BL)',
+            'do' => 'Delivery Order (DO)',
+        ],
+        'attachments' => 'Attachments',
+        'notes' => 'Internal Notes',
+
+        'validation' => [
+            'required' => 'This field is required.',
+            'unique' => 'This value must be unique.',
+            'unique_part' => 'This part has already been registered for this order and contract.',
+            'english_only' => 'Only English letters, numbers, parentheses, and dashes are allowed.',
+        ],
+    ],
+    'table' => [
+        'id' => 'ID',
+        'shipment_no' => 'Shipment No.',
+        'registered_order' => 'Related To',
+        'carrier' => 'Carrier',
+        'part' => 'Part',
+        'bl_number' => 'B/L No.',
+        'booking_no' => 'Booking No.',
+        'container_no' => 'Cont. Count',
+        'container_status' => 'Cont. Status',
+        'eta' => 'ETA',
+        'status' => 'Status',
+        'tracking_status' => 'Tracking',
+        'created_by' => 'Created By',
+        'created_at' => 'Created At',
+        'updated_by' => 'Updated By',
+        'updated_at' => 'Updated At',
+    ],
+    'filters' => [
+        'created_from' => 'Created From',
+        'created_until' => 'Created Until',
+        'eta_from' => 'ETA From',
+        'eta_until' => 'ETA Until',
+    ],
+    'infolist' => [
+        'tab_general'   => 'General Information',
+        'tab_logistics' => 'Logistics',
+        'tab_docs'      => 'Master Data',
+        'tab_documents' => 'Attachments',
+    ],
+];

@@ -87,8 +87,6 @@ class PaymentsRelationManager extends RelationManager
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(PaymentExporter::class),
                 ]),

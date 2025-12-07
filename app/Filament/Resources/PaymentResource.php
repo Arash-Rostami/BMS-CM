@@ -7,6 +7,8 @@ use App\Filament\Resources\Operational\PaymentResource\Exports\PaymentExporter;
 use App\Filament\Resources\Operational\PaymentResource\Pages\CreatePayment;
 use App\Filament\Resources\Operational\PaymentResource\Pages\EditPayment;
 use App\Filament\Resources\Operational\PaymentResource\Pages\ListPayments;
+use App\Filament\Resources\Operational\PaymentResource\RelationManagers\PurchaseOrderRelationManager;
+use App\Filament\Resources\Operational\PaymentResource\RelationManagers\RegisteredOrderRelationManager;
 use App\Filament\Resources\Operational\PaymentResource\Traits\Filters as PaymentFilters;
 use App\Filament\Resources\Operational\PaymentResource\Traits\Form as PaymentForm;
 use App\Filament\Resources\Operational\PaymentResource\Traits\Infolist as PaymentInfolist;
@@ -232,7 +234,8 @@ class PaymentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // Add Relation Managers here later
+            RegisteredOrderRelationManager::class,
+            PurchaseOrderRelationManager::class,
         ];
     }
 
@@ -286,8 +289,11 @@ class PaymentResource extends Resource
                         ->schema([
                             Section::make()->schema([static::viewAttachments()])
                         ])
-                        ->badge(fn($record) => $record->attachments->count())
-                        ->badgeColor('info'),
+                        ->label(fn($record) => tabBadge(
+                            __('resources/payment/strings.infolist.tab_documents'),
+                            $record?->attachments->count() ?? 0,
+                            'info'
+                        )),
                 ])->columnSpanFull(),
             ]);
     }

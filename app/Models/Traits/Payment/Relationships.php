@@ -44,6 +44,16 @@ trait Relationships
             ->where('is_active', 1);
     }
 
+    public function purchaseOrder(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseOrder::class, 'targetable_id');
+    }
+
+    public function registeredOrder(): BelongsTo
+    {
+        return $this->belongsTo(RegisteredOrder::class, 'targetable_id');
+    }
+
     public function status(): BelongsTo
     {
         return $this->belongsTo(Status::class, 'status_id')
