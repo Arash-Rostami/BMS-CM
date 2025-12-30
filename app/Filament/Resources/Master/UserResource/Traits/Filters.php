@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\SmartCacheManager;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Database\Eloquent\Model;
 
 trait Filters
 {
@@ -50,10 +51,13 @@ trait Filters
 
     public static function getRoleFilter(): SelectFilter
     {
-        return SelectFilter::make('role')
+        return SelectFilter::make('roles')
             ->label(__('resources/user/strings.table.role'))
-            ->options(UserRole::class)
-            ->multiple();
+            ->relationship('roles', 'name')
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
+            ->multiple()
+            ->preload()
+            ->searchable();
     }
 
     public static function getStatusFilter(): SelectFilter

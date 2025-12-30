@@ -6,6 +6,10 @@ return [
         'edit_tooltip' => 'ویرایش',
         'delete_tooltip' => 'حذف',
         'restore_tooltip' => 'بازیابی',
+        'create' => 'ایجاد',
+        'view' => 'مشاهده',
+        'edit' => 'ویرایش',
+        'delete' => 'حذف',
     ],
     'bulk' => [
         'activate' => [

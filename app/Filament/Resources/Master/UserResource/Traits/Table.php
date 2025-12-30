@@ -73,11 +73,11 @@ trait Table
 
     public static function showRole(): TextColumn
     {
-        return TextColumn::make('role')
+        return TextColumn::make('roles.name')
             ->label(__('resources/user/strings.table.role'))
-            ->icon(fn(string $state): string => (UserRole::tryFrom($state))?->getIcon() ?? 'heroicon-o-circle')
-            ->color(fn(string $state): string => (UserRole::tryFrom($state))?->getColor() ?? 'secondary')
-            ->formatStateUsing(fn(string $state): string => (UserRole::tryFrom($state))?->getLabel() ?? $state)
+            ->badge()
+            ->formatStateUsing(fn(string $state): string => UserRole::tryFrom($state)?->getLabel() ?? $state)
+            ->color(fn(string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray')
             ->searchable();
     }
 

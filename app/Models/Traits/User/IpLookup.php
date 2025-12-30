@@ -10,13 +10,13 @@ trait IpLookup
 {
     protected static function getCountryFromIp(string $ip): string
     {
-        if (empty($ip)) {
-            return 'Unidentified IP';
-        }
+        if (empty($ip)) return 'Unidentified IP';
 
         return Cache::remember("country_{$ip}", now()->addMinutes(10), function () use ($ip) {
             try {
-                $response = Http::timeout(30)->get('http://ip-api.com/json/' . $ip);
+                $response = Http::timeout(5)
+                    ->retry(2, 100)
+                    ->get("http://ip-api.com/json/{$ip}");
 
                 if ($response->successful() && $response->json('status') === 'success') {
                     return $response->json('country') ?? '🌎';

@@ -52,16 +52,19 @@ class UserResource extends Resource
                         static::getPosition(),
                         static::getPassword(),
                         static::getPasswordConfirmation(),
-                        static::getRole(),
+                        static::getRoles(),
                         static::getStatus(),
-                        static::getImage(),
                         static::getIP(),
                         static::getLastLogIn(),
                         static::getLastLogOut(),
+                        Section::make('🔗')
+                            ->hiddenLabel()
+                            ->schema([static::getImage()])
+                            ->columnSpanFull()
+                            ->collapsed(),
                     ])
                     ->columnSpanFull()
                     ->columns(2),
-
             ]);
     }
 

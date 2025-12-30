@@ -115,11 +115,11 @@ trait Infolist
 
     public static function viewRole(): TextEntry
     {
-        return TextEntry::make('role')
+        return TextEntry::make('roles.name')
             ->label(__('resources/user/strings.form.role'))
+            ->badge()
             ->formatStateUsing(fn(string $state): string => UserRole::tryFrom($state)?->getLabel() ?? $state)
             ->color(fn(string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray')
-            ->badge()
             ->icon('heroicon-m-shield-check')
             ->placeholder('-');
     }

@@ -3,11 +3,16 @@
 namespace App\Models\Traits\User;
 
 use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\Str;
 
 trait UserImage
 {
     public function getFilamentAvatarUrl(): ?string
     {
-        return Vite::asset(sprintf('%s%s.svg', 'resources/img/avatars/', strtolower($this->role)));
+        $roleName = $this->roles->first()?->name ?? $this->role ?? 'agent';
+
+        $baseRole = Str::before($roleName, '_');
+
+        return Vite::asset(sprintf('%s%s.svg', 'resources/img/avatars/', strtolower($baseRole)));
     }
 }
