@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Models;
+
+use Spatie\Permission\Models\Permission as SpatiePermission;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+class Permission extends SpatiePermission
+{
+    public function users(): BelongsToMany
+    {
+        return $this->morphedByMany(
+            User::class,
+            'model',
+            config('permission.table_names.model_has_permissions'),
+            config('permission.column_names.permission_pivot_key') ?: 'permission_id',
+            config('permission.column_names.model_morph_key') ?: 'model_id'
+        );
+    }
+}

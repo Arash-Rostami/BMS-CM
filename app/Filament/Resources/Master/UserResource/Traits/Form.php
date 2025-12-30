@@ -149,19 +149,22 @@ trait Form
             ->nullable();
     }
 
-    public static function getRole(): Select
-    {
-        return Select::make('role')
-            ->label(__('resources/user/strings.form.role'))
-            ->options(UserRole::class)
-            ->required();
-    }
-
     public static function getStatus(): Select
     {
         return Select::make('status')
             ->label(__('resources/user/strings.form.status'))
             ->options(UserStatus::class)
             ->required();
+    }
+
+    public static function getRoles(): Select
+    {
+        return Select::make('roles')
+            ->label(__('resources/user/strings.form.role'))
+            ->relationship('roles', 'name')
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
+            ->multiple()
+            ->preload()
+            ->searchable();
     }
 }

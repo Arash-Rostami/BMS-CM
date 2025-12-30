@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, CanResetPassword
 {
@@ -26,7 +27,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, CanResetP
         DashboardAccess,
         Relationships,
         IpLookup,
-        Setting;
+        Setting,
+        HasRoles;
 
     public const CACHE_MINUTES = 60;
     protected $fillable = [
