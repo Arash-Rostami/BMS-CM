@@ -23,6 +23,9 @@ class Payment extends Model
         HasTargetableDisplay,
         UserStamps;
 
+    const SCANNABLE_TABLE = 'payments';
+    public const SCANNABLE_IDENTIFIER = 'payment_no';
+
     public const TYPE_PAYMENT = 'Payment Status';
 
     protected $fillable = [

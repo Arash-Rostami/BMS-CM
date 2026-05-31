@@ -1,6 +1,7 @@
 <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl">
     <div class="flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
 
+        <!-- Categories -->
         <a href="{{ route('filament.dashboard.resources.categories.index') }}" target="_blank" rel="noopener noreferrer"
            class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
@@ -13,6 +14,7 @@
             </span>
         </a>
 
+        <!-- Products -->
         <a href="{{ route('filament.dashboard.resources.products.index') }}" target="_blank" rel="noopener noreferrer"
            class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
@@ -25,6 +27,7 @@
             </span>
         </a>
 
+        <!-- Companies -->
         <a href="{{ route('filament.dashboard.resources.companies.index') }}" target="_blank" rel="noopener noreferrer"
            class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
@@ -37,6 +40,7 @@
             </span>
         </a>
 
+        <!-- Banks -->
         <a href="{{ route('filament.dashboard.resources.banks.index') }}" target="_blank" rel="noopener noreferrer"
            class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
@@ -49,6 +53,7 @@
             </span>
         </a>
 
+        <!-- Currencies -->
         <a href="{{ route('filament.dashboard.resources.currencies.index') }}" target="_blank" rel="noopener noreferrer"
            class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
@@ -61,6 +66,7 @@
             </span>
         </a>
 
+        <!-- Statuses -->
         <a href="{{ route('filament.dashboard.resources.statuses.index') }}" target="_blank" rel="noopener noreferrer"
            class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
@@ -73,6 +79,7 @@
             </span>
         </a>
 
+        <!-- Targets -->
         <a href="{{ route('filament.dashboard.resources.targets.index') }}" target="_blank" rel="noopener noreferrer"
            class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
@@ -85,6 +92,7 @@
             </span>
         </a>
 
+        <!-- Users -->
         <a href="{{ route('filament.dashboard.resources.users.index') }}" target="_blank" rel="noopener noreferrer"
            class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
             <div
@@ -94,6 +102,31 @@
             <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'"
                   class="font-semibold text-xs sm:text-sm lg:text-base whitespace-nowrap">
                 {{ __('dashboard/strings.resources.users') ?? 'Users' }}
+            </span>
+        </a>
+        <!-- Permissions -->
+        <a href="{{ route('filament.dashboard.resources.permissions.index') }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
+            <div
+                class="flex items-center justify-center w-9 h-9 rounded-lg backdrop-blur-md bg-red-500/10 border border-red-500/30 flex-shrink-0 shadow-lg shadow-red-500/20">
+                <x-heroicon-o-key class="w-5 h-5 text-red-500"/>
+            </div>
+            <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'"
+                  class="font-semibold text-xs sm:text-sm lg:text-base whitespace-nowrap">
+                {{ __('dashboard/strings.resources.permissions') ?? 'Permissions' }}
+            </span>
+        </a>
+
+        <!-- Notifications -->
+        <a href="{{ route('filament.dashboard.resources.notification-settings.index') }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 h-12 sm:h-14 hover:opacity-90">
+            <div
+                class="flex items-center justify-center w-9 h-9 rounded-lg backdrop-blur-md bg-pink-500/10 border border-pink-500/30 flex-shrink-0 shadow-lg shadow-pink-500/20">
+                <x-heroicon-o-bell-alert class="w-5 h-5 text-pink-500"/>
+            </div>
+            <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'"
+                  class="font-semibold text-xs sm:text-sm lg:text-base whitespace-nowrap">
+                {{ __('dashboard/strings.resources.notification_settings') ?? 'Notifications' }}
             </span>
         </a>
 

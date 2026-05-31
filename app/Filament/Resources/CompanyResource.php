@@ -92,23 +92,6 @@ class CompanyResource extends Resource
         return __('resources/company/strings.general.model_label');
     }
 
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'Company',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            3600,
-            fn() => static::getModel()::active()->count()
-        );
-
-        return $count > 0 ? (string)$count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
-    }
-
     public static function getNavigationGroup(): ?string
     {
         return __('resources/dashboard/strings.navigation_group.base');

@@ -24,6 +24,9 @@ class RegisteredOrder extends Model
         UserStamps;
 
 
+   public const SCANNABLE_TABLE = 'registered_orders';
+   public  const SCANNABLE_IDENTIFIER = 'ro_number';
+
     public const TYPE_REGISTERED_ORDER = 'Registered Order Status';
 
     protected $fillable = [

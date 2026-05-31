@@ -49,7 +49,6 @@ class ProformaInvoiceResource extends Resource
 
     protected static ?string $model = ProformaInvoice::class;
 
-
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?int $navigationSort = 4;
@@ -353,7 +352,6 @@ class ProformaInvoiceResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(ProformaInvoiceExporter::class),

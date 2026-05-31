@@ -87,7 +87,7 @@ class DashboardPanelProvider extends PanelProvider
                 url: Vite::asset('resources/css/layout/fonts.css'),
                 provider: LocalFontProvider::class)
             ->databaseNotifications()
-            ->databaseNotificationsPolling('10s')
+            ->databaseNotificationsPolling('30s')
             ->maxContentWidth(Width::Full)
             ->spa()
             ->globalSearch(true, position: GlobalSearchPosition::Topbar)

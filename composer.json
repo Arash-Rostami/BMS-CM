@@ -15,12 +15,14 @@
         "bezhansalleh/filament-language-switch": "4.0",
         "filament/filament": "^4.0",
         "laravel/framework": "^12.31",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6",
         "mokhosh/filament-jalali": "^5.0",
         "morilog/jalali": "^3.4",
         "spatie/laravel-permission": "^6.24",
-        "ysfkaya/filament-phone-input": "^4.0"
+        "ysfkaya/filament-phone-input": "^4.0",
+      "ext-soap": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.5",

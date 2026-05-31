@@ -9,13 +9,16 @@ return [
         'statuses' => 'وضعیت‌ها',
         'products' => 'محصولات',
         'users' => 'کاربران',
-        'categories' => 'دسته‌بندی‌ها',
+        'categories' => 'دسته‌ها',
         'targets' => 'اهداف',
         'currencies' => 'ارزها',
         'purchase_requests' => 'درخواست‌های خرید',
         'purchase_orders' => 'سفارشات خرید',
         'proforma_invoices' => 'پروفورما',
         'payments' => 'پرداخت‌ها',
+        'roles' => 'نقش‌ها',
+        'permissions' => 'مجوزها',
+        'notification_settings' => 'اطلاعیه ها',
     ],
     'steps' => [
         'request_approval' => [

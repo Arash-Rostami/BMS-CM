@@ -37,7 +37,6 @@ class InfoComponents
     {
         return TextEntry::make('purchaseRequests.formatted_name')
             ->label(__('resources/general/strings.relevant_module.form.purchase_requests'))
-            ->listWithLineBreaks()
             ->wrap()
             ->html()
             ->columnSpanFull()

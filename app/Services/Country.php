@@ -293,6 +293,7 @@ class Country
 
         return $this->sortedListByLocale[$locale];
     }
+
     /**
      *
      * @param string $locale The locale for which to build the cache.
