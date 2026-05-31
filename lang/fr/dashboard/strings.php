@@ -16,6 +16,9 @@ return [
         'purchase_orders' => 'Commandes d\'achat',
         'proforma_invoices' => 'Factures proforma',
         'payments' => 'Paiements',
+        'roles' => 'Rôles',
+        'permissions' => 'Autorisations',
+        'notification_settings' => 'Notifications',
     ],
     'steps' => [
         'request_approval' => [

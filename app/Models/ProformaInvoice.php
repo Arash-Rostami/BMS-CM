@@ -22,6 +22,10 @@ class ProformaInvoice extends Model
         UserStamps;
 
 
+    public const SCANNABLE_TABLE = 'proforma_invoices';
+    public const SCANNABLE_IDENTIFIER = 'invoice_no';
+
+
     protected $fillable = [
         'invoice_no',
         'invoice_date',

@@ -513,6 +513,66 @@ input[type="range"]::-moz-range-thumb {
     --tw-gradient-to: rgb(126 34 206 / 0.7);
 }
 
+/* Utilities: Border Colors - Pink & Red */
+.border-pink-500\/50 {
+    border-color: rgb(236 72 153 / 0.5);
+}
+
+.border-pink-500\/30 {
+    border-color: rgb(236 72 153 / 0.3);
+}
+
+.border-red-500\/50 {
+    border-color: rgb(239 68 68 / 0.5);
+}
+
+.border-red-500\/30 {
+    border-color: rgb(239 68 68 / 0.3);
+}
+
+/* Utilities: Background Colors - Pink & Red */
+.bg-pink-500\/10 {
+    background-color: rgb(236 72 153 / 0.1);
+}
+
+.bg-pink-500\/30 {
+    background-color: rgb(236 72 153 / 0.3);
+}
+
+.bg-red-500\/10 {
+    background-color: rgb(239 68 68 / 0.1);
+}
+
+.bg-red-500\/30 {
+    background-color: rgb(239 68 68 / 0.3);
+}
+
+/* Utilities: Text Colors - Pink & Red */
+.text-pink-500 {
+    color: rgb(236 72 153);
+}
+
+.text-red-500 {
+    color: rgb(239 68 68);
+}
+
+/* Utilities: Shadow Colors - Pink & Red */
+.shadow-pink-500\/20 {
+    --tw-shadow-color: rgb(236 72 153 / 0.2);
+}
+
+.shadow-pink-500\/10 {
+    --tw-shadow-color: rgb(236 72 153 / 0.1);
+}
+
+.shadow-red-500\/20 {
+    --tw-shadow-color: rgb(239 68 68 / 0.2);
+}
+
+.shadow-red-500\/10 {
+    --tw-shadow-color: rgb(239 68 68 / 0.1);
+}
+
 #canvas-bg {
     pointer-events: none;
 }

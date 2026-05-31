@@ -12,7 +12,7 @@ class PersianCalendar
      */
     public function convertYear(int $gregorianYear): int
     {
-        if (app()->isLocale('fa')  && ($gregorianYear > 2000)) {
+        if (app()->isLocale('fa') && ($gregorianYear > 2000)) {
             $carbon = Carbon::create($gregorianYear, 3, 21, 0, 0, 0, config('app.timezone'));
             return Jalalian::fromCarbon($carbon)->getYear();
         }

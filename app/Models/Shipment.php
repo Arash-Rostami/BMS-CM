@@ -23,6 +23,8 @@ class Shipment extends Model
         HasSearchableRelations,
         UserStamps;
 
+    public const SCANNABLE_TABLE = 'shipments';
+    public const SCANNABLE_IDENTIFIER = 'shipment_no';
     public const TYPE_SHIPMENT_STATUS = 'Shipment Status';
     public const TYPE_CONTAINER_STATUS = 'Container Status';
     public const TYPE_OPERATION_STATUS = 'Operation Status';

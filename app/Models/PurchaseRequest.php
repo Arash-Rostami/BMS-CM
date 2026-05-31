@@ -21,6 +21,10 @@ class PurchaseRequest extends Model
         HasFormattedName,
         HasSearchableRelations;
 
+
+    public const SCANNABLE_TABLE = 'purchase_requests';
+    public const SCANNABLE_IDENTIFIER = 'pr_number';
+
     public const TYPE_PURCHASE_REQUEST = 'Purchase Request Status';
 
     protected $fillable = [

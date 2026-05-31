@@ -21,6 +21,8 @@ class Custom extends Model
         HasSearchableRelations,
         UserStamps;
 
+    const SCANNABLE_TABLE = 'customs';
+    public const SCANNABLE_IDENTIFIER = 'custom_no';
     public const TYPE_CLEARANCE_STATUS = 'Clearance Status';
     public const TYPE_BANK_GUARANTEE_STATUS = 'Guarantee Status';
     public const TYPE_COMMITMENT_STATUS = 'Commitment Fulfillment Status';

@@ -1,0 +1,86 @@
+<?php
+
+return [
+    'general' => [
+        'model_label' => 'Notification',
+        'plural_model_label' => 'Notification',
+        'navigation_group' => 'Notifications',
+        'add_record' => '˙⋆✮ Create New Notification Setting',
+    ],
+
+    'form' => [
+        'tabs' => [
+            'general' => 'General Info',
+            'filters' => 'Filters & Columns',
+            'notifications' => 'Notification Settings',
+        ],
+
+        'section_general' => 'Notification Details',
+        'section_filters' => 'Table & Column Selection',
+        'section_notifications' => 'Notification Preferences',
+
+        'tables' => 'Select Tables to Monitor',
+        'columns' => 'Select Columns to Track',
+        'column_values' => 'Select Column Values',
+        'users' => 'Select Users to Notify',
+        'notification_type' => 'Channel',
+        'description' => 'Description',
+        'is_active' => 'Is Active',
+        'notes' => 'Additional Notes',
+        'actions' => 'Actions',
+
+        'tables_description' => '⚡ Based on Tables, columns and values change.',
+
+        'validation_required' => 'This field is required.',
+        'validation_numeric' => 'This field must be a number.',
+        'validation_date' => 'Please enter a valid date.',
+    ],
+
+    'table' => [
+        'tables' => 'Table',
+        'columns' => 'Columns',
+        'column_values' => 'Column Values',
+        'users' => 'Users',
+        'notification_type' => 'Type',
+        'actions' => 'Actions',
+        'is_active' => 'Active',
+        'created_by' => 'Created By',
+        'updated_by' => 'Updated By',
+        'created_at' => 'Created At',
+        'updated_at' => 'Updated At',
+    ],
+
+    'filters' => [
+        'actions' => 'Actions',
+        'tables' => 'Tables',
+        'columns' => 'Columns',
+        'users' => 'Users',
+        'notification_type' => 'Channel',
+        'is_active' => 'Active Status',
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+        'creator' => 'Created By',
+        'updater' => 'Updated By',
+        'created_from' => 'Created From',
+        'created_until' => 'Created Until',
+    ],
+
+    'infolist' => [
+        'tab_general' => 'General Info',
+        'tab_filters' => 'Filters & Columns',
+        'tab_notifications' => 'Notifications',
+        'tables' => 'Tables',
+        'actions' => 'Actions',
+        'columns' => 'Columns',
+        'column_values' => 'Column Values',
+        'users' => 'Users',
+        'notification_type' => 'Channel',
+        'is_active' => 'Active',
+        'notes' => 'Notes',
+        'description' => 'Description',
+        'created_by' => 'Created By',
+        'updated_by' => 'Updated By',
+        'created_at' => 'Created At',
+        'updated_at' => 'Updated At',
+    ],
+];

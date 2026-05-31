@@ -25,6 +25,8 @@ class PurchaseOrder extends Model
         HasSearchableRelations,
         UserStamps;
 
+    const SCANNABLE_TABLE = 'purchase_orders';
+
     public const TYPE_PURCHASE_ORDER = 'Purchase Order Status';
 
     protected $appends = ['total_amount', 'total_quantity'];

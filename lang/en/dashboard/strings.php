@@ -16,6 +16,9 @@ return [
         'purchase_orders' => 'Purchase orders',
         'proforma_invoices' => 'Proforma invoices',
         'payments' => 'Payments',
+        'roles' => 'Roles',
+        'permissions' => 'Permissions',
+        'notification_settings' => 'Notifications',
     ],
     'steps' => [
         'request_approval' => [

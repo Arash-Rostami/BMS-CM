@@ -27,6 +27,10 @@ class BankProfile extends Model
 
     public const TYPE_BANK_PROFILE = 'Bank Profile Status';
 
+    public const SCANNABLE_TABLE = 'bank_profiles';
+    public const SCANNABLE_IDENTIFIER = 'bp_number';
+
+
     protected $fillable = [
         'bp_number',
         'status_id',
