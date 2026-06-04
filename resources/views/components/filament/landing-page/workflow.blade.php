@@ -50,6 +50,9 @@
     isEditing: false,
     isExpanded: false,
     available: [
+        {id: 'categories', route: '{{ route('filament.dashboard.resources.categories.index') }}', icon: 'heroicon-o-tag', label: '{{ __('dashboard/strings.resources.categories') ?? 'Categories' }}', color: 'slate'},
+        {id: 'products', route: '{{ route('filament.dashboard.resources.products.index') }}', icon: 'heroicon-o-cube', label: '{{ __('dashboard/strings.resources.products') ?? 'Products' }}', color: 'sky'},
+        {id: 'companies', route: '{{ route('filament.dashboard.resources.companies.index') }}', icon: 'heroicon-o-building-storefront', label: '{{ __('dashboard/strings.resources.companies') ?? 'Companies' }}', color: 'teal'},
         {id: 'purchaseRequests', route: '{{ route('filament.dashboard.resources.purchase-requests.index') }}', icon: 'heroicon-o-document-text', label: '{{ __('dashboard/strings.purchase_requests') ?? 'Purchase Requests' }}', color: 'blue'},
         {id: 'proformaInvoices', route: '{{ route('filament.dashboard.resources.proforma-invoices.index') }}', icon: 'heroicon-o-document-magnifying-glass', label: '{{ __('dashboard/strings.proforma') ?? 'Proforma Invoices' }}', color: 'indigo'},
         {id: 'registeredOrders', route: '{{ route('filament.dashboard.resources.registered-orders.index') }}', icon: 'heroicon-o-document-check', label: '{{ __('dashboard/strings.view_orders') ?? 'Registered Orders' }}', color: 'green'},
@@ -99,11 +102,11 @@
                     <h2 class="text-lg sm:text-xl font-bold" :class="darkMode ? 'text-white' : 'text-slate-900'">
                         {{ __('dashboard/strings.workspace') ?? 'Your Workspace' }}
                     </h2>
-                    <p class="text-xs sm:text-sm" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="shortcuts.length === 0 ? 'Click to set up your personal shortcuts' : shortcuts.length + ' shortcuts pinned'"></p>
+                    <p class="text-xs sm:text-sm" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="shortcuts.length === 0 ? '{{ __('dashboard/strings.setup_shortcuts') ?? 'Click to set up your personal shortcuts' }}' : shortcuts.length + ' ' + '{{ __('dashboard/strings.shortcuts_pinned') ?? 'shortcuts pinned' }}'"></p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <button @click.stop="isEditing = true" class="p-2.5 rounded-xl hover:bg-white/10 transition-colors shadow-sm border border-white/5" :class="darkMode ? 'text-cyan-400 bg-white/5' : 'text-indigo-600 bg-slate-100/50'" title="Edit Workspace">
+                <button @click.stop="isEditing = true" class="p-2.5 rounded-xl hover:bg-white/10 transition-colors shadow-sm border border-white/5" :class="darkMode ? 'text-cyan-400 bg-white/5' : 'text-indigo-600 bg-slate-100/50'" title="{{ __('dashboard/strings.edit_workspace') }}">
                     <x-heroicon-o-pencil-square class="w-5 h-5" />
                 </button>
                 <div class="p-1.5 rounded-full bg-white/5 border border-white/10" :class="darkMode ? 'text-slate-400' : 'text-slate-500'">
@@ -120,9 +123,9 @@
                     <div class="w-20 h-20 bg-slate-500/10 rounded-full flex items-center justify-center text-slate-400 mx-auto mb-4 border border-white/5 shadow-inner">
                         <x-heroicon-o-squares-plus class="w-10 h-10" />
                     </div>
-                    <h3 class="text-xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-800'">No shortcuts configured</h3>
+                    <h3 class="text-xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-800'">{{ __('dashboard/strings.no_shortcuts') ?? 'No shortcuts configured' }}</h3>
                     <p class="text-sm mb-6 max-w-md mx-auto" :class="darkMode ? 'text-slate-400' : 'text-slate-500'">
-                        Pin your most frequently used modules here for quick access across the application.
+                        {{ __('dashboard/strings.no_shortcuts_hint') ?? 'Pin your most frequently used modules here for quick access across the application.' }}
                     </p>
                     <button @click="isEditing = true" class="px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-transform hover:scale-105 bg-gradient-to-r from-indigo-500 to-purple-600">
                         {{ __('dashboard/strings.add_shortcut') ?? 'Add Shortcuts' }}
@@ -143,6 +146,9 @@
                                     <template x-if="item.icon === 'heroicon-o-banknotes'"><x-heroicon-o-banknotes class="w-6 h-6" /></template>
                                     <template x-if="item.icon === 'heroicon-o-truck'"><x-heroicon-o-truck class="w-6 h-6" /></template>
                                     <template x-if="item.icon === 'heroicon-o-clipboard-document-check'"><x-heroicon-o-clipboard-document-check class="w-6 h-6" /></template>
+                                    <template x-if="item.icon === 'heroicon-o-tag'"><x-heroicon-o-tag class="w-6 h-6" /></template>
+                                    <template x-if="item.icon === 'heroicon-o-cube'"><x-heroicon-o-cube class="w-6 h-6" /></template>
+                                    <template x-if="item.icon === 'heroicon-o-building-storefront'"><x-heroicon-o-building-storefront class="w-6 h-6" /></template>
                                 </div>
                                 <span class="font-bold text-xs sm:text-sm leading-tight" :class="darkMode ? 'text-slate-200 group-hover:text-white' : 'text-slate-700 group-hover:text-slate-900'" x-text="item.label"></span>
                             </div>
@@ -169,7 +175,7 @@
                         <h3 class="text-3xl font-extrabold tracking-tight" :class="darkMode ? 'text-white' : 'text-slate-900'">
                             {{ __('dashboard/strings.edit_workspace') ?? 'Customize Shortcuts' }}
                         </h3>
-                        <p class="text-sm mt-1" :class="darkMode ? 'text-slate-400' : 'text-slate-500'">Select the modules you want to pin to your quick access grid.</p>
+                        <p class="text-sm mt-1" :class="darkMode ? 'text-slate-400' : 'text-slate-500'">{{ __('dashboard/strings.edit_workspace_hint') ?? 'Select the modules you want to pin to your quick access grid.' }}</p>
                     </div>
                 </div>
                 <button @click="isEditing = false" class="p-3 rounded-full hover:bg-white/10 text-slate-400 hover:text-slate-200 transition-colors bg-white/5 border border-white/10">
@@ -190,6 +196,9 @@
                             <template x-if="module.icon === 'heroicon-o-banknotes'"><x-heroicon-o-banknotes class="w-7 h-7" /></template>
                             <template x-if="module.icon === 'heroicon-o-truck'"><x-heroicon-o-truck class="w-7 h-7" /></template>
                             <template x-if="module.icon === 'heroicon-o-clipboard-document-check'"><x-heroicon-o-clipboard-document-check class="w-7 h-7" /></template>
+                            <template x-if="module.icon === 'heroicon-o-tag'"><x-heroicon-o-tag class="w-7 h-7" /></template>
+                            <template x-if="module.icon === 'heroicon-o-cube'"><x-heroicon-o-cube class="w-7 h-7" /></template>
+                            <template x-if="module.icon === 'heroicon-o-building-storefront'"><x-heroicon-o-building-storefront class="w-7 h-7" /></template>
                         </div>
                         <span class="relative z-10 font-bold text-sm sm:text-base leading-tight" :class="darkMode ? 'text-slate-200' : 'text-slate-800'" x-text="module.label"></span>
 
@@ -227,213 +236,212 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 relative z-10">
 
-<!-- Step 1: Request & Approval -->
-    <div class="card-3d workflow-step relative">
-        <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
-            <div class="absolute -top-20 -right-20 w-56 h-56 bg-blue-500 rounded-full glow-orb"></div>
-            <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
+        <!-- Step 1: Request & Approval -->
+        <div class="card-3d workflow-step relative">
+            <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
+                <div class="absolute -top-20 -right-20 w-56 h-56 bg-blue-500 rounded-full glow-orb"></div>
+                <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
 
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0">
-                        <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold text-blue-400 bg-blue-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
+                <div class="relative z-10">
+                    <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0">
+                            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-blue-400 bg-blue-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
                         {{ __('dashboard/strings.status.active') }}
                     </span>
-                </div>
+                    </div>
 
-                <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
-                    {{ __('dashboard/strings.steps.request_approval.title') }}
-                </h3>
-                <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
-                    {{ __('dashboard/strings.steps.request_approval.description') }}
-                </p>
+                    <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
+                        {{ __('dashboard/strings.steps.request_approval.title') }}
+                    </h3>
+                    <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
+                        {{ __('dashboard/strings.steps.request_approval.description') }}
+                    </p>
 
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.purchase-requests.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
-                            <x-heroicon-o-shopping-cart class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.view_requests') }}
-                        </a>
-                        <span class="badge-float bg-blue-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="btn-wrapper flex-1">
+                            <a href="{{ route('filament.dashboard.resources.purchase-requests.index') }}" target="_blank" rel="noopener noreferrer"
+                               class="btn-gradient block w-full bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
+                                <x-heroicon-o-shopping-cart class="w-5 h-5 inline-block" />
+                                {{ __('dashboard/strings.view_requests') }}
+                            </a>
+                            <span class="badge-float bg-blue-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
                             {{ $stats['purchaseRequests'] ?? 0 }}
                         </span>
-                    </div>
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.proforma-invoices.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-cyan-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
-                           :class="darkMode ? 'text-white' : 'text-slate-900'">
-                            <x-heroicon-o-document-text class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.proforma') }}
-                        </a>
-                        <span class="badge-float bg-cyan-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
+                        </div>
+                        <div class="btn-wrapper flex-1">
+                            <a href="{{ route('filament.dashboard.resources.proforma-invoices.index') }}" target="_blank" rel="noopener noreferrer"
+                               class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-cyan-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
+                               :class="darkMode ? 'text-white' : 'text-slate-900'">
+                                <x-heroicon-o-document-text class="w-5 h-5 inline-block" />
+                                {{ __('dashboard/strings.proforma') }}
+                            </a>
+                            <span class="badge-float bg-cyan-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
                             {{ $stats['proformaInvoices'] ?? 0 }}
                         </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Step 2: Order Processing -->
-    <div class="card-3d workflow-step relative">
-        <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
-            <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-green-500 rounded-full glow-orb"></div>
-            <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
+        <!-- Step 2: Order Processing -->
+        <div class="card-3d workflow-step relative">
+            <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
+                <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-green-500 rounded-full glow-orb"></div>
+                <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
 
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0" style="animation-delay: 1s;">
-                        <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold text-green-400 bg-green-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
+                <div class="relative z-10">
+                    <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0" style="animation-delay: 1s;">
+                            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-green-400 bg-green-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
                         {{ __('dashboard/strings.status.active') }}
                     </span>
-                </div>
+                    </div>
 
-                <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
-                    {{ __('dashboard/strings.steps.order_processing.title') }}
-                </h3>
-                <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
-                    {{ __('dashboard/strings.steps.order_processing.description') }}
-                </p>
+                    <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
+                        {{ __('dashboard/strings.steps.order_processing.title') }}
+                    </h3>
+                    <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
+                        {{ __('dashboard/strings.steps.order_processing.description') }}
+                    </p>
 
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.registered-orders.index')}}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full bg-gradient-to-r from-green-600 to-green-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
-                            <x-heroicon-o-document-check class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.view_orders') }}
-                        </a>
-                        <span class="badge-float bg-green-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="btn-wrapper flex-1">
+                            <a href="{{ route('filament.dashboard.resources.registered-orders.index')}}" target="_blank" rel="noopener noreferrer"
+                               class="btn-gradient block w-full bg-gradient-to-r from-green-600 to-green-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
+                                <x-heroicon-o-document-check class="w-5 h-5 inline-block" />
+                                {{ __('dashboard/strings.view_orders') }}
+                            </a>
+                            <span class="badge-float bg-green-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
                             {{ $stats['registeredOrders'] ?? 0 }}
                         </span>
-                    </div>
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.bank-profiles.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-emerald-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
-                           :class="darkMode ? 'text-white' : 'text-slate-900'">
-                            <x-heroicon-o-building-office class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.banks') }}
-                        </a>
-                        <span class="badge-float bg-emerald-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
+                        </div>
+                        <div class="btn-wrapper flex-1">
+                            <a href="{{ route('filament.dashboard.resources.bank-profiles.index') }}" target="_blank" rel="noopener noreferrer"
+                               class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-emerald-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
+                               :class="darkMode ? 'text-white' : 'text-slate-900'">
+                                <x-heroicon-o-building-office class="w-5 h-5 inline-block" />
+                                {{ __('dashboard/strings.banks') }}
+                            </a>
+                            <span class="badge-float bg-emerald-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
                             {{ $stats['bankProfiles'] ?? 0 }}
                         </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Step 3: Procurement & Payment -->
-    <div class="card-3d workflow-step relative">
-        <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
-            <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-amber-500 rounded-full glow-orb"></div>
-            <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
+        <!-- Step 3: Procurement & Payment -->
+        <div class="card-3d workflow-step relative">
+            <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
+                <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-amber-500 rounded-full glow-orb"></div>
+                <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
 
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-amber-600 to-orange-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0" style="animation-delay: 2s;">
-                        <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold text-amber-400 bg-amber-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
+                <div class="relative z-10">
+                    <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-amber-600 to-orange-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0" style="animation-delay: 2s;">
+                            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-amber-400 bg-amber-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
                         {{ __('dashboard/strings.status.active') }}
                     </span>
-                </div>
+                    </div>
 
-                <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
-                    {{ __('dashboard/strings.steps.procurement_payment.title') }}
-                </h3>
-                <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
-                    {{ __('dashboard/strings.steps.procurement_payment.description') }}
-                </p>
+                    <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
+                        {{ __('dashboard/strings.steps.procurement_payment.title') }}
+                    </h3>
+                    <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
+                        {{ __('dashboard/strings.steps.procurement_payment.description') }}
+                    </p>
 
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.purchase-orders.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full bg-gradient-to-r from-amber-600 to-orange-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
-                            <x-heroicon-o-shopping-bag class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.purchase_orders') }}
-                        </a>
-                        <span class="badge-float bg-amber-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="btn-wrapper flex-1">
+                            <a href="{{ route('filament.dashboard.resources.purchase-orders.index') }}" target="_blank" rel="noopener noreferrer"
+                               class="btn-gradient block w-full bg-gradient-to-r from-amber-600 to-orange-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
+                                <x-heroicon-o-shopping-bag class="w-5 h-5 inline-block" />
+                                {{ __('dashboard/strings.purchase_orders') }}
+                            </a>
+                            <span class="badge-float bg-amber-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
                             {{ $stats['purchaseOrders'] ?? 0 }}
                         </span>
-                    </div>
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.payments.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-orange-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
-                           :class="darkMode ? 'text-white' : 'text-slate-900'">
-                            <x-heroicon-o-banknotes class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.payments') }}
-                        </a>
-                        <span class="badge-float bg-orange-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
+                        </div>
+                        <div class="btn-wrapper flex-1">
+                            <a href="{{ route('filament.dashboard.resources.payments.index') }}" target="_blank" rel="noopener noreferrer"
+                               class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-orange-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
+                               :class="darkMode ? 'text-white' : 'text-slate-900'">
+                                <x-heroicon-o-banknotes class="w-5 h-5 inline-block" />
+                                {{ __('dashboard/strings.payments') }}
+                            </a>
+                            <span class="badge-float bg-orange-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
                             {{ $stats['payments'] ?? 0 }}
                         </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Step 4: Shipments & Customs -->
-    <div class="card-3d workflow-step relative">
-        <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
-            <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-purple-500 rounded-full glow-orb"></div>
-            <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
+        <!-- Step 4: Shipments & Customs -->
+        <div class="card-3d workflow-step relative">
+            <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
+                <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-purple-500 rounded-full glow-orb"></div>
+                <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
 
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0" style="animation-delay: 3s;">
-                        <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold text-purple-400 bg-purple-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
+                <div class="relative z-10">
+                    <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0" style="animation-delay: 3s;">
+                            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-purple-400 bg-purple-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
                         {{ __('dashboard/strings.status.active') }}
                     </span>
-                </div>
+                    </div>
 
-                <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
-                    {{ __('dashboard/strings.steps.logistics.title') }}
-                </h3>
-                <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
-                    {{ __('dashboard/strings.steps.logistics.description') }}
-                </p>
+                    <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
+                        {{ __('dashboard/strings.steps.logistics.title') }}
+                    </h3>
+                    <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
+                        {{ __('dashboard/strings.steps.logistics.description') }}
+                    </p>
 
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.shipments.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full bg-gradient-to-r from-purple-600 to-purple-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
-                            <x-heroicon-o-truck class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.submodules.shipment.title') }}
-                        </a>
-                        <span class="badge-float bg-purple-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="btn-wrapper flex-1">
+                            <a href="{{ route('filament.dashboard.resources.shipments.index') }}" target="_blank" rel="noopener noreferrer"
+                               class="btn-gradient block w-full bg-gradient-to-r from-purple-600 to-purple-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
+                                <x-heroicon-o-truck class="w-5 h-5 inline-block" />
+                                {{ __('dashboard/strings.submodules.shipment.title') }}
+                            </a>
+                            <span class="badge-float bg-purple-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
                             {{ $stats['shipments'] ?? 0 }}
                         </span>
-                    </div>
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.customs.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-violet-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
-                           :class="darkMode ? 'text-white' : 'text-slate-900'">
-                            <x-heroicon-o-clipboard-document-check class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.submodules.custom_clearance.title') }}
-                        </a>
-                        <span class="badge-float bg-violet-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
+                        </div>
+                        <div class="btn-wrapper flex-1">
+                            <a href="{{ route('filament.dashboard.resources.customs.index') }}" target="_blank" rel="noopener noreferrer"
+                               class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-violet-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
+                               :class="darkMode ? 'text-white' : 'text-slate-900'">
+                                <x-heroicon-o-clipboard-document-check class="w-5 h-5 inline-block" />
+                                {{ __('dashboard/strings.submodules.custom_clearance.title') }}
+                            </a>
+                            <span class="badge-float bg-violet-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
                             {{ $stats['customs'] ?? 0 }}
                         </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
 </div>
