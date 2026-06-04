@@ -50,17 +50,22 @@
     isEditing: false,
     isExpanded: false,
     available: [
-        {id: 'categories', route: '{{ route('filament.dashboard.resources.categories.index') }}', icon: 'heroicon-o-tag', label: '{{ __('dashboard/strings.resources.categories') ?? 'Categories' }}', color: 'slate'},
-        {id: 'products', route: '{{ route('filament.dashboard.resources.products.index') }}', icon: 'heroicon-o-cube', label: '{{ __('dashboard/strings.resources.products') ?? 'Products' }}', color: 'sky'},
-        {id: 'companies', route: '{{ route('filament.dashboard.resources.companies.index') }}', icon: 'heroicon-o-building-storefront', label: '{{ __('dashboard/strings.resources.companies') ?? 'Companies' }}', color: 'teal'},
-        {id: 'purchaseRequests', route: '{{ route('filament.dashboard.resources.purchase-requests.index') }}', icon: 'heroicon-o-document-text', label: '{{ __('dashboard/strings.purchase_requests') ?? 'Purchase Requests' }}', color: 'blue'},
-        {id: 'proformaInvoices', route: '{{ route('filament.dashboard.resources.proforma-invoices.index') }}', icon: 'heroicon-o-document-magnifying-glass', label: '{{ __('dashboard/strings.proforma') ?? 'Proforma Invoices' }}', color: 'indigo'},
-        {id: 'registeredOrders', route: '{{ route('filament.dashboard.resources.registered-orders.index') }}', icon: 'heroicon-o-document-check', label: '{{ __('dashboard/strings.view_orders') ?? 'Registered Orders' }}', color: 'green'},
-        {id: 'bankProfiles', route: '{{ route('filament.dashboard.resources.bank-profiles.index') }}', icon: 'heroicon-o-building-office', label: '{{ __('dashboard/strings.banks') ?? 'Bank Profiles' }}', color: 'emerald'},
-        {id: 'purchaseOrders', route: '{{ route('filament.dashboard.resources.purchase-orders.index') }}', icon: 'heroicon-o-shopping-bag', label: '{{ __('dashboard/strings.purchase_orders') ?? 'Purchase Orders' }}', color: 'amber'},
-        {id: 'payments', route: '{{ route('filament.dashboard.resources.payments.index') }}', icon: 'heroicon-o-banknotes', label: '{{ __('dashboard/strings.payments') ?? 'Payments' }}', color: 'orange'},
-        {id: 'shipments', route: '{{ route('filament.dashboard.resources.shipments.index') }}', icon: 'heroicon-o-truck', label: '{{ __('dashboard/strings.submodules.shipment.title') ?? 'Shipments' }}', color: 'purple'},
-        {id: 'customs', route: '{{ route('filament.dashboard.resources.customs.index') }}', icon: 'heroicon-o-clipboard-document-check', label: '{{ __('dashboard/strings.submodules.custom_clearance.title') ?? 'Customs' }}', color: 'violet'}
+        {id: 'categories', route: '{{ route('filament.dashboard.resources.categories.index') }}', icon: 'heroicon-o-tag', label: '{{ __('dashboard/strings.resources.categories') }}', color: 'slate'},
+        {id: 'products', route: '{{ route('filament.dashboard.resources.products.index') }}', icon: 'heroicon-o-cube', label: '{{ __('dashboard/strings.resources.products') }}', color: 'sky'},
+        {id: 'companies', route: '{{ route('filament.dashboard.resources.companies.index') }}', icon: 'heroicon-o-building-storefront', label: '{{ __('dashboard/strings.resources.companies') }}', color: 'teal'},
+        {id: 'banks', route: '{{ route('filament.dashboard.resources.banks.index') }}', icon: 'heroicon-o-building-library', label: '{{ __('dashboard/strings.resources.banks') }}', color: 'lime'},
+        {id: 'currencies', route: '{{ route('filament.dashboard.resources.currencies.index') }}', icon: 'heroicon-o-currency-dollar', label: '{{ __('dashboard/strings.resources.currencies') }}', color: 'emerald'},
+        {id: 'statuses', route: '{{ route('filament.dashboard.resources.statuses.index') }}', icon: 'heroicon-o-flag', label: '{{ __('dashboard/strings.resources.statuses') }}', color: 'rose'},
+        {id: 'notifications', route: '{{ route('filament.dashboard.resources.notification-settings.index') }}', icon: 'heroicon-o-bell', label: '{{ __('dashboard/strings.resources.notification_settings') }}', color: 'yellow'},
+
+        {id: 'purchaseRequests', route: '{{ route('filament.dashboard.resources.purchase-requests.index') }}', icon: 'heroicon-o-document-text', label: '{{ __('dashboard/strings.resources.purchase_requests') }}', color: 'blue'},
+        {id: 'proformaInvoices', route: '{{ route('filament.dashboard.resources.proforma-invoices.index') }}', icon: 'heroicon-o-document-magnifying-glass', label: '{{ __('dashboard/strings.resources.proforma_invoices') }}', color: 'indigo'},
+        {id: 'registeredOrders', route: '{{ route('filament.dashboard.resources.registered-orders.index') }}', icon: 'heroicon-o-document-check', label: '{{ __('dashboard/strings.view_orders') }}', color: 'green'},
+        {id: 'bankProfiles', route: '{{ route('filament.dashboard.resources.bank-profiles.index') }}', icon: 'heroicon-o-building-office', label: '{{ __('dashboard/strings.banks') }}', color: 'emerald'},
+        {id: 'purchaseOrders', route: '{{ route('filament.dashboard.resources.purchase-orders.index') }}', icon: 'heroicon-o-shopping-bag', label: '{{ __('dashboard/strings.resources.purchase_orders') }}', color: 'amber'},
+        {id: 'payments', route: '{{ route('filament.dashboard.resources.payments.index') }}', icon: 'heroicon-o-banknotes', label: '{{ __('dashboard/strings.resources.payments') }}', color: 'orange'},
+        {id: 'shipments', route: '{{ route('filament.dashboard.resources.shipments.index') }}', icon: 'heroicon-o-truck', label: '{{ __('dashboard/strings.submodules.shipment.title') }}', color: 'purple'},
+        {id: 'customs', route: '{{ route('filament.dashboard.resources.customs.index') }}', icon: 'heroicon-o-clipboard-document-check', label: '{{ __('dashboard/strings.submodules.custom_clearance.title') }}', color: 'violet'}
     ],
     stats: {{ json_encode($stats ?? []) }},
     selectedIds: [],
@@ -148,7 +153,15 @@
                                     <template x-if="item.icon === 'heroicon-o-clipboard-document-check'"><x-heroicon-o-clipboard-document-check class="w-6 h-6" /></template>
                                     <template x-if="item.icon === 'heroicon-o-tag'"><x-heroicon-o-tag class="w-6 h-6" /></template>
                                     <template x-if="item.icon === 'heroicon-o-cube'"><x-heroicon-o-cube class="w-6 h-6" /></template>
+
+                                    <template x-if="item.icon === 'heroicon-o-building-library'"><x-heroicon-o-building-library class="w-6 h-6" /></template>
+                                    <template x-if="item.icon === 'heroicon-o-currency-dollar'"><x-heroicon-o-currency-dollar class="w-6 h-6" /></template>
+                                    <template x-if="item.icon === 'heroicon-o-flag'"><x-heroicon-o-flag class="w-6 h-6" /></template>
+                                    <template x-if="item.icon === 'heroicon-o-bell'"><x-heroicon-o-bell class="w-6 h-6" /></template>
+                                    <template x-if="item.icon === 'heroicon-o-tag'"><x-heroicon-o-tag class="w-6 h-6" /></template>
+                                    <template x-if="item.icon === 'heroicon-o-cube'"><x-heroicon-o-cube class="w-6 h-6" /></template>
                                     <template x-if="item.icon === 'heroicon-o-building-storefront'"><x-heroicon-o-building-storefront class="w-6 h-6" /></template>
+
                                 </div>
                                 <span class="font-bold text-xs sm:text-sm leading-tight" :class="darkMode ? 'text-slate-200 group-hover:text-white' : 'text-slate-700 group-hover:text-slate-900'" x-text="item.label"></span>
                             </div>
@@ -198,7 +211,15 @@
                             <template x-if="module.icon === 'heroicon-o-clipboard-document-check'"><x-heroicon-o-clipboard-document-check class="w-7 h-7" /></template>
                             <template x-if="module.icon === 'heroicon-o-tag'"><x-heroicon-o-tag class="w-7 h-7" /></template>
                             <template x-if="module.icon === 'heroicon-o-cube'"><x-heroicon-o-cube class="w-7 h-7" /></template>
+
+                            <template x-if="module.icon === 'heroicon-o-building-library'"><x-heroicon-o-building-library class="w-7 h-7" /></template>
+                            <template x-if="module.icon === 'heroicon-o-currency-dollar'"><x-heroicon-o-currency-dollar class="w-7 h-7" /></template>
+                            <template x-if="module.icon === 'heroicon-o-flag'"><x-heroicon-o-flag class="w-7 h-7" /></template>
+                            <template x-if="module.icon === 'heroicon-o-bell'"><x-heroicon-o-bell class="w-7 h-7" /></template>
+                            <template x-if="module.icon === 'heroicon-o-tag'"><x-heroicon-o-tag class="w-7 h-7" /></template>
+                            <template x-if="module.icon === 'heroicon-o-cube'"><x-heroicon-o-cube class="w-7 h-7" /></template>
                             <template x-if="module.icon === 'heroicon-o-building-storefront'"><x-heroicon-o-building-storefront class="w-7 h-7" /></template>
+
                         </div>
                         <span class="relative z-10 font-bold text-sm sm:text-base leading-tight" :class="darkMode ? 'text-slate-200' : 'text-slate-800'" x-text="module.label"></span>
 
