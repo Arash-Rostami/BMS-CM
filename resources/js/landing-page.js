@@ -312,3 +312,195 @@ window.addEventListener('resize', () => {
 
 animate();
 
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('shortcutManager', (initialStats) => ({
+        isEditing: false,
+        selectedIds: [],
+        activeShortcuts: [],
+        stats: initialStats || {},
+
+        get moduleLibrary() { return [
+            {
+                id: 'purchase-requests',
+                title: 'Purchase Requests',
+                description: 'Manage and approve purchase requests.',
+                url: '/dashboard/purchase-requests',
+                icon: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>',
+                bgGradient: 'bg-gradient-to-br from-blue-500 to-blue-700',
+                colorClass: 'bg-blue-500',
+                btnGradient: 'bg-gradient-to-r from-blue-600 to-blue-700',
+                badgeClass: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
+                actionText: 'View Requests',
+                statKey: 'purchaseRequests'
+            },
+            {
+                id: 'proforma-invoices',
+                title: 'Proforma Invoices',
+                description: 'Review and manage proforma invoices.',
+                url: '/dashboard/proforma-invoices',
+                icon: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>',
+                bgGradient: 'bg-gradient-to-br from-cyan-500 to-cyan-700',
+                colorClass: 'bg-cyan-500',
+                btnGradient: 'bg-gradient-to-r from-cyan-600 to-cyan-700',
+                badgeClass: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300',
+                actionText: 'View Proformas',
+                statKey: 'proformaInvoices'
+            },
+            {
+                id: 'registered-orders',
+                title: 'Registered Orders',
+                description: 'Track and manage registered orders.',
+                url: '/dashboard/registered-orders',
+                icon: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>',
+                bgGradient: 'bg-gradient-to-br from-green-500 to-emerald-700',
+                colorClass: 'bg-green-500',
+                btnGradient: 'bg-gradient-to-r from-green-600 to-green-700',
+                badgeClass: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+                actionText: 'View Orders',
+                statKey: 'registeredOrders'
+            },
+            {
+                id: 'bank-profiles',
+                title: 'Bank Profiles',
+                description: 'Manage company bank accounts and profiles.',
+                url: '/dashboard/bank-profiles',
+                icon: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>',
+                bgGradient: 'bg-gradient-to-br from-emerald-500 to-teal-700',
+                colorClass: 'bg-emerald-500',
+                btnGradient: 'bg-gradient-to-r from-emerald-600 to-teal-700',
+                badgeClass: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300',
+                actionText: 'View Banks',
+                statKey: 'bankProfiles'
+            },
+            {
+                id: 'purchase-orders',
+                title: 'Purchase Orders',
+                description: 'Process and monitor purchase orders.',
+                url: '/dashboard/purchase-orders',
+                icon: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>',
+                bgGradient: 'bg-gradient-to-br from-amber-500 to-orange-700',
+                colorClass: 'bg-amber-500',
+                btnGradient: 'bg-gradient-to-r from-amber-600 to-orange-700',
+                badgeClass: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300',
+                actionText: 'View POs',
+                statKey: 'purchaseOrders'
+            },
+            {
+                id: 'payments',
+                title: 'Payments',
+                description: 'Manage outbound and inbound payments.',
+                url: '/dashboard/payments',
+                icon: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>',
+                bgGradient: 'bg-gradient-to-br from-orange-500 to-red-700',
+                colorClass: 'bg-orange-500',
+                btnGradient: 'bg-gradient-to-r from-orange-600 to-red-700',
+                badgeClass: 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300',
+                actionText: 'View Payments',
+                statKey: 'payments'
+            },
+            {
+                id: 'shipments',
+                title: 'Shipments',
+                description: 'Track logistics and shipments.',
+                url: '/dashboard/shipments',
+                icon: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>',
+                bgGradient: 'bg-gradient-to-br from-purple-500 to-fuchsia-700',
+                colorClass: 'bg-purple-500',
+                btnGradient: 'bg-gradient-to-r from-purple-600 to-fuchsia-700',
+                badgeClass: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300',
+                actionText: 'View Shipments',
+                statKey: 'shipments'
+            },
+            {
+                id: 'customs',
+                title: 'Customs',
+                description: 'Manage customs clearance and documentation.',
+                url: '/dashboard/customs',
+                icon: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>',
+                bgGradient: 'bg-gradient-to-br from-violet-500 to-purple-700',
+                colorClass: 'bg-violet-500',
+                btnGradient: 'bg-gradient-to-r from-violet-600 to-purple-700',
+                badgeClass: 'bg-violet-100 text-violet-800 dark:bg-violet-900/50 dark:text-violet-300',
+                actionText: 'View Customs',
+                statKey: 'customs'
+            }
+        ]},
+
+        defaultIds: [
+            'purchase-requests',
+            'registered-orders',
+            'bank-profiles',
+            'shipments'
+        ],
+
+        init() {
+            this.hydrateCounts();
+            this.loadShortcuts();
+        },
+
+        hydrateCounts() {
+            this.moduleLibrary = this.moduleLibrary.map(module => {
+                if (module.statKey && this.stats[module.statKey] !== undefined) {
+                    module.count = this.stats[module.statKey];
+                }
+                return module;
+            });
+        },
+
+        loadShortcuts() {
+            try {
+                const stored = localStorage.getItem('user_shortcuts');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        // Ensure only whitelisted IDs are loaded
+                        const validIds = parsed.filter(id => this.moduleLibrary.some(m => m.id === id));
+                        if (validIds.length > 0) {
+                            this.selectedIds = validIds;
+                            this.updateActiveShortcuts();
+                            return;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to parse shortcuts", e);
+            }
+
+            // Fallback to default
+            this.resetToDefault();
+        },
+
+        updateActiveShortcuts() {
+            this.activeShortcuts = this.selectedIds
+                .map(id => this.moduleLibrary.find(m => m.id === id))
+                .filter(Boolean);
+        },
+
+        toggleSelection(id) {
+            if (this.selectedIds.includes(id)) {
+                this.selectedIds = this.selectedIds.filter(i => i !== id);
+            } else {
+                this.selectedIds.push(id);
+            }
+        },
+
+        saveShortcuts() {
+            if (this.selectedIds.length === 0) {
+                // Prevent saving empty state, fallback to default
+                this.resetToDefault();
+            } else {
+                localStorage.setItem('user_shortcuts', JSON.stringify(this.selectedIds));
+                this.updateActiveShortcuts();
+            }
+            this.isEditing = false;
+        },
+
+        resetToDefault() {
+            this.selectedIds = [...this.defaultIds];
+            localStorage.removeItem('user_shortcuts');
+            this.updateActiveShortcuts();
+            this.isEditing = false;
+        }
+    }));
+});

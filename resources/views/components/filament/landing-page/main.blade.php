@@ -26,7 +26,7 @@
 
 
 <div x-data="landingPage()"
-     :class="darkMode ? 'dark' : 'light'"
+     :class="isDark ? 'dark' : 'light'"
      class="min-h-screen transition-colors duration-500"
      dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
     <!-- Loader -->
