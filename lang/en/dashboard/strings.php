@@ -64,4 +64,11 @@ return [
     ],
     'bms_dashboard' => 'BMS',
     'return_to_main_panel' => 'Return to main dashboard',
+    'workspace' => 'Your Workspace',
+    'edit_workspace' => 'Customize Shortcuts',
+    'save' => 'Save Changes',
+    'add_shortcut' => 'Add Shortcut',
+    'remove_shortcut' => 'Remove Shortcut',
+    'available_shortcuts' => 'Available Shortcuts',
+    'active_shortcuts' => 'Active Shortcuts',
 ];
