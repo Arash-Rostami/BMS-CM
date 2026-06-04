@@ -320,7 +320,7 @@ document.addEventListener('alpine:init', () => {
         activeShortcuts: [],
         stats: initialStats || {},
 
-        moduleLibrary: [
+        get moduleLibrary() { return [
             {
                 id: 'purchase-requests',
                 title: 'Purchase Requests',
@@ -425,7 +425,7 @@ document.addEventListener('alpine:init', () => {
                 actionText: 'View Customs',
                 statKey: 'customs'
             }
-        ],
+        ]},
 
         defaultIds: [
             'purchase-requests',
