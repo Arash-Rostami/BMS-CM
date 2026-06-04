@@ -64,4 +64,8 @@ return [
     ],
     'bms_dashboard' => 'BMS',
     'return_to_main_panel' => 'Retour au tableau de bord principal',
+    'workspace' => 'Votre espace de travail',
+    'edit_workspace' => 'Personnaliser les raccourcis',
+    'save' => 'Sauvegarder les modifications',
+    'add_shortcut' => 'Ajouter des raccourcis',
 ];
