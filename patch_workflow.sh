@@ -1,3 +1,5 @@
+#!/bin/bash
+cat << 'INNER_EOF' > /tmp/workflow_clean.blade.php
 <div class="mb-10">
     <h2 class="text-xl sm:text-2xl font-bold mb-4" :class="darkMode ? 'text-white' : 'text-slate-900'">
         {{ __('dashboard/strings.corporate_pillars') ?? 'Corporate Pillars' }}
@@ -183,3 +185,7 @@
         </div>
     </div>
 </div>
+INNER_EOF
+
+# Replace entirely
+cat /tmp/workflow_clean.blade.php > resources/views/components/filament/landing-page/workflow.blade.php
