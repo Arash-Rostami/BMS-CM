@@ -1,208 +1,116 @@
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-12">
-    <!-- Step 1: Request & Approval -->
-    <div class="card-3d">
-        <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
-            <div class="absolute -top-20 -right-20 w-56 h-56 bg-blue-500 rounded-full glow-orb"></div>
-            <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
+<div x-data="shortcutManager(@js($stats))" x-init="init()" class="mb-12">
+    <!-- Header & Action -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold" :class="darkMode ? 'text-white' : 'text-slate-900'">
+            {{ __('dashboard/strings.workspace') ?? 'Workspace' }}
+        </h2>
+        <button @click="isEditing = true"
+                class="p-2 rounded-full hover:bg-slate-200/50 dark:hover:bg-white/10 transition-colors"
+                :class="darkMode ? 'text-slate-300' : 'text-slate-600'"
+                title="Edit Shortcuts">
+            <x-heroicon-o-pencil-square class="w-6 h-6" />
+        </button>
+    </div>
 
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0">
-                        <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
+    <!-- Grid Tracks -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <template x-for="(shortcut, index) in activeShortcuts" :key="shortcut.id">
+            <div class="card-3d h-full">
+                <div class="glass border border-white/10 rounded-2xl p-5 relative overflow-hidden group shadow-xl h-full flex flex-col justify-between">
+                    <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full glow-orb opacity-50"
+                         :class="shortcut.colorClass"></div>
+                    <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                    <div class="relative z-10">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 shadow-lg text-white"
+                                 :class="shortcut.bgGradient">
+                                <div x-html="shortcut.icon" class="w-6 h-6"></div>
+                            </div>
+                            <span x-show="shortcut.count !== undefined"
+                                  class="text-xs font-bold px-2 py-1 rounded-full shadow-sm"
+                                  :class="shortcut.badgeClass"
+                                  x-text="shortcut.count"></span>
+                        </div>
+
+                        <h3 class="text-lg font-semibold mb-1" :class="darkMode ? 'text-white' : 'text-slate-900'" x-text="shortcut.title"></h3>
+                        <p class="text-sm opacity-80 mb-4 line-clamp-2" :class="darkMode ? 'text-slate-400' : 'text-slate-600'" x-text="shortcut.description"></p>
                     </div>
-                    <span class="text-xs font-bold text-blue-400 bg-blue-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
-                        {{ __('dashboard/strings.status.active') }}
-                    </span>
-                </div>
 
-                <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
-                    {{ __('dashboard/strings.steps.request_approval.title') }}
-                </h3>
-                <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
-                    {{ __('dashboard/strings.steps.request_approval.description') }}
-                </p>
-
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.purchase-requests.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
-                            <x-heroicon-o-shopping-cart class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.view_requests') }}
+                    <div class="relative z-10 mt-auto">
+                        <a :href="shortcut.url" target="_blank" rel="noopener noreferrer"
+                           class="btn-gradient block w-full px-4 py-2.5 rounded-xl font-semibold text-center text-white text-sm transition-transform active:scale-95"
+                           :class="shortcut.btnGradient">
+                            <span x-text="shortcut.actionText"></span>
                         </a>
-                        <span class="badge-float bg-blue-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
-                            {{ $stats['purchaseRequests'] ?? 0 }}
-                        </span>
-                    </div>
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.proforma-invoices.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-cyan-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
-                           :class="darkMode ? 'text-white' : 'text-slate-900'">
-                            <x-heroicon-o-document-text class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.proforma') }}
-                        </a>
-                        <span class="badge-float bg-cyan-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
-                            {{ $stats['proformaInvoices'] ?? 0 }}
-                        </span>
                     </div>
                 </div>
             </div>
-        </div>
+        </template>
     </div>
 
-    <!-- Step 2: Order Processing -->
-    <div class="card-3d">
-        <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
-            <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-green-500 rounded-full glow-orb"></div>
-            <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
+    <!-- Edit Overlay / Modal -->
+    <div x-show="isEditing" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
 
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0" style="animation-delay: 1s;">
-                        <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold text-green-400 bg-green-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
-                        {{ __('dashboard/strings.status.active') }}
-                    </span>
-                </div>
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl max-w-2xl w-full mx-4 max-h-[85vh] flex flex-col"
+             @click.away="saveShortcuts">
 
-                <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
-                    {{ __('dashboard/strings.steps.order_processing.title') }}
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold" :class="darkMode ? 'text-white' : 'text-slate-900'">
+                    {{ __('dashboard/strings.customize_workspace') ?? 'Customize Workspace' }}
                 </h3>
-                <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
-                    {{ __('dashboard/strings.steps.order_processing.description') }}
-                </p>
-
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.registered-orders.index')}}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full bg-gradient-to-r from-green-600 to-green-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
-                            <x-heroicon-o-document-check class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.view_orders') }}
-                        </a>
-                        <span class="badge-float bg-green-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
-                            {{ $stats['registeredOrders'] ?? 0 }}
-                        </span>
-                    </div>
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.bank-profiles.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-emerald-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
-                           :class="darkMode ? 'text-white' : 'text-slate-900'">
-                            <x-heroicon-o-building-office class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.banks') }}
-                        </a>
-                        <span class="badge-float bg-emerald-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
-                            {{ $stats['bankProfiles'] ?? 0 }}
-                        </span>
-                    </div>
-                </div>
+                <button @click="saveShortcuts" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+                    <x-heroicon-o-x-mark class="w-6 h-6" :class="darkMode ? 'text-slate-300' : 'text-slate-500'" />
+                </button>
             </div>
-        </div>
-    </div>
 
-    <!-- Step 3: Procurement & Payment -->
-    <div class="card-3d">
-        <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
-            <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-amber-500 rounded-full glow-orb"></div>
-            <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
+            <div class="overflow-y-auto pr-2 custom-scrollbar flex-1 space-y-3">
+                <template x-for="module in moduleLibrary" :key="module.id">
+                    <div class="flex items-center justify-between p-4 rounded-2xl border transition-colors cursor-pointer"
+                         :class="selectedIds.includes(module.id)
+                            ? (darkMode ? 'border-indigo-500/50 bg-indigo-500/10' : 'border-indigo-500 bg-indigo-50')
+                            : (darkMode ? 'border-white/10 hover:border-white/20' : 'border-slate-200 hover:border-slate-300')"
+                         @click="toggleSelection(module.id)">
 
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-amber-600 to-orange-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0" style="animation-delay: 2s;">
-                        <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white" :class="module.bgGradient">
+                                <div x-html="module.icon" class="w-5 h-5"></div>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-sm sm:text-base" :class="darkMode ? 'text-white' : 'text-slate-900'" x-text="module.title"></div>
+                                <div class="text-xs sm:text-sm" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="module.description"></div>
+                            </div>
+                        </div>
+
+                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors flex-shrink-0"
+                             :class="selectedIds.includes(module.id)
+                                ? 'bg-indigo-500 border-indigo-500'
+                                : (darkMode ? 'border-slate-600' : 'border-slate-300')">
+                            <svg x-show="selectedIds.includes(module.id)" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
                     </div>
-                    <span class="text-xs font-bold text-amber-400 bg-amber-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
-                        {{ __('dashboard/strings.status.active') }}
-                    </span>
-                </div>
-
-                <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
-                    {{ __('dashboard/strings.steps.procurement_payment.title') }}
-                </h3>
-                <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
-                    {{ __('dashboard/strings.steps.procurement_payment.description') }}
-                </p>
-
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.purchase-orders.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full bg-gradient-to-r from-amber-600 to-orange-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
-                            <x-heroicon-o-shopping-bag class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.purchase_orders') }}
-                        </a>
-                        <span class="badge-float bg-amber-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
-                            {{ $stats['purchaseOrders'] ?? 0 }}
-                        </span>
-                    </div>
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.payments.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-orange-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
-                           :class="darkMode ? 'text-white' : 'text-slate-900'">
-                            <x-heroicon-o-banknotes class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.payments') }}
-                        </a>
-                        <span class="badge-float bg-orange-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
-                            {{ $stats['payments'] ?? 0 }}
-                        </span>
-                    </div>
-                </div>
+                </template>
             </div>
-        </div>
-    </div>
 
-    <!-- Step 4: Shipments & Customs -->
-    <div class="card-3d">
-        <div class="glass border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl">
-            <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-purple-500 rounded-full glow-orb"></div>
-            <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
-
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-4 sm:mb-6 gap-3">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 ease-in-out shadow-2xl floating flex-shrink-0" style="animation-delay: 3s;">
-                        <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold text-purple-400 bg-purple-500/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full   whitespace-nowrap">
-                        {{ __('dashboard/strings.status.active') }}
-                    </span>
-                </div>
-
-                <h3 class="text-2xl sm:text-3xl font-bold mb-2" :class="darkMode ? 'text-white' : 'text-slate-900'">
-                    {{ __('dashboard/strings.steps.logistics.title') }}
-                </h3>
-                <p :class="darkMode ? 'text-slate-400' : 'text-slate-600'" class="mb-6 sm:mb-8 text-sm sm:text-base">
-                    {{ __('dashboard/strings.steps.logistics.description') }}
-                </p>
-
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.shipments.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full bg-gradient-to-r from-purple-600 to-purple-700 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-white text-sm sm:text-base">
-                            <x-heroicon-o-truck class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.submodules.shipment.title') }}
-                        </a>
-                        <span class="badge-float bg-purple-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg  ">
-                            {{ $stats['shipments'] ?? 0 }}
-                        </span>
-                    </div>
-                    <div class="btn-wrapper flex-1">
-                        <a href="{{ route('filament.dashboard.resources.customs.index') }}" target="_blank" rel="noopener noreferrer"
-                           class="btn-gradient block w-full backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border border-white/10 border-violet-500/50 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base"
-                           :class="darkMode ? 'text-white' : 'text-slate-900'">
-                            <x-heroicon-o-clipboard-document-check class="w-5 h-5 inline-block" />
-                            {{ __('dashboard/strings.submodules.custom_clearance.title') }}
-                        </a>
-                        <span class="badge-float bg-violet-400 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
-                            {{ $stats['customs'] ?? 0 }}
-                        </span>
-                    </div>
-                </div>
+            <div class="mt-6 flex justify-end gap-3 pt-4 border-t" :class="darkMode ? 'border-white/10' : 'border-slate-200'">
+                <button @click="resetToDefault"
+                        class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                        :class="darkMode ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-100'">
+                    {{ __('dashboard/strings.reset_to_default') ?? 'Reset to Default' }}
+                </button>
+                <button @click="saveShortcuts"
+                        class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-lg shadow-indigo-500/30">
+                    {{ __('dashboard/strings.save_changes') ?? 'Save Changes' }}
+                </button>
             </div>
         </div>
     </div>
