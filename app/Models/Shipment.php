@@ -9,27 +9,35 @@ use App\Models\Traits\Shipment\HasFormattedName;
 use App\Models\Traits\Shipment\HasPartSelection;
 use App\Models\Traits\Shipment\HasSearchableRelations;
 use App\Models\Traits\Shipment\Relationships as ExclusiveRelationships;
+use App\Services\DocChecklistMatcher;
 use Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Shipment extends Model implements HasDocumentChecklist
 {
-    use SoftDeletes,
-        Relationships,
-        ExclusiveRelationships,
+    use ExclusiveRelationships,
         HasFormattedName,
         HasPartSelection,
         HasSearchableRelations,
+        Relationships,
+        SoftDeletes,
         UserStamps;
 
     public const SCANNABLE_TABLE = 'shipments';
+
     public const SCANNABLE_IDENTIFIER = 'shipment_no';
+
     public const TYPE_SHIPMENT_STATUS = 'Shipment Status';
+
     public const TYPE_CONTAINER_STATUS = 'Container Status';
+
     public const TYPE_OPERATION_STATUS = 'Operation Status';
+
     public const TYPE_TRACKING_STATUS = 'Tracking Status';
+
     public const TYPE_DOC_STATUS = 'Documentation Status';
+
     protected $fillable = [
         'registered_order_id',
         'shipment_no',
@@ -57,6 +65,7 @@ class Shipment extends Model implements HasDocumentChecklist
         'user_id',
         'updated_by_id',
     ];
+
     protected $casts = [
         'warehouse_date' => 'date',
         'exit_date' => 'date',
@@ -79,10 +88,11 @@ class Shipment extends Model implements HasDocumentChecklist
                 if (! is_array($data)) {
                     return null;
                 }
+
                 return array_is_list($data) ? $data : ($data['items'] ?? []);
             },
             set: function (?array $value, array $attributes): array {
-                $raw     = $attributes['docs'] ?? null;
+                $raw = $attributes['docs'] ?? null;
                 $current = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
                 $tracking = (is_array($current) && ! array_is_list($current))
                     ? (bool) ($current['tracking'] ?? true)
@@ -98,18 +108,29 @@ class Shipment extends Model implements HasDocumentChecklist
     {
         return Attribute::make(
             get: function ($value, array $attributes): bool {
-                $raw  = $attributes['docs'] ?? null;
+                $raw = $attributes['docs'] ?? null;
                 $data = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
+
                 return (is_array($data) && ! array_is_list($data)) ? (bool) ($data['tracking'] ?? true) : true;
             },
             set: function ($value, array $attributes): array {
-                $raw   = $attributes['docs'] ?? null;
-                $data  = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
+                $raw = $attributes['docs'] ?? null;
+                $data = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
                 $items = (is_array($data) && ! array_is_list($data)) ? ($data['items'] ?? []) : (is_array($data) ? $data : []);
 
                 return ['docs' => json_encode(['tracking' => (bool) $value, 'items' => array_values($items)])];
             },
         );
+    }
+
+    protected static function booted(): void
+    {
+        $sync = function (Shipment $shipment): void {
+            rescue(fn () => DocChecklistMatcher::sync($shipment), report: false);
+        };
+
+        static::created($sync);
+        static::saved($sync);
     }
 
     public function documentChecklistOptions(): string
