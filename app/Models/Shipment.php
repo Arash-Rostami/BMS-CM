@@ -61,6 +61,7 @@ class Shipment extends Model implements HasDocumentChecklist
         'status_id',
         'doc_status_id',
         'docs',
+        'doc_tracking',
         'notes',
         'user_id',
         'updated_by_id',
