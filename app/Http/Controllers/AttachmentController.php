@@ -9,10 +9,10 @@ class AttachmentController extends Controller
 {
     public function download(Attachment $attachment)
     {
-        if (!Storage::disk('private')->exists($attachment->path)) {
+        if (!Storage::disk('public')->exists($attachment->path)) {
             abort(404, '⁴⁰⁴ File Not Found ⁴⁰⁴');
         }
 
-        return Storage::disk('private')->download($attachment->path, $attachment->name);
+        return Storage::disk('public')->download($attachment->path, $attachment->name);
     }
 }

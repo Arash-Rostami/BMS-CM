@@ -127,11 +127,12 @@ trait Infolist
             ->placeholder('-');
     }
 
+
     public static function viewDocs(): RepeatableEntry
     {
         $defaults = __('resources/shipment/strings.form.docs_options');
 
-        return RepeatableEntry::make('docs')
+        return RepeatableEntry::make('docs.items')
             ->label(__('resources/shipment/strings.form.docs'))
             ->schema([
                 TextEntry::make('name')

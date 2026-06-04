@@ -8,6 +8,7 @@ use App\Models\Traits\General\UserStamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Attachment extends Model
 {
@@ -27,4 +28,13 @@ class Attachment extends Model
         'user_id',
         'updated_by_id',
     ];
+
+    protected static function booted(): void
+    {
+        static::forceDeleted(function (Attachment $attachment): void {
+            if ($attachment->path && Storage::disk('public')->exists($attachment->path)) {
+                Storage::disk('public')->delete($attachment->path);
+            }
+        });
+    }
 }
