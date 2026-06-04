@@ -70,7 +70,7 @@ return [
         'gross_weight' => 'وزن ناخالص',
         'add_notes' =>  'توضیحات ',
         'item_description' => 'توضیحات ',
-        'item_freight_charges' => 'هزینه حمل کالا',
+        'item_freight_charges' => 'هزینه حمل (هر واحد)',
         'item_total_amount' => 'مبلغ کل کالا ⚡',
         'quantity' => 'مقدار',
         'unit' => 'واحد سنجش',

@@ -31,7 +31,7 @@ return [
     'form' => [
         'tabs' => [
             'general' => 'عمومی',
-            'insurance' => 'جزئیات',
+            'insurance' => 'بیمه (جزئیات)',
         ],
         'section_order_details' => 'جزئیات سفارش',
         'section_insurance_details' => 'جزئیات بیمه',

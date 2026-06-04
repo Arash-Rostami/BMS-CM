@@ -46,7 +46,7 @@ return [
         'packing_type' => 'Type d\'emballage',
         'packing_type_placeholder' => 'rouleau, feuille, palette, ...',
         'vat_exempt' => 'Exonéré de TVA',
-        'tax_id' => 'Numéro d\'identification fiscale',
+        'tax_id' => 'Identifiant du produit',
         'manufacturer' => 'Fabricant',
         'import_licenses' => 'Licences d\'importation',
         'licenses' => [

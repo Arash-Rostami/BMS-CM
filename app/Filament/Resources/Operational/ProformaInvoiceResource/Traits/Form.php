@@ -148,7 +148,6 @@ trait Form
         return TextInput::make('invoice_no')
             ->label(__('resources/proformaInvoice/strings.form.invoice_no'))
             ->required()
-            ->readOnly()
             ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('invoice_no') : null)
             ->unique(ignoreRecord: true)
             ->maxLength(255)

@@ -7,7 +7,7 @@ return [
         'navigation_group' => 'Données opérationnelles',
         'add_record' => '˙⋆✮ Créer nouveau',
         'supply_sources' => [
-            'nimayi' => 'NIMA',
+            'nimayi' => 'Centre d\'échange',
             'export_others' => 'Exportation (tiers)',
             'export_self' => 'Exportation (propre)',
             'documentary_bill' => 'Lettre documentaire',
@@ -28,7 +28,7 @@ return [
     'form' => [
         'tabs' => [
             'general' => 'Général',
-            'details' => 'Finances',
+            'details' => 'Statut du virement en devise',
         ],
         'section_main' => 'Détails du profil',
         'section_dates_notes' => 'Dates, notes et pièces jointes',
@@ -41,7 +41,7 @@ return [
         'bp_number' => 'Numéro de profil bancaire',
         'status' => 'Statut',
         'registered_order' => 'Commande enregistrée',
-        'order_number' => 'Numéro de commande',
+        'order_number' => 'N° d\'enregistrement de commande',
         'company' => 'Société',
         'bank' => 'Banque (agent)',
         'targetable' => 'lié à',
@@ -49,7 +49,7 @@ return [
         'targetable_product' => 'Produit',
         'supply_source' => 'Source d\\\'approvisionnement',
         'requested_amount' => 'Montant demandé',
-        'requested_currency' => 'Devise demandée',
+        'requested_currency' => ' Devise d\'enregistrement de commande',
         'purchased_equivalent' => 'Équivalent acheté',
         'purchased_currency' => 'Devise achetée',
         'commission_rate' => 'Taux de commission (%)',

@@ -53,7 +53,7 @@ trait Form
     {
         return Select::make('clearance_type')
             ->label(__('resources/custom/strings.form.clearance_type'))
-            ->options(['90_percent' => '90%', '10_percent' => '10%'])
+            ->options(__('resources/custom/strings.general.clearance_types'))
             ->native(false)
             ->searchable()
             ->preload();

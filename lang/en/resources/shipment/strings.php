@@ -26,7 +26,7 @@ return [
         'part' => 'Part No',
         'case_number' => 'Case Number',
 
-        'warehouse_date' => 'Warehouse Entry',
+        'warehouse_date' => 'Warehouse Receipt Date',
         'exit_date' => 'Exit Date',
         'eta' => 'ETA',
         'etd' => 'ETD',

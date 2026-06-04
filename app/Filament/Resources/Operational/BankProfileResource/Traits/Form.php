@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Operational\BankProfileResource\Traits;
 use App\Models\BankProfile;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\RegisteredOrder;
 use App\Models\Status;
 use App\Services\CodeGenerator;
 use Filament\Actions\Action;
@@ -284,6 +285,10 @@ trait Form
             ->label(__('resources/bankProfile/strings.form.registered_order'))
             ->relationship(name: 'registeredOrder')
             ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name_without_date)
+            ->live()
+            ->afterStateUpdated(fn($state, Set $set) => $set(
+                'order_number', RegisteredOrder::find($state)?->official_registration_no
+            ))
             ->searchable()
             ->columns(1)
             ->preload()

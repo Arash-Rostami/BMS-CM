@@ -26,7 +26,7 @@ return [
         'part' => 'Partie',
         'case_number' => 'Numéro de Dossier',
 
-        'warehouse_date' => 'Entrée Entrepôt',
+        'warehouse_date' => 'Date du reçu d\'entrepôt',
         'exit_date' => 'Date de Sortie',
         'eta' => 'ETA',
         'etd' => 'ETD',

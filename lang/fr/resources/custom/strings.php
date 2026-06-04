@@ -24,6 +24,10 @@ return [
             'completed' => 'Terminé',
             'not_completed' => 'Non terminé',
         ],
+        'clearance_types' => [
+            'definitive' => 'Dédouanement définitif',
+            'percentage' => 'Dédouanement en pourcentage',
+        ],
     ],
     'form' => [
         'tabs' => [

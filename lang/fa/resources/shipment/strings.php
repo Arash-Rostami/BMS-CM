@@ -26,7 +26,7 @@ return [
         'part' => 'پارت',
         'case_number' => 'شماره پرونده',
 
-        'warehouse_date' => 'تاریخ انبار',
+        'warehouse_date' => 'تاریخ قبض انبار',
         'exit_date' => 'تاریخ خروج',
         'eta' => 'تاریخ ورود (ETA)',
         'etd' => 'تاریخ حرکت (ETD)',
@@ -58,7 +58,7 @@ return [
                 'Bulk' => 'فله',
             ],
         ],
-        'container_types' => [ '20ft Standard' => '۲۰ فوت استاندارد', '40ft Standard' => '۴۰ فوت استاندارد', '40ft High Cube' => '۴۰ فوت‌های کیوب', '20ft Refrigerated' => '۲۰ فوت یخچالی', '40ft Refrigerated' => '۴۰ فوت یخچالی', '20ft Open Top' => '۲۰ فوت روباز', '40ft Open Top' => '۴۰ فوت روباز', '20ft Flat Rack' => '۲۰ فوت فلت رک', '40ft Flat Rack' => '۴۰ فوت فلت رک', 'LCL' => 'خرده‌بار (LCL)', 'Bulk' => 'فله', ],
+        'container_types' => ['20ft Standard' => '۲۰ فوت استاندارد', '40ft Standard' => '۴۰ فوت استاندارد', '40ft High Cube' => '۴۰ فوت‌های کیوب', '20ft Refrigerated' => '۲۰ فوت یخچالی', '40ft Refrigerated' => '۴۰ فوت یخچالی', '20ft Open Top' => '۲۰ فوت روباز', '40ft Open Top' => '۴۰ فوت روباز', '20ft Flat Rack' => '۲۰ فوت فلت رک', '40ft Flat Rack' => '۴۰ فوت فلت رک', 'LCL' => 'خرده‌بار (LCL)', 'Bulk' => 'فله',],
 
 
         'remittance_amount' => 'مبلغ حواله',

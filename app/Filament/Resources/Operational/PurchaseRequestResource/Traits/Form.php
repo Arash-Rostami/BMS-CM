@@ -67,7 +67,7 @@ trait Form
             ->columns(1)
             ->numeric()
             ->hint(fn(Get $get) => delimiter($get('estimated_cost')))
-            ->required()
+            ->default(0)
             ->minValue(0)
             ->step(0.01)
             ->live(onBlur: true)
