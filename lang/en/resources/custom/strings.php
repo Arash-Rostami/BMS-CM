@@ -24,6 +24,10 @@ return [
             'completed' => 'Completed',
             'not_completed' => 'Not Completed',
         ],
+        'clearance_types' => [
+            'definitive' => 'Definitive Clearance',
+            'percentage' => 'Percentage Clearance',
+        ],
     ],
     'form' => [
         'tabs' => [

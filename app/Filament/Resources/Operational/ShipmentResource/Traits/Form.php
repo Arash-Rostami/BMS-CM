@@ -81,9 +81,7 @@ trait Form
     {
         return TextInput::make('contract_no')
             ->label(__('resources/shipment/strings.form.contract_no'))
-            ->maxLength(255)
-            ->readOnly()
-            ->dehydrated();
+            ->maxLength(255);
     }
 
     public static function getCustomsQuantityField(): TextInput
@@ -257,7 +255,6 @@ trait Form
         return TextInput::make('shipment_no')
             ->label(__('resources/shipment/strings.form.shipment_no'))
             ->required()
-            ->readOnly()
             ->unique(ignoreRecord: true)
             ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('shipment_no') : null)
             ->validationMessages([

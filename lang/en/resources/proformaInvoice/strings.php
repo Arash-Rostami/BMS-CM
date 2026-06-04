@@ -70,7 +70,7 @@ return [
         'gross_weight' => 'Gross Weight',
         'add_notes' => 'Notes',
         'item_description' => 'Description',
-        'item_freight_charges' => 'Item Freight Cost',
+        'item_freight_charges' => 'Item Freight Cost (per unit)',
         'item_total_amount' => 'Item Total Amount',
         'quantity' => 'Quantity',
         'unit_price' => 'Unit Price',

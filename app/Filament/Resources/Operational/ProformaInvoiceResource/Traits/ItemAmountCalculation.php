@@ -11,7 +11,13 @@ trait ItemAmountCalculation
     {
         $quantity = floatval($get('quantity') ?? 0);
         $unitPrice = floatval($get('unit_price') ?? 0);
-        $freight = floatval($get('freight_charges') ?? 0);
-        $set('total_amount', number_format(($quantity * $unitPrice) + $freight, 2, '.', ''));
+        $freightPerUnit = floatval($get('freight_charges') ?? 0);
+
+        $itemFreight = $quantity * $freightPerUnit;
+
+        $set('total_amount', number_format(($quantity * $unitPrice) + $itemFreight,
+            2,
+            '.',
+            ''));
     }
 }

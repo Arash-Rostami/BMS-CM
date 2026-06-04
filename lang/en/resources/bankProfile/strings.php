@@ -7,7 +7,7 @@ return [
         'navigation_group' => 'Operational Data',
         'add_record' => '˙⋆✮ Create New',
         'supply_sources' => [
-            'nimayi' => 'NIMA',
+            'nimayi' => 'Exchange Center',
             'export_others' => 'Export (Third-party)',
             'export_self' => 'Export (Self)',
             'documentary_bill' => 'Documentary Bill',
@@ -28,7 +28,7 @@ return [
     'form' => [
         'tabs' => [
             'general' => 'General',
-            'details' => 'Financials',
+            'details' => 'Currency Remittance Status',
         ],
         'section_main' => 'Profile Details',
         'section_dates_notes' => 'Dates, Notes, & Attachments',
@@ -41,7 +41,7 @@ return [
         'bp_number' => 'Bank Profile Number',
         'status' => 'Status',
         'registered_order' => 'Registered Order',
-        'order_number' => 'Order Number',
+        'order_number' => 'Order Reg. No.',
         'company' => 'Company',
         'bank' => 'Bank (Agent)',
         'targetable' => 'linked to',
@@ -49,7 +49,7 @@ return [
         'targetable_product' => 'Product',
         'supply_source' => 'Supply Source',
         'requested_amount' => 'Requested Amount',
-        'requested_currency' => 'Requested Currency',
+        'requested_currency' => 'Order Registration Currency',
         'purchased_equivalent' => 'Purchased Equivalent',
         'purchased_currency' => 'Purchased Currency',
         'commission_rate' => 'Commission Rate (%)',

@@ -24,6 +24,10 @@ return [
             'completed' => 'انجام شده',
             'not_completed' => 'انجام نشده',
         ],
+        'clearance_types' => [
+            'definitive' => 'ترخیص قطعی',
+            'percentage' => 'ترخیص درصدی',
+        ],
     ],
     'form' => [
         'tabs' => [

@@ -3,10 +3,10 @@
 
 return [
     'navigation_group' => [
-        'base' => '【#】 داده های پایه ⥃ ',
-        'operational_first' => '【۱】 درخواست و تأیید ⥃ ',
-        'operational_second' => '【۲】 پردازش سفارش ⥃ ',
-        'operational_third' => '  【۳】 تدارکات و پرداخت ⥃ ',
-        'operational_fourth' => '【۴】 لجستیک و ترخیص  ⥃',
-        ],
+        'base'              => '【#】 داده های پایه ⥃ ',
+        'operational_first' => '【۱】 مدیریت درخواست‌های خرید ⥃ ',
+        'operational_second'=> '【۲】 مدیریت پرونده‌های ثبت سفارش ⥃ ',
+        'operational_third' => '  【۳】 مدیریت مالی پرونده‌ها ⥃ ',
+        'operational_fourth'=> '【۴】 لجستیک و ترخیص  ⥃',
+    ],
 ];

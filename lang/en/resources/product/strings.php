@@ -46,7 +46,7 @@ return [
         'packing_type' => 'Packing Type',
         'packing_type_placeholder' => 'roll, sheet, pallet, ...',
         'vat_exempt' => 'VAT Exempt',
-        'tax_id' => 'Tax ID',
+        'tax_id' => 'Product ID',
         'manufacturer' => 'Manufacturer',
         'import_licenses' => 'Import Licenses',
         'licenses' => [

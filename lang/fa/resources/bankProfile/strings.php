@@ -7,7 +7,7 @@ return [
         'navigation_group' => 'داده‌های عملیاتی',
         'add_record' => '˙⋆✮ ایجاد جدید',
         'supply_sources' => [
-            'nimayi' => 'نیمایی',
+            'nimayi' => 'مرکز مبادله',
             'export_others' => 'صادرات دیگران',
             'export_self' => 'صادرات خود',
             'documentary_bill' => 'برات اسنادی',
@@ -26,10 +26,7 @@ return [
         ],
     ],
     'form' => [
-        'tabs' => [
-            'general' => 'عمومی',
-            'details' => 'اطلاعات مالی',
-        ],
+        'tabs' => ['general' => 'عمومی', 'details' => 'وضعیت حواله ارزی'],
         'section_main' => 'جزئیات پروفایل',
         'section_dates_notes' => 'تاریخ‌ها، یادداشت‌ها و پیوست‌ها',
         'section_financial' => 'ارزها',
@@ -41,7 +38,7 @@ return [
         'bp_number' => 'شماره پروفایل بانکی',
         'status' => 'وضعیت',
         'registered_order' => 'سفارش ثبت‌شده',
-        'order_number' => 'شماره سفارش',
+        'order_number' => 'شماره ثبت سفارش',
         'company' => 'شرکت',
         'bank' => 'بانک (نماینده)',
         'targetable' => 'مرتبط با',
@@ -49,7 +46,7 @@ return [
         'targetable_product' => 'محصول',
         'supply_source' => 'منبع تأمین',
         'requested_amount' => 'مبلغ درخواستی',
-        'requested_currency' => 'ارز درخواستی',
+        'requested_currency' => 'ارز ثبت سفارش',
         'purchased_equivalent' => 'معادل خریداری‌شده',
         'purchased_currency' => 'ارز خریداری‌شده',
         'commission_rate' => 'نرخ کارمزد (%)',
@@ -113,7 +110,7 @@ return [
     ],
     'infolist' => [
         'tab_general' => 'عمومی',
-        'tab_summary' => 'اطلاعات مالی',
+        'tab_summary' => 'وضعیت حواله ارزی',
         'tab_documents' => 'پیوست‌ها',
         'section_profile' => 'جزئیات پروفایل',
         'section_financial' => 'داده‌های مالی',

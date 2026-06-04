@@ -476,7 +476,6 @@ nav.fi-ta-pagination {
     background-color: var(--custom-neutral) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     border-radius: 10px;
-    transform: scale(1.01);
 }
 
 .fi-modal-window-ctn .fi-section:hover,

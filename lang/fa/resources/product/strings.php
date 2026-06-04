@@ -46,7 +46,7 @@ return [
         'packing_type' => 'نوع بسته‌بندی',
         'packing_type_placeholder' => 'رول، ورق، پالت، ...',
         'vat_exempt' => 'معاف از مالیات بر ارزش افزوده',
-        'tax_id' => 'کد مالیاتی',
+        'tax_id' => 'شناسه کالا',
         'manufacturer' => 'تولید کننده',
         'import_licenses' => 'مجوزهای واردات',
         'licenses' => [
