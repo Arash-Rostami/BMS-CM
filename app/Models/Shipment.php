@@ -10,7 +10,7 @@ use App\Models\Traits\Shipment\HasPartSelection;
 use App\Models\Traits\Shipment\HasSearchableRelations;
 use App\Models\Traits\Shipment\Relationships as ExclusiveRelationships;
 use App\Services\DocChecklistMatcher;
-use Attribute;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -92,7 +92,7 @@ class Shipment extends Model implements HasDocumentChecklist
                 return array_is_list($data) ? $data : ($data['items'] ?? []);
             },
             set: function (?array $value, array $attributes): array {
-                $raw = $attributes['docs'] ?? null;
+                $raw = $attributes['docs'] ?? '{"tracking":true,"items":[]}';
                 $current = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
                 $tracking = (is_array($current) && ! array_is_list($current))
                     ? (bool) ($current['tracking'] ?? true)
@@ -108,13 +108,13 @@ class Shipment extends Model implements HasDocumentChecklist
     {
         return Attribute::make(
             get: function ($value, array $attributes): bool {
-                $raw = $attributes['docs'] ?? null;
+                $raw = $attributes['docs'] ?? '{"tracking":true,"items":[]}';
                 $data = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
 
                 return (is_array($data) && ! array_is_list($data)) ? (bool) ($data['tracking'] ?? true) : true;
             },
             set: function ($value, array $attributes): array {
-                $raw = $attributes['docs'] ?? null;
+                $raw = $attributes['docs'] ?? '{"tracking":true,"items":[]}';
                 $data = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
                 $items = (is_array($data) && ! array_is_list($data)) ? ($data['items'] ?? []) : (is_array($data) ? $data : []);
 
