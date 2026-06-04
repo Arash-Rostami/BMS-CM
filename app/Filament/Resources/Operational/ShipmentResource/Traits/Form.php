@@ -150,6 +150,19 @@ trait Form
             ->itemLabel(fn() => null);
     }
 
+    public static function getSmartTracerField(): Toggle
+    {
+        return Toggle::make('doc_tracking')
+            ->label(__('resources/shipment/strings.form.smart_tracer'))
+            ->default(true)
+            ->inline(false)
+            ->onIcon('heroicon-s-bolt')
+            ->offIcon('heroicon-s-bolt-slash')
+            ->onColor('success')
+            ->offColor('gray')
+            ->columnSpanFull();
+    }
+
 
     public static function getEtaField()
     {

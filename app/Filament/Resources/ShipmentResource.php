@@ -71,6 +71,7 @@ class ShipmentResource extends Resource
                                             ])->columns(2),
                                         Section::make(__('resources/shipment/strings.form.docs'))
                                             ->schema([
+                                                static::getSmartTracerField(),
                                                 static::getDocsField(),
                                             ])
                                             ->collapsible()
@@ -293,7 +294,7 @@ class ShipmentResource extends Resource
                         Tab::make(__('resources/shipment/strings.infolist.tab_documents'))
                             ->label(fn($record) => tabBadge(
                                 __('resources/shipment/strings.infolist.tab_documents'),
-                                $record?->attachments->count() ?? 0,
+                                collect($record->docs['items'] ?? [])->count(),
                                 'info'
                             ))
                             ->icon('heroicon-o-paper-clip')

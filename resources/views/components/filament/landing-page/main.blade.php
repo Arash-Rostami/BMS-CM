@@ -54,6 +54,5 @@
 </div>
 
 @push('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    @vite('resources/js/landing-page.js')
+    @vite(['resources/js/3d.min.js', 'resources/js/landing-page.js'])
 @endpush

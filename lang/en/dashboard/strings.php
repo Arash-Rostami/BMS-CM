@@ -1,4 +1,5 @@
 <?php
+
 return [
     'status' => [
         'active' => 'Active',
@@ -64,4 +65,13 @@ return [
     ],
     'bms_dashboard' => 'BMS',
     'return_to_main_panel' => 'Return to main dashboard',
+    'workspace' => 'Your Workspace',
+    'edit_workspace' => 'Customize Shortcuts',
+    'save' => 'Save Changes',
+    'add_shortcut' => 'Add Shortcuts',
+    'no_shortcuts' => 'No shortcuts configured',
+    'no_shortcuts_hint' => 'Pin your most frequently used modules here for quick access across the application.',
+    'edit_workspace_hint' => 'Select the modules you want to pin to your quick access grid.',
+    'shortcuts_pinned' => 'shortcuts pinned',
+    'setup_shortcuts' => 'Click to set up your personal shortcuts',
 ];

@@ -71,7 +71,8 @@ return [
         'guarantee_status' => 'Guarantee Status',
         'doc_status' => 'Doc Status',
 
-        'docs' => 'Documents Checklist',
+        'smart_tracer' => 'Smart Document Tracer',
+        'smart_tracer_hint' => 'When enabled, the checklist is automatically updated from the attached files; when disabled, it is completely manual.',        'docs' => 'Documents Checklist',
         'doc_name' => 'Document Name',
         'doc_name_placeholder' => 'e.g. Inspection Certificate',
         'doc_received' => 'Received',

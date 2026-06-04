@@ -52,8 +52,8 @@ class ShipmentExporter extends Exporter
             ExportColumn::make('docs')
                 ->label('Documents')
                 ->state(function (Shipment $record): string {
-                    $docs = $record->docs;
-                    if (!is_array($docs)) return '';
+                    $docs = $record->docs['items'] ?? [];
+                    if (!is_array($docs) || $docs === []) return '';
 
                     return collect($docs)->map(function ($item) {
                         $name = $item['name'] ?? '';

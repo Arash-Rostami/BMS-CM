@@ -72,6 +72,8 @@ return [
         'guarantee_status' => 'Statut Garantie',
         'doc_status' => 'Statut Document',
 
+        'smart_tracer' => 'Traceur de documents intelligent',
+        'smart_tracer_hint' => 'Lorsqu\'il est activé, la liste de contrôle est automatiquement mise à jour à partir des fichiers joints ; lorsqu\'il est désactivé, elle est entièrement manuelle.',
         'docs' => 'Liste de Contrôle des Documents',
         'doc_name' => 'Nom du Document',
         'doc_name_placeholder' => 'ex. Certificat d\'Inspection',

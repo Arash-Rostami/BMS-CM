@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\HasDocumentChecklist;
 use App\Models\Status;
 use Exception;
 use Filament\Notifications\Notification;
@@ -45,6 +46,10 @@ class FileUploadManager
 
             $this->syncAttachments($record, $finalPaths);
 
+            if ($record instanceof HasDocumentChecklist) {
+                rescue(fn() => DocChecklistMatcher::sync($record), report: false);
+            }
+
             return $this;
         } catch (Exception $e) {
             Notification::make()
@@ -70,32 +75,26 @@ class FileUploadManager
 
     public function storeTemporary(UploadedFile $file): string
     {
-        return $file->storeAs(
-            'temp',
-            sprintf(
-                '%s-%s-%s.%s',
-                Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)),
-                now()->timestamp,
-                uniqid(),
-                $file->getClientOriginalExtension()
-            ),
-            'public'
-        );
+        $original = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+
+        return $file->storeAs('temp', sprintf(
+            '%s__%s-%s.%s',
+            rawurlencode($original),
+            now()->timestamp, uniqid(), $file->getClientOriginalExtension()
+        ), 'public');
     }
 
     protected function makeNameAndPath(string $tempDir, mixed $path, Model $record): array
     {
+        $base = pathinfo($path, PATHINFO_FILENAME);
+        $ext = pathinfo($path, PATHINFO_EXTENSION);
+        $original = rawurldecode(Str::before($base, '__')) ?: 'file';
+        $unique = Str::after($base, '__');
         $folder = 'attachments/' . Str::camel(class_basename($record));
-        $newPath = Str::replaceFirst($tempDir, $folder . '/', $path);
 
-        $name = Str::of(class_basename($record))
-            ->kebab()
-            ->append('-', $record->getKey())
-            ->append('-', Str::kebab(strtolower(auth()->user()->name) ?? 'unknown'))
-            ->append('-', now()->format('Y-m-d-H:i'))
-            ->toString();
+        $newPath = "{$folder}/" . (Str::slug($original) ?: 'file') . "-{$unique}.{$ext}";
 
-        return [$newPath, $name];
+        return [$newPath, "{$original}.{$ext}"];
     }
 
     protected function slug(string $value): string
