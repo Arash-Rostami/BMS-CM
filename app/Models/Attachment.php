@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Contracts\HasDocumentChecklist;
 use App\Models\Traits\Attachment\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
+use App\Services\DocChecklistMatcher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,10 +14,10 @@ use Illuminate\Support\Facades\Storage;
 
 class Attachment extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use ExclusiveRelationships,
+        HasFactory,
         Relationships,
-        ExclusiveRelationships,
+        SoftDeletes,
         UserStamps;
 
     protected $fillable = [
@@ -31,10 +33,21 @@ class Attachment extends Model
 
     protected static function booted(): void
     {
-        static::forceDeleted(function (Attachment $attachment): void {
+        $sync = function (Attachment $attachment): void {
+            if ($attachment->attachable instanceof HasDocumentChecklist) {
+                rescue(fn () => DocChecklistMatcher::sync($attachment->attachable), report: false);
+            }
+        };
+
+        static::saved($sync);
+        static::deleted($sync);
+        static::restored($sync);
+
+        static::forceDeleted(function (Attachment $attachment) use ($sync): void {
             if ($attachment->path && Storage::disk('public')->exists($attachment->path)) {
                 Storage::disk('public')->delete($attachment->path);
             }
+            $sync($attachment);
         });
     }
 }
