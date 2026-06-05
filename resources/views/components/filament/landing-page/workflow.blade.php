@@ -1,18 +1,4 @@
 <div class="relative mt-8 mb-16">
-    <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-        <svg class="w-full max-w-4xl h-full" viewBox="0 0 1000 400" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <path d="M 250,100 C 350,100 400,300 500,300 C 600,300 650,100 750,100" stroke="url(#gradient)" stroke-width="4" stroke-dasharray="8 8" stroke-linecap="round"/>
-            <path d="M 250,300 C 350,300 400,100 500,100 C 600,100 650,300 750,300" stroke="url(#gradient)" stroke-width="4" stroke-dasharray="8 8" stroke-linecap="round"/>
-            <defs>
-                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#6366f1" />
-                    <stop offset="50%" stop-color="#ec4899" />
-                    <stop offset="100%" stop-color="#8b5cf6" />
-                </linearGradient>
-            </defs>
-        </svg>
-    </div>
-
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 relative z-10">
 
         <div class="card-3d workflow-step relative">

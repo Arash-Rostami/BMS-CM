@@ -636,6 +636,32 @@ body:has(.fi-modal-open) :is(
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
 }
 
+.fi-body .fi-simple-layout {
+    box-shadow: inset 0 0 220px 80px rgba(0, 0, 0, .28);
+}
+.dark .fi-body .fi-simple-layout {
+    box-shadow: inset 0 0 240px 90px rgba(0, 0, 0, .45);
+}
+
+/* Film grain — pure tone, sits over gradient + your webp */
+.fi-body .fi-simple-layout::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+    opacity: .55;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px;
+}
+.dark .fi-body .fi-simple-layout::after { opacity: .35; }
+
+@media (prefers-reduced-motion: no-preference) {
+    .fi-body .fi-simple-layout::after { animation: grain-drift 14s linear infinite; }
+    @keyframes grain-drift { to { background-position: 180px 180px; } }
+}
+
 /* ==========================================================================
    10. GLOBAL SYSTEM SCROLLBARS
    ========================================================================== */
