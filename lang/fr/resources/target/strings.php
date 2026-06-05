@@ -23,9 +23,12 @@ return [
         'achieved_amount' => 'Montant atteint',
         'creator' => 'Créateur',
         'updater' => 'Metteur à jour',
+        'helper_targetable' => 'Choisissez une seule catégorie ou un produit précis comme cible de cet objectif.',
+        'helper_end_in' => 'Elle doit être postérieure à la date de début, sinon la période de l\'objectif sera rejetée.',
         'validation_year' => 'L\'année doit être un nombre à 4 chiffres.',
         'validation_required' => 'Ce champ est obligatoire.',
         'validation_numeric' => 'L\'entrée doit être un nombre.',
+        'validation_date' => 'Veuillez entrer une date valide.',
         'validation_end_in_after_start_from' => 'La date de fin doit être postérieure à la date de début.',
     ],
     'table' => [

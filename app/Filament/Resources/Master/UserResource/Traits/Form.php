@@ -22,7 +22,11 @@ trait Form
         return TextInput::make('company')
             ->label(__('resources/user/strings.form.company'))
             ->maxLength(255)
-            ->nullable();
+            ->nullable()
+            ->validationAttribute(__('resources/user/strings.form.company'))
+            ->validationMessages([
+                'max' => __('resources/user/strings.form.validation_company_max'),
+            ]);
     }
 
     public static function getDepartment(): Select
@@ -44,7 +48,14 @@ trait Form
             ->email()
             ->required()
             ->maxLength(255)
-            ->unique(ignoreRecord: true);
+            ->unique(ignoreRecord: true)
+            ->validationAttribute(__('resources/user/strings.form.email'))
+            ->validationMessages([
+                'email' => __('resources/user/strings.form.validation_email_email'),
+                'required' => __('resources/user/strings.form.validation_email_required'),
+                'unique' => __('resources/user/strings.form.validation_email_unique'),
+                'max' => __('resources/user/strings.form.validation_email_max'),
+            ]);
     }
 
     public static function getIP(): TextInput
@@ -99,7 +110,12 @@ trait Form
         return TextInput::make('name')
             ->label(__('resources/user/strings.form.name'))
             ->required()
-            ->maxLength(255);
+            ->maxLength(255)
+            ->validationAttribute(__('resources/user/strings.form.name'))
+            ->validationMessages([
+                'required' => __('resources/user/strings.form.validation_name_required'),
+                'max' => __('resources/user/strings.form.validation_name_max'),
+            ]);
     }
 
     public static function getPassword(): TextInput
@@ -113,6 +129,13 @@ trait Form
             ->required(fn(string $operation): bool => $operation === 'create')
             ->minLength(8)
             ->maxLength(255)
+            ->helperText(__('resources/user/strings.form.helper_password'))
+            ->validationAttribute(__('resources/user/strings.form.password'))
+            ->validationMessages([
+                'required' => __('resources/user/strings.form.validation_password_required'),
+                'min' => __('resources/user/strings.form.validation_password_min'),
+                'max' => __('resources/user/strings.form.validation_password_max'),
+            ])
             ->visibleOn('create');
     }
 
@@ -126,6 +149,14 @@ trait Form
             ->maxLength(255)
             ->same('password')
             ->required(fn(string $operation): bool => $operation === 'create')
+            ->helperText(__('resources/user/strings.form.helper_password_confirmation'))
+            ->validationAttribute(__('resources/user/strings.form.password_confirmation'))
+            ->validationMessages([
+                'required' => __('resources/user/strings.form.validation_password_confirmation_required'),
+                'min' => __('resources/user/strings.form.validation_password_confirmation_min'),
+                'same' => __('resources/user/strings.form.validation_password_confirmation_same'),
+                'max' => __('resources/user/strings.form.validation_password_confirmation_max'),
+            ])
             ->visibleOn('create');
     }
 
@@ -138,7 +169,12 @@ trait Form
             ->defaultCountry('IR')
             ->showFlags(true)
             ->autoPlaceholder('polite')
-            ->required();
+            ->required()
+            ->validationAttribute(__('resources/user/strings.form.phone'))
+            ->validationMessages([
+                'required' => __('resources/user/strings.form.validation_phone_required'),
+                'unique' => __('resources/user/strings.form.validation_phone_unique'),
+            ]);
     }
 
     public static function getPosition(): Select
@@ -154,7 +190,11 @@ trait Form
         return Select::make('status')
             ->label(__('resources/user/strings.form.status'))
             ->options(UserStatus::class)
-            ->required();
+            ->required()
+            ->validationAttribute(__('resources/user/strings.form.status'))
+            ->validationMessages([
+                'required' => __('resources/user/strings.form.validation_status_required'),
+            ]);
     }
 
     public static function getRoles(): Select

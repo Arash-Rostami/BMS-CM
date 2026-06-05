@@ -51,6 +51,7 @@ trait Form
             ->options($calendar->yearOptions(1, 5))
             ->searchable()
             ->required()
+            ->validationAttribute(__('resources/target/strings.form.year'))
             ->validationMessages([
                 'required' => __('resources/target/strings.form.validation_required'),
             ]);
@@ -64,8 +65,10 @@ trait Form
             ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
             ->native(false)
             ->required()
+            ->validationAttribute(__('resources/target/strings.form.start_from'))
             ->validationMessages([
                 'required' => __('resources/target/strings.form.validation_required'),
+                'date' => __('resources/target/strings.form.validation_date'),
             ]);
     }
 
@@ -73,12 +76,15 @@ trait Form
     {
         return DatePicker::make('end_in')
             ->label(__('resources/target/strings.form.end_in'))
+            ->helperText(__('resources/target/strings.form.helper_end_in'))
             ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
             ->native(false)
             ->required()
             ->after('start_from')
+            ->validationAttribute(__('resources/target/strings.form.end_in'))
             ->validationMessages([
                 'required' => __('resources/target/strings.form.validation_required'),
+                'date' => __('resources/target/strings.form.validation_date'),
                 'after' => __('resources/target/strings.form.validation_end_in_after_start_from')
             ]);
     }
@@ -92,6 +98,7 @@ trait Form
             ->step(0.01)
             ->validationMessages([
                 'required' => __('resources/target/strings.form.validation_required'),
+                'numeric' => __('resources/target/strings.form.validation_numeric'),
             ])
             ->validationAttribute(__('resources/target/strings.form.quantity'));
     }
@@ -133,6 +140,7 @@ trait Form
             ->required()
             ->default('active')
             ->options(TargetStatus::class)
+            ->validationAttribute(__('resources/target/strings.form.status'))
             ->validationMessages([
                 'required' => __('resources/target/strings.form.validation_required'),
             ])

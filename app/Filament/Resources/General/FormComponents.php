@@ -20,6 +20,7 @@ class FormComponents
             ->visibility('public')
             ->previewable()
             ->openable()
+            ->live()
             ->columnSpanFull()
             ->downloadable()
             ->hintIconTooltip(fn($record) => $record?->attachments()->latest('id')->implode('name', "\n") ?? '')

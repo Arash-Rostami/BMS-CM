@@ -71,6 +71,12 @@ return [
         'validation_min_numeric_zero' => 'Ce champ ne peut pas être négatif.',
         'validation_attachments_type' => 'Le type de fichier de :attribute n\'est pas autorisé.',
         'validation_attachments_size' => 'Le fichier :attribute ne doit pas dépasser :max kilo-octets.',
+
+        // Helper Text
+        'helper_po_number' => 'Ce numéro est généré automatiquement et verrouillé, vous n\'avez donc jamais à en saisir un vous-même.',
+        'helper_expected_delivery_date' => 'Choisissez une date égale ou postérieure à la date de commande, car le fournisseur compte le délai à partir de là.',
+        'helper_validity_date' => 'C\'est le dernier jour où les prix et conditions convenus restent valables avant une éventuelle renégociation.',
+        'helper_unit_price' => 'Chaque prix saisi ici recalcule instantanément le montant total de la commande ci-dessous.',
     ],
     'table' => [
         'po_number' => 'N° Bon de Commande',

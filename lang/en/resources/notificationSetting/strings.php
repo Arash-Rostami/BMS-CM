@@ -34,6 +34,9 @@ return [
         'validation_required' => 'This field is required.',
         'validation_numeric' => 'This field must be a number.',
         'validation_date' => 'Please enter a valid date.',
+        'validation_notes_max' => 'Please keep your notes to 500 characters or fewer.',
+
+        'helper_notes' => 'Use this space for quick context, but keep it under 500 characters.',
     ],
 
     'table' => [

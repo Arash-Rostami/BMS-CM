@@ -56,6 +56,7 @@ return [
         'exchange_rate' => 'Taux de change',
         'final_rate' => 'Taux final/efficace',
         'conversion_rate' => 'Taux de conversion',
+        'eur_equivalent_rate' => 'Taux équivalent EUR',
         'creation_date' => 'Date de création',
         'allocation_date' => 'Date d\\\'allocation',
         'purchase_date' => 'Date d\\\'achat',
@@ -67,6 +68,7 @@ return [
             'commission_rate' => 'Taux de commission — pourcentage facturé par la banque comme commission; d\\\'autres frais sont inclus.',
             'exchange_rate' => 'Taux de change — le taux utilisé pour la conversion en Rial.',
             'conversion_rate' => 'Taux de conversion — calculé automatiquement entre les devises demandée et achetée.',
+            'eur_equivalent_rate' => 'Taux équivalent EUR — le taux exprimé en euros, calculé automatiquement; aucune saisie manuelle requise.',
         ],
 
         'summary_commission_amount' => 'Montant de la commission',
@@ -82,6 +84,11 @@ return [
         'validation_min_numeric_zero' => 'Ce champ ne peut pas être négatif.',
         'validation_date_after_or_equal' => 'Cette date doit être égale ou postérieure au :date.',
         'validation_unique' => 'Cette valeur existe déjà.',
+        'validation_max_length' => 'Veuillez limiter ce champ à :max caractères ou moins.',
+
+        'helper_commission_rate' => 'Saisissez uniquement le pourcentage (par ex. 1,5, et non 1,5 %) — il s\'ajoute au taux de change pour calculer le taux final.',
+        'helper_delivery_date' => 'La livraison ne peut pas être antérieure à la date d\'achat, alors renseignez d\'abord la date d\'achat.',
+        'helper_requested_amount' => 'Ce montant alimente tous les calculs ci-dessous, y compris l\'engagement restant — vérifiez-le bien avant d\'enregistrer.',
     ],
     'table' => [
         'id' => 'ID',

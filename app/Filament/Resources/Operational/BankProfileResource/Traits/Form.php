@@ -61,6 +61,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/bankProfile/strings.form.validation_required'),
                 'unique' => __('resources/bankProfile/strings.form.validation_unique'),
+                'max' => __('resources/bankProfile/strings.form.validation_max_length', ['max' => 255]),
             ])
             ->validationAttribute(__('resources/bankProfile/strings.form.bp_number'));
     }
@@ -84,6 +85,7 @@ trait Form
                     ->tooltip(__('resources/bankProfile/strings.form.tooltips.commission_rate'))
             )
             ->hint(fn(Get $get) => is_numeric($get('commission_rate')) ? delimiter($get('commission_rate')) : $get('commission_rate'))
+            ->helperText(__('resources/bankProfile/strings.form.helper_commission_rate'))
             ->validationAttribute(__('resources/bankProfile/strings.form.commission_rate'));
     }
 
@@ -106,6 +108,9 @@ trait Form
             ->label(__('resources/bankProfile/strings.form.conversion_rate'))
             ->numeric()
             ->readOnly()
+            ->validationMessages([
+                'numeric' => __('resources/bankProfile/strings.form.validation_numeric'),
+            ])
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
@@ -153,8 +158,9 @@ trait Form
             ->jalali()
             ->afterOrEqual('purchase_date')
             ->validationMessages([
-                'after_or_equal' => __('resources/bankProfile/strings.form.validation_date_after_or_equal', ['date' => 'purchase date']),
+                'after_or_equal' => __('resources/bankProfile/strings.form.validation_date_after_or_equal', ['date' => __('resources/bankProfile/strings.form.purchase_date')]),
             ])
+            ->helperText(__('resources/bankProfile/strings.form.helper_delivery_date'))
             ->validationAttribute(__('resources/bankProfile/strings.form.delivery_date'));
     }
 
@@ -180,6 +186,9 @@ trait Form
             ->label(__('resources/bankProfile/strings.form.eur_equivalent_rate'))
             ->numeric()
             ->readOnly()
+            ->validationMessages([
+                'numeric' => __('resources/bankProfile/strings.form.validation_numeric'),
+            ])
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
@@ -225,6 +234,9 @@ trait Form
         return TextInput::make('order_number')
             ->label(__('resources/bankProfile/strings.form.order_number'))
             ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/bankProfile/strings.form.validation_max_length', ['max' => 255]),
+            ])
             ->validationAttribute(__('resources/bankProfile/strings.form.order_number'));
     }
 
@@ -236,7 +248,7 @@ trait Form
             ->jalali()
             ->afterOrEqual('allocation_date')
             ->validationMessages([
-                'after_or_equal' => __('resources/bankProfile/strings.form.validation_date_after_or_equal', ['date' => 'allocation date']),
+                'after_or_equal' => __('resources/bankProfile/strings.form.validation_date_after_or_equal', ['date' => __('resources/bankProfile/strings.form.allocation_date')]),
             ])
             ->validationAttribute(__('resources/bankProfile/strings.form.purchase_date'));
     }
@@ -315,6 +327,7 @@ trait Form
                 'required' => __('resources/bankProfile/strings.form.validation_required'),
             ])
             ->hint(fn(Get $get) => is_numeric($get('requested_amount')) ? delimiter($get('requested_amount')) : $get('requested_amount'))
+            ->helperText(__('resources/bankProfile/strings.form.helper_requested_amount'))
             ->validationAttribute(__('resources/bankProfile/strings.form.requested_amount'));
     }
 

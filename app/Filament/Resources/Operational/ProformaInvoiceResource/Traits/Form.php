@@ -45,7 +45,7 @@ trait Form
             ->maxLength(255)
             ->rules(['nullable', 'max:255'])
             ->validationMessages([
-                'max' => __('resources/proformaInvoice/strings.form.validation.max_string'),
+                'max' => __('resources/proformaInvoice/strings.form.validation_buyer_comm_card_num_max'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.buyer_comm_card_num'));
     }
@@ -61,10 +61,11 @@ trait Form
             ->different('seller_company_id')
             ->rules(['exists:companies,id'])
             ->validationMessages([
-                'required' => __('resources/proformaInvoice/strings.form.validation.required'),
-                'exists' => __('resources/proformaInvoice/strings.form.validation.exists'),
-                'different' => __('resources/proformaInvoice/strings.form.validation.seller_buyer_different'),
+                'required' => __('resources/proformaInvoice/strings.form.validation_buyer_company_required'),
+                'exists' => __('resources/proformaInvoice/strings.form.validation_buyer_company_exists'),
+                'different' => __('resources/proformaInvoice/strings.form.validation_buyer_company_different'),
             ])
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_buyer_company'))
             ->validationAttribute(__('resources/proformaInvoice/strings.form.buyer_company'));
     }
 
@@ -75,7 +76,7 @@ trait Form
             ->maxLength(255)
             ->rules(['nullable', 'max:255'])
             ->validationMessages([
-                'max' => __('resources/proformaInvoice/strings.form.validation.max_string'),
+                'max' => __('resources/proformaInvoice/strings.form.validation_contract_no_max'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.contract_no'));
     }
@@ -110,9 +111,10 @@ trait Form
             ->minValue(0)
             ->rules(['nullable', 'numeric', 'min:0'])
             ->validationMessages([
-                'numeric' => __('resources/proformaInvoice/strings.form.validation.numeric'),
-                'min' => __('resources/proformaInvoice/strings.form.validation.min_numeric'),
+                'numeric' => __('resources/proformaInvoice/strings.form.validation_discount_numeric'),
+                'min' => __('resources/proformaInvoice/strings.form.validation_discount_min'),
             ])
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_discount'))
             ->validationAttribute(__('resources/proformaInvoice/strings.form.discount'));
     }
 
@@ -137,9 +139,10 @@ trait Form
             ->required()
             ->rules(['before_or_equal:' . now()->addDay()->toDateString()])
             ->validationMessages([
-                'required' => __('resources/proformaInvoice/strings.form.validation.required'),
-                'before_or_equal' => __('resources/proformaInvoice/strings.form.validation.before_or_equal_today'),
+                'required' => __('resources/proformaInvoice/strings.form.validation_invoice_date_required'),
+                'before_or_equal' => __('resources/proformaInvoice/strings.form.validation_invoice_date_before_or_equal'),
             ])
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_invoice_date'))
             ->validationAttribute(__('resources/proformaInvoice/strings.form.invoice_date'));
     }
 
@@ -152,10 +155,11 @@ trait Form
             ->unique(ignoreRecord: true)
             ->maxLength(255)
             ->validationMessages([
-                'max' => __('resources/proformaInvoice/strings.form.validation.max_string'),
-                'required' => __('resources/proformaInvoice/strings.form.validation.required'),
-                'unique' => __('resources/proformaInvoice/strings.form.validation.unique'),
+                'max' => __('resources/proformaInvoice/strings.form.validation_invoice_no_max'),
+                'required' => __('resources/proformaInvoice/strings.form.validation_invoice_no_required'),
+                'unique' => __('resources/proformaInvoice/strings.form.validation_invoice_no_unique'),
             ])
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_invoice_no'))
             ->validationAttribute(__('resources/proformaInvoice/strings.form.invoice_no'));
     }
 
@@ -186,6 +190,10 @@ trait Form
             ->prefix('💰')
             ->rules(['nullable', 'numeric', 'min:0'])
             ->afterStateUpdated(fn(Get $get, Set $set) => static::itemAfterStateUpdated($get, $set))
+            ->validationMessages([
+                'numeric' => __('resources/proformaInvoice/strings.form.validation_item_freight_charges_numeric'),
+                'min' => __('resources/proformaInvoice/strings.form.validation_item_freight_charges_min'),
+            ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.item_freight_charges'));
     }
 
@@ -199,9 +207,10 @@ trait Form
             ->prefix('⏲️')
             ->rules(['nullable', 'numeric', 'min:0'])
             ->validationMessages([
-                'numeric' => __('resources/proformaInvoice/strings.form.validation.numeric'),
-                'min' => __('resources/proformaInvoice/strings.form.validation.min_numeric'),
+                'numeric' => __('resources/proformaInvoice/strings.form.validation_gross_weight_numeric'),
+                'min' => __('resources/proformaInvoice/strings.form.validation_gross_weight_min'),
             ])
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_gross_weight'))
             ->validationAttribute(__('resources/proformaInvoice/strings.form.gross_weight'));
     }
 
@@ -212,7 +221,7 @@ trait Form
             ->maxLength(255)
             ->rules(['nullable', 'max:255'])
             ->validationMessages([
-                'max' => __('resources/proformaInvoice/strings.form.validation.max_string'),
+                'max' => __('resources/proformaInvoice/strings.form.validation_hs_code_max'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.hs_code'));
     }
@@ -227,8 +236,8 @@ trait Form
             ->prefix('⏲️')
             ->rules(['nullable', 'numeric', 'min:0'])
             ->validationMessages([
-                'numeric' => __('resources/proformaInvoice/strings.form.validation.numeric'),
-                'min' => __('resources/proformaInvoice/strings.form.validation.min_numeric'),
+                'numeric' => __('resources/proformaInvoice/strings.form.validation_net_weight_numeric'),
+                'min' => __('resources/proformaInvoice/strings.form.validation_net_weight_min'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.net_weight'));
     }
@@ -273,8 +282,8 @@ trait Form
             ->afterStateUpdated(fn($state, Set $set) => $set('hs_code', Product::find($state)?->specifications?->first()?->hs_code))
             ->rules(['exists:products,id'])
             ->validationMessages([
-                'required' => __('resources/proformaInvoice/strings.form.validation.required'),
-                'exists' => __('resources/proformaInvoice/strings.form.validation.exists'),
+                'required' => __('resources/proformaInvoice/strings.form.validation_product_required'),
+                'exists' => __('resources/proformaInvoice/strings.form.validation_product_exists'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.product'));
     }
@@ -290,9 +299,10 @@ trait Form
             ->minValue(0.01)
             ->rules(['nullable', 'numeric', 'min:0.01'])
             ->validationMessages([
-                'numeric' => __('resources/proformaInvoice/strings.form.validation.numeric'),
-                'min' => __('resources/proformaInvoice/strings.form.validation.min_numeric'),
+                'numeric' => __('resources/proformaInvoice/strings.form.validation_quantity_numeric'),
+                'min' => __('resources/proformaInvoice/strings.form.validation_quantity_min'),
             ])
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_quantity'))
             ->validationAttribute(__('resources/proformaInvoice/strings.form.quantity'));
     }
 
@@ -315,7 +325,7 @@ trait Form
             ->required()
             ->columnSpan(1)
             ->validationMessages([
-                'required' => __('resources/proformaInvoice/strings.form.validation_required'),
+                'required' => __('resources/proformaInvoice/strings.form.validation_unit_required'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.unit'));
     }
@@ -332,8 +342,8 @@ trait Form
             ->minValue(0)
             ->rules(['nullable', 'numeric', 'min:0'])
             ->validationMessages([
-                'numeric' => __('resources/proformaInvoice/strings.form.validation.numeric'),
-                'min' => __('resources/proformaInvoice/strings.form.validation.min_numeric'),
+                'numeric' => __('resources/proformaInvoice/strings.form.validation_unit_price_numeric'),
+                'min' => __('resources/proformaInvoice/strings.form.validation_unit_price_min'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.unit_price'));
     }
@@ -352,10 +362,11 @@ trait Form
             ->different('secondary_currency_id')
             ->rules(['nullable', 'exists:currencies,id'])
             ->validationMessages([
-                'required' => __('resources/proformaInvoice/strings.form.validation.required'),
-                'exists' => __('resources/proformaInvoice/strings.form.validation.exists'),
-                'different' => __('resources/proformaInvoice/strings.form.validation.currency_different'),
+                'required' => __('resources/proformaInvoice/strings.form.validation_main_currency_required'),
+                'exists' => __('resources/proformaInvoice/strings.form.validation_main_currency_exists'),
+                'different' => __('resources/proformaInvoice/strings.form.validation_main_currency_different'),
             ])
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_main_currency'))
             ->validationAttribute(__('resources/proformaInvoice/strings.form.main_currency'));
     }
 
@@ -387,8 +398,8 @@ trait Form
             ->prefix('💰')
             ->rules(['nullable', 'numeric', 'min:0'])
             ->validationMessages([
-                'numeric' => __('resources/proformaInvoice/strings.form.validation.numeric'),
-                'min' => __('resources/proformaInvoice/strings.form.validation.min_numeric'),
+                'numeric' => __('resources/proformaInvoice/strings.form.validation_other_charges_numeric'),
+                'min' => __('resources/proformaInvoice/strings.form.validation_other_charges_min'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.other_charges'));
     }
@@ -400,7 +411,7 @@ trait Form
             ->maxLength(255)
             ->rules(['nullable', 'max:255'])
             ->validationMessages([
-                'max' => __('resources/proformaInvoice/strings.form.validation.max_string'),
+                'max' => __('resources/proformaInvoice/strings.form.validation_port_of_discharge_max'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.port_of_discharge'));
     }
@@ -412,7 +423,7 @@ trait Form
             ->maxLength(255)
             ->rules(['nullable', 'max:255'])
             ->validationMessages([
-                'max' => __('resources/proformaInvoice/strings.form.validation.max_string'),
+                'max' => __('resources/proformaInvoice/strings.form.validation_port_of_loading_max'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.port_of_loading'));
     }
@@ -489,7 +500,7 @@ trait Form
             ->preload()
             ->rules(['nullable', 'exists:currencies,id'])
             ->validationMessages([
-                'exists' => __('resources/proformaInvoice/strings.form.validation.exists'),
+                'exists' => __('resources/proformaInvoice/strings.form.validation_secondary_currency_exists'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.secondary_currency'));
     }
@@ -505,9 +516,9 @@ trait Form
             ->preload()
             ->rules(['exists:companies,id'])
             ->validationMessages([
-                'required' => __('resources/proformaInvoice/strings.form.validation.required'),
-                'exists' => __('resources/proformaInvoice/strings.form.validation.exists'),
-                'different' => __('resources/proformaInvoice/strings.form.validation.seller_buyer_different'),
+                'required' => __('resources/proformaInvoice/strings.form.validation_seller_company_required'),
+                'exists' => __('resources/proformaInvoice/strings.form.validation_seller_company_exists'),
+                'different' => __('resources/proformaInvoice/strings.form.validation_seller_company_different'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.seller_company'));
     }
@@ -551,8 +562,9 @@ trait Form
             ->afterOrEqual('invoice_date')
             ->rules(['nullable'])
             ->validationMessages([
-                'after_or_equal' => __('resources/proformaInvoice/strings.form.validation.validity_date_after'),
+                'after_or_equal' => __('resources/proformaInvoice/strings.form.validation_validity_date_after'),
             ])
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_validity_date'))
             ->validationAttribute(__('resources/proformaInvoice/strings.form.validity_date'));
     }
 }

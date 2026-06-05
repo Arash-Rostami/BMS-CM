@@ -56,6 +56,7 @@ return [
         'exchange_rate' => 'Exchange Rate',
         'final_rate' => 'Final/Effective Rate',
         'conversion_rate' => 'Conversion Rate',
+        'eur_equivalent_rate' => 'EUR Equivalent Rate',
         'creation_date' => 'Creation Date',
         'allocation_date' => 'Allocation Date',
         'purchase_date' => 'Purchase Date',
@@ -67,6 +68,7 @@ return [
             'commission_rate' => 'Commission rate — percentage charged by the bank or ... as commission; other fees are included.',
             'exchange_rate' => 'Exchange rate — the rate used for Rial conversion.',
             'conversion_rate' => 'Conversion rate — automatically calculated between requested and purchased currencies.',
+            'eur_equivalent_rate' => 'EUR equivalent rate — the rate expressed in euros, calculated automatically; no manual entry needed.',
         ],
 
         'summary_commission_amount' => 'Commission Amount',
@@ -82,6 +84,11 @@ return [
         'validation_min_numeric_zero' => 'This field cannot be negative.',
         'validation_date_after_or_equal' => 'This date must be on or after :date.',
         'validation_unique' => 'This value already exists.',
+        'validation_max_length' => 'Please keep this to :max characters or fewer.',
+
+        'helper_commission_rate' => 'Enter the percentage only (e.g. 1.5, not 1.5%) — it is added on top of the exchange rate to compute the final rate.',
+        'helper_delivery_date' => 'Delivery cannot be earlier than the purchase date, so set the purchase date first.',
+        'helper_requested_amount' => 'This drives every calculation below, including the remaining commitment — double-check it before saving.',
     ],
     'table' => [
         'id' => 'ID',

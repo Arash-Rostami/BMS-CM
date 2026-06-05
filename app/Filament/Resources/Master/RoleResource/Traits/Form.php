@@ -22,6 +22,14 @@ trait Form
             ->unique(ignoreRecord: true)
             ->maxLength(255)
             ->rules(['regex:/^[a-zA-Z_]+$/'])
+            ->helperText(__('resources/role/strings.form.helper_name'))
+            ->validationAttribute(__('resources/role/strings.form.name'))
+            ->validationMessages([
+                'required' => __('resources/role/strings.form.validation_name_required'),
+                'unique' => __('resources/role/strings.form.validation_name_unique'),
+                'regex' => __('resources/role/strings.form.validation_name_regex'),
+                'max' => __('resources/role/strings.form.validation_name_max'),
+            ])
             ->live(onBlur: true)
             ->afterStateHydrated(function (Set $set, ?string $state) {
                 if (!$state) return;
@@ -43,7 +51,11 @@ trait Form
                 $base = Role::extractBaseName($get('name') ?? '');
                 $set('name', Role::combineName($base, $grade));
             })
-            ->required();
+            ->required()
+            ->validationAttribute(__('resources/role/strings.form.grade'))
+            ->validationMessages([
+                'required' => __('resources/role/strings.form.validation_grade_required'),
+            ]);
     }
 
     public static function getSelectAllToggle(): Toggle

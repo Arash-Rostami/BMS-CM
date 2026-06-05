@@ -36,6 +36,12 @@ return [
         'validation_code_placeholder' => 'Entrez le code produit',
         'classify_by_name' => 'Activer la nomination personnalisée',
         'validation_required' => 'Ce code est requis.',
+        'validation_name_max' => 'Le nom persan ne doit pas dépasser :max caractères.',
+        'validation_english_name_max' => 'Le nom anglais ne doit pas dépasser :max caractères.',
+        'validation_code_max' => 'Le code produit ne doit pas dépasser :max caractères.',
+        'helper_code' => 'Choisissez un code avec soin, car il doit être unique et sert à retrouver ce produit partout.',
+        'helper_classify_by_name' => 'Activer cette option vous permet de nommer vous-même le produit en persan et en anglais au lieu d\'un nommage automatique.',
+        'helper_english_name' => 'Ce nom génère le slug compatible avec l\'URL, donc le modifier plus tard peut changer les liens qui pointent déjà vers ce produit.',
         // 'Specifications' section and its fields
         'tab2' => 'Spécifications',
         'specifications' => 'Spécifications',

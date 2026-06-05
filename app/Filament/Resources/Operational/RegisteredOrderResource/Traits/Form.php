@@ -90,6 +90,7 @@ trait Form
     {
         return DatePicker::make('expected_delivery_date')
             ->label(__('resources/registeredOrder/strings.form.expected_delivery_date'))
+            ->helperText(__('resources/registeredOrder/strings.form.helper_expected_delivery_date'))
             ->native(false)
             ->jalali()
             ->afterOrEqual('order_date')
@@ -122,6 +123,9 @@ trait Form
         return TextInput::make('insurance_number')
             ->label(__('resources/registeredOrder/strings.form.insurance_number'))
             ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/registeredOrder/strings.form.validation_max_string'),
+            ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.insurance_number'));
     }
 
@@ -130,6 +134,9 @@ trait Form
         return TextInput::make('insurance_provider')
             ->label(__('resources/registeredOrder/strings.form.insurance_provider'))
             ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/registeredOrder/strings.form.validation_max_string'),
+            ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.insurance_provider'));
     }
 
@@ -211,7 +218,7 @@ trait Form
                 self::updateTotal($get, $set);
             })
             ->visible(fn(Get $get): bool => $get('source_type') === 'pi')
-            ->validationAttribute(__('resources/proformaInvoice/strings.form.proforma_invoices'));
+            ->validationAttribute(__('resources/registeredOrder/strings.form.proforma_invoices'));
     }
 
     public static function getPurchaseOrdersField(): Select
@@ -260,6 +267,7 @@ trait Form
     {
         return TextInput::make('ro_number')
             ->label(__('resources/registeredOrder/strings.form.ro_number'))
+            ->helperText(__('resources/registeredOrder/strings.form.helper_ro_number'))
             ->required()
             ->readOnly()
             ->maxLength(255)
@@ -277,6 +285,7 @@ trait Form
     {
         return Select::make('seller_id')
             ->label(__('resources/registeredOrder/strings.form.seller'))
+            ->helperText(__('resources/registeredOrder/strings.form.helper_seller'))
             ->relationship(
                 name: 'sellerCompany',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
@@ -296,6 +305,7 @@ trait Form
     {
         return Radio::make('source_type')
             ->label(__('resources/proformaInvoice/strings.form.related_to'))
+            ->helperText(__('resources/registeredOrder/strings.form.helper_source_type'))
             ->inline()
             ->options([
                 'pr' => __('resources/registeredOrder/strings.form.purchase_requests_related'),
@@ -312,6 +322,9 @@ trait Form
         return TextInput::make('official_registration_no')
             ->label(__('resources/registeredOrder/strings.form.official_registration_no'))
             ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/registeredOrder/strings.form.validation_max_string'),
+            ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.official_registration_no'));
     }
 
@@ -356,6 +369,7 @@ trait Form
     {
         return DatePicker::make('validity_date')
             ->label(__('resources/registeredOrder/strings.form.validity_date'))
+            ->helperText(__('resources/registeredOrder/strings.form.helper_validity_date'))
             ->native(false)
             ->jalali()
             ->afterOrEqual('order_date')
@@ -374,7 +388,10 @@ trait Form
             ->minValue(0)
             ->columnSpan(4)
             ->live(onBlur: true)
-            ->validationMessages(['numeric', 'min'])
+            ->validationMessages([
+                'numeric' => __('resources/registeredOrder/strings.form.validation_numeric'),
+                'min' => __('resources/registeredOrder/strings.form.validation_min_numeric_zero'),
+            ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.entrance_fee'));
     }
 
@@ -388,7 +405,10 @@ trait Form
             ->minValue(0)
             ->columnSpan(4)
             ->live(onBlur: true)
-            ->validationMessages(['numeric', 'min'])
+            ->validationMessages([
+                'numeric' => __('resources/registeredOrder/strings.form.validation_numeric'),
+                'min' => __('resources/registeredOrder/strings.form.validation_min_numeric_zero'),
+            ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.extra_cost'));
     }
 
@@ -456,6 +476,7 @@ trait Form
     {
         return TextInput::make('quantity')
             ->label(__('resources/registeredOrder/strings.form.quantity'))
+            ->helperText(__('resources/registeredOrder/strings.form.helper_quantity'))
             ->required()
             ->numeric()
             ->minValue(0.01)
@@ -480,7 +501,10 @@ trait Form
             ->minValue(0)
             ->columnSpan(4)
             ->live(onBlur: true)
-            ->validationMessages(['numeric', 'min'])
+            ->validationMessages([
+                'numeric' => __('resources/registeredOrder/strings.form.validation_numeric'),
+                'min' => __('resources/registeredOrder/strings.form.validation_min_numeric_zero'),
+            ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.shipping_cost'));
     }
 
@@ -501,6 +525,7 @@ trait Form
     {
         return TextInput::make('unit_price')
             ->label(__('resources/registeredOrder/strings.form.unit_price'))
+            ->helperText(__('resources/registeredOrder/strings.form.helper_unit_price'))
             ->prefix('💰')
             ->required()
             ->numeric()

@@ -81,15 +81,23 @@ return [
 
 
 
-        'validation_required' => 'This field is required.',
-        'validation_unique' => 'This value must be unique.',
-        'validation_max_string' => 'This field must not exceed :max characters.',
-        'validation_max_text' => 'This field must not exceed :max characters.',
-        'validation_seller_buyer_different' => 'The seller and buyer must be different.',
-        'validation_after_or_equal_order_date' => 'This date must be on or after the order date.',
-        'validation_numeric' => 'This field must be a number.',
-        'validation_min_numeric' => 'This field must be at least :min.',
-        'validation_min_numeric_zero' => 'This field cannot be negative.',
+        'validation_required' => 'Please fill in the :attribute to continue.',
+        'validation_unique' => 'This :attribute is already in use, please enter a different one.',
+        'validation_max_string' => 'The :attribute is too long, please keep it under :max characters.',
+        'validation_max_text' => 'The :attribute is too long, please keep it under :max characters.',
+        'validation_seller_buyer_different' => 'The seller and buyer cannot be the same company, please choose different parties.',
+        'validation_after_or_equal_order_date' => 'The :attribute must be on or after the order date, please pick a later date.',
+        'validation_numeric' => 'The :attribute must be a number, please remove any letters or symbols.',
+        'validation_min_numeric' => 'The :attribute must be at least :min, please enter a higher value.',
+        'validation_min_numeric_zero' => 'The :attribute cannot be negative, please enter zero or more.',
+
+        'helper_ro_number' => 'Auto-generated and locked to keep registered orders unique, do not edit unless you know the numbering scheme.',
+        'helper_seller' => 'The seller must differ from the buyer, pick the supplying party here.',
+        'helper_expected_delivery_date' => 'Must fall on or after the order date, set it once the order date is fixed.',
+        'helper_quantity' => 'Use a value greater than zero, this drives the line total and the order summary.',
+        'helper_unit_price' => 'Price per single unit, the line total is calculated automatically from this.',
+        'helper_source_type' => 'This choice decides which source documents you link and auto-fills the line items, so pick it before adding products.',
+        'helper_validity_date' => 'Set this on or after the order date to mark how long the order stays valid.',
     ],
     'table' => [
         'related_to' => 'Related to',

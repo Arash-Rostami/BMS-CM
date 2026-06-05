@@ -34,6 +34,9 @@ return [
         'validation_required' => 'Ce champ est obligatoire.',
         'validation_numeric' => 'Ce champ doit être un nombre.',
         'validation_date' => 'Veuillez entrer une date valide.',
+        'validation_notes_max' => 'Veuillez limiter vos notes à 500 caractères maximum.',
+
+        'helper_notes' => 'Utilisez cet espace pour un contexte rapide, mais gardez-le sous 500 caractères.',
     ],
 
     'table' => [

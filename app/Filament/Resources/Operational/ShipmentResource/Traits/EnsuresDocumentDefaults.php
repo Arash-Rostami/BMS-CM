@@ -11,7 +11,10 @@ trait EnsuresDocumentDefaults
             return $data;
         }
 
-        $rows  = collect($data['docs'] ?? []);
+        $docs = $data['docs'] ?? [];
+        $docs = array_is_list($docs) ? $docs : ($docs['items'] ?? []); // tolerate legacy {tracking, items}
+
+        $rows  = collect($docs);
         $keyOf = fn ($name) => array_key_exists($name, $defaults)
             ? $name
             : (array_search($name, $defaults, true) ?: null);
@@ -23,7 +26,7 @@ trait EnsuresDocumentDefaults
 
         $merged = collect($defaults)->map(fn ($label, $key) => [
             'name'     => $key,
-            'received' => (bool) $received->get($key, false),
+            'received' => (bool) $received->get($key, $key === 'track'),
         ])->values();
 
         $customs = $rows->reject(fn ($row) => $keyOf($row['name'] ?? null) !== null)->values();

@@ -33,7 +33,11 @@ trait Form
     {
         return maybeJalali(DatePicker::make('clearance_date')
             ->label(__('resources/custom/strings.form.clearance_date'))
-            ->native(false));
+            ->native(false)
+            ->validationAttribute(__('resources/custom/strings.form.clearance_date'))
+            ->validationMessages([
+                'date' => __('resources/custom/strings.form.validation_date'),
+            ]));
     }
 
     public static function getClearanceStatusField(): Select
@@ -66,6 +70,7 @@ trait Form
             ->numeric()
             ->prefix('💰')
             ->hint(fn(Get $get) => delimiter($get('commitment_balance')))
+            ->validationAttribute(__('resources/custom/strings.form.commitment_balance'))
             ->validationMessages([
                 'numeric' => __('resources/custom/strings.form.validation_numeric'),
             ]);
@@ -75,7 +80,11 @@ trait Form
     {
         return maybeJalali(DatePicker::make('commitment_payment_date')
             ->label(__('resources/custom/strings.form.commitment_payment_date'))
-            ->native(false));
+            ->native(false)
+            ->validationAttribute(__('resources/custom/strings.form.commitment_payment_date'))
+            ->validationMessages([
+                'date' => __('resources/custom/strings.form.validation_date'),
+            ]));
     }
 
     public static function getCommitmentStatusField(): Select
@@ -97,17 +106,23 @@ trait Form
             ->label(__('resources/custom/strings.form.contract_no'))
             ->maxLength(255)
             ->readOnly()
-            ->dehydrated();
+            ->dehydrated()
+            ->validationAttribute(__('resources/custom/strings.form.contract_no'))
+            ->validationMessages([
+                'max' => __('resources/custom/strings.form.validation_contract_no_max'),
+            ]);
     }
 
     public static function getCustomNoField(): TextInput
     {
         return TextInput::make('custom_no')
             ->label(__('resources/custom/strings.form.custom_no'))
+            ->helperText(__('resources/custom/strings.form.helper_custom_no'))
             ->required()
             ->readOnly()
             ->unique(ignoreRecord: true)
             ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('custom_no') : null)
+            ->validationAttribute(__('resources/custom/strings.form.custom_no'))
             ->validationMessages([
                 'required' => __('resources/custom/strings.form.validation_required'),
                 'unique' => __('resources/custom/strings.form.validation_unique'),
@@ -118,14 +133,22 @@ trait Form
     {
         return TextInput::make('declaration_no')
             ->label(__('resources/custom/strings.form.declaration_no'))
-            ->maxLength(255);
+            ->maxLength(255)
+            ->validationAttribute(__('resources/custom/strings.form.declaration_no'))
+            ->validationMessages([
+                'max' => __('resources/custom/strings.form.validation_declaration_no_max'),
+            ]);
     }
 
     public static function getDocSubmissionDateField()
     {
         return maybeJalali(DatePicker::make('doc_submission_date')
             ->label(__('resources/custom/strings.form.doc_submission_date'))
-            ->native(false));
+            ->native(false)
+            ->validationAttribute(__('resources/custom/strings.form.doc_submission_date'))
+            ->validationMessages([
+                'date' => __('resources/custom/strings.form.validation_date'),
+            ]));
     }
 
     public static function getNotesField(): Textarea
@@ -140,7 +163,11 @@ trait Form
     {
         return maybeJalali(DatePicker::make('payment_due_date')
             ->label(__('resources/custom/strings.form.payment_due_date'))
-            ->native(false));
+            ->native(false)
+            ->validationAttribute(__('resources/custom/strings.form.payment_due_date'))
+            ->validationMessages([
+                'date' => __('resources/custom/strings.form.validation_date'),
+            ]));
     }
 
     public static function getRegisteredOrderField(): Select
@@ -153,6 +180,7 @@ trait Form
             ->dehydrated()
             ->live()
             ->required()
+            ->validationAttribute(__('resources/custom/strings.form.registered_order'))
             ->validationMessages([
                 'required' => __('resources/custom/strings.form.validation_required'),
             ]);
@@ -162,13 +190,18 @@ trait Form
     {
         return maybeJalali(DatePicker::make('rial_return_date')
             ->label(__('resources/custom/strings.form.rial_return_date'))
-            ->native(false));
+            ->native(false)
+            ->validationAttribute(__('resources/custom/strings.form.rial_return_date'))
+            ->validationMessages([
+                'date' => __('resources/custom/strings.form.validation_date'),
+            ]));
     }
 
     public static function getShipmentField(): Select
     {
         return Select::make('shipment_id')
             ->label(__('resources/custom/strings.form.shipment'))
+            ->helperText(__('resources/custom/strings.form.helper_shipment'))
             ->relationship('shipment', 'shipment_no')
             ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name)
             ->searchable()
@@ -181,6 +214,7 @@ trait Form
                     $set('contract_no', $record->contract_no);
                 }
             })
+            ->validationAttribute(__('resources/custom/strings.form.shipment'))
             ->validationMessages([
                 'required' => __('resources/custom/strings.form.validation_required'),
             ]);
@@ -190,6 +224,10 @@ trait Form
     {
         return maybeJalali(DatePicker::make('ten_percent_exit_date')
             ->label(__('resources/custom/strings.form.ten_percent_exit_date'))
-            ->native(false));
+            ->native(false)
+            ->validationAttribute(__('resources/custom/strings.form.ten_percent_exit_date'))
+            ->validationMessages([
+                'date' => __('resources/custom/strings.form.validation_date'),
+            ]));
     }
 }

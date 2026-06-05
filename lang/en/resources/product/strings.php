@@ -36,6 +36,12 @@ return [
         'validation_code_placeholder' => 'Enter product code',
         'classify_by_name' => 'Enable Custom Naming',
         'validation_required' => 'This field is required.',
+        'validation_name_max' => 'The Persian name must not exceed :max characters.',
+        'validation_english_name_max' => 'The English name must not exceed :max characters.',
+        'validation_code_max' => 'The product code must not exceed :max characters.',
+        'helper_code' => 'Choose a code carefully, as it must be unique and is used to look this product up everywhere.',
+        'helper_classify_by_name' => 'Turning this on lets you name the product yourself in both Persian and English instead of auto-naming it.',
+        'helper_english_name' => 'This name builds the URL-friendly slug, so editing it later can change links that already point to this product.',
         // 'Specifications' section and its fields
         'tab2' => 'Specifications',
         'specifications' => 'Specifications',

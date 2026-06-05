@@ -1,11 +1,15 @@
 :root {
     --font-default: "Roboto", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     --font-fa: "IranYekan", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
+    --md-motion: cubic-bezier(0.2, 0, 0, 1);
+    --md-motion-exit: cubic-bezier(0.4, 0, 1, 1);
 }
 
 html[lang="fa"] {
     --font-default: var(--font-fa);
 }
+
 
 @media (prefers-reduced-motion: no-preference) {
     html {
@@ -16,6 +20,8 @@ html[lang="fa"] {
 /* Base & Reset */
 body {
     font-family: var(--font-default);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .fi-body {
@@ -83,7 +89,7 @@ img {
 /* Components: 3D Card */
 .card-3d {
     transform-style: preserve-3d;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.4s var(--md-motion);
     will-change: transform;
 }
 
@@ -135,6 +141,7 @@ img {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.04);
     cursor: pointer;
+    transition: transform 0.25s var(--md-motion);
 }
 
 .btn-inline:hover {
@@ -144,7 +151,7 @@ img {
 .btn-gradient {
     position: relative;
     overflow: hidden;
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+    transition: transform 0.2s var(--md-motion), box-shadow 0.2s ease;
 }
 
 .btn-gradient::before {
@@ -211,7 +218,7 @@ img {
 
 /* Components: Icons */
 .icon-container {
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.4s var(--md-motion);
     will-change: transform;
 }
 
@@ -258,6 +265,7 @@ img {
     border: 1px solid rgba(255, 255, 255, 0.04);
     font-size: 12px;
     cursor: pointer;
+    transition: background-color 0.25s var(--md-motion), transform 0.25s var(--md-motion);
 }
 
 .tab {
@@ -268,6 +276,7 @@ img {
     font-size: 13px;
     background: transparent;
     cursor: pointer;
+    transition: background-color 0.25s var(--md-motion);
 }
 
 .tab-active {
@@ -354,50 +363,333 @@ input[type="range"]::-moz-range-thumb {
     background: #0a0a0a;
 }
 
-.loader-logo {
-    font-size: 4rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: fadeSlide 1.2s ease-out;
+@keyframes lIn {
+    from { opacity: 0; transform: translateY(-14px); filter: blur(10px); }
+    to   { opacity: 1; transform: none; filter: none; }
+}
+@keyframes lUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes lSub {
+    from { opacity: 0; letter-spacing: .55em; }
+    to   { opacity: .55; letter-spacing: .35em; }
+}
+@keyframes lFill {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+}
+@keyframes lScan {
+    0%   { transform: translateY(-55vh); opacity: 0; }
+    8%   { opacity: .65; }
+    88%  { opacity: .25; }
+    100% { transform: translateY(55vh); opacity: 0; }
+}
+@keyframes lCorner {
+    from { opacity: 0; transform: scale(.88); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes lGlow {
+    0%, 100% { opacity: .1; }
+    50%      { opacity: .26; }
+}
+@keyframes lGrid {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
-.dark .loader-logo {
-    background: linear-gradient(135deg, #60a5fa, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.loader-bar {
-    position: absolute;
-    bottom: 40%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 200px;
-    height: 2px;
-    background: rgba(102, 126, 234, 0.1);
+/* Components: Loader */
+.loader-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
+    perspective: 1000px;
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
 }
 
-.loader-bar::after {
+/* ── Loader: Light Mode ── */
+.light .loader-overlay {
+    background: lightgrey;
+}
+
+.light .loader-overlay::before {
     content: '';
     position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 40%;
-    background: linear-gradient(90deg, transparent, #667eea, transparent);
-    animation: slide 1.5s ease-in-out infinite;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 55% at 50% 50%, rgba(79, 70, 229, .05) 0%, transparent 65%);
+    pointer-events: none;
 }
 
-.dark .loader-bar::after {
-    background: linear-gradient(90deg, transparent, #60a5fa, transparent);
+/*.ldr-logo {*/
+/*    font-family: "Segoe UI", "Helvetica Neue", system-ui, -apple-system, sans-serif !important;*/
+/*    position: relative;*/
+/*    font-size: 3.5rem;*/
+/*    font-weight: 700;*/
+/*    z-index: 2;*/
+/*    animation: shimmer 2s linear infinite;*/
+/*}*/
+
+.light .ldr-grid {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(79, 70, 229, .08) 1px, transparent 1px);
+    background-size: 44px 44px;
+    animation: lGrid 2s ease-out forwards;
+    opacity: 0;
+    pointer-events: none;
 }
 
+.light .ldr-scan {
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(79, 70, 229, .45) 50%, transparent 100%);
+    animation: lScan 2.6s ease-in-out .5s infinite;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.light .ldr-glow {
+    position: absolute;
+    width: 380px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(79, 70, 229, .1), transparent 70%);
+    animation: lGlow 2.4s ease-in-out .8s infinite;
+    pointer-events: none;
+}
+
+.light .ldr-c {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    opacity: 0;
+    animation: lCorner .7s cubic-bezier(.23, 1, .32, 1) forwards;
+}
+
+
+.light .ldr-c-tl { top: 28px; left: 28px; border-top: 1.5px solid rgba(79, 70, 229, .35); border-left: 1.5px solid rgba(79, 70, 229, .35); animation-delay: .05s; }
+.light .ldr-c-tr { top: 28px; right: 28px; border-top: 1.5px solid rgba(79, 70, 229, .35); border-right: 1.5px solid rgba(79, 70, 229, .35); animation-delay: .1s; }
+.light .ldr-c-bl { bottom: 28px; left: 28px; border-bottom: 1.5px solid rgba(79, 70, 229, .35); border-left: 1.5px solid rgba(79, 70, 229, .35); animation-delay: .15s; }
+.light .ldr-c-br { bottom: 28px; right: 28px; border-bottom: 1.5px solid rgba(79, 70, 229, .35); border-right: 1.5px solid rgba(79, 70, 229, .35); animation-delay: .2s; }
+
+.light .ldr-eyebrow {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .48rem;
+    letter-spacing: .44em;
+    color: rgba(79, 70, 229, .4);
+    text-transform: uppercase;
+    animation: lUp .6s ease-out .2s both;
+    margin-bottom: 18px;
+}
+
+.light .ldr-letter {
+    display: inline-block;
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: clamp(4.5rem, 12vw, 7.5rem);
+    font-weight: 900;
+    color: #1e1b4b;
+    letter-spacing: -.01em;
+    animation: lIn .65s cubic-bezier(.23, 1, .32, 1) both;
+    animation-delay: calc(.28s + var(--i) * .07s)!important;
+    text-shadow: 0 0 60px rgba(79, 70, 229, .14);
+    will-change: transform, opacity, filter;
+}
+
+.light .ldr-subtitle {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .5rem;
+    letter-spacing: .35em;
+    color: rgba(79, 70, 229, .5);
+    text-transform: uppercase;
+    animation: lSub .85s cubic-bezier(.23, 1, .32, 1) .52s both;
+    margin-top: 8px;
+}
+
+.light .ldr-divider {
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(to bottom, transparent, rgba(79, 70, 229, .18), transparent);
+    margin: 22px 0 24px;
+    animation: lUp .4s ease-out .65s both;
+}
+
+.light .ldr-track {
+    width: 200px;
+    height: 1px;
+    background: rgba(0, 0, 0, .08);
+    position: relative;
+}
+
+.light .ldr-fill {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    transform: scaleX(0);
+    background: linear-gradient(90deg, rgba(79, 70, 229, .15), #4f46e5);
+    animation: lFill 2s cubic-bezier(.4, 0, .2, 1) .85s forwards;
+    will-change: transform;
+}
+
+.light .ldr-fill::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #4f46e5;
+    box-shadow: 0 0 10px 3px rgba(79, 70, 229, .6);
+}
+
+.light .ldr-status {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .42rem;
+    letter-spacing: .26em;
+    color: rgba(0, 0, 0, .2);
+    text-transform: uppercase;
+}
+
+/* ── Loader: Dark Mode ── */
+.dark .loader-overlay {
+    background: #18181b;
+}
+
+.dark .loader-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 55% at 50% 50%, rgba(0, 180, 255, .05) 0%, transparent 65%);
+    pointer-events: none;
+}
+
+.dark .ldr-grid {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(0, 190, 255, .09) 1px, transparent 1px);
+    background-size: 44px 44px;
+    animation: lGrid 2s ease-out forwards;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dark .ldr-scan {
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(0, 212, 255, .55) 50%, transparent 100%);
+    animation: lScan 2.6s ease-in-out .5s infinite;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.dark .ldr-glow {
+    position: absolute;
+    width: 380px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0, 212, 255, .12), transparent 70%);
+    animation: lGlow 2.4s ease-in-out .8s infinite;
+    pointer-events: none;
+}
+
+.dark .ldr-c {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    opacity: 0;
+    animation: lCorner .7s cubic-bezier(.23, 1, .32, 1) forwards;
+}
+
+.dark .ldr-c-tl { top: 28px; left: 28px; border-top: 1.5px solid rgba(0, 212, 255, .45); border-left: 1.5px solid rgba(0, 212, 255, .45); animation-delay: .05s; }
+.dark .ldr-c-tr { top: 28px; right: 28px; border-top: 1.5px solid rgba(0, 212, 255, .45); border-right: 1.5px solid rgba(0, 212, 255, .45); animation-delay: .1s; }
+.dark .ldr-c-bl { bottom: 28px; left: 28px; border-bottom: 1.5px solid rgba(0, 212, 255, .45); border-left: 1.5px solid rgba(0, 212, 255, .45); animation-delay: .15s; }
+.dark .ldr-c-br { bottom: 28px; right: 28px; border-bottom: 1.5px solid rgba(0, 212, 255, .45); border-right: 1.5px solid rgba(0, 212, 255, .45); animation-delay: .2s; }
+
+.dark .ldr-eyebrow {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .48rem;
+    letter-spacing: .44em;
+    color: rgba(0, 212, 255, .38);
+    text-transform: uppercase;
+    animation: lUp .6s ease-out .2s both;
+    margin-bottom: 18px;
+}
+
+.dark .ldr-letter {
+    display: inline-block;
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: clamp(4.5rem, 12vw, 7.5rem);
+    font-weight: 700;
+    color: #eef2ff;
+    letter-spacing: -.01em;
+    animation: lIn .65s cubic-bezier(.23, 1, .32, 1) both;
+    animation-delay: calc(.28s + var(--i) * .07s);
+    text-shadow: 0 0 60px rgba(0, 212, 255, .18);
+    will-change: transform, opacity, filter;
+}
+
+.dark .ldr-subtitle {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .5rem;
+    letter-spacing: .35em;
+    color: rgba(0, 212, 255, .5);
+    text-transform: uppercase;
+    animation: lSub .85s cubic-bezier(.23, 1, .32, 1) .52s both;
+    margin-top: 8px;
+}
+
+.dark .ldr-divider {
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(to bottom, transparent, rgba(0, 212, 255, .2), transparent);
+    margin: 22px 0 24px;
+    animation: lUp .4s ease-out .65s both;
+}
+
+.dark .ldr-track {
+    width: 200px;
+    height: 1px;
+    background: rgba(255, 255, 255, .07);
+    position: relative;
+}
+
+.dark .ldr-fill {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    transform: scaleX(0);
+    background: linear-gradient(90deg, rgba(0, 212, 255, .15), #00d4ff);
+    animation: lFill 2s cubic-bezier(.4, 0, .2, 1) .85s forwards;
+    will-change: transform;
+}
+
+.dark .ldr-fill::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #00d4ff;
+    box-shadow: 0 0 10px 3px rgba(0, 212, 255, .75);
+}
+
+.dark .ldr-status {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .42rem;
+    letter-spacing: .26em;
+    color: rgba(255, 255, 255, .16);
+    text-transform: uppercase;
+}
 /* Utilities: Glass Morphism */
 .dark .glass {
     background: rgba(24, 24, 27, 0.98)
@@ -577,6 +869,57 @@ input[type="range"]::-moz-range-thumb {
     pointer-events: none;
 }
 
+.workflow-connector {
+    position: absolute;
+    top: 50%;
+    left: -24px;
+    width: 24px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.5) 100%);
+    z-index: 0;
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .workflow-connector {
+        display: block;
+    }
+
+    .workflow-step:nth-child(even) .workflow-connector {
+        left: -24px;
+    }
+}
+
+.dark .workflow-connector {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.2) 100%);
+}
+
+.bg-size-200 {
+    background-size: 200% 100%;
+}
+
+.hover\:bg-pos-100:hover {
+    background-position: 100% 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
 @media (max-width: 640px) {
     #canvas-bg {
         opacity: 0.2 !important;
@@ -594,12 +937,6 @@ input[type="range"]::-moz-range-thumb {
 .floating {
     animation: float 6s ease-in-out infinite;
     will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .floating {
-        animation: none;
-    }
 }
 
 .glow-orb {
@@ -653,6 +990,20 @@ input[type="range"]::-moz-range-thumb {
     button, a {
         min-height: 44px;
         min-width: 44px;
+    }
+}
+
+/* Accessibility: respect reduced-motion (synced with v3 discipline).
+   Pauses decorative infinite loops; colors/layout untouched. */
+@media (prefers-reduced-motion: reduce) {
+    .floating,
+    .glow-orb,
+    .shimmer-effect,
+    .pulse,
+    .pulse-ring,
+    .ldr-scan,
+    .ldr-glow {
+        animation: none !important;
     }
 }
 

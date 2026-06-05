@@ -31,7 +31,8 @@ trait Form
             ->placeholder(__('resources/product/strings.form.validation_name_placeholder'))
             ->validationMessages([
                 'unique' => __('resources/product/strings.form.validation_name_unique'),
-                'required' => __('resources/product/strings.form.validation_name_required')
+                'required' => __('resources/product/strings.form.validation_name_required'),
+                'max' => __('resources/product/strings.form.validation_name_max'),
             ])
             ->live()
             ->validationAttribute(__('resources/product/strings.form.name'));
@@ -49,7 +50,8 @@ trait Form
             ->placeholder(__('resources/product/strings.form.validation_english_name_placeholder'))
             ->validationMessages([
                 'unique' => __('resources/product/strings.form.validation_english_name_unique'),
-                'required' => __('resources/product/strings.form.validation_english_name_required')
+                'required' => __('resources/product/strings.form.validation_english_name_required'),
+                'max' => __('resources/product/strings.form.validation_english_name_max'),
             ])
             ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
                 if (($get('slug') ?? '') === Str::slug($old)) {
@@ -58,6 +60,7 @@ trait Form
             })
             ->live(onBlur: true)
             ->dehydrateStateUsing(fn($state) => ucwords(strtolower($state)))
+            ->helperText(__('resources/product/strings.form.helper_english_name'))
             ->validationAttribute(__('resources/product/strings.form.english_name'));
     }
 
@@ -86,9 +89,11 @@ trait Form
             ->maxLength(255)
             ->required()
             ->placeholder(__('resources/product/strings.form.validation_code_placeholder'))
+            ->helperText(__('resources/product/strings.form.helper_code'))
             ->validationMessages([
                 'unique' => __('resources/product/strings.form.validation_code_unique'),
-                'required' => __('resources/product/strings.form.validation_code_required')
+                'required' => __('resources/product/strings.form.validation_code_required'),
+                'max' => __('resources/product/strings.form.validation_code_max'),
             ])
             ->validationAttribute(__('resources/product/strings.form.code'));
     }
@@ -128,6 +133,7 @@ trait Form
     {
         return Toggle::make('use_custom_name')
             ->label(__('resources/product/strings.form.classify_by_name'))
+            ->helperText(__('resources/product/strings.form.helper_classify_by_name'))
             ->onColor('success')
             ->onIcon('heroicon-m-check')
             ->offIcon('heroicon-m-x-mark')
@@ -148,6 +154,10 @@ trait Form
             ->label(__('resources/product/strings.form.code'))
             ->required()
             ->live()
+            ->validationMessages([
+                'required' => __('resources/product/strings.form.validation_code_required'),
+            ])
+            ->validationAttribute(__('resources/product/strings.form.code'))
             ->afterStateUpdated(function ($state, Get $get, Set $set) {
                 if ($get('action') !== 'check') {
                     $set('check_result', null);

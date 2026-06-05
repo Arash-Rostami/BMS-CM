@@ -24,6 +24,7 @@ return [
         'contract_no' => 'Contract No.',
         'carrier' => 'Carrier/Forwarder',
         'part' => 'Part No',
+        'helper_part' => 'A single order can ship in several parts — the next free part number is suggested for you, and only numbers not yet shipped can be chosen.',
         'case_number' => 'Case Number',
 
         'warehouse_date' => 'Warehouse Receipt Date',
@@ -78,6 +79,7 @@ return [
         'doc_received' => 'Received',
         'add_doc' => 'Add Document',
         'docs_options' => [
+            'track' => 'Smart Tracer',
             'inspection' => 'Inspection Certificate',
             'bank_commitment' => 'Bank Commitment',
             'insurance' => 'Insurance Policy',
@@ -95,6 +97,9 @@ return [
             'unique' => 'This value must be unique.',
             'unique_part' => 'This part has already been registered for this order and contract.',
             'english_only' => 'Only English letters, numbers, parentheses, and dashes are allowed.',
+            'numeric' => 'Please enter a valid number here.',
+            'min_numeric_zero' => 'This value cannot be negative.',
+            'max' => 'Please keep this to 255 characters or fewer.',
         ],
     ],
     'table' => [

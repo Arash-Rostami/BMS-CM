@@ -22,14 +22,22 @@ trait Form
     {
         return TextInput::make('bl_number')
             ->label(__('resources/shipment/strings.form.bl_number'))
-            ->maxLength(255);
+            ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/shipment/strings.form.validation.max'),
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.bl_number'));
     }
 
     public static function getBookingNoField(): TextInput
     {
         return TextInput::make('booking_no')
             ->label(__('resources/shipment/strings.form.booking_no'))
-            ->maxLength(255);
+            ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/shipment/strings.form.validation.max'),
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.booking_no'));
     }
 
     public static function getCompanyField(): Select
@@ -45,7 +53,8 @@ trait Form
             ->required()
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
-            ]);
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.carrier'));
     }
 
     public static function getContainerNoField(): Select
@@ -81,7 +90,11 @@ trait Form
     {
         return TextInput::make('contract_no')
             ->label(__('resources/shipment/strings.form.contract_no'))
-            ->maxLength(255);
+            ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/shipment/strings.form.validation.max'),
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.contract_no'));
     }
 
     public static function getCustomsQuantityField(): TextInput
@@ -91,6 +104,11 @@ trait Form
             ->numeric()
             ->minValue(0)
             ->step(0.01)
+            ->validationMessages([
+                'numeric' => __('resources/shipment/strings.form.validation.numeric'),
+                'min' => __('resources/shipment/strings.form.validation.min_numeric_zero'),
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.customs_quantity'))
             ->hint(fn($get) => delimiter($get('customs_quantity')));
     }
 
@@ -110,6 +128,8 @@ trait Form
     public static function getDocsField(): Repeater
     {
         $defaults = __('resources/shipment/strings.form.docs_options');
+        $options = is_array($defaults) ? collect($defaults)->except('track')->all() : [];
+        $locked = fn(Get $get) => (bool)$get('../../doc_tracking');
 
         return Repeater::make('docs')
             ->hiddenLabel()
@@ -118,19 +138,20 @@ trait Form
                     ->label(__('resources/shipment/strings.form.doc_name'))
                     ->required()
                     ->columnSpan(3)
-                    ->afterStateHydrated(fn(TextInput $component, $state) => is_string($state) && array_key_exists($state, $defaults)
-                        ? $component->state($defaults[$state])
-                        : null
-                    )
-                    ->formatStateUsing(fn($state) => is_string($state) && isset($defaults[$state]) ? $defaults[$state] : $state)
-                    ->dehydrateStateUsing(fn($state) => ($key = array_search($state, $defaults, true)) !== false ? $key : $state)
+                    ->readOnly($locked)
+                    ->dehydrated()
+                    ->afterStateHydrated(fn(TextInput $component, $state) => is_string($state) && array_key_exists($state, $options)
+                        ? $component->state($options[$state])
+                        : null)
+                    ->formatStateUsing(fn($state) => is_string($state) && isset($options[$state]) ? $options[$state] : $state)
+                    ->dehydrateStateUsing(fn($state) => ($key = array_search($state, $options, true)) !== false ? $key : $state)
                     ->rules([
-                        function () use ($defaults) {
-                            return function (string $attribute, $value, \Closure $fail) use ($defaults) {
-                                if (in_array($value, $defaults, true) || in_array($value, array_keys($defaults), true)) return;
+                        function () use ($options) {
+                            return function (string $attribute, $value, \Closure $fail) use ($options) {
+                                if (in_array($value, $options, true) || in_array($value, array_keys($options), true)) return;
                                 if (!preg_match('/^[a-zA-Z0-9\s\(\)\-_]+$/u', $value)) $fail(__('resources/shipment/strings.form.validation.english_only'));
                             };
-                        }
+                        },
                     ]),
                 Toggle::make('received')
                     ->label('⇄')
@@ -139,30 +160,20 @@ trait Form
                     ->offIcon('heroicon-s-x-mark')
                     ->onColor('success')
                     ->offColor('danger')
+                    ->disabled($locked)
+                    ->dehydrated()
                     ->columnSpan(1),
             ])
-            ->default(fn() => !is_array($defaults) ? [] : collect($defaults)->map(fn($label, $key) => ['name' => $label, 'received' => false])->values()->toArray())
+            ->default(fn() => collect($options)->map(fn($label, $key) => ['name' => $label, 'received' => false])->values()->all())
             ->columns(4)
             ->columnSpanFull()
             ->grid(3)
+            ->addable(fn(Get $get) => !(bool)$get('doc_tracking'))
+            ->deletable(fn(Get $get) => !(bool)$get('doc_tracking'))
             ->addActionLabel(__('resources/shipment/strings.form.add_doc'))
             ->collapsible()
             ->itemLabel(fn() => null);
     }
-
-    public static function getSmartTracerField(): Toggle
-    {
-        return Toggle::make('doc_tracking')
-            ->label(__('resources/shipment/strings.form.smart_tracer'))
-            ->default(true)
-            ->inline(false)
-            ->onIcon('heroicon-s-bolt')
-            ->offIcon('heroicon-s-bolt-slash')
-            ->onColor('success')
-            ->offColor('gray')
-            ->columnSpanFull();
-    }
-
 
     public static function getEtaField()
     {
@@ -184,7 +195,6 @@ trait Form
             ->label(__('resources/shipment/strings.form.exit_date'))
             ->native(false));
     }
-
 
     public static function getNotesField(): Textarea
     {
@@ -231,11 +241,12 @@ trait Form
             ->live()
             ->required()
             ->searchable()
+            ->helperText(__('resources/shipment/strings.form.helper_part'))
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
-            ]);
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.part'));
     }
-
 
     public static function getRegisteredOrderField(): Select
     {
@@ -250,7 +261,8 @@ trait Form
             ->afterStateUpdated(fn($state, Set $set) => $set('contract_no', RegisteredOrder::find($state, ['contract_no'])?->contract_no ?? null))
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
-            ]);
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.registered_order'));
     }
 
     public static function getRemittanceAmountField(): TextInput
@@ -260,6 +272,11 @@ trait Form
             ->numeric()
             ->minValue(0)
             ->prefix('💰')
+            ->validationMessages([
+                'numeric' => __('resources/shipment/strings.form.validation.numeric'),
+                'min' => __('resources/shipment/strings.form.validation.min_numeric_zero'),
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.remittance_amount'))
             ->hint(fn($get) => delimiter($get('remittance_amount')));
     }
 
@@ -273,7 +290,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
                 'unique' => __('resources/shipment/strings.form.validation.unique'),
-            ]);
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.shipment_no'));
     }
 
     public static function getShipmentStatusField(): Select
@@ -296,7 +314,26 @@ trait Form
             ->numeric()
             ->minValue(0)
             ->step(0.01)
+            ->validationMessages([
+                'numeric' => __('resources/shipment/strings.form.validation.numeric'),
+                'min' => __('resources/shipment/strings.form.validation.min_numeric_zero'),
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.shipped_quantity'))
             ->hint(fn($get) => delimiter($get('shipped_quantity')));
+    }
+
+    public static function getSmartTracerField(): Toggle
+    {
+        return Toggle::make('doc_tracking')
+            ->label(__('resources/shipment/strings.form.docs_options.track'))
+            ->default(true)
+            ->live()
+            ->inline(false)
+            ->onIcon('heroicon-s-bolt')
+            ->offIcon('heroicon-s-bolt-slash')
+            ->onColor('success')
+            ->offColor('gray')
+            ->columnSpanFull();
     }
 
     public static function getStatusField(): Select
@@ -314,7 +351,8 @@ trait Form
             ->required()
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
-            ]);
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.status'));
     }
 
     public static function getWarehouseDateField()

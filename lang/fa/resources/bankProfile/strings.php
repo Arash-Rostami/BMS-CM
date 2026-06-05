@@ -37,7 +37,7 @@ return [
 
         'bp_number' => 'شماره پروفایل بانکی',
         'status' => 'وضعیت',
-        'registered_order' => 'سفارش ثبت‌شده',
+        'registered_order' => 'ثبت سفارش',
         'order_number' => 'شماره ثبت سفارش',
         'company' => 'شرکت',
         'bank' => 'بانک (نماینده)',
@@ -53,6 +53,7 @@ return [
         'exchange_rate' => 'نرخ ارز',
         'final_rate' => 'نرخ نهایی/موثر',
         'conversion_rate' => 'نرخ تبدیل معادل',
+        'eur_equivalent_rate' => 'نرخ معادل یورو',
         'creation_date' => 'تاریخ ایجاد',
         'allocation_date' => 'تاریخ تخصیص',
         'purchase_date' => 'تاریخ خرید',
@@ -64,6 +65,7 @@ return [
             'commission_rate' => 'نرخ کارمزد — درصدی که بانک به‌عنوان کارمزد دریافت می‌کند؛ شامل سایر هزینه‌ها نیز می‌باشد.',
             'exchange_rate' => 'نرخ ارز — نرخی که برای تبدیل به ریال استفاده می‌شود.',
             'conversion_rate' => 'نرخ تبدیل — به‌صورت خودکار بین ارز درخواستی و خریداری‌شده محاسبه می‌شود.',
+            'eur_equivalent_rate' => 'نرخ معادل یورو — معادل نرخ بر حسب یورو که به‌صورت خودکار محاسبه می‌شود و نیازی به ورود دستی ندارد.',
         ],
 
         'summary_commission_amount' => 'مبلغ کارمزد',
@@ -79,6 +81,11 @@ return [
         'validation_min_numeric_zero' => 'این فیلد نمی‌تواند منفی باشد.',
         'validation_date_after_or_equal' => 'این تاریخ باید برابر یا بعد از :date باشد.',
         'validation_unique' => 'این مقدار قبلاً وجود دارد.',
+        'validation_max_length' => 'لطفاً این مقدار را در :max نویسه یا کمتر وارد کنید.',
+
+        'helper_commission_rate' => 'فقط درصد را وارد کنید (مثلاً ۱.۵، نه ۱.۵٪) — این مقدار به نرخ ارز افزوده می‌شود تا نرخ نهایی به‌دست آید.',
+        'helper_delivery_date' => 'تاریخ تحویل نمی‌تواند پیش از تاریخ خرید باشد، پس ابتدا تاریخ خرید را تعیین کنید.',
+        'helper_requested_amount' => 'این مقدار مبنای همهٔ محاسبات زیر از جمله تعهد باقی‌مانده است؛ پیش از ذخیره آن را با دقت بررسی کنید.',
     ],
     'table' => [
         'id' => 'شناسه',
@@ -97,7 +104,7 @@ return [
         'bank' => 'بانک (نماینده)',
         'company' => 'شرکت',
         'creator' => 'ایجادکننده',
-        'registered_order' => 'سفارش ثبت‌شده',
+        'registered_order' => 'ثبت سفارش',
         'status' => 'وضعیت',
         'created_from' => 'ایجاد شده از',
         'created_until' => 'ایجاد شده تا',
@@ -105,7 +112,7 @@ return [
     'groups' => [
         'bank' => 'بانک (نماینده)',
         'company' => 'شرکت',
-        'registered_order' => 'سفارش ثبت‌شده',
+        'registered_order' => 'ثبت سفارش',
         'targetable' => 'محصول | دسته',
     ],
     'infolist' => [

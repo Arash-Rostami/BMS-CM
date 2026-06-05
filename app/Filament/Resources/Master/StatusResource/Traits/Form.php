@@ -46,6 +46,10 @@ trait Form
                 }
             })
             ->required(fn(Get $get) => !$get('custom_type'))
+            ->validationAttribute(__('resources/status/strings.form.type'))
+            ->validationMessages([
+                'required' => __('resources/status/strings.form.validation_type_required'),
+            ])
             ->visible(fn(Get $get) => !$get('custom_type'));
     }
 
@@ -54,6 +58,10 @@ trait Form
         return TextInput::make('type_custom')
             ->label(__('resources/status/strings.form.type') . ' (' . __('resources/status/strings.form.custom') . ')')
             ->required(fn(Get $get) => $get('custom_type'))
+            ->validationAttribute(__('resources/status/strings.form.type'))
+            ->validationMessages([
+                'required' => __('resources/status/strings.form.validation_type_custom_required'),
+            ])
             ->visible(fn(Get $get) => $get('custom_type'));
     }
 
@@ -79,6 +87,10 @@ trait Form
                 }
             })
             ->required(fn(Get $get) => !$get('custom_english_type'))
+            ->validationAttribute(__('resources/status/strings.form.english_type'))
+            ->validationMessages([
+                'required' => __('resources/status/strings.form.validation_english_type_required'),
+            ])
             ->visible(fn(Get $get) => !$get('custom_english_type'));
     }
 
@@ -87,6 +99,10 @@ trait Form
         return TextInput::make('english_type_custom')
             ->label(__('resources/status/strings.form.english_type') . ' (' . __('resources/status/strings.form.custom') . ')')
             ->required(fn(Get $get) => $get('custom_english_type'))
+            ->validationAttribute(__('resources/status/strings.form.english_type'))
+            ->validationMessages([
+                'required' => __('resources/status/strings.form.validation_english_type_custom_required'),
+            ])
             ->visible(fn(Get $get) => $get('custom_english_type'));
     }
 
@@ -103,9 +119,12 @@ trait Form
                 modifyRuleUsing: fn ($rule, $get) => $rule->where('type', $get('type'))
             )
             ->placeholder(__('resources/status/strings.form.validation_name'))
+            ->helperText(__('resources/status/strings.form.helper_name'))
             ->validationMessages([
+                'required' => __('resources/status/strings.form.validation_name_required'),
                 'regex' => __('resources/status/strings.form.validation_name'),
                 'unique' => __('resources/status/strings.form.validation_name_unique'),
+                'max' => __('resources/status/strings.form.validation_name_max'),
             ])
             ->validationAttribute(__('resources/status/strings.form.name'));
     }
@@ -124,8 +143,10 @@ trait Form
             )
             ->placeholder(__('resources/status/strings.form.validation_english_name'))
             ->validationMessages([
+                'required' => __('resources/status/strings.form.validation_english_name_required'),
                 'regex' => __('resources/status/strings.form.validation_english_name'),
                 'unique' => __('resources/status/strings.form.validation_english_name_unique'),
+                'max' => __('resources/status/strings.form.validation_english_name_max'),
             ])
             ->validationAttribute(__('resources/status/strings.form.english_name'));
     }

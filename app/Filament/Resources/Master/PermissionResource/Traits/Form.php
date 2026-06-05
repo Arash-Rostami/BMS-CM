@@ -15,7 +15,13 @@ trait Form
             ->label(__('resources/permission/strings.form.name'))
             ->required()
             ->unique(ignoreRecord: true)
-            ->maxLength(255);
+            ->maxLength(255)
+            ->helperText(__('resources/permission/strings.form.helper_name'))
+            ->validationMessages([
+                'required' => __('resources/permission/strings.form.validation_name_required'),
+                'unique' => __('resources/permission/strings.form.validation_name_unique'),
+            ])
+            ->validationAttribute(__('resources/permission/strings.form.name'));
     }
 
     public static function getRoles(): Select

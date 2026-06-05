@@ -27,6 +27,9 @@ trait Form
         return TextInput::make('account_no')
             ->label(__('resources/payment/strings.form.account_no'))
             ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/payment/strings.form.validation_max_length'),
+            ])
             ->validationAttribute(__('resources/payment/strings.form.account_no'));
     }
 
@@ -89,6 +92,9 @@ trait Form
         return TextInput::make('beneficiary_name')
             ->label(__('resources/payment/strings.form.beneficiary_name'))
             ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/payment/strings.form.validation_max_length'),
+            ])
             ->validationAttribute(__('resources/payment/strings.form.beneficiary_name'));
     }
 
@@ -137,6 +143,10 @@ trait Form
         return TextInput::make('iban')
             ->label(__('resources/payment/strings.form.iban'))
             ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/payment/strings.form.validation_max_length'),
+            ])
+            ->helperText(__('resources/payment/strings.form.helper_iban'))
             ->validationAttribute(__('resources/payment/strings.form.iban'));
     }
 
@@ -233,6 +243,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/payment/strings.form.validation_required'),
                 'unique' => __('resources/payment/strings.form.validation_unique'),
+                'max' => __('resources/payment/strings.form.validation_max_length'),
             ])
             ->validationAttribute(__('resources/payment/strings.form.payment_no'));
     }
@@ -298,6 +309,9 @@ trait Form
         return TextInput::make('swift')
             ->label(__('resources/payment/strings.form.swift'))
             ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/payment/strings.form.validation_max_length'),
+            ])
             ->validationAttribute(__('resources/payment/strings.form.swift'));
     }
 

@@ -23,9 +23,12 @@ return [
         'achieved_amount' => 'Achieved Amount',
         'creator' => 'Creator',
         'updater' => 'Updater',
+        'helper_targetable' => 'Pick a single category or a specific product to set this target against.',
+        'helper_end_in' => 'Must fall after the start date, otherwise the target period will be rejected.',
         'validation_year' => 'Year must be a 4-digit number.',
         'validation_required' => 'This field is required.',
         'validation_numeric' => 'The given input must be a number.',
+        'validation_date' => 'Please enter a valid date.',
         'validation_end_in_after_start_from' => 'The end date must be after the start date.',
     ],
     'table' => [

@@ -158,6 +158,7 @@ trait Form
     {
         return TextInput::make('subject')
             ->label(__('resources/correspondence/strings.form.subject'))
+            ->helperText(__('resources/correspondence/strings.form.helper_subject'))
             ->required()
             ->default(function () {
                 $parent = static::getReplyParent();
@@ -168,6 +169,7 @@ trait Form
             ->validationAttribute(__('resources/correspondence/strings.form.subject'))
             ->validationMessages([
                 'required' => __('resources/correspondence/strings.form.validation_required'),
+                'max' => __('resources/correspondence/strings.form.validation_subject_max'),
             ]);
     }
 

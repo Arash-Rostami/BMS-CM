@@ -1,15 +1,23 @@
+/* ==========================================================================
+   1. IMPORTS & FRAMEWORK SOURCES
+   ========================================================================== */
 @import "../../vendor/filament/filament/resources/css/theme.css";
 
+/* Tailwind Content Sources */
 @source '../../app/Filament/**/*.php';
 @source '../views/filament/**/*.blade.php';
 @source '../views/**/*.blade.php';
 @source '../../../../app/Filament';
 @source '../../../../resources/views/filament';
 
+/* Third-Party Plugin Sources */
 @source '../../../../vendor/bezhansalleh/filament-language-switch/resources/views/**/*.blade.php';
 
-
+/* ==========================================================================
+   2. DESIGN TOKENS (COLORS, GRADIENTS & MD3 PHYSICS)
+   ========================================================================== */
 :root {
+    /* -- Core Brand Colors -- */
     --custom-first: #F8FAFC;
     --custom-second: #D9EAFD;
     --custom-third: #BCCCDC;
@@ -17,26 +25,31 @@
     --custom-neutral: #E8E8E8;
     --filament-dark: #09090B;
 
+    /* -- Mid-Tone Translucencies (70% Opacity) -- */
     --custom-second-mid: rgb(217, 234, 253, 0.7);
     --custom-third-mid: rgb(188, 204, 220, 0.7);
     --custom-fourth-mid: rgb(154, 166, 178, 0.7);
     --filament-dark-mid: #18181B;
 
+    /* -- Light Translucencies (40% Opacity for Glass/Surface Effects) -- */
     --custom-second-light: rgb(217, 234, 253, 0.4);
     --custom-third-light: rgb(188, 204, 220, 0.4);
     --custom-fourth-light: rgb(154, 166, 178, 0.4);
     --custom-neutral-light: rgb(232, 232, 232, 0.5);
 
+    /* -- Google Material 3 Inspired Light Theme -- */
     --google-first-light: #FFFFFF;
     --google-second-light: #E1E4E8;
     --google-third-light: #C1C6CC;
     --google-fourth-light: #5C6AC4;
 
+    /* -- Google Material 3 Inspired Dark Theme -- */
     --google-first-dark: #1E1E1E;
     --google-second-dark: #2C2B2F;
     --google-third-dark: #49454F;
     --google-fourth-dark: #6750A4;
 
+    /* -- Reusable UI Surface Gradients -- */
     --gradient-primary: linear-gradient(135deg, var(--custom-first), var(--custom-second));
     --gradient-secondary: linear-gradient(135deg, var(--custom-second), var(--custom-third));
     --gradient-accent: linear-gradient(135deg, var(--custom-third), var(--custom-fourth));
@@ -45,6 +58,8 @@
     --gradient-deep: linear-gradient(135deg, var(--filament-dark), var(--filament-dark-mid));
     --gradient-light: linear-gradient(135deg, var(--custom-second-light), var(--custom-third-light));
     --gradient-soft: linear-gradient(135deg, var(--custom-fourth-light), var(--custom-neutral-light));
+
+    /* -- Cross-Theme Gradients -- */
     --gradient-google-light: linear-gradient(135deg, var(--google-first-light), var(--google-second-light));
     --gradient-google-accent: linear-gradient(135deg, var(--google-third-light), var(--google-fourth-light));
     --gradient-google-dark: linear-gradient(135deg, var(--google-first-dark), var(--google-second-dark));
@@ -52,75 +67,92 @@
     --gradient-contrast: linear-gradient(135deg, var(--custom-first), var(--custom-fourth));
     --gradient-brand: linear-gradient(135deg, var(--google-fourth-light), var(--google-fourth-dark));
     --gradient-hero: linear-gradient(135deg, var(--custom-second), var(--filament-dark));
+
+    /* -- Material Design 3 Physics (Motion Curves) --
+       Emphasized Decelerate: Used for incoming elements and state changes (hover/focus).
+       Creates a snappy start that softly glides into resting position. */
+    --md-motion: cubic-bezier(0.2, 0, 0, 1);
+    --md-motion-exit: cubic-bezier(0.4, 0, 1, 1);
 }
 
+/* ==========================================================================
+   3. TYPOGRAPHY ENGINE & BASE RENDER
+   ========================================================================== */
+/* ERP systems require peak legibility for dense data grids.
+   These rules enforce hardware-accelerated text rendering and sub-pixel antialiasing. */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 
-/* ─── PANEL ───────────────────────────────────────── */
+/* Brand Logo Animation. Hardware accelerated (translateZ) to prevent repaints. */
 .fi-logo {
     animation: jello-horizontal 0.9s 2s both;
     -webkit-animation: jello-horizontal 0.9s 2s both;
+    transform: translateZ(0);
 }
 
 /*:not(.dark) .fi-body {*/
-/*    background-color: var(--custom-first) !important;*/
+/* background-color: var(--custom-first) !important;*/
 /*}*/
 
+/* Light Mode Global Mesh Surface
+   Utilizes an oversized gradient mapping with a slow, infinite shift animation.
+   will-change informs the browser to allocate dedicated GPU memory for background shifts. */
 :not(.dark) .fi-body {
     background-image: linear-gradient(135deg, var(--google-first-light) 0%, var(--google-second-light) 25%, var(--custom-second-light) 50%, var(--custom-neutral) 75%, var(--google-first-light) 100%) !important;
     background-size: 400% 400% !important;
-    animation: gradient-shift 15s ease infinite !important;
 }
 
-
-/* Widgets */
-:not(.dark) body .fi-wi-widget .fi-section-content {
-    transition: background 0.3s ease, box-shadow 0.3s ease, border-radius 0.3s ease;
-    border-radius: 8px;
+@media (prefers-reduced-motion: no-preference) {
+    :not(.dark) .fi-body {
+        animation: gradient-shift 15s var(--md-motion) infinite !important;
+    }
 }
 
-body .fi-wi-widget .fi-section-content:hover {
-    background-color: var(--custom-neutral-light) !important;
-}
-
-.dark body .fi-wi-widget .fi-section-content:hover {
-    background-color: var(--google-first-dark) !important;
-}
-
-/* Top Nav */
+/* ==========================================================================
+   4. NAVIGATION SURFACES (TOPBAR & SIDEBAR)
+   ========================================================================== */
+/* --- Top Navigation Bar --- */
+/* MD3 Surface Elevation Level 2: Casts a soft, layered shadow indicating hierarchy above the main view. */
 .fi-topbar {
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.06), 0px 4px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 2px 6px rgba(0, 0, 0, 0.06);
     max-height: 20px !important;
     border: none !important;
     background-color: var(--custom-third-mid) !important;
-    animation: slide-in-top 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation: slide-in-top 0.5s var(--md-motion) both;
 }
 
 .dark .fi-topbar {
     background-color: var(--filament-dark-mid) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .fi-topbar-start {
     flex-direction: row-reverse !important;
 }
 
+/* --- Sidebar Toggle Controls (Tactile Buttons) --- */
 .fi-topbar-close-collapse-sidebar-btn,
 .fi-topbar-open-collapse-sidebar-btn,
 .fi-sidebar-group-collapse-btn {
     transform: scale(0.8) !important;
     animation: slide-in-down 0.5s 0.5s both;
-    transition: transform 0.3s ease;
+    transition: transform 0.25s var(--md-motion), background-color 0.25s var(--md-motion);
     border-radius: 50%;
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px !important;
+    /* MD3 Subtle Elevation */
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15) !important;
     cursor: pointer;
 }
 
+/* Tactile feedback: Scale up slightly on hover, mimicking a physical button ready to be pressed. */
 .fi-topbar-close-collapse-sidebar-btn:hover,
 .fi-topbar-open-collapse-sidebar-btn:hover,
 .fi-sidebar-group-collapse-btn:hover {
-    transform: scale(0.9) !important;
+    transform: scale(0.85) !important;
 }
 
-/* Language switcher */
+/* --- Language Switcher Overrides --- */
 .language-switch-trigger img,
 .fls-flag-only-width img {
     width: 1.75rem !important;
@@ -145,24 +177,25 @@ body .fi-wi-widget .fi-section-content:hover {
     justify-content: center !important;
 }
 
-/* Side Nav */
+/* --- Sidebar Container & Glassmorphism --- */
 :not(.dark) .fi-sidebar-header,
 :not(.dark) .fi-sidebar-close-overlay {
     background-color: var(--custom-third-mid) !important;
-    box-shadow: 4px 0px 8px rgba(0, 0, 0, 0.06), 8px 0px 16px rgba(0, 0, 0, 0.06);
+    /* MD3 Directional Shadow for Drawer Components */
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04), 4px 0 16px rgba(0, 0, 0, 0.04);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
 
-/* Side Nav Collapse BTN */
+/* Sidebar Action Buttons */
 .fi-sidebar-header button {
     cursor: pointer;
     display: inline-block;
     padding: 8px;
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    border-radius: 10px; /* MD3 Small Shape */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     outline: none;
-    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+    transition: background-color 0.25s var(--md-motion), color 0.25s var(--md-motion), box-shadow 0.25s var(--md-motion);
     fill: none;
     stroke: var(--custom-third);
 }
@@ -170,18 +203,18 @@ body .fi-wi-widget .fi-section-content:hover {
 .fi-sidebar-header button:hover {
     background-color: var(--custom-neutral-light) !important;
     color: #707070 !important;
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .dark .fi-sidebar-header button:hover {
     background-color: var(--google-first-dark) !important;
 }
 
-/* Side Nav Menu Items */
+/* --- Sidebar Menu Items (State Layers) --- */
 .fi-sidebar-item {
     width: auto;
     padding: 5px;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity 0.25s var(--md-motion), transform 0.25s var(--md-motion);
 }
 
 .fi-sidebar-item > a {
@@ -196,19 +229,21 @@ body .fi-wi-widget .fi-section-content:hover {
     background-image: none;
 }
 
+/* Active Hover State Layer: Subtle physical shift right to indicate selection readiness */
 .fi-sidebar-item > a:hover {
-    border-radius: 7px;
+    border-radius: 8px;
     width: auto;
     background-image: none;
     background-color: var(--custom-neutral) !important;
-    opacity: 0.9;
-    transform: translateX(5px);
+    opacity: 0.95;
+    transform: translateX(3px); /* Grounded movement, not overly bouncy */
 }
 
 .dark .fi-sidebar-item > a:hover {
     background-color: var(--google-first-dark) !important;
 }
 
+/* Active State Indicator (Hardware Accelerated Pulse) */
 .fi-sidebar-item.fi-active > a::before {
     content: '🔹';
     position: absolute;
@@ -217,12 +252,393 @@ body .fi-wi-widget .fi-section-content:hover {
     top: -7px;
     bottom: 25%;
     width: 3px;
-    animation: pulse 2s infinite;
+    animation: pulse 2.5s infinite var(--md-motion);
     border-radius: 50%;
     cursor: pointer;
 }
 
-/* Panel ScrollBar */
+/* ==========================================================================
+   5. SURFACE CONTAINERS (CARDS, WIDGETS, SECTIONS)
+   ========================================================================== */
+/* --- Widget Containers --- */
+:not(.dark) body .fi-wi-widget .fi-section-content {
+    transition: background-color 0.3s var(--md-motion), box-shadow 0.3s var(--md-motion);
+    border-radius: 12px; /* MD3 Medium Shape Family */
+}
+
+body .fi-wi-widget .fi-section-content:hover {
+    background-color: var(--custom-neutral-light) !important;
+}
+
+.dark body .fi-wi-widget .fi-section-content:hover {
+    background-color: var(--google-first-dark) !important;
+}
+
+/* --- Form Sections & Primary Cards ---
+   These act as the primary structural unit of the ERP.
+   MD3 Elevation Level 1 resting, elevating to Level 2 on hover. */
+.fi-section {
+    background-color: var(--custom-third-light) !important;
+    /* Layered ambient shadow for realistic depth */
+    box-shadow: 0 1px 3px rgba(9, 30, 66, 0.1), 0 1px 2px rgba(9, 30, 66, 0.06), 0 0 0 1px rgba(9, 30, 66, 0.04) !important;
+    transition: background-color 0.3s var(--md-motion), box-shadow 0.3s var(--md-motion), transform 0.3s var(--md-motion);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.dark .fi-section {
+    background-color: var(--filament-dark-mid) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Hover State Layer: Element physically lifts toward the user */
+.fi-section:hover {
+    background-color: var(--custom-neutral) !important;
+    /* MD3 Elevation Level 2 */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dark .fi-section:hover {
+    background-color: var(--google-first-dark) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Prevent hover transforms on elements already elevated inside modals/widgets */
+.fi-modal-window-ctn .fi-section:hover,
+.fi-modal .fi-section:hover,
+.fi-wi-widget .fi-section:hover {
+    transform: none !important;
+}
+
+/* ==========================================================================
+   6. DATA GRIDS (ERP TABLES)
+   ========================================================================== */
+/* --- Main Table Surface ---
+   Dense, high-contrast layouts required for enterprise data parsing. */
+.fi-ta {
+    border: none;
+    transition: background-color 0.3s var(--md-motion), box-shadow 0.3s var(--md-motion);
+    /* MD3 Elevation Level 2 for primary data grids */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 12px var(--custom-third-mid);
+}
+
+.dark .fi-ta {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Table Toolbar (Search/Filters) --- */
+.fi-ta-header-ctn {
+    margin: 0;
+    border-radius: 12px 12px 0 0;
+    background-color: var(--custom-third-light) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark .fi-ta-header-ctn {
+    background-color: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* --- Table Column Headers --- */
+thead > tr th {
+    font-weight: 600;
+    letter-spacing: 0.02em; /* ERP Standard: Improves readability of technical column names */
+    background-color: var(--custom-third) !important;
+}
+
+.dark thead > tr th {
+    background-color: var(--google-second-dark) !important;
+}
+
+/* --- Table Pagination Footer --- */
+nav.fi-ta-pagination {
+    padding: 8px;
+    border-radius: 0 0 12px 12px;
+    background-color: var(--custom-second-light) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark nav.fi-ta-pagination {
+    background-color: transparent !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+/* ==========================================================================
+   7. DIALOGS, MODALS & DROPDOWNS
+   ========================================================================== */
+/* --- The Modal Card --- */
+.fi-modal-window {
+    background-color: var(--custom-neutral);
+    border-radius: 16px; /* MD3 Large Shape for Dialogs */
+    /* MD3 Elevation Level 3: Highest prominence */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 16px 32px rgba(0, 0, 0, 0.08);
+}
+
+.dark .fi-modal-window {
+    background-color: var(--filament-dark-mid);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6), 0 16px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* --- The Modal Backdrop (Scrim) ---
+   Focuses user attention by blurring and darkening the background layer. */
+.fi-modal-window-ctn {
+    backdrop-filter: blur(3px) saturate(150%) brightness(90%);
+    background: linear-gradient(135deg,
+    var(--custom-second-light) 0%,
+    var(--custom-third-light) 50%,
+    var(--custom-fourth-light) 100%);
+}
+
+.dark .fi-modal-window-ctn {
+    backdrop-filter: blur(3px) saturate(150%) brightness(80%);
+    background: radial-gradient(ellipse at 50% 0%, rgba(103, 80, 164, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(92, 106, 196, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg,
+        rgba(24, 24, 27, 0.5) 0%,
+        rgba(44, 43, 47, 0.5) 50%,
+        rgba(73, 69, 79, 0.5) 100%);
+}
+
+/* Database Notification Positioning Reset */
+.fi-modal-window[x-on\:keydown\.window\.escape*="database-notifications"] {
+    margin-top: 0;
+}
+
+/* --- Dropdown Menus (State Layers) --- */
+.fi-dropdown-panel:hover {
+    background-color: var(--custom-neutral) !important;
+}
+
+.dark .fi-dropdown-panel:hover {
+    background-color: var(--google-first-dark) !important;
+}
+
+/* Layout Protection: Hide background scrolling/badges when a modal dominates the view */
+body:has(.fi-modal-open) .fi-sidebar-nav span.fi-badge,
+body:has(.fi-modal-open) ::-webkit-scrollbar {
+    display: none;
+}
+
+.dark body:has(.fi-modal-open) .fi-sidebar-nav span.fi-badge,
+.dark body:has(.fi-modal-open) ::-webkit-scrollbar {
+    display: none;
+}
+
+body:has(.fi-modal-open) :is(
+  nav.fi-topbar,
+  .fi-sidebar-nav,
+  aside.fi-sidebar.fi-main-sidebar.fi-sidebar-open
+) {
+    display: none !important;
+}
+
+
+/* ==========================================================================
+   8. INTERACTIVE ELEMENTS (BADGES, TABS)
+   ========================================================================== */
+/* --- Status Badges (Infolists) --- */
+.tb-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.5rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600; /* MD3 Boldness for status indicators */
+    letter-spacing: 0.025em;
+    border-radius: 6px; /* MD3 Extra Small Shape */
+    border-width: 1px;
+    border-style: solid;
+}
+
+.tb-info {
+    background-color: rgb(239 246 255) !important;
+    color: rgb(29 78 216) !important;
+    border-color: rgb(29 78 216 / 0.1) !important;
+}
+
+.tb-success {
+    background-color: rgb(240 253 244) !important;
+    color: rgb(21 128 61) !important;
+    border-color: rgb(22 163 74 / 0.2) !important;
+}
+
+.tb-warning {
+    background-color: rgb(254 252 232) !important;
+    color: rgb(133 77 14) !important;
+    border-color: rgb(202 138 4 / 0.2) !important;
+}
+
+.tb-danger {
+    background-color: rgb(254 242 242) !important;
+    color: rgb(185 28 28) !important;
+    border-color: rgb(220 38 38 / 0.1) !important;
+}
+
+/* --- Tab Selection Navigation --- */
+/* Horizontal Scrolling Container */
+.fi-tabs {
+    display: flex;
+    overflow-x: auto;
+    border-radius: 12px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px; /* Buffer for focus rings */
+}
+
+.fi-tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.fi-tabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.fi-tabs::-webkit-scrollbar-thumb {
+    background-color: var(--custom-third) !important;
+    border-radius: 6px;
+}
+
+/* Individual Tab Targets (Resting State) */
+.fi-tabs-item {
+    color: var(--custom-fourth) !important;
+    background-color: transparent;
+    transition: all 0.3s var(--md-motion);
+    cursor: pointer;
+    white-space: nowrap;
+    border: none;
+    outline: none;
+    font-weight: 500;
+    border-radius: 8px; /* Inner tab shape */
+}
+
+/* Tab Hover State Layer */
+.fi-tabs-item:hover {
+    background-color: var(--custom-neutral-light) !important;
+    color: var(--filament-dark) !important;
+    /* MD3 Tactile Feedback: Slight elevation */
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+
+/* Accessibility Focus Ring */
+.fi-tabs-item:focus-visible {
+    box-shadow: 0 0 0 2px var(--custom-third) !important;
+}
+
+/* Active Selected Tab */
+.fi-tabs-item.fi-active {
+    background-image: var(--gradient-secondary) !important;
+    color: var(--custom-fourth-light);
+    box-shadow: 0 2px 4px rgba(16, 24, 40, 0.08), 0 4px 12px rgba(16, 24, 40, 0.06);
+}
+
+.fi-tabs-item .fi-badge {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: inherit;
+    padding: 0.1rem 0.4rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+}
+
+/* Dark Mode Overrides for Tabs */
+.dark .fi-tabs-item {
+    color: var(--google-third-light) !important;
+}
+
+.dark .fi-tabs-item:hover {
+    background-color: var(--google-second-dark) !important;
+    color: var(--google-first-light);
+}
+
+.dark .fi-tabs-item.fi-active {
+    background-image: var(--gradient-google-deep) !important;
+    color: var(--google-first-light) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================================================
+   9. CUSTOM AUTHENTICATION & LOGIN LAYOUT
+   ========================================================================== */
+/* Base wrapper for full-screen auth canvases */
+.fi-body .fi-simple-layout {
+    position: relative;
+    z-index: 0;
+    min-height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(135deg, #2c313c 0%, #3a4452 30%, #f5f7f9 55%, #3a4452 80%, #2c313c 100%);
+}
+
+.dark .fi-body .fi-simple-layout {
+    background: linear-gradient(135deg, #1B1B1D 0%, #222225 30%, #2A2B2E 55%, #222225 80%, #1B1B1D 100%);
+}
+
+/* Atmospheric Background Overlays (Video/Image integrations) */
+.fi-body .fi-simple-layout::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 40%;
+    height: 100%;
+    background: url("/video/2.webp") no-repeat center center;
+    background-size: cover;
+    mix-blend-mode: soft-light;
+    opacity: 0.38;
+    filter: contrast(115%) brightness(96%) saturate(115%);
+    -webkit-mask-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: cover;
+    mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
+    mask-repeat: no-repeat;
+    mask-size: cover;
+    z-index: -1;
+}
+
+.dark .fi-body .fi-simple-layout::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 40%;
+    height: 100%;
+    background: url("/video/1.webp") no-repeat center center;
+    background-size: cover;
+    mix-blend-mode: lighten;
+    opacity: 0.28;
+    filter: contrast(120%) brightness(85%) saturate(120%) drop-shadow(0 0 20px rgba(0, 180, 255, 0.15));
+    -webkit-mask-image: -webkit-linear-gradient(to left, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: cover;
+    mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
+    mask-repeat: no-repeat;
+    mask-size: cover;
+    z-index: -1;
+}
+
+/* The Central Login Card Surface */
+.fi-simple-main {
+    position: absolute;
+    padding: 2rem;
+    border-radius: 16px; /* MD3 Large Shape */
+    transition: background-color 0.3s var(--md-motion), box-shadow 0.3s var(--md-motion);
+    box-shadow: 0 4px 6px -1px rgba(9, 30, 66, 0.1), 0 2px 4px -1px rgba(9, 30, 66, 0.06), 0 0 0 1px rgba(9, 30, 66, 0.05) !important;
+}
+
+.fi-simple-main:hover {
+    background-color: var(--custom-neutral-light) !important;
+    /* MD3 Elevation Level 3 for floating auth cards */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .fi-simple-main:hover {
+    background-color: var(--google-first-dark) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ==========================================================================
+   10. GLOBAL SYSTEM SCROLLBARS
+   ========================================================================== */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -240,7 +656,7 @@ body .fi-wi-widget .fi-section-content:hover {
 ::-webkit-scrollbar-thumb {
     background-color: var(--custom-third) !important;
     border-radius: 10px;
-    transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.2s var(--md-motion);
 }
 
 .dark ::-webkit-scrollbar-thumb {
@@ -249,9 +665,9 @@ body .fi-wi-widget .fi-section-content:hover {
 
 ::-webkit-scrollbar-thumb:hover {
     background-color: oklch(0.554 0.046 257.417) !important;
-    /*@apply bg-primary;*/
 }
 
+/* Scrollbar Stepper Buttons (Up/Down/Left/Right Arrows) */
 ::-webkit-scrollbar-button {
     width: 6px;
     height: 12px;
@@ -296,6 +712,7 @@ body .fi-wi-widget .fi-section-content:hover {
     background: transparent;
 }
 
+/* Accessibility Override: Respects OS-level reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
     * {
         scroll-behavior: auto;
@@ -306,329 +723,11 @@ body .fi-wi-widget .fi-section-content:hover {
     }
 }
 
-/* ─── LOGIN ───────────────────────────────────────── */
-.fi-body .fi-simple-layout {
-    position: relative;
-    z-index: 0;
-    min-height: 100vh;
-    overflow: hidden;
-    background: linear-gradient(135deg, #2c313c 0%, #3a4452 30%, #f5f7f9 55%, #3a4452 80%, #2c313c 100%);
-}
+/* ==========================================================================
+   11. HARDWARE-ACCELERATED KEYFRAMES
+   ========================================================================== */
+/* All active animations maintain translateZ(0) to execute purely on the GPU compositor layer */
 
-.fi-body .fi-simple-layout::before {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 40%;
-    height: 100%;
-    background: url("/video/2.webp") no-repeat center center;
-    background-size: cover;
-    mix-blend-mode: soft-light;
-    opacity: 0.38;
-    filter: contrast(115%) brightness(96%) saturate(115%) blur(0.3px);
-    -webkit-mask-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-size: cover;
-    mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
-    mask-repeat: no-repeat;
-    mask-size: cover;
-    z-index: -1;
-}
-
-.dark .fi-body .fi-simple-layout {
-    background: linear-gradient(135deg, #1B1B1D 0%, #222225 30%, #2A2B2E 55%, #222225 80%, #1B1B1D 100%);
-}
-
-.dark .fi-body .fi-simple-layout::before {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 40%;
-    height: 100%;
-    background: url("/video/1.webp") no-repeat center center;
-    background-size: cover;
-    mix-blend-mode: lighten;
-    opacity: 0.28;
-    filter: contrast(120%) brightness(85%) saturate(120%) blur(0.5px) drop-shadow(0 0 20px rgba(0, 180, 255, 0.15));
-    -webkit-mask-image: -webkit-linear-gradient(to left, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-size: cover;
-    mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
-    mask-repeat: no-repeat;
-    mask-size: cover;
-    z-index: -1;
-}
-
-.fi-simple-main {
-    position: absolute;
-    padding: 2rem;
-    border-radius: 12px;
-    transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px !important;
-}
-
-.fi-simple-main:hover {
-    background-color: var(--custom-neutral-light) !important;
-    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset !important;
-}
-
-.dark .fi-simple-main:hover {
-    background-color: var(--google-first-dark) !important;
-    box-shadow: none;
-}
-
-
-/* ─── TABLE ───────────────────────────────────────── */
-/* Table Border */
-.fi-ta {
-    border: none;
-    transition: background 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 10px var(--custom-third-mid);
-    animation: fade-in 0.9s 0.4s both;
-    -webkit-animation: fade-in 0.9s 0.4s both;
-}
-
-.dark .fi-ta {
-    box-shadow: none;
-}
-
-/* Table Header */
-.fi-ta-header-ctn {
-    margin: 0;
-    border-radius: 10px 10px 0 0;
-    background-color: var(--custom-third-light) !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-}
-
-.dark .fi-ta-header-ctn {
-    background-color: transparent !important;
-}
-
-/* Table Col Header */
-thead > tr th {
-    font-weight: 500;
-    background-color: var(--custom-third) !important;
-}
-
-.dark thead > tr th {
-    background-color: var(--google-second-dark) !important;
-}
-
-/* Table Paginator */
-nav.fi-ta-pagination {
-    padding: 6px;
-    border-radius: 0 0 10px 10px;
-    background-color: var(--custom-second-light) !important;
-}
-
-.dark nav.fi-ta-pagination {
-    background-color: transparent !important;
-}
-
-
-/* ─── MODALS ───────────────────────────────────────── */
-
-.fi-modal-window {
-    background-color: var(--custom-neutral);
-}
-
-.dark .fi-modal-window {
-    background-color: var(--filament-dark-mid);
-}
-
-.fi-modal-window-ctn {
-    backdrop-filter: blur(2px) saturate(150%) brightness(105%);
-    background: linear-gradient(135deg,
-    var(--custom-second-light) 0%,
-    var(--custom-third-light) 50%,
-    var(--custom-fourth-light) 100%);
-}
-
-.dark .fi-modal-window-ctn {
-    backdrop-filter: blur(2px) saturate(150%) brightness(95%);
-    background: radial-gradient(ellipse at 50% 0%, rgba(103, 80, 164, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 100%, rgba(92, 106, 196, 0.08) 0%, transparent 50%),
-    linear-gradient(135deg,
-        rgba(24, 24, 27, 0.3) 0%,
-        rgba(44, 43, 47, 0.3) 50%,
-        rgba(73, 69, 79, 0.3) 100%);
-}
-
-.fi-modal-window[x-on\:keydown\.window\.escape*="database-notifications"] {
-    margin-top: 0;
-}
-
-.fi-section {
-    background-color: var(--custom-third-light) !important;
-    box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px !important;
-    transition: all 0.3s ease, box-shadow 0.3s ease, border-radius 0.3s ease, transform 0.3s ease;
-    border-radius: 8px;
-    padding: 12px;
-}
-
-.dark .fi-section {
-    background-color: var(--filament-dark-mid) !important;
-}
-
-.fi-section:hover {
-    background-color: var(--custom-neutral) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    border-radius: 10px;
-}
-
-.fi-modal-window-ctn .fi-section:hover,
-.fi-modal .fi-section:hover, .fi-wi-widget .fi-section:hover {
-    transform: none !important;
-}
-
-.dark .fi-section:hover {
-    background-color: var(--google-first-dark) !important;
-}
-
-body:has(.fi-modal-open) .fi-sidebar-nav span.fi-badge,
-body:has(.fi-modal-open) ::-webkit-scrollbar {
-    display: none;
-}
-
-.dark body:has(.fi-modal-open) .fi-sidebar-nav span.fi-badge,
-.dark body:has(.fi-modal-open) ::-webkit-scrollbar {
-    display: none;
-}
-
-
-body:has(.fi-modal-open) :is(
-  nav.fi-topbar,
-  .fi-sidebar-nav,
-  aside.fi-sidebar.fi-main-sidebar.fi-sidebar-open
-) {
-    display: none !important;
-}
-
-/* DropDown Menu */
-.fi-dropdown-panel:hover {
-    background-color: var(--custom-neutral) !important;
-}
-
-.dark .fi-dropdown-panel:hover {
-    background-color: var(--google-first-dark) !important;
-}
-
-
-/* ─── INFOLIST ───────────────────────────────────────── */
-.tb-badge {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 0.5rem;
-    padding: 0.2rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 0.375rem;
-    border-width: 1px;
-    border-style: solid;
-}
-
-.tb-info {
-    background-color: rgb(239 246 255) !important;
-    color: rgb(29 78 216) !important;
-    border-color: rgb(29 78 216 / 0.1) !important;
-}
-
-.tb-success {
-    background-color: rgb(240 253 244) !important;
-    color: rgb(21 128 61) !important;
-    border-color: rgb(22 163 74 / 0.2) !important;
-}
-
-.tb-warning {
-    background-color: rgb(254 252 232) !important;
-    color: rgb(133 77 14) !important;
-    border-color: rgb(202 138 4 / 0.2) !important;
-}
-
-.tb-danger {
-    background-color: rgb(254 242 242) !important;
-    color: rgb(185 28 28) !important;
-    border-color: rgb(220 38 38 / 0.1) !important;
-}
-
-
-/* ─── TAB SELECTOR  ───────────────────────────────────────── */
-.fi-tabs {
-    display: flex;
-    overflow-x: auto;
-    border-radius: 10px;
-    scrollbar-width: thin;
-    -webkit-overflow-scrolling: touch;
-}
-
-.fi-tabs::-webkit-scrollbar {
-    height: 6px;
-}
-
-.fi-tabs::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.fi-tabs::-webkit-scrollbar-thumb {
-    background-color: var(--custom-third) !important;
-    border-radius: 6px;
-}
-
-.fi-tabs-item {
-    color: var(--custom-fourth) !important;
-    background-color: transparent;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    white-space: nowrap;
-    border: none;
-    outline: none;
-}
-
-.fi-tabs-item:hover {
-    background-color: var(--custom-neutral-light) !important;
-    color: var(--filament-dark) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(16, 24, 40, 0.06);
-}
-
-.fi-tabs-item:focus-visible {
-    box-shadow: 0 0 0 2px var(--custom-third) !important;
-}
-
-.fi-tabs-item.fi-active {
-    background-image: var(--gradient-secondary) !important;
-    color: var(--custom-fourth-light);
-    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.12);
-    transform: translateY(-2px);
-}
-
-.fi-tabs-item .fi-badge {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    color: inherit;
-    padding: 0.1rem 0.4rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-}
-
-.dark .fi-tabs-item {
-    color: var(--google-third-light) !important;
-}
-
-.dark .fi-tabs-item:hover {
-    background-color: var(--google-second-dark) !important;
-    color: var(--google-first-light);
-}
-
-.dark .fi-tabs-item.fi-active {
-    background-image: var(--gradient-google-deep) !important;
-    color: var(--google-first-light) !important;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-}
-
-
-/* ─── ANIMATIONS ───────────────────────────────────────── */
 @keyframes gradient-shift {
     0%, 100% {
         background-position: 0% 50%;
@@ -754,5 +853,3 @@ body:has(.fi-modal-open) :is(
         opacity: 1;
     }
 }
-
-
