@@ -11,15 +11,14 @@ export default defineConfig({
                 'resources/css/landing-page.css',
                 'resources/js/app.js',
                 'resources/js/landing-page.js',
-                'resources/js/3d.min.js',
             ],
             refresh: true,
         }),
         viteStaticCopy({
-            targets: [{
-                src: 'resources/img/*',
-                dest: '../img/'
-            }]
+            targets: [
+                {src: 'resources/img/*', dest: '../img/'},
+                {src: 'resources/js/3d.min.js', dest: '../js/'},
+            ]
         })
     ]
 });

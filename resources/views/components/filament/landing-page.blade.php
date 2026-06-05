@@ -24,7 +24,6 @@
     @vite('resources/css/landing-page.css')
 @endpush
 
-
 <div x-data="landingPage()"
      :class="darkMode ? 'dark' : 'light'"
      class="min-h-screen transition-colors duration-500"
@@ -56,6 +55,8 @@
     </div>
 </div>
 
+
 @push('scripts')
-    @vite(['resources/js/3d.min.js', 'resources/js/landing-page.js'])
+    <script src="/js/3d.min.js"></script>
+    @vite(['resources/js/landing-page.js'])
 @endpush
