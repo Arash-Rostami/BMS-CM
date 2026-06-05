@@ -43,10 +43,13 @@ trait Form
             ->unique(column: 'english_name', ignoreRecord: true)
             ->placeholder(__('resources/company/strings.form.validation_english_name'))
             ->validationMessages([
+                'required' => __('resources/company/strings.form.validation_english_name_required'),
+                'max' => __('resources/company/strings.form.validation_english_name_max'),
                 'regex' => __('resources/company/strings.form.validation_english_name'),
                 'unique' => __('resources/company/strings.form.validation_english_name_unique')
             ])
-            ->validationAttribute(__('resources/company/strings.form.english_name'));
+            ->validationAttribute(__('resources/company/strings.form.english_name'))
+            ->helperText(__('resources/company/strings.form.helper_english_name'));
     }
 
     public static function getIsActive(): Toggle
@@ -72,9 +75,12 @@ trait Form
             ->unique(column: 'name', ignoreRecord: true)
             ->placeholder(__('resources/company/strings.form.validation_name'))
             ->validationMessages([
+                'required' => __('resources/company/strings.form.validation_name_required'),
+                'max' => __('resources/company/strings.form.validation_name_max'),
                 'regex' => __('resources/company/strings.form.validation_name'),
                 'unique' => __('resources/company/strings.form.validation_name_unique')
             ])
-            ->validationAttribute(__('resources/company/strings.form.name'));
+            ->validationAttribute(__('resources/company/strings.form.name'))
+            ->helperText(__('resources/company/strings.form.helper_name'));
     }
 }

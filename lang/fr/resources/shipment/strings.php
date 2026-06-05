@@ -24,6 +24,7 @@ return [
         'contract_no' => 'N° de Contrat',
         'carrier' => 'Transporteur',
         'part' => 'Partie',
+        'helper_part' => 'Une même commande peut être expédiée en plusieurs parties — le prochain numéro de partie disponible est suggéré, et seuls les numéros non encore expédiés peuvent être choisis.',
         'case_number' => 'Numéro de Dossier',
 
         'warehouse_date' => 'Date du reçu d\'entrepôt',
@@ -80,6 +81,7 @@ return [
         'doc_received' => 'Reçu',
         'add_doc' => 'Ajouter un Document',
         'docs_options' => [
+            'track' => 'Traceur Intelligent',
             'inspection' => 'Certificat d\'Inspection',
             'bank_commitment' => 'Engagement Bancaire',
             'insurance' => 'Police d\'Assurance',
@@ -97,6 +99,9 @@ return [
             'unique' => 'Cette valeur doit être unique.',
             'unique_part' => 'Cette partie a déjà été enregistrée pour cette commande et ce contrat.',
             'english_only' => 'Seuls les lettres anglaises, chiffres, parenthèses et tirets sont autorisés.',
+            'numeric' => 'Veuillez saisir un nombre valide ici.',
+            'min_numeric_zero' => 'Cette valeur ne peut pas être négative.',
+            'max' => 'Veuillez limiter cette valeur à 255 caractères ou moins.',
         ],
     ],
     'table' => [

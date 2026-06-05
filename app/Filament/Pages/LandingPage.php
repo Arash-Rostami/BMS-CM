@@ -12,7 +12,7 @@ class LandingPage extends Page
     protected static string $layout = 'layout';
     protected static bool $shouldRegisterNavigation = false;
     public array $counts = [];
-    protected string $view = 'components.filament.landing-page.main';
+    protected string $view = 'components.filament.landing-page';
 
     public function mount(): void
     {

@@ -19,6 +19,8 @@ trait Form
             ->unique(column: 'name', ignoreRecord: true)
             ->placeholder(__('resources/category/strings.form.validation_name'))
             ->validationMessages([
+                'required' => __('resources/category/strings.form.validation_name_required'),
+                'max' => __('resources/category/strings.form.validation_name_max'),
                 'regex' => __('resources/category/strings.form.validation_name'),
                 'unique' => __('resources/category/strings.form.validation_name_unique'),
             ])
@@ -35,6 +37,8 @@ trait Form
             ->unique(column: 'english_name', ignoreRecord: true)
             ->placeholder(__('resources/category/strings.form.validation_english_name'))
             ->validationMessages([
+                'required' => __('resources/category/strings.form.validation_english_name_required'),
+                'max' => __('resources/category/strings.form.validation_english_name_max'),
                 'regex' => __('resources/category/strings.form.validation_english_name'),
                 'unique' => __('resources/category/strings.form.validation_english_name_unique'),
             ])
@@ -60,8 +64,11 @@ trait Form
             ->rule('integer')
             ->placeholder(__('resources/category/strings.form.validation_level'))
             ->validationMessages([
+                'required' => __('resources/category/strings.form.validation_level_required'),
+                'numeric' => __('resources/category/strings.form.validation_level_numeric'),
                 'integer' => __('resources/category/strings.form.validation_level'),
             ])
+            ->validationAttribute(__('resources/category/strings.form.level'))
             ->required();
     }
 
@@ -72,6 +79,7 @@ trait Form
             ->relationship('parent', 'name')
             ->searchable()
             ->preload()
+            ->helperText(__('resources/category/strings.form.helper_parent'))
             ->nullable();
     }
 

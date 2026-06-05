@@ -18,6 +18,7 @@ trait Form
             ->unique(column: 'name', ignoreRecord: true)
             ->placeholder(__('resources/currency/strings.form.validation_name'))
             ->validationMessages([
+                'required' => __('resources/currency/strings.form.validation_name_required'),
                 'regex' => __('resources/currency/strings.form.validation_name'),
                 'unique' => __('resources/currency/strings.form.validation_name_unique')
             ])
@@ -34,6 +35,7 @@ trait Form
             ->unique(column: 'english_name', ignoreRecord: true)
             ->placeholder(__('resources/currency/strings.form.validation_english_name'))
             ->validationMessages([
+                'required' => __('resources/currency/strings.form.validation_english_name_required'),
                 'regex' => __('resources/currency/strings.form.validation_english_name'),
                 'unique' => __('resources/currency/strings.form.validation_english_name_unique')
             ])

@@ -9,27 +9,33 @@ use App\Models\Traits\Shipment\HasFormattedName;
 use App\Models\Traits\Shipment\HasPartSelection;
 use App\Models\Traits\Shipment\HasSearchableRelations;
 use App\Models\Traits\Shipment\Relationships as ExclusiveRelationships;
-use Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Shipment extends Model implements HasDocumentChecklist
 {
-    use SoftDeletes,
-        Relationships,
-        ExclusiveRelationships,
+    use ExclusiveRelationships,
         HasFormattedName,
         HasPartSelection,
         HasSearchableRelations,
+        Relationships,
+        SoftDeletes,
         UserStamps;
 
     public const SCANNABLE_TABLE = 'shipments';
+
     public const SCANNABLE_IDENTIFIER = 'shipment_no';
+
     public const TYPE_SHIPMENT_STATUS = 'Shipment Status';
+
     public const TYPE_CONTAINER_STATUS = 'Container Status';
+
     public const TYPE_OPERATION_STATUS = 'Operation Status';
+
     public const TYPE_TRACKING_STATUS = 'Tracking Status';
+
     public const TYPE_DOC_STATUS = 'Documentation Status';
+
     protected $fillable = [
         'registered_order_id',
         'shipment_no',
@@ -57,6 +63,7 @@ class Shipment extends Model implements HasDocumentChecklist
         'user_id',
         'updated_by_id',
     ];
+
     protected $casts = [
         'warehouse_date' => 'date',
         'exit_date' => 'date',
@@ -68,48 +75,11 @@ class Shipment extends Model implements HasDocumentChecklist
         'docs' => 'array',
     ];
 
-    protected function docs(): Attribute
+    public function documentChecklist(): array
     {
-        return Attribute::make(
-            get: function (?string $value): ?array {
-                if ($value === null) {
-                    return null;                                  // new record -> repeater seeds defaults
-                }
-                $data = json_decode($value, true);
-                if (! is_array($data)) {
-                    return null;
-                }
-                return array_is_list($data) ? $data : ($data['items'] ?? []);
-            },
-            set: function (?array $value, array $attributes): array {
-                $raw     = $attributes['docs'] ?? null;
-                $current = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
-                $tracking = (is_array($current) && ! array_is_list($current))
-                    ? (bool) ($current['tracking'] ?? true)
-                    : true;
+        $docs = $this->docs ?? [];
 
-                return ['docs' => json_encode(['tracking' => $tracking, 'items' => array_values($value ?? [])])];
-            },
-        );
-    }
-
-    /** The single Smart Tracer flag, stored beside items in the same column. */
-    protected function docTracking(): Attribute
-    {
-        return Attribute::make(
-            get: function ($value, array $attributes): bool {
-                $raw  = $attributes['docs'] ?? null;
-                $data = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
-                return (is_array($data) && ! array_is_list($data)) ? (bool) ($data['tracking'] ?? true) : true;
-            },
-            set: function ($value, array $attributes): array {
-                $raw   = $attributes['docs'] ?? null;
-                $data  = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
-                $items = (is_array($data) && ! array_is_list($data)) ? ($data['items'] ?? []) : (is_array($data) ? $data : []);
-
-                return ['docs' => json_encode(['tracking' => (bool) $value, 'items' => array_values($items)])];
-            },
-        );
+        return array_is_list($docs) ? $docs : ($docs['items'] ?? []);
     }
 
     public function documentChecklistOptions(): string
@@ -117,19 +87,16 @@ class Shipment extends Model implements HasDocumentChecklist
         return 'resources/shipment/strings.form.docs_options';
     }
 
-    public function documentChecklist(): array
+    public function isDocumentTrackingEnabled(): bool
     {
-        return $this->docs ?? [];
+        $track = collect($this->documentChecklist())->firstWhere('name', 'track');
+
+        return $track === null ? true : (bool)($track['received'] ?? false);
     }
 
     public function setDocumentChecklist(array $rows): void
     {
-        $this->docs = $rows;   // set mutator preserves the tracking key
+        $this->docs = array_values($rows);
         $this->saveQuietly();
-    }
-
-    public function isDocumentTrackingEnabled(): bool
-    {
-        return $this->doc_tracking;
     }
 }

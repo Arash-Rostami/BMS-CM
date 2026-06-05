@@ -69,6 +69,7 @@ trait Form
             ->label(__('resources/purchaseOrder/strings.form.expected_delivery_date'))
             ->native(false)
             ->afterOrEqual('order_date')
+            ->helperText(__('resources/purchaseOrder/strings.form.helper_expected_delivery_date'))
             ->validationMessages([
                 'after_or_equal' => __('resources/purchaseOrder/strings.form.validation_after_or_equal_order_date'),
             ])
@@ -202,6 +203,7 @@ trait Form
             ->live(onBlur: true)
             ->prefix('💰')
             ->columnSpan(2)
+            ->helperText(__('resources/purchaseOrder/strings.form.helper_unit_price'))
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
                 'numeric' => __('resources/purchaseOrder/strings.form.validation_numeric'),
@@ -259,6 +261,7 @@ trait Form
             ->unique(ignoreRecord: true)
             ->maxLength(255)
             ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('po_number') : null)
+            ->helperText(__('resources/purchaseOrder/strings.form.helper_po_number'))
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
                 'unique' => __('resources/purchaseOrder/strings.form.validation_unique'),
@@ -416,6 +419,7 @@ trait Form
             ->required()
             ->native(false)
             ->afterOrEqual('order_date')
+            ->helperText(__('resources/purchaseOrder/strings.form.helper_validity_date'))
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
                 'after_or_equal' => __('resources/purchaseOrder/strings.form.validation_after_or_equal_order_date'),

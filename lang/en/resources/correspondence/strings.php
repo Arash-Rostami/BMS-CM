@@ -42,9 +42,11 @@ return [
 
         'helper_internal' => 'Visible only to internal staff members.',
         'helper_private' => 'Visible ONLY to you and the selected recipients.',
+        'helper_subject' => 'Keep it short and descriptive so recipients can scan their inbox at a glance.',
 
         'validation_required' => 'The :attribute field is required.',
         'validation_unique' => 'This value already exists.',
+        'validation_subject_max' => 'The subject must not exceed 255 characters.',
     ],
     'table' => [
         'subject' => 'Subject',

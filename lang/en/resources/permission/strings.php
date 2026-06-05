@@ -9,6 +9,9 @@ return [
         'name' => 'Name',
         'roles' => 'Roles',
         'users' => 'Users',
+        'helper_name' => 'Use a stable, descriptive identifier, since roles and policies are matched against this exact name.',
+        'validation_name_required' => 'Please enter the permission name.',
+        'validation_name_unique' => 'This permission name already exists.',
     ],
     'table' => [
         'name' => 'Name',

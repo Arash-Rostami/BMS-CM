@@ -71,6 +71,7 @@ trait Form
             ->minValue(0)
             ->step(0.01)
             ->live(onBlur: true)
+            ->helperText(__('resources/purchaseRequest/strings.form.helper_estimated_cost'))
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_estimated_cost_required'),
                 'numeric' => __('resources/purchaseRequest/strings.form.validation_estimated_cost_numeric'),
@@ -142,6 +143,7 @@ trait Form
             ->minValue(0.01)
             ->step(0.01)
             ->live(onBlur: true)
+            ->helperText(__('resources/purchaseRequest/strings.form.helper_quantity'))
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_quantity_required'),
                 'numeric' => __('resources/purchaseRequest/strings.form.validation_quantity_numeric'),
@@ -160,7 +162,11 @@ trait Form
             ->default(fn($operation): ?int => $operation === 'create' ? Status::findBy('Purchase Item Status', 'Under Review')?->id : null)
             ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->getLocalizedNameAttribute() ?? '--')
             ->columns(1)
-            ->required();
+            ->required()
+            ->validationMessages([
+                'required' => __('resources/purchaseRequest/strings.form.validation_status_required'),
+            ])
+            ->validationAttribute(__('resources/purchaseRequest/strings.form.status'));
     }
 
     public static function getItemUnitField(): Select
@@ -226,6 +232,7 @@ trait Form
             ->native(false)
             ->required()
             ->rules(['after:today'])
+            ->helperText(__('resources/purchaseRequest/strings.form.helper_required_by_date'))
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_required_by_date_required'),
                 'after' => __('resources/purchaseRequest/strings.form.validation_required_by_date_after'),

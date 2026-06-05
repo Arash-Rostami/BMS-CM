@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Contracts\HasDocumentChecklist;
 use App\Models\Status;
 use Exception;
 use Filament\Notifications\Notification;
@@ -46,10 +45,6 @@ class FileUploadManager
 
             $this->syncAttachments($record, $finalPaths);
 
-            if ($record instanceof HasDocumentChecklist) {
-                rescue(fn() => DocChecklistMatcher::sync($record), report: false);
-            }
-
             return $this;
         } catch (Exception $e) {
             Notification::make()
@@ -67,8 +62,7 @@ class FileUploadManager
     {
         $record->refresh();
 
-        $newPaths = $record->attachments->pluck('path')->toArray();
-        $set('attachments', $newPaths);
+        $set('attachments', $record->attachments->pluck('path')->toArray());
 
         return $this;
     }

@@ -14,8 +14,10 @@ return [
         'helper_is_active' => 'Specifies the active/inactive status of this record.',
         'creator' => 'Created By',
         'updater' => 'Last Updated By',
+        'validation_name_required' => 'Please enter the Persian name.',
         'validation_name' => 'Only Persian characters are allowed.',
         'validation_name_unique' => 'The name already exists.',
+        'validation_english_name_required' => 'Please enter the English name.',
         'validation_english_name' => 'Only English characters are allowed.',
         'validation_english_name_unique' => 'The English name already exists.'
     ],

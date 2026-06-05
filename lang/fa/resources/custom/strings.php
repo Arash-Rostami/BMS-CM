@@ -42,7 +42,7 @@ return [
         'section_notes' => 'یادداشت‌ها و پیوست‌ها',
 
         'custom_no' => 'شماره امور گمرکی و ترخیص',
-        'registered_order' => 'سفارش ثبت‌شده',
+        'registered_order' => 'ثبت سفارش',
         'shipment' => 'محموله',
         'contract_no' => 'شماره قرارداد',
         'declaration_no' => 'شماره اظهارنامه (کوتاژ)',
@@ -64,9 +64,15 @@ return [
         'notes' => 'یادداشت‌ها',
         'attachments' => 'پیوست‌ها',
 
+        'helper_custom_no' => 'این شماره به‌صورت خودکار تولید می‌شود و قابل ویرایش نیست.',
+        'helper_shipment' => 'با انتخاب محموله، ثبت سفارش و شماره قرارداد آن به‌طور خودکار برای شما تکمیل می‌شود.',
+
         'validation_required' => 'این فیلد الزامی است.',
+        'validation_unique' => 'این مقدار تکراری است.',
         'validation_numeric' => 'این فیلد باید عدد باشد.',
         'validation_date' => 'لطفاً یک تاریخ معتبر وارد کنید.',
+        'validation_contract_no_max' => 'شماره قرارداد نباید بیش از ۲۵۵ نویسه باشد.',
+        'validation_declaration_no_max' => 'شماره اظهارنامه نباید بیش از ۲۵۵ نویسه باشد.',
     ],
     'table' => [
         'declaration_no' => 'شماره کوتاژ',
@@ -83,7 +89,7 @@ return [
     ],
     'filters' => [
         'contract_no' => 'شماره قرارداد',
-        'registered_order' => 'سفارش ثبت‌شده',
+        'registered_order' => 'ثبت سفارش',
         'shipment' => 'محموله',
         'clearance_status' => 'وضعیت ترخیص',
         'bank_guarantee_status' => 'وضعیت ضمانت بانکی',

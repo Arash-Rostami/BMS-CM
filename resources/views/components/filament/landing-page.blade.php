@@ -44,6 +44,9 @@
         <!-- Dashboard Header -->
         @include('components.filament.landing-page.header')
 
+        <!-- User Personalized Work Space -->
+        @include('components.filament.landing-page.custom-workspace')
+
         <!-- Main Workflow -->
         @include('components.filament.landing-page.workflow')
 

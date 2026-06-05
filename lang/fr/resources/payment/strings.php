@@ -57,6 +57,9 @@ return [
         'validation_min_numeric_zero' => 'Ce champ ne peut pas être négatif.',
         'validation_unique' => 'Cette valeur doit être unique.',
         'validation_date_after_or_equal' => 'Cette date doit être égale ou postérieure au :date.',
+        'validation_max_length' => 'Veuillez limiter cette valeur à 255 caractères ou moins.',
+        'helper_iban' => 'Vérifiez bien l\'IBAN avant d\'enregistrer ; un seul chiffre erroné peut envoyer les fonds vers le mauvais compte.',
+        'helper_targetable' => 'Indiquez d\'abord l\'objet de ce paiement ; cela active les champs devise, statut et date et alimente les totaux calculés.',
     ],
     'table' => [
         'id' => 'ID',

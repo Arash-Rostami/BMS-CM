@@ -11,6 +11,12 @@ return [
         'permissions' => 'Permissions',
         'select_all' => 'Sélectionner toutes les permissions (Super Admin)',
         'modules' => 'Accorder un accès complet par module',
+        'helper_name' => 'Utilisez uniquement des lettres anglaises et des traits de soulignement ; le nom est automatiquement converti en snake_case.',
+        'validation_name_required' => 'Veuillez saisir un nom pour ce rôle.',
+        'validation_name_unique' => 'Un rôle portant ce nom existe déjà.',
+        'validation_name_regex' => 'Le nom ne peut contenir que des lettres anglaises et des traits de soulignement, sans espaces ni chiffres.',
+        'validation_grade_required' => 'Veuillez sélectionner un niveau pour ce rôle.',
+        'validation_name_max' => 'Le nom du rôle ne peut pas dépasser 255 caractères.',
     ],
     'table' => [
         'name' => 'Nom',

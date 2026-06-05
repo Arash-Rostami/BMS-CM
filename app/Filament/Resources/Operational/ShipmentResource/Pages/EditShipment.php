@@ -2,7 +2,8 @@
 
 namespace App\Filament\Resources\Operational\ShipmentResource\Pages;
 
-use App\Filament\Resources\Operational\ShipmentResource\Traits\EnsuresDocumentDefaults;
+use App\Filament\Resources\Operational\ShipmentResource\Traits\HandlesDocumentChecklistForm;
+use App\Filament\Resources\Operational\ShipmentResource\Traits\SyncsDocumentChecklist;
 use App\Filament\Resources\ShipmentResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -12,7 +13,7 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditShipment extends EditRecord
 {
-    use EnsuresDocumentDefaults;
+    use HandlesDocumentChecklistForm, SyncsDocumentChecklist;
 
     protected static string $resource = ShipmentResource::class;
 

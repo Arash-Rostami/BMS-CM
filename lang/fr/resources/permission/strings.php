@@ -9,6 +9,9 @@ return [
         'name' => 'Nom',
         'roles' => 'Rôles',
         'users' => 'Utilisateurs',
+        'helper_name' => 'Utilisez un identifiant stable et descriptif, car les rôles et les politiques sont comparés à ce nom exact.',
+        'validation_name_required' => 'Veuillez saisir le nom de l\'autorisation.',
+        'validation_name_unique' => 'Ce nom d\'autorisation existe déjà.',
     ],
     'table' => [
         'name' => 'Nom',

@@ -85,7 +85,12 @@ trait Form
             ->label(__('resources/notificationSetting/strings.form.notes'))
             ->nullable()
             ->columnSpanFull()
-            ->maxLength(500);
+            ->maxLength(500)
+            ->validationAttribute(__('resources/notificationSetting/strings.form.notes'))
+            ->validationMessages([
+                'max' => __('resources/notificationSetting/strings.form.validation_notes_max'),
+            ])
+            ->helperText(__('resources/notificationSetting/strings.form.helper_notes'));
     }
 
     public static function getNotificationChannel(): Select

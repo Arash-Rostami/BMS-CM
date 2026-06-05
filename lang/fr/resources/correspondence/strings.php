@@ -42,9 +42,11 @@ return [
 
         'helper_internal' => 'Visible uniquement par le personnel interne.',
         'helper_private' => 'Visible UNIQUEMENT par vous et les destinataires sélectionnés.',
+        'helper_subject' => 'Restez court et descriptif pour que les destinataires repèrent le message d\'un coup d\'œil.',
 
         'validation_required' => 'Le champ :attribute est requis.',
         'validation_unique' => 'Cette valeur existe déjà.',
+        'validation_subject_max' => 'Le sujet ne doit pas dépasser 255 caractères.',
     ],
     'table' => [
         'subject' => 'Sujet',

@@ -3,8 +3,8 @@
 
 return [
     'general' => [
-        'model_label' => 'سفارش ثبت‌شده',
-        'plural_model_label' => 'سفارشات ثبت‌شده',
+        'model_label' => 'ثبت سفارش',
+        'plural_model_label' => 'ثبت سفارشات',
         'navigation_group' => 'اطلاعات عملیاتی',
         'add_record' => '˙⋆✮ ایجاد جدید',
         'delivery_terms' => [
@@ -80,15 +80,23 @@ return [
         'official_registration_no' => 'شماره/کد ثبت سفارش',
 
 
-        'validation_required' => 'این فیلد الزامی است.',
-        'validation_unique' => 'این مقدار باید منحصر به فرد باشد.',
-        'validation_max_string' => 'این فیلد نباید بیشتر از :max کاراکتر باشد.',
-        'validation_max_text' => 'این فیلد نباید بیشتر از :max کاراکتر باشد.',
-        'validation_seller_buyer_different' => 'تأمین‌کننده و خریدار باید متفاوت باشند.',
-        'validation_after_or_equal_order_date' => 'این تاریخ باید برابر یا بعد از تاریخ سفارش باشد.',
-        'validation_numeric' => 'این فیلد باید عددی باشد.',
-        'validation_min_numeric' => 'این فیلد باید حداقل :min باشد.',
-        'validation_min_numeric_zero' => 'این فیلد نمی‌تواند منفی باشد.',
+        'validation_required' => 'لطفاً :attribute را برای ادامه تکمیل کنید.',
+        'validation_unique' => 'این :attribute قبلاً استفاده شده است، لطفاً مقدار دیگری وارد کنید.',
+        'validation_max_string' => ':attribute بیش از حد طولانی است، لطفاً آن را کمتر از :max کاراکتر نگه دارید.',
+        'validation_max_text' => ':attribute بیش از حد طولانی است، لطفاً آن را کمتر از :max کاراکتر نگه دارید.',
+        'validation_seller_buyer_different' => 'فروشنده و خریدار نمی‌توانند یک شرکت باشند، لطفاً طرفین متفاوتی انتخاب کنید.',
+        'validation_after_or_equal_order_date' => ':attribute باید برابر یا بعد از تاریخ سفارش باشد، لطفاً تاریخ جدیدتری انتخاب کنید.',
+        'validation_numeric' => ':attribute باید عدد باشد، لطفاً حروف و نمادها را حذف کنید.',
+        'validation_min_numeric' => ':attribute باید حداقل :min باشد، لطفاً مقدار بزرگ‌تری وارد کنید.',
+        'validation_min_numeric_zero' => ':attribute نمی‌تواند منفی باشد، لطفاً صفر یا بیشتر وارد کنید.',
+
+        'helper_ro_number' => 'به‌صورت خودکار تولید و قفل می‌شود تا سفارش‌های ثبت‌شده یکتا بمانند، جز در صورت آشنایی با الگوی شماره‌گذاری آن را تغییر ندهید.',
+        'helper_seller' => 'فروشنده باید با خریدار متفاوت باشد، طرف تأمین‌کننده را اینجا انتخاب کنید.',
+        'helper_expected_delivery_date' => 'باید برابر یا بعد از تاریخ سفارش باشد، پس از تعیین تاریخ سفارش آن را مشخص کنید.',
+        'helper_quantity' => 'مقداری بزرگ‌تر از صفر وارد کنید، این مقدار جمع ردیف و خلاصه سفارش را تعیین می‌کند.',
+        'helper_unit_price' => 'قیمت هر واحد، جمع ردیف به‌صورت خودکار از روی آن محاسبه می‌شود.',
+        'helper_source_type' => 'این انتخاب تعیین می‌کند کدام اسناد مبدأ را پیوند بزنید و اقلام سفارش را به‌صورت خودکار پر می‌کند، پس پیش از افزودن محصولات آن را مشخص کنید.',
+        'helper_validity_date' => 'این تاریخ را برابر یا بعد از تاریخ سفارش تعیین کنید تا مدت اعتبار سفارش مشخص شود.',
     ],
     'table' => [
         'related_to' => 'مرتبط با',

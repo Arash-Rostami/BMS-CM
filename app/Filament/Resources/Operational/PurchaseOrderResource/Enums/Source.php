@@ -82,7 +82,7 @@ enum Source: string implements HasColor, HasLabel, HasIcon
                 ? '🔄 ستون درخواست خرید را فعال کنید'
                 : '🔄 Toggle Purchase Request Column',
             self::RO => $isFa
-                ? '🔄 ستون سفارش ثبت شده را فعال کنید'
+                ? '🔄 ستون ثبت سفارش را فعال کنید'
                 : '🔄 Toggle Registered Order Column',
             self::PI => $isFa
                 ? '🔄 ستون پیش فاکتور خرید را فعال کنید'

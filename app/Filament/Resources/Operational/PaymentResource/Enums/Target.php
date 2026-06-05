@@ -65,7 +65,7 @@ enum Target: string implements HasColor, HasLabel, HasIcon
                 ? '🔄 ستون مرتبط (سفارش خرید) را فعال کنید'
                 : '🔄 Toggle Relevant (Purchase Order) Column',
             self::RO => $isFa
-                ? '🔄 ستون مرتبط (سفارش ثبت شده) را فعال کنید'
+                ? '🔄 ستون مرتبط (ثبت سفارش) را فعال کنید'
                 : '🔄 Toggle Relevant (Registered Order) Column',
             self::BP => $isFa
                 ? '🔄 ستون مرتبط (پروفایل بانکی) را فعال کنید'

@@ -5,15 +5,13 @@ namespace App\Models;
 use App\Models\Traits\Attachment\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
 class Attachment extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use SoftDeletes,
         Relationships,
         ExclusiveRelationships,
         UserStamps;

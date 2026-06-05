@@ -64,9 +64,15 @@ return [
         'notes' => 'Notes',
         'attachments' => 'Pièces Jointes',
 
+        'helper_custom_no' => 'Ce numéro est généré automatiquement et ne peut pas être modifié.',
+        'helper_shipment' => 'Le choix d\'une expédition remplit automatiquement sa commande enregistrée et son numéro de contrat.',
+
         'validation_required' => 'Ce champ est requis.',
+        'validation_unique' => 'Cette valeur existe déjà.',
         'validation_numeric' => 'Ce champ doit être un nombre.',
         'validation_date' => 'Veuillez entrer une date valide.',
+        'validation_contract_no_max' => 'Le numéro de contrat ne doit pas dépasser 255 caractères.',
+        'validation_declaration_no_max' => 'Le numéro de déclaration ne doit pas dépasser 255 caractères.',
     ],
     'table' => [
         'declaration_no' => 'N° Déclaration',
