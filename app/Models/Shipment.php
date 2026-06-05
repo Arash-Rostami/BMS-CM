@@ -75,7 +75,7 @@ class Shipment extends Model implements HasDocumentChecklist
         'remittance_amount' => 'decimal:2',
         'customs_quantity' => 'decimal:2',
         'shipped_quantity' => 'decimal:2',
-        'docs' => 'array',
+
     ];
 
     protected function docs(): Attribute
