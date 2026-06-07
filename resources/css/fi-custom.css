@@ -9,6 +9,8 @@
 @source '../views/**/*.blade.php';
 @source '../../../../app/Filament';
 @source '../../../../resources/views/filament';
+@source '../../../../vendor/mokhosh/filament-jalali/resources/**/*';
+
 
 /* Third-Party Plugin Sources */
 @source '../../../../vendor/bezhansalleh/filament-language-switch/resources/views/**/*.blade.php';
