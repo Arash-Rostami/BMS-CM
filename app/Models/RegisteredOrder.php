@@ -53,6 +53,7 @@ class RegisteredOrder extends Model
         'order_date' => 'date',
         'validity_date' => 'date',
         'expected_delivery_date' => 'date',
+        'insurance_date'        => 'date'
     ];
 
 }
