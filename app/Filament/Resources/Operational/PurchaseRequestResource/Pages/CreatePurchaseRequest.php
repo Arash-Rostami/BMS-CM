@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Operational\PurchaseRequestResource\Pages;
 
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\HandleStatusMutation;
 use App\Filament\Resources\PurchaseRequestResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 
 class CreatePurchaseRequest extends CreateRecord

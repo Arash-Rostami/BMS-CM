@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Master\NotificationSettingResource\Pages;
 
 use App\Filament\Resources\NotificationSettingResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Pages\ManageRecords;
 
 class ManageNotificationSettings extends ManageRecords
 {

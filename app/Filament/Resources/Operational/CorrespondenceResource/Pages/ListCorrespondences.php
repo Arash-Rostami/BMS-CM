@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Operational\CorrespondenceResource\Pages;
 
 use App\Filament\Resources\CorrespondenceResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Pages\ListRecords;
 
 class ListCorrespondences extends ListRecords
 {

@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Operational\PurchaseOrderResource\Pages;
 use Filament\Actions\DeleteAction;
 use App\Filament\Resources\PurchaseOrderResource;
 use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecord;
 
 class EditPurchaseOrder extends EditRecord
 {

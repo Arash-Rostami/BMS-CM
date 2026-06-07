@@ -201,29 +201,24 @@ trait Form
 
     public static function getPaymentDateField()
     {
-        $picker = DatePicker::make('payment_date')
+        return DatePicker::make('payment_date')
             ->label(__('resources/payment/strings.form.payment_date'))
             ->default(now())
             ->disabled(fn(Get $get): bool => empty($get('targetable_type')) || empty($get('targetable_id')))
             ->hidden(fn(Get $get): bool => empty($get('targetable_type')) || empty($get('targetable_id')))
-            ->native(false);
-
-        if (app()->isLocale('fa')) $picker->jalali();
-
-        return $picker->validationMessages(['required' => __('resources/payment/strings.form.validation_required')])
+            ->native(false)
+            ->adaptive()
+            ->validationMessages(['required' => __('resources/payment/strings.form.validation_required')])
             ->validationAttribute(__('resources/payment/strings.form.payment_date'));
     }
 
     public static function getPaymentDeadlineField()
     {
-        $picker = DatePicker::make('payment_deadline')
+        return DatePicker::make('payment_deadline')
             ->label(__('resources/payment/strings.form.payment_deadline'))
             ->native(false)
-            ->afterOrEqual('payment_date');
-
-        if (app()->isLocale('fa')) $picker->jalali();
-
-        return $picker
+            ->afterOrEqual('payment_date')
+            ->adaptive()
             ->validationMessages([
                 'after_or_equal' => __('resources/payment/strings.form.validation_date_after_or_equal', ['date' => __('resources/payment/strings.form.payment_date'),]),
             ])

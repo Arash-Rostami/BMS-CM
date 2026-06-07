@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Operational\PaymentResource\Pages;
 use App\Filament\Resources\Operational\PaymentResource\Traits\PreparePaymentFromTargetable;
 use App\Filament\Resources\PaymentResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecord;
 
 class CreatePayment extends CreateRecord
 {

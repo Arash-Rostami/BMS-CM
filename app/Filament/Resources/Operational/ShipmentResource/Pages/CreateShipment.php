@@ -6,7 +6,7 @@ use App\Filament\Resources\Operational\ShipmentResource\Traits\HandlesDocumentCh
 use App\Filament\Resources\Operational\ShipmentResource\Traits\PrepareShipmentFromRegisteredOrder;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\SyncsDocumentChecklist;
 use App\Filament\Resources\ShipmentResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecord;
 
 class CreateShipment extends CreateRecord
 {

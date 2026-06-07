@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Master\CurrencyResource\Pages;
 
 use App\Filament\Resources\CurrencyResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Pages\ManageRecords;
 
 class ManageCurrencies extends ManageRecords
 {

@@ -36,11 +36,11 @@ trait Filters
                 DatePicker::make('created_from')
                     ->label(__('resources/bankProfile/strings.filters.created_from'))
                     ->native(false)
-                    ->jalali(),
+                    ->adaptive(),
                 DatePicker::make('created_until')
                     ->label(__('resources/bankProfile/strings.filters.created_until'))
                     ->native(false)
-                    ->jalali(),
+                    ->adaptive(),
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query

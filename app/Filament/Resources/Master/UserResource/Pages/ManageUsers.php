@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Master\UserResource\Pages;
 use Filament\Actions\CreateAction;
 use App\Filament\Resources\UserResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Pages\ManageRecords;
 
 class ManageUsers extends ManageRecords
 {

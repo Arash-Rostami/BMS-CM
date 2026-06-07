@@ -62,7 +62,7 @@ trait Form
     {
         return DatePicker::make('start_from')
             ->label(__('resources/target/strings.form.start_from'))
-            ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
+            ->adaptive()
             ->native(false)
             ->required()
             ->validationAttribute(__('resources/target/strings.form.start_from'))
@@ -77,7 +77,7 @@ trait Form
         return DatePicker::make('end_in')
             ->label(__('resources/target/strings.form.end_in'))
             ->helperText(__('resources/target/strings.form.helper_end_in'))
-            ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
+            ->adaptive()
             ->native(false)
             ->required()
             ->after('start_from')

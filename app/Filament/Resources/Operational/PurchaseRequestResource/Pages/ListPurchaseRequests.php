@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Operational\PurchaseRequestResource\Pages;
 
 use App\Filament\Resources\PurchaseRequestResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Pages\ListRecords;
 
 class ListPurchaseRequests extends ListRecords
 {

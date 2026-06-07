@@ -6,7 +6,7 @@ use Filament\Actions\DeleteAction;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\HandleStatusMutation;
 use App\Filament\Resources\PurchaseRequestResource;
 use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 
 

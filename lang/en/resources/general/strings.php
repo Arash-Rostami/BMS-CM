@@ -47,7 +47,6 @@ return [
         'item_attachments' => 'Item Attachments',
         'has_item_attachments' => 'Has Item Attachments',
         'add_item_attachments' => 'Add Item Attachments',
-
         'validation' => [
             'attachments_max_files' => 'Maximum 10 files allowed',
             'attachments_type' => 'Invalid file format (images, PDF, Excel)',
@@ -60,6 +59,11 @@ return [
             'metadata_unreadable' => 'File validation failed.',
             'processing_failed' => 'Unable to process file attachment. Please verify file integrity and try again.',
         ],
-
-    ]
+    ],
+    'calendar_toggle' => [
+        'switch_to_gregorian' => 'Switch to Gregorian',
+        'switch_to_jalali' => 'Switch to Jalali',
+        'jalali_abbr' => 'SH',
+        'gregorian_abbr' => 'AD',
+    ],
 ];

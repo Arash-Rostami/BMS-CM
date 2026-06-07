@@ -16,11 +16,11 @@ trait Filters
             ->schema([
                 DatePicker::make('created_from')
                     ->label(__('resources/purchaseRequest/strings.filters.created_from'))
-                    ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
+                    ->adaptive()
                     ->native(false),
                 DatePicker::make('created_until')
                     ->label(__('resources/purchaseRequest/strings.filters.created_until'))
-                    ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
+                    ->adaptive()
                     ->native(false),
             ])
             ->query(function (Builder $query, array $data): Builder {

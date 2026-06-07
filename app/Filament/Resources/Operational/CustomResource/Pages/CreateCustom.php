@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Operational\CustomResource\Pages;
 
 use App\Filament\Resources\CustomResource;
 use App\Filament\Resources\Operational\CustomResource\Traits\PrepareCustomFromShipment;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecord;
 
 class CreateCustom extends CreateRecord
 {

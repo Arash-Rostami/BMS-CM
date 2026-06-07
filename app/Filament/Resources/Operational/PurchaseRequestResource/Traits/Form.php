@@ -24,7 +24,7 @@ trait Form
     {
         return DatePicker::make('approval_date')
             ->label(__('resources/purchaseRequest/strings.form.approval_date'))
-            ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
+            ->adaptive()
             ->disabled()
             ->validationAttribute(__('resources/purchaseRequest/strings.form.approval_date'));
     }
@@ -228,7 +228,7 @@ trait Form
     {
         return DatePicker::make('required_by_date')
             ->label(__('resources/purchaseRequest/strings.form.required_by_date'))
-            ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
+            ->adaptive()
             ->native(false)
             ->required()
             ->rules(['after:today'])

@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Operational\BankProfileResource\Pages;
 
 use App\Filament\Resources\BankProfileResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Pages\ListRecords;
 
 class ListBankProfiles extends ListRecords
 {

@@ -25,10 +25,12 @@ trait Filters
             ->schema([
                 DatePicker::make('created_from')
                     ->label(__('resources/purchaseOrder/strings.filters.created_from'))
-                    ->native(false),
+                    ->native(false)
+                    ->adaptive(),
                 DatePicker::make('created_until')
                     ->label(__('resources/purchaseOrder/strings.filters.created_until'))
-                    ->native(false),
+                    ->native(false)
+                    ->adaptive(),
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query

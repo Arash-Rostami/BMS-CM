@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Master\StatusResource\Pages;
 use Filament\Actions\CreateAction;
 use App\Filament\Resources\StatusResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Pages\ManageRecords;
 
 class ManageStatuses extends ManageRecords
 {

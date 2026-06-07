@@ -93,11 +93,11 @@ trait Filters
                 DatePicker::make('created_from')
                     ->label(__('resources/custom/strings.filters.created_from'))
                     ->native(false)
-                    ->jalali(app()->isLocale('fa')),
+                    ->adaptive(),
                 DatePicker::make('created_until')
                     ->label(__('resources/custom/strings.filters.created_until'))
                     ->native(false)
-                    ->jalali(app()->isLocale('fa')),
+                    ->adaptive(),
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query

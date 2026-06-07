@@ -11,8 +11,8 @@ class FilamentRenderHooks
     public static function configure(): void
     {
         FilamentView::registerRenderHook(
-            PanelsRenderHook::USER_MENU_BEFORE,
-            fn (): View => view('filament.partials.calendar-toggle')
+            PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+            fn(): View => view('filament.partials.calendar-toggle')
         );
     }
 }

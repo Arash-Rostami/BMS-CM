@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Master\CategoryResource\Pages;
 use Filament\Actions\CreateAction;
 use App\Filament\Resources\CategoryResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Pages\ManageRecords;
 
 class ManageCategories extends ManageRecords
 {

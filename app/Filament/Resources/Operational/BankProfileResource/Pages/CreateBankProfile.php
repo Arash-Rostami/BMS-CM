@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Operational\BankProfileResource\Pages;
 
 use App\Filament\Resources\BankProfileResource;
 use App\Filament\Resources\Operational\BankProfileResource\Traits\PrepareBankProfileFromRegisteredOrder;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecord;
 
 class CreateBankProfile extends CreateRecord
 {

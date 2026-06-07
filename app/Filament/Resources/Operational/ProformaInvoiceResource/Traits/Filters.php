@@ -59,11 +59,11 @@ trait Filters
             ->schema([
                 DatePicker::make('invoice_date_from')
                     ->label(__('resources/proformaInvoice/strings.filters.invoice_date_from'))
-                    ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
+                    ->adaptive()
                     ->native(false),
                 DatePicker::make('invoice_date_until')
                     ->label(__('resources/proformaInvoice/strings.filters.invoice_date_until'))
-                    ->when(app()->isLocale('fa'), fn($column) => $column->jalali())
+                    ->adaptive()
                     ->native(false),
             ])
             ->query(function (Builder $query, array $data): Builder {

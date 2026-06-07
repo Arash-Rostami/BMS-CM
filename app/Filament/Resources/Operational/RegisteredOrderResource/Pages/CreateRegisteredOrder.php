@@ -6,7 +6,7 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\PrepareReg
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\PrepareRegisteredOrderFromPurchaseOrder;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\PrepareRegisteredOrderFromPurchaseRequest;
 use App\Filament\Resources\RegisteredOrderResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecord;
 
 class CreateRegisteredOrder extends CreateRecord
 {

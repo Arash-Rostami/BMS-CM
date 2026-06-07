@@ -41,11 +41,11 @@ trait Filters
                 DatePicker::make('created_from')
                     ->label(__('resources/shipment/strings.filters.created_from'))
                     ->native(false)
-                    ->jalali(app()->isLocale('fa')),
+                    ->adaptive(),
                 DatePicker::make('created_until')
                     ->label(__('resources/shipment/strings.filters.created_until'))
                     ->native(false)
-                    ->jalali(app()->isLocale('fa')),
+                    ->adaptive(),
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
@@ -70,11 +70,11 @@ trait Filters
                 DatePicker::make('eta_from')
                     ->label(__('resources/shipment/strings.filters.eta_from'))
                     ->native(false)
-                    ->jalali(app()->isLocale('fa')),
+                    ->adaptive(),
                 DatePicker::make('eta_until')
                     ->label(__('resources/shipment/strings.filters.eta_until'))
                     ->native(false)
-                    ->jalali(app()->isLocale('fa')),
+                    ->adaptive(),
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
@@ -142,11 +142,11 @@ trait Filters
                 DatePicker::make('warehouse_from')
                     ->label(__('resources/shipment/strings.filters.warehouse_from'))
                     ->native(false)
-                    ->jalali(app()->isLocale('fa')),
+                    ->adaptive(),
                 DatePicker::make('warehouse_until')
                     ->label(__('resources/shipment/strings.filters.warehouse_until'))
                     ->native(false)
-                    ->jalali(app()->isLocale('fa')),
+                    ->adaptive(),
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query

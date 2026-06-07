@@ -31,13 +31,14 @@ trait Form
 
     public static function getClearanceDateField()
     {
-        return maybeJalali(DatePicker::make('clearance_date')
+        return DatePicker::make('clearance_date')
             ->label(__('resources/custom/strings.form.clearance_date'))
             ->native(false)
+            ->adaptive()
             ->validationAttribute(__('resources/custom/strings.form.clearance_date'))
             ->validationMessages([
                 'date' => __('resources/custom/strings.form.validation_date'),
-            ]));
+            ]);
     }
 
     public static function getClearanceStatusField(): Select
@@ -78,13 +79,14 @@ trait Form
 
     public static function getCommitmentPaymentDateField()
     {
-        return maybeJalali(DatePicker::make('commitment_payment_date')
+        return DatePicker::make('commitment_payment_date')
             ->label(__('resources/custom/strings.form.commitment_payment_date'))
             ->native(false)
+            ->adaptive()
             ->validationAttribute(__('resources/custom/strings.form.commitment_payment_date'))
             ->validationMessages([
                 'date' => __('resources/custom/strings.form.validation_date'),
-            ]));
+            ]);
     }
 
     public static function getCommitmentStatusField(): Select
@@ -142,13 +144,14 @@ trait Form
 
     public static function getDocSubmissionDateField()
     {
-        return maybeJalali(DatePicker::make('doc_submission_date')
+        return DatePicker::make('doc_submission_date')
             ->label(__('resources/custom/strings.form.doc_submission_date'))
             ->native(false)
+            ->adaptive()
             ->validationAttribute(__('resources/custom/strings.form.doc_submission_date'))
             ->validationMessages([
                 'date' => __('resources/custom/strings.form.validation_date'),
-            ]));
+            ]);
     }
 
     public static function getNotesField(): Textarea
@@ -161,13 +164,14 @@ trait Form
 
     public static function getPaymentDueDateField()
     {
-        return maybeJalali(DatePicker::make('payment_due_date')
+        return DatePicker::make('payment_due_date')
             ->label(__('resources/custom/strings.form.payment_due_date'))
             ->native(false)
+            ->adaptive()
             ->validationAttribute(__('resources/custom/strings.form.payment_due_date'))
             ->validationMessages([
                 'date' => __('resources/custom/strings.form.validation_date'),
-            ]));
+            ]);
     }
 
     public static function getRegisteredOrderField(): Select
@@ -188,13 +192,14 @@ trait Form
 
     public static function getRialReturnDateField()
     {
-        return maybeJalali(DatePicker::make('rial_return_date')
+        return DatePicker::make('rial_return_date')
             ->label(__('resources/custom/strings.form.rial_return_date'))
             ->native(false)
+            ->adaptive()
             ->validationAttribute(__('resources/custom/strings.form.rial_return_date'))
             ->validationMessages([
                 'date' => __('resources/custom/strings.form.validation_date'),
-            ]));
+            ]);
     }
 
     public static function getShipmentField(): Select
@@ -222,12 +227,13 @@ trait Form
 
     public static function getTenPercentExitDateField()
     {
-        return maybeJalali(DatePicker::make('ten_percent_exit_date')
+        return DatePicker::make('ten_percent_exit_date')
             ->label(__('resources/custom/strings.form.ten_percent_exit_date'))
             ->native(false)
+            ->adaptive()
             ->validationAttribute(__('resources/custom/strings.form.ten_percent_exit_date'))
             ->validationMessages([
                 'date' => __('resources/custom/strings.form.validation_date'),
-            ]));
+            ]);
     }
 }

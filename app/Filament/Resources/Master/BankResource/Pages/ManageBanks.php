@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Master\BankResource\Pages;
 use Filament\Actions\CreateAction;
 use App\Filament\Resources\BankResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Pages\ManageRecords;
 
 class ManageBanks extends ManageRecords
 {

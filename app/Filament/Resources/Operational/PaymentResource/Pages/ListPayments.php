@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Operational\PaymentResource\Pages;
 
 use App\Filament\Resources\PaymentResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Pages\ListRecords;
 
 class ListPayments extends ListRecords
 {

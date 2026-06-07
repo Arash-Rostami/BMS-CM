@@ -47,7 +47,6 @@ return [
         'item_attachments' => 'پیوست‌های قلم',
         'has_item_attachments' => 'دارای پیوست‌های قلم',
         'add_item_attachments' => 'افزودن پیوست‌های قلم',
-
         'validation' => [
             'attachments_max_files' => 'حداکثر ۱۰ فایل مجاز است',
             'attachments_type' => 'فرمت فایل معتبر نیست (تصاویر، PDF، اکسل)',
@@ -60,6 +59,11 @@ return [
             'metadata_unreadable' => 'اعتبارسنجی فایل ناموفق بود.',
             'processing_failed' => 'امکان پردازش فایل پیوست وجود ندارد. لطفاً از سالم بودن فایل اطمینان حاصل کرده و دوباره تلاش کنید.',
         ],
-
+    ],
+    'calendar_toggle' => [
+        'switch_to_gregorian' => 'تغییر به میلادی',
+        'switch_to_jalali' => 'تغییر به شمسی',
+        'jalali_abbr' => 'ش',
+        'gregorian_abbr' => 'م',
     ],
 ];

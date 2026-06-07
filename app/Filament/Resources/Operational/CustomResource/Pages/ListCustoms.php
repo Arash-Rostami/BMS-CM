@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Operational\CustomResource\Pages;
 
 use App\Filament\Resources\CustomResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Pages\ListRecords;
 
 class ListCustoms extends ListRecords
 {

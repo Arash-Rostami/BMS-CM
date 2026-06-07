@@ -92,7 +92,7 @@ trait Form
             ->label(__('resources/registeredOrder/strings.form.expected_delivery_date'))
             ->helperText(__('resources/registeredOrder/strings.form.helper_expected_delivery_date'))
             ->native(false)
-            ->jalali()
+            ->adaptive()
             ->afterOrEqual('order_date')
             ->validationMessages([
                 'after_or_equal' => __('resources/registeredOrder/strings.form.validation_after_or_equal_order_date'),
@@ -113,7 +113,7 @@ trait Form
     {
         return DatePicker::make('insurance_date')
             ->label(__('resources/registeredOrder/strings.form.insurance_date'))
-            ->jalali()
+            ->adaptive()
             ->native(false)
             ->validationAttribute(__('resources/registeredOrder/strings.form.insurance_date'));
     }
@@ -194,7 +194,7 @@ trait Form
             ->label(__('resources/registeredOrder/strings.form.order_date'))
             ->default(now())
             ->required()
-            ->jalali()
+            ->adaptive()
             ->native(false)
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
@@ -371,7 +371,7 @@ trait Form
             ->label(__('resources/registeredOrder/strings.form.validity_date'))
             ->helperText(__('resources/registeredOrder/strings.form.helper_validity_date'))
             ->native(false)
-            ->jalali()
+            ->adaptive()
             ->afterOrEqual('order_date')
             ->validationMessages([
                 'after_or_equal' => __('resources/registeredOrder/strings.form.validation_after_or_equal_order_date'),
