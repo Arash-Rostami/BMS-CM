@@ -47,7 +47,6 @@ return [
         'item_attachments' => "Pièces jointes de l'article",
         'has_item_attachments' => "A des pièces jointes d'article",
         'add_item_attachments' => "Ajouter des pièces jointes d'article",
-
         'validation' => [
             'attachments_max_files' => 'Maximum de 10 fichiers autorisés',
             'attachments_type' => 'Format de fichier invalide (images, PDF, Excel)',
@@ -60,6 +59,11 @@ return [
             'metadata_unreadable' => 'Échec de la validation du fichier.',
             'processing_failed' => 'Impossible de traiter le fichier joint. Veuillez vérifier son intégrité et réessayer.',
         ],
-
-    ]
+    ],
+    'calendar_toggle' => [
+        'switch_to_gregorian' => 'Passer au grégorien',
+        'switch_to_jalali' => 'Passer au jalali',
+        'jalali_abbr' => 'HS',
+        'gregorian_abbr' => 'EC',
+    ],
 ];

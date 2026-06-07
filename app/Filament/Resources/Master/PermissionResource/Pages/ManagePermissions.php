@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Master\PermissionResource\Pages;
 
 use App\Filament\Resources\PermissionResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Pages\ManageRecords;
 
 class ManagePermissions extends ManageRecords
 {

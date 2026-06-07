@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Master\RoleResource\Pages;
 use App\Filament\Resources\RoleResource;
 use App\Models\Role;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Pages\ManageRecords;
 
 class ManageRoles extends ManageRecords
 {

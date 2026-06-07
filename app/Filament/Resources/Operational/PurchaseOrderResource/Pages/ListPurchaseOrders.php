@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Operational\PurchaseOrderResource\Pages;
 use Filament\Actions\CreateAction;
 use App\Filament\Resources\PurchaseOrderResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Pages\ListRecords;
 
 class ListPurchaseOrders extends ListRecords
 {

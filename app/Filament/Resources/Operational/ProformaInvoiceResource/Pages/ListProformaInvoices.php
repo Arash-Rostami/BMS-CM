@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Operational\ProformaInvoiceResource\Pages;
 use Filament\Actions\CreateAction;
 use App\Filament\Resources\ProformaInvoiceResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Pages\ListRecords;
 
 class ListProformaInvoices extends ListRecords
 {

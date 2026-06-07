@@ -68,6 +68,7 @@ trait Form
         return DatePicker::make('expected_delivery_date')
             ->label(__('resources/purchaseOrder/strings.form.expected_delivery_date'))
             ->native(false)
+            ->adaptive()
             ->afterOrEqual('order_date')
             ->helperText(__('resources/purchaseOrder/strings.form.helper_expected_delivery_date'))
             ->validationMessages([
@@ -233,6 +234,7 @@ trait Form
             ->default(now())
             ->required()
             ->native(false)
+            ->adaptive()
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
             ])
@@ -418,6 +420,7 @@ trait Form
             ->label(__('resources/purchaseOrder/strings.form.validity_date'))
             ->required()
             ->native(false)
+            ->adaptive()
             ->afterOrEqual('order_date')
             ->helperText(__('resources/purchaseOrder/strings.form.helper_validity_date'))
             ->validationMessages([

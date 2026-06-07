@@ -6,7 +6,7 @@ use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\PreparesPr
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\PreparesProformaFromPurchaseRequest;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\PreparesProformaFromRegisteredOrder;
 use App\Filament\Resources\ProformaInvoiceResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecord;
 
 class CreateProformaInvoice extends CreateRecord
 {

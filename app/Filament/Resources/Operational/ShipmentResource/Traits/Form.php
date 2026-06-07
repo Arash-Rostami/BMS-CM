@@ -177,23 +177,26 @@ trait Form
 
     public static function getEtaField()
     {
-        return maybeJalali(DatePicker::make('eta')
+        return DatePicker::make('eta')
             ->label(__('resources/shipment/strings.form.eta'))
-            ->native(false));
+            ->native(false)
+            ->adaptive();
     }
 
     public static function getEtdField()
     {
-        return maybeJalali(DatePicker::make('etd')
+        return DatePicker::make('etd')
             ->label(__('resources/shipment/strings.form.etd'))
-            ->native(false));
+            ->native(false)
+            ->adaptive();
     }
 
     public static function getExitDateField()
     {
-        return maybeJalali(DatePicker::make('exit_date')
+        return DatePicker::make('exit_date')
             ->label(__('resources/shipment/strings.form.exit_date'))
-            ->native(false));
+            ->native(false)
+            ->adaptive();
     }
 
     public static function getNotesField(): Textarea
@@ -357,8 +360,9 @@ trait Form
 
     public static function getWarehouseDateField()
     {
-        return maybeJalali(DatePicker::make('warehouse_date')
+        return DatePicker::make('warehouse_date')
             ->label(__('resources/shipment/strings.form.warehouse_date'))
-            ->native(false));
+            ->native(false)
+            ->adaptive();
     }
 }

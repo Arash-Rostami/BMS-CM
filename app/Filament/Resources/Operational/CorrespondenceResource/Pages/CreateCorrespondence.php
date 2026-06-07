@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Operational\CorrespondenceResource\Pages;
 
 use App\Filament\Resources\CorrespondenceResource;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\HandlesRecipients;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecord;
 
 class CreateCorrespondence extends CreateRecord
 {

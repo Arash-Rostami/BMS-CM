@@ -60,7 +60,7 @@ if (!function_exists('delimiter')) {
 if (!function_exists('maybeJalali')) {
     function maybeJalali($component)
     {
-        return app()->isLocale('fa')
+        return session('calendar_type', app()->isLocale('fa') ? 'jalali' : 'gregorian') === 'jalali'
             ? $component->jalali(true)
             : $component;
     }

@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Operational\CorrespondenceResource\Pages;
 use App\Filament\Resources\CorrespondenceResource;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\HandlesRecipients;
 use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecord;
 
 class EditCorrespondence extends EditRecord
 {

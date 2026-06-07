@@ -32,7 +32,7 @@ trait Form
         return DatePicker::make('allocation_date')
             ->label(__('resources/bankProfile/strings.form.allocation_date'))
             ->native(false)
-            ->jalali()
+            ->adaptive()
             ->validationAttribute(__('resources/bankProfile/strings.form.allocation_date'));
     }
 
@@ -125,7 +125,7 @@ trait Form
         return DatePicker::make('creation_date')
             ->label(__('resources/bankProfile/strings.form.creation_date'))
             ->native(false)
-            ->jalali()
+            ->adaptive()
             ->validationAttribute(__('resources/bankProfile/strings.form.creation_date'));
     }
 
@@ -155,7 +155,7 @@ trait Form
         return DatePicker::make('delivery_date')
             ->label(__('resources/bankProfile/strings.form.delivery_date'))
             ->native(false)
-            ->jalali()
+            ->adaptive()
             ->afterOrEqual('purchase_date')
             ->validationMessages([
                 'after_or_equal' => __('resources/bankProfile/strings.form.validation_date_after_or_equal', ['date' => __('resources/bankProfile/strings.form.purchase_date')]),
@@ -245,7 +245,7 @@ trait Form
         return DatePicker::make('purchase_date')
             ->label(__('resources/bankProfile/strings.form.purchase_date'))
             ->native(false)
-            ->jalali()
+            ->adaptive()
             ->afterOrEqual('allocation_date')
             ->validationMessages([
                 'after_or_equal' => __('resources/bankProfile/strings.form.validation_date_after_or_equal', ['date' => __('resources/bankProfile/strings.form.allocation_date')]),

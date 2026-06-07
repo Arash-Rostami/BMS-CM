@@ -6,7 +6,7 @@ use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\PreparesPurc
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\PreparesPurchaseOrderFromPurchaseRequest;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\PreparesPurchaseOrderFromRegisteredOrder;
 use App\Filament\Resources\PurchaseOrderResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecord;
 
 class CreatePurchaseOrder extends CreateRecord
 {
