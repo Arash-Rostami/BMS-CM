@@ -1,7 +1,27 @@
 <div class="relative mt-8 mb-16">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 relative z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 relative z-10">
 
-        <div class="card-3d workflow-step relative">
+        <div class="card-3d workflow-step relative order-1 lg:order-1">
+            <span class="workflow-node absolute top-2 {{ $isRtl ? 'right-2' : 'left-2' }} z-40 w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white text-[11px] font-black shadow-lg shadow-indigo-500/40 border border-white/20 select-none">1</span>
+
+            <div class="hidden lg:flex absolute top-1/2 {{ $isRtl ? 'right-[calc(100%+28px)] translate-x-1/2' : 'left-[calc(100%+28px)] -translate-x-1/2' }} -translate-y-1/2 w-24 h-12 bg-white/70 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-full shadow-[0_0_30px_rgba(59,130,246,0.15)] items-center justify-center z-50">
+                <div class="absolute inset-1.5 rounded-full bg-slate-100 dark:bg-slate-900 overflow-hidden shadow-inner flex items-center">
+                    <div class="h-full w-1/2 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-60 blur-sm {{ $isRtl ? 'animate-[slide-left_2s_ease-in-out_infinite]' : 'animate-[slide-right_2s_ease-in-out_infinite]' }}"></div>
+                </div>
+                <div class="relative z-10 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center shadow-md ring-4 ring-white dark:ring-slate-800">
+                    <x-heroicon-o-chevron-right class="w-4 h-4 text-white {{ $isRtl ? 'rotate-180' : '' }}" stroke-width="3"/>
+                </div>
+            </div>
+
+            <div class="flex lg:hidden absolute top-[calc(100%+20px)] left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-20 bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-full shadow-[0_0_30px_rgba(59,130,246,0.15)] flex-col items-center justify-center z-50">
+                <div class="absolute inset-1.5 rounded-full bg-slate-100 dark:bg-slate-900 overflow-hidden shadow-inner flex flex-col items-center">
+                    <div class="w-full h-1/2 bg-gradient-to-b from-transparent via-blue-500 to-transparent opacity-60 blur-sm animate-[slide-down_2s_ease-in-out_infinite]"></div>
+                </div>
+                <div class="relative z-10 w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center shadow-md ring-4 ring-white dark:ring-slate-800">
+                    <x-heroicon-o-chevron-down class="w-4 h-4 text-white" stroke-width="3"/>
+                </div>
+            </div>
+
             <div class="glass border border-slate-200 dark:border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl bg-white/70 dark:bg-slate-900/40">
                 <div class="absolute -top-20 -right-20 w-56 h-56 bg-blue-500 rounded-full glow-orb opacity-20 dark:opacity-100"></div>
                 <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
@@ -38,7 +58,7 @@
                         </div>
                         <div class="btn-wrapper flex-1 relative">
                             <a href="{{ route('filament.dashboard.resources.proforma-invoices.index') }}" target="_blank" rel="noopener noreferrer"
-                               class="btn-gradient block w-full backdrop-blur-md backdrop-saturate-[180%] bg-slate-50 dark:bg-white/5 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base border-cyan-500/50"
+                               class="btn-gradient block w-full backdrop-blur-[20px] backdrop-saturate-[180%] bg-white/50 dark:bg-white/5 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base border-cyan-500/50"
                                :class="darkMode ? 'text-white' : 'text-slate-900'">
                                 <x-heroicon-o-document-text class="w-5 h-5 inline-block" />
                                 {{ __('dashboard/strings.proforma') }}
@@ -52,7 +72,18 @@
             </div>
         </div>
 
-        <div class="card-3d workflow-step relative">
+        <div class="card-3d workflow-step relative order-2 lg:order-2">
+            <span class="workflow-node absolute top-2 {{ $isRtl ? 'right-2' : 'left-2' }} z-40 w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white text-[11px] font-black shadow-lg shadow-indigo-500/40 border border-white/20 select-none">2</span>
+
+            <div class="absolute top-[calc(100%+20px)] lg:top-[calc(100%+28px)] left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 lg:w-12 h-20 lg:h-24 bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-full shadow-[0_0_30px_rgba(34,197,94,0.15)] flex flex-col items-center justify-center z-50">
+                <div class="absolute inset-1.5 rounded-full bg-slate-100 dark:bg-slate-900 overflow-hidden shadow-inner flex flex-col items-center">
+                    <div class="w-full h-1/2 bg-gradient-to-b from-transparent via-green-500 to-transparent opacity-60 blur-sm animate-[slide-down_2s_ease-in-out_infinite]"></div>
+                </div>
+                <div class="relative z-10 w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-gradient-to-br from-green-500 to-amber-500 flex items-center justify-center shadow-md ring-4 ring-white dark:ring-slate-800">
+                    <x-heroicon-o-chevron-down class="w-4 h-4 text-white" stroke-width="3"/>
+                </div>
+            </div>
+
             <div class="glass border border-slate-200 dark:border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl bg-white/70 dark:bg-slate-900/40">
                 <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-green-500 rounded-full glow-orb opacity-20 dark:opacity-100"></div>
                 <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
@@ -89,7 +120,7 @@
                         </div>
                         <div class="btn-wrapper flex-1 relative">
                             <a href="{{ route('filament.dashboard.resources.bank-profiles.index') }}" target="_blank" rel="noopener noreferrer"
-                               class="btn-gradient block w-full backdrop-blur-md backdrop-saturate-[180%] bg-slate-50 dark:bg-white/5 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base border-emerald-500/50"
+                               class="btn-gradient block w-full backdrop-blur-[20px] backdrop-saturate-[180%] bg-white/50 dark:bg-white/5 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base border-emerald-500/50"
                                :class="darkMode ? 'text-white' : 'text-slate-900'">
                                 <x-heroicon-o-building-office class="w-5 h-5 inline-block" />
                                 {{ __('dashboard/strings.banks') }}
@@ -103,7 +134,27 @@
             </div>
         </div>
 
-        <div class="card-3d workflow-step relative">
+        <div class="card-3d workflow-step relative order-3 lg:order-4">
+            <span class="workflow-node absolute top-2 {{ $isRtl ? 'right-2' : 'left-2' }} z-40 w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white text-[11px] font-black shadow-lg shadow-indigo-500/40 border border-white/20 select-none">3</span>
+
+            <div class="hidden lg:flex absolute top-1/2 {{ $isRtl ? 'left-[calc(100%+28px)] -translate-x-1/2' : 'right-[calc(100%+28px)] translate-x-1/2' }} -translate-y-1/2 w-24 h-12 bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-full shadow-[0_0_30px_rgba(245,158,11,0.15)] items-center justify-center z-50">
+                <div class="absolute inset-1.5 rounded-full bg-slate-100 dark:bg-slate-900 overflow-hidden shadow-inner flex items-center">
+                    <div class="h-full w-1/2 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-60 blur-sm {{ $isRtl ? 'animate-[slide-right_2s_ease-in-out_infinite]' : 'animate-[slide-left_2s_ease-in-out_infinite]' }}"></div>
+                </div>
+                <div class="relative z-10 w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-purple-500 flex items-center justify-center shadow-md ring-4 ring-white dark:ring-slate-800">
+                    <x-heroicon-o-chevron-left class="w-4 h-4 text-white {{ $isRtl ? 'rotate-180' : '' }}" stroke-width="3"/>
+                </div>
+            </div>
+
+            <div class="flex lg:hidden absolute top-[calc(100%+20px)] left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-20 bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-full shadow-[0_0_30px_rgba(245,158,11,0.15)] flex-col items-center justify-center z-50">
+                <div class="absolute inset-1.5 rounded-full bg-slate-100 dark:bg-slate-900 overflow-hidden shadow-inner flex flex-col items-center">
+                    <div class="w-full h-1/2 bg-gradient-to-b from-transparent via-amber-500 to-transparent opacity-60 blur-sm animate-[slide-down_2s_ease-in-out_infinite]"></div>
+                </div>
+                <div class="relative z-10 w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-purple-500 flex items-center justify-center shadow-md ring-4 ring-white dark:ring-slate-800">
+                    <x-heroicon-o-chevron-down class="w-4 h-4 text-white" stroke-width="3"/>
+                </div>
+            </div>
+
             <div class="glass border border-slate-200 dark:border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl bg-white/70 dark:bg-slate-900/40">
                 <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-amber-500 rounded-full glow-orb opacity-20 dark:opacity-100"></div>
                 <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
@@ -140,7 +191,7 @@
                         </div>
                         <div class="btn-wrapper flex-1 relative">
                             <a href="{{ route('filament.dashboard.resources.payments.index') }}" target="_blank" rel="noopener noreferrer"
-                               class="btn-gradient block w-full backdrop-blur-md backdrop-saturate-[180%] bg-slate-50 dark:bg-white/5 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base border-orange-500/50"
+                               class="btn-gradient block w-full backdrop-blur-[20px] backdrop-saturate-[180%] bg-white/50 dark:bg-white/5 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base border-orange-500/50"
                                :class="darkMode ? 'text-white' : 'text-slate-900'">
                                 <x-heroicon-o-banknotes class="w-5 h-5 inline-block" />
                                 {{ __('dashboard/strings.payments') }}
@@ -154,7 +205,9 @@
             </div>
         </div>
 
-        <div class="card-3d workflow-step relative">
+        <div class="card-3d workflow-step relative order-4 lg:order-3">
+            <span class="workflow-node absolute top-2 {{ $isRtl ? 'right-2' : 'left-2' }} z-40 w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white text-[11px] font-black shadow-lg shadow-indigo-500/40 border border-white/20 select-none">4</span>
+
             <div class="glass border border-slate-200 dark:border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group shadow-2xl bg-white/70 dark:bg-slate-900/40">
                 <div class="absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-purple-500 rounded-full glow-orb opacity-20 dark:opacity-100"></div>
                 <div class="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100"></div>
@@ -191,7 +244,7 @@
                         </div>
                         <div class="btn-wrapper flex-1 relative">
                             <a href="{{ route('filament.dashboard.resources.customs.index') }}" target="_blank" rel="noopener noreferrer"
-                               class="btn-gradient block w-full backdrop-blur-md backdrop-saturate-[180%] bg-slate-50 dark:bg-white/5 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base border-violet-500/50"
+                               class="btn-gradient block w-full backdrop-blur-[20px] backdrop-saturate-[180%] bg-white/50 dark:bg-white/5 border-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-center text-sm sm:text-base border-violet-500/50"
                                :class="darkMode ? 'text-white' : 'text-slate-900'">
                                 <x-heroicon-o-clipboard-document-check class="w-5 h-5 inline-block" />
                                 {{ __('dashboard/strings.submodules.custom_clearance.title') }}
@@ -204,5 +257,6 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>

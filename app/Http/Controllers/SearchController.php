@@ -2,89 +2,139 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attachment;
+use App\Models\BankProfile;
+use App\Models\Custom;
+use App\Models\Payment;
 use App\Models\ProformaInvoice;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseRequest;
+use App\Models\RegisteredOrder;
+use App\Models\Shipment;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
-    public function spotlight(Request $request)
+    private static array $fieldMap = [
+        'purchaseRequest' => [
+            'model'  => PurchaseRequest::class,
+            'label'  => 'Purchase Request',
+            'icon'   => 'shopping-cart',
+            'color'  => 'indigo',
+            'fields' => ['number', 'description', 'required_by_date', 'approval_date', 'status_id', 'user_id'],
+        ],
+        'proformaInvoice' => [
+            'model'  => ProformaInvoice::class,
+            'label'  => 'Proforma Invoice',
+            'icon'   => 'document-text',
+            'color'  => 'cyan',
+            'fields' => ['number', 'seller_id', 'currency_id', 'invoice_date', 'validity_date', 'status_id'],
+        ],
+        'registeredOrder' => [
+            'model'  => RegisteredOrder::class,
+            'label'  => 'Registered Order',
+            'icon'   => 'document-check',
+            'color'  => 'indigo',
+            'fields' => ['number', 'seller_id', 'currency_id', 'order_date', 'validity_date', 'expected_delivery_date', 'insurance_date', 'status_id'],
+        ],
+        'bankProfile' => [
+            'model'  => BankProfile::class,
+            'label'  => 'Bank Profile',
+            'icon'   => 'building-office',
+            'color'  => 'slate',
+            'fields' => ['number', 'bank_id', 'currency_id', 'creation_date', 'allocation_date', 'purchase_date', 'delivery_date', 'status_id'],
+        ],
+        'purchaseOrder' => [
+            'model'  => PurchaseOrder::class,
+            'label'  => 'Purchase Order',
+            'icon'   => 'shopping-bag',
+            'color'  => 'amber',
+            'fields' => ['number', 'buyer_id', 'seller_id', 'currency_id', 'order_date', 'validity_date', 'expected_delivery_date', 'incoterms', 'status_id'],
+        ],
+        'payment' => [
+            'model'  => Payment::class,
+            'label'  => 'Payment',
+            'icon'   => 'banknotes',
+            'color'  => 'amber',
+            'fields' => ['number', 'currency_id', 'amount', 'payment_date', 'payment_deadline', 'status_id'],
+        ],
+        'shipment' => [
+            'model'  => Shipment::class,
+            'label'  => 'Shipment',
+            'icon'   => 'truck',
+            'color'  => 'indigo',
+            'fields' => ['number', 'carrier', 'eta', 'etd', 'warehouse_date', 'exit_date', 'status_id'],
+        ],
+        'custom' => [
+            'model'  => Custom::class,
+            'label'  => 'Customs',
+            'icon'   => 'clipboard-document-check',
+            'color'  => 'slate',
+            'fields' => ['number', 'clearance_date', 'doc_submission_date', 'ten_percent_exit_date', 'payment_due_date', 'commitment_payment_date', 'rial_return_date', 'status_id'],
+        ],
+    ];
+
+    public function spotlight(Request $request): JsonResponse
     {
-        $query = $request->input('q');
+        $term = trim((string) $request->input('q', ''));
 
-        if (!$query) {
-            return response()->json(['results' => []]);
+        if (strlen($term) < 2) {
+            return response()->json(['results' => [], 'breadcrumb' => $this->emptyBreadcrumb()]);
         }
 
-        $results = [];
+        $results    = [];
+        $foundTypes = [];
 
-        $po = PurchaseOrder::where('id', 'like', "%{$query}%")
-            ->orWhere('number', 'like', "%{$query}%")
-            ->first();
+        foreach (self::$fieldMap as $key => $cfg) {
+            $model = $cfg['model'];
 
-        if ($po) {
-            $filledFields = 0;
-            $totalFields = 10;
-            if ($po->number) $filledFields++;
-            if ($po->amount) $filledFields++;
-            if ($po->currency_id) $filledFields++;
-            if ($po->status_id) $filledFields++;
-            if ($po->date) $filledFields++;
+            $record = $model::select(array_merge(['id'], $cfg['fields']))
+                ->where('id', 'like', "%{$term}%")
+                ->orWhere('number', 'like', "%{$term}%")
+                ->first();
 
-            $progress = round(($filledFields / $totalFields) * 100);
+            if (! $record) continue;
+
+            $foundTypes[] = $key;
+            $total        = count($cfg['fields']);
+            $filled       = 0;
+
+            foreach ($cfg['fields'] as $field) {
+                if (! is_null($record->{$field}) && $record->{$field} !== '') $filled++;
+            }
 
             $results[] = [
-                'type' => 'Purchase Order',
-                'title' => 'Purchase Order',
-                'subtitle' => $po->number ?? 'PO-' . $po->id,
-                'progress' => $progress,
-                'icon' => 'shopping-bag',
-                'color' => 'amber'
+                'title'     => $cfg['label'],
+                'subtitle'  => $record->number ?? ($cfg['label'] . '-' . $record->id),
+                'progress'  => $total > 0 ? (int) round(($filled / $total) * 100) : 0,
+                'is_binary' => false,
+                'icon'      => $cfg['icon'],
+                'color'     => $cfg['color'],
             ];
         }
-
-        $pi = ProformaInvoice::where('id', 'like', "%{$query}%")
-            ->orWhere('number', 'like', "%{$query}%")
-            ->first();
-
-        if ($pi) {
-            $results[] = [
-                'type' => 'Proforma Invoice',
-                'title' => 'Proforma Invoice',
-                'subtitle' => $pi->number ?? 'PI-' . $pi->id,
-                'progress' => 85, // Mocked for demonstration
-                'icon' => 'document-text',
-                'color' => 'indigo'
-            ];
-        }
-
-
-        $docCount = Attachment::where('name', 'like', "%{$query}%")
-            ->orWhere('file_name', 'like', "%{$query}%")
-            ->count();
-
-        if ($docCount > 0 || $po || $pi) {
-            $actualCount = $docCount > 0 ? $docCount : 3; // Fallback
-            $results[] = [
-                'type' => 'Documents',
-                'title' => 'Documents',
-                'subtitle' => "{$actualCount} Attached Files",
-                'is_binary' => true,
-                'icon' => 'paper-clip',
-                'color' => 'slate'
-            ];
-        }
-
-        $breadcrumb = [
-            'proforma' => $pi ? 'completed' : 'upcoming',
-            'order' => $po ? 'active' : 'upcoming',
-            'logistics' => 'upcoming'
-        ];
 
         return response()->json([
-            'results' => $results,
-            'breadcrumb' => $breadcrumb
+            'results'    => $results,
+            'breadcrumb' => $this->buildBreadcrumb($foundTypes),
         ]);
+    }
+
+    private function emptyBreadcrumb(): array
+    {
+        return ['proforma' => 'upcoming', 'order' => 'upcoming', 'logistics' => 'upcoming'];
+    }
+
+    private function buildBreadcrumb(array $found): array
+    {
+        $has = fn(string $k) => in_array($k, $found);
+
+        $proforma  = $has('proformaInvoice') ? 'completed' : ($has('purchaseRequest') ? 'active' : 'upcoming');
+        $order     = $has('registeredOrder') ? 'completed' : ($has('bankProfile')     ? 'active' : 'upcoming');
+        $logistics = $has('shipment')        ? 'completed' : ($has('custom')          ? 'active' : 'upcoming');
+
+        if ($proforma === 'completed' && $order === 'upcoming') $order = 'active';
+        if ($order === 'completed' && $logistics === 'upcoming') $logistics = 'active';
+
+        return compact('proforma', 'order', 'logistics');
     }
 }

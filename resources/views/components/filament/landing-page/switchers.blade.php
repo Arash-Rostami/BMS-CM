@@ -57,7 +57,7 @@
         </button>
     </form>
     {{--Widget--}}
-    <button @click="open = !open"
+    <button @click="widgetOpen = !widgetOpen"
             class="cursor-pointer backdrop-blur-[16px] backdrop-saturate-[180%] bg-white/5 border rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:scale-110 transition-all duration-500 ease-out shadow-2xl group"
             :class="darkMode ? 'border-white/10' : 'border-slate-300'">
         <svg class="w-5 h-5 sm:w-6 sm:h-6" :class="darkMode ? 'text-cyan-400' : 'text-indigo-600'" fill="none"
