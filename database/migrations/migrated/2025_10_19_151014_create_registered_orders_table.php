@@ -33,6 +33,11 @@ return new class extends Migration
             $table->foreignId('updated_by_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('contract_no');
+            $table->index(['status_id', 'deleted_at']);
+            $table->index('buyer_id');
+            $table->index('seller_id');
         });
     }
 

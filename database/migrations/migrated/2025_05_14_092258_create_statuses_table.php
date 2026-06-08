@@ -22,6 +22,9 @@ return new class extends Migration
             $table->unique(['type','name']);
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index(['english_type', 'deleted_at'], 'idx_statuses_eng_type_deleted');
+            $table->index(['type', 'deleted_at'], 'idx_statuses_type_deleted');
         });
     }
 

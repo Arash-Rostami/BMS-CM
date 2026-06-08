@@ -28,6 +28,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['registered_order_id', 'deleted_at']);
+            $table->index('product_id');
         });
     }
 

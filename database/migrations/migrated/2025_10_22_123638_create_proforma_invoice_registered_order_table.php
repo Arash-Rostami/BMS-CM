@@ -15,6 +15,9 @@ return new class extends Migration {
             $table->foreignId('registered_order_id')->constrained('registered_orders')->cascadeOnDelete();
             $table->timestamps();
             $table->unique(['proforma_invoice_id', 'registered_order_id'], 'pireo_unique');
+
+            $table->unique(['proforma_invoice_id', 'registered_order_id'], 'uidx_pi_ro');
+            $table->index('registered_order_id');
         });
     }
 

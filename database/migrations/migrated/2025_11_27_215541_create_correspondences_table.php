@@ -29,6 +29,13 @@ return new class extends Migration
             $table->foreignId('updated_by_id')->nullable()->constrained('users')->nullOnDelete();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index(
+                ['correspondable_type', 'correspondable_id', 'deleted_at'],
+                'idx_correspondable_deleted'
+            );
+            $table->index(['parent_id', 'deleted_at'], 'idx_parent_deleted');
+            $table->index('user_id');
         });
 
 
@@ -46,8 +53,9 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // Prevent duplicate recipients for the same message
             $table->unique(['correspondence_id', 'user_id']);
+            $table->index(['user_id', 'read_at'], 'idx_user_read');
+            $table->index('correspondence_id');
         });
     }
 

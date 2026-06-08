@@ -22,6 +22,13 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(
+                ['attachable_type', 'attachable_id', 'deleted_at'],
+                'idx_attachable_deleted'
+            );
+            $table->index('user_id');
+            $table->index('type');
         });
     }
 

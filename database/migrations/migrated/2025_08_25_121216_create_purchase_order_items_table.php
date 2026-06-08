@@ -22,6 +22,9 @@ return new class extends Migration
             $table->decimal('gross_weight', 10, 2)->nullable()->comment('Total weight including packaging');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['purchase_order_id', 'deleted_at']);
+            $table->index('product_id');
         });
     }
 

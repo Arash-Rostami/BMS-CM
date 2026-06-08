@@ -36,34 +36,33 @@ class RoleResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Section::make()
-                    ->schema([
-                        Grid::make(3)
-                            ->schema([
-                                static::getRoleNameInput(),
-                                static::getGradeSelect(),
-                                static::getSelectAllToggle(),
-                            ]),
-                        Grid::make(2)
-                            ->schema([
-                                static::getModuleSelector(),
-                                static::getPermissionSelector(),
-                            ]),
-                    ])
-                    ->columnSpanFull(),
-            ]);
+        return $schema->components([
+            Section::make()->schema([
+                Grid::make(3)->schema([
+                    static::getRoleNameInput(),
+                    static::getGradeSelect(),
+                    static::getSelectAllToggle(),
+                ]),
+                Grid::make(4)->schema([
+                    static::getActionToggle('view'),
+                    static::getActionToggle('create'),
+                    static::getActionToggle('edit'),
+                    static::getActionToggle('delete'),
+                ]),
+                static::getModuleSelector(),
+                static::getPermissionSelector(),
+            ])->columnSpanFull(),
+        ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->withCount(['permissions', 'users']);
     }
 
     public static function getModelLabel(): string
     {
         return __('resources/role/strings.general.model_label');
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return __('resources/dashboard/strings.navigation_group.base');
     }
 
     public static function getNavigationBadge(): ?string
@@ -78,6 +77,10 @@ class RoleResource extends Resource
         return $count > 0 ? (string)$count : null;
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('resources/dashboard/strings.navigation_group.base');
+    }
 
     public static function getPages(): array
     {
@@ -145,10 +148,5 @@ class RoleResource extends Resource
             ->recordUrl(null)
             ->reorderableColumns()
             ->defaultSort('id', 'desc');
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()->withCount(['permissions', 'users']);
     }
 }

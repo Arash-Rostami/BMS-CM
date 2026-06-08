@@ -44,6 +44,12 @@ return new class extends Migration {
             $table->foreignId('updated_by_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['targetable_type', 'targetable_id', 'deleted_at'], 'idx_targetable_deleted');
+            $table->index(['registered_order_id', 'deleted_at']);
+            $table->index('company_id');
+            $table->index('bank_id');
+            $table->index('status_id');
         });
     }
 

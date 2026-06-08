@@ -59,7 +59,7 @@ class PermissionLabeler
 
     private static function moduleTranslationKey(string $module): string
     {
-        return Str::snake(Str::singular(str_replace('_', '', $module)), '-');
+        return Str::camel(Str::singular($module));
     }
 
     private static function getModuleLabel(string $module): string

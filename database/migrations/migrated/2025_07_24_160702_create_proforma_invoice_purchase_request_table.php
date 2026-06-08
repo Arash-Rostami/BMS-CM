@@ -15,6 +15,9 @@ return new class extends Migration
             $table->foreignId('proforma_invoice_id')->constrained()->onDelete('cascade');
             $table->foreignId('purchase_request_id')->constrained()->onDelete('cascade');
             $table->timestamps();
+
+            $table->unique(['proforma_invoice_id', 'purchase_request_id'], 'uidx_pi_pr');
+            $table->index('purchase_request_id');
         });
     }
 
