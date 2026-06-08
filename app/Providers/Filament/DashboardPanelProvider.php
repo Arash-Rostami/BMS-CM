@@ -104,6 +104,7 @@ class DashboardPanelProvider extends PanelProvider
             ->default()
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\EnsureUserIsActive::class,
             ])
             ->defaultThemeMode(ThemeMode::Dark);
     }
