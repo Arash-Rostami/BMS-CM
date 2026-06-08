@@ -1,42 +1,37 @@
 export default function landingPage() {
     return {
         darkMode: false,
-        showSubmodules: false,
-        hoveredStep: null,
+        activeTab: 'workflow',
         loading: true,
-        open: false,
+        widgetOpen: false,
 
         init() {
-            const KEY = 'theme';
-            let raw = null;
-            try {
-                raw = localStorage.getItem(KEY);
-            } catch (e) {
-            }
-            if (raw !== null) {
-                const v = String(raw).toLowerCase();
-                this.darkMode = (v === '1' || v === 'true' || v === 'dark' || v === 'on');
+            const get = k => { try { return localStorage.getItem(k); } catch { return null; } };
+            const set = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+
+            const theme = get('theme');
+            if (theme !== null) {
+                const v = theme.toLowerCase();
+                this.darkMode = v === '1' || v === 'true' || v === 'dark' || v === 'on';
             }
 
-            document.documentElement.classList.toggle('dark', !!this.darkMode);
+            const tab = get('lp_tab');
+            if (tab) this.activeTab = tab;
 
-            window.addEventListener('dark-mode-toggled', e => this.darkMode = !!e.detail);
+            document.documentElement.classList.toggle('dark', this.darkMode);
+
+            window.addEventListener('dark-mode-toggled', e => { this.darkMode = !!e.detail; });
 
             this.$watch('darkMode', val => {
-                try {
-                    localStorage.setItem(KEY, val ? 'dark' : 'light');
-                } catch (e) {
-                }
-                document.documentElement.classList.toggle('dark', !!val);
+                set('theme', val ? 'dark' : 'light');
+                document.documentElement.classList.toggle('dark', val);
                 if (window.torusMaterial) {
                     window.torusMaterial.opacity = val ? 0.1 : 0.3;
-                    window.ringMaterial.opacity = val ? 0.2 : 0.1;
+                    window.ringMaterial.opacity  = val ? 0.2 : 0.1;
                 }
             });
-        },
 
-        toggleDark() {
-            this.darkMode = !this.darkMode;
-        }
+            this.$watch('activeTab', val => set('lp_tab', val));
+        },
     };
 }

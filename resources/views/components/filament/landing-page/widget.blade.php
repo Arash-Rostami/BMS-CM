@@ -2,7 +2,7 @@
      class="fixed top-1/5 sm:top-1/6 {{ $isRtl ? 'left-4 sm:left-6' : 'right-4 sm:right-6' }} z-50 flex flex-col gap-2 sm:gap-3"
      dir="ltr">
     <!-- Panel -->
-    <div x-show="open" @click.away="open = false"
+    <div x-show="widgetOpen" @click.away="widgetOpen = false"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -25,13 +25,13 @@
                 </div>
                 <div>
                     <div class="text-sm font-medium mb-2" :class="darkMode ? 'text-cyan-400' : 'text-indigo-600'">
-                        Widgets
+                        {{ __('dashboard/strings.widget_title') ?? 'Widgets' }}
                     </div>
-                    <div class="text-xs opacity-70 text-gray-500">Clock · Timer · Music</div>
+                    <div class="text-xs opacity-70 text-gray-500">{{ __('dashboard/strings.widget_subtitle') ?? 'Clock · Timer · Music' }}</div>
                 </div>
             </div>
 
-            <button @click="open=false" class="p-2 rounded hover:bg-white/6">
+            <button @click="widgetOpen=false" class="p-2 rounded hover:bg-white/6">
                 <svg class="w-4 h-4" :class="darkMode ? 'text-cyan-400' : 'text-indigo-600'" fill="none"
                      stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -78,7 +78,7 @@
 
                     <!-- Time Display -->
                     <div class="mb-2">
-                        <div class="text-xs opacity-60 text-gray-500 mb-2">Local time</div>
+                        <div class="text-xs opacity-60 text-gray-500 mb-2">{{ __('dashboard/strings.widget_local_time') ?? 'Local time' }}</div>
                         <div class="text-4xl font-bold tracking-tight mb-3" x-text="clockString"
                              :class="darkMode ? 'text-cyan-400' : 'text-indigo-600'"
                              style="font-variant-numeric: tabular-nums;"></div>
@@ -155,7 +155,7 @@
 
                 <!-- Presets -->
                 <div class="space-y-2">
-                    <div class="text-xs opacity-60 text-gray-500 mb-2">Quick presets</div>
+                    <div class="text-xs opacity-60 text-gray-500 mb-2">{{ __('dashboard/strings.widget_presets') ?? 'Quick presets' }}</div>
                     <div class="flex gap-2 flex-wrap">
                         <button class="chip" @click="setTimerPreset(300)"
                                 :class="darkMode ? 'text-cyan-400' : 'text-indigo-600'">5m
@@ -174,7 +174,8 @@
                         </button>
                     </div>
 
-                    <input type="number" min="1" step="1" class="input-inline w-full" placeholder="Custom minutes"
+                    <input type="number" min="1" step="1" class="input-inline w-full"
+                           placeholder="{{ __('dashboard/strings.widget_custom_mins') ?? 'Custom minutes' }}"
                            :class="darkMode ? 'text-cyan-400' : 'text-indigo-600'"
                            x-model.number="customMins"
                            @dblclick="setTimerPreset(customMins*60)"
@@ -185,7 +186,7 @@
 
             <!-- Music Tab -->
             <div x-show="tab==='music'" x-cloak>
-                <div class="text-sm opacity-80 text-gray-500 mb-3">Player</div>
+                <div class="text-sm opacity-80 text-gray-500 mb-3">{{ __('dashboard/strings.widget_player') ?? 'Player' }}</div>
 
                 <!-- Album Art -->
                 <div class="relative mx-auto mb-4 overflow-hidden rounded-2xl shadow-2xl"

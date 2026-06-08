@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -41,5 +42,9 @@ Route::get('/test', function () { return view('components.test'); });
 
 Route::get('/attachments/{attachment}/download', [AttachmentController::class, 'download'])
     ->name('attachments.download');
+
+Route::get('/api/search/spotlight', [SearchController::class, 'spotlight'])
+    ->middleware('auth')
+    ->name('search.spotlight');
 
 Route::fallback(fn() => view('errors.404'));

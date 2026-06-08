@@ -1,23 +1,22 @@
 @php
     $counts = $counts ?? [];
-    $isDark = filament()->getCurrentPanel()->hasDarkMode() && filament()->getCurrentPanel()->hasDarkModeForced();
     $locale = app()->getLocale();
-    $isRtl = in_array($locale, ['fa', 'ar']);
+    $isRtl  = in_array($locale, ['fa', 'ar']);
     $locales = [
-        ['code' => 'en', 'flag' => 'usa.svg', 'alt' => 'English'],
-        ['code' => 'fa', 'flag' => 'iran.svg', 'alt' => 'فارسی'],
+        ['code' => 'en', 'flag' => 'usa.svg',    'alt' => 'English'],
+        ['code' => 'fa', 'flag' => 'iran.svg',   'alt' => 'فارسی'],
         ['code' => 'fr', 'flag' => 'france.svg', 'alt' => 'Français'],
     ];
     $stats = [
-     'purchaseRequests'  => (int) ($counts['purchase_requests'] ?? 0),
-     'registeredOrders'  => (int) ($counts['registered_orders'] ?? 0),
-     'purchaseOrders'    => (int) ($counts['purchase_orders'] ?? 0),
-     'proformaInvoices'  => (int) ($counts['proforma_invoices'] ?? 0),
-     'bankProfiles'      => (int) ($counts['bank_profiles'] ?? 0),
-     'payments'          => (int) ($counts['payments'] ?? 0),
-     'shipments'         => (int) ($counts['payments'] ?? 0),
-     'customs'         => (int) ($counts['customs'] ?? 0),
- ];
+        'purchaseRequests' => (int) ($counts['purchase_requests']  ?? 0),
+        'registeredOrders' => (int) ($counts['registered_orders']  ?? 0),
+        'purchaseOrders'   => (int) ($counts['purchase_orders']    ?? 0),
+        'proformaInvoices' => (int) ($counts['proforma_invoices']  ?? 0),
+        'bankProfiles'     => (int) ($counts['bank_profiles']      ?? 0),
+        'payments'         => (int) ($counts['payments']           ?? 0),
+        'shipments'        => (int) ($counts['shipments']          ?? 0),
+        'customs'          => (int) ($counts['customs']            ?? 0),
+    ];
 @endphp
 
 @push('headCSS')
@@ -26,35 +25,60 @@
 
 <div x-data="landingPage()"
      :class="darkMode ? 'dark' : 'light'"
-     class="min-h-screen transition-colors duration-500"
-     dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
-    <!-- Loader -->
+     class="h-screen overflow-hidden transition-colors duration-500"
+     dir="{{ $isRtl ? 'rtl' : 'ltr' }}"
+     @keydown.window="if (($event.metaKey || $event.ctrlKey) && $event.key === 'k') { $event.preventDefault(); activeTab = 'search'; $nextTick(() => $dispatch('tab-search-focus')); }">
+
     @include('components.filament.landing-page.loader')
 
     <canvas id="canvas-bg" class="fixed top-0 left-0 w-full h-full z-0 opacity-40"></canvas>
 
-    <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
-        <!-- Language & Theme Switcher -->
-        @include('components.filament.landing-page.switchers')
+    @include('components.filament.landing-page.switchers')
+    @include('components.filament.landing-page.widget')
 
-        <!-- Tri-widget  -->
-        @include('components.filament.landing-page.widget')
+    <div class="relative z-10 h-full overflow-y-auto pt-8 custom-scrollbar">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 pb-10 max-w-7xl">
 
-        <!-- Dashboard Header -->
-        @include('components.filament.landing-page.header')
+            @include('components.filament.landing-page.header')
 
-        <!-- User Personalized Work Space -->
-        @include('components.filament.landing-page.custom-workspace')
+            <div x-show="activeTab === 'customize'"
+                 x-transition:enter="transition-opacity duration-150 ease-in"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition-opacity duration-100 ease-out"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 x-cloak>
+                @include('components.filament.landing-page.custom-workspace')
+            </div>
 
-        <!-- Main Workflow -->
-        @include('components.filament.landing-page.workflow')
+            <div x-show="activeTab === 'workflow'"
+                 x-transition:enter="transition-opacity duration-150 ease-in"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition-opacity duration-100 ease-out"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 x-cloak>
+                @include('components.filament.landing-page.workflow')
+                @include('components.filament.landing-page.footer')
+            </div>
 
+            <div x-show="activeTab === 'search'"
+                 x-transition:enter="transition-opacity duration-150 ease-in"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition-opacity duration-100 ease-out"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 x-cloak
+                 class="min-h-[calc(100vh-12rem)] flex flex-col">
+                @include('components.filament.landing-page.search-tab')
+            </div>
 
-        <!-- Dashboard Footer -->
-        @include('components.filament.landing-page.footer')
+        </div>
     </div>
 </div>
-
 
 @push('scripts')
     <script src="/js/3d.min.js"></script>
