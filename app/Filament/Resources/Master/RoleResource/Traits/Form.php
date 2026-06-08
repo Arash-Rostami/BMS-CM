@@ -14,6 +14,100 @@ use Illuminate\Support\Str;
 
 trait Form
 {
+    public static function getGradeSelect(): Select
+    {
+        return Select::make('grade')
+            ->label(__('resources/role/strings.form.grade'))
+            ->options(['junior' => '⭐', 'mid' => '⭐⭐', 'senior' => '⭐⭐⭐'])
+            ->afterStateUpdated(function (Set $set, Get $get, ?string $grade) {
+                $base = Role::extractBaseName($get('name') ?? '');
+                $set('name', Role::combineName($base, $grade));
+            })
+            ->required()
+            ->validationAttribute(__('resources/role/strings.form.grade'))
+            ->validationMessages([
+                'required' => __('resources/role/strings.form.validation_grade_required'),
+            ]);
+    }
+
+    public static function getModuleSelector(): Select
+    {
+        return Select::make('modules')
+            ->label(__('resources/role/strings.form.modules'))
+            ->options(PermissionLabeler::getModuleOptions())
+            ->multiple()
+            ->live()
+            ->searchable()
+            ->columnSpanFull()
+            ->afterStateHydrated(function (Set $set, $record) {
+                if (!$record) return;
+                $permissionIds = $record->permissions()->pluck('permissions.id')->all();
+                $set('modules', Role::getModulesFromPermissions($permissionIds));
+                $set('permissions', $permissionIds);
+            })
+            ->afterStateUpdated(function (Set $set, Get $get, ?array $state) {
+                $state ??= [];
+                $current = $get('permissions') ?? [];
+
+                $previous = collect(Role::getModulesFromPermissions($current));
+                $new = collect($state);
+
+                $added = $new->diff($previous);
+                $removed = $previous->diff($new);
+
+                if ($added->isNotEmpty()) {
+                    $current = array_unique(array_merge($current, Role::getPermissionsForModules($added->all())));
+                }
+                if ($removed->isNotEmpty()) {
+                    $current = array_diff($current, Role::getPermissionsForModules($removed->all()));
+                }
+
+                $set('permissions', array_values($current));
+                $set('select_all', false);
+            });
+    }
+
+    public static function getPermissionSelector(): Select
+    {
+        return Select::make('permissions')
+            ->label(__('resources/role/strings.form.permissions'))
+            ->columnSpanFull()
+            ->options(function (Get $get) {
+                $modules = $get('modules');
+                $selectAll = $get('select_all');
+
+                if (empty($modules) && !$selectAll) return [];
+
+                $query = Permission::query();
+
+                if (!empty($modules) && !$selectAll) {
+                    $query->where(function ($q) use ($modules) {
+                        foreach ($modules as $module) {
+                            $q->orWhere('name', 'like', "{$module}.%");
+                        }
+                    });
+                }
+
+                return $query->get()
+                    ->groupBy(fn($p) => PermissionLabeler::getLabel(Str::before($p->name, '.')))
+                    ->map(fn($perms) => $perms->mapWithKeys(fn($p) => [$p->id => PermissionLabeler::getLabel($p->name)])->toArray())
+                    ->toArray();
+            })
+            ->multiple()
+            ->live()
+            ->searchable()
+            ->disabled(fn(Get $get) => empty($get('modules')) && !$get('select_all'))
+            ->afterStateUpdated(function (Set $set, Get $get, ?array $state) {
+                $state ??= [];
+
+                $set('modules', Role::getModulesFromPermissions($state));
+
+                if (count($state) < Permission::count()) {
+                    $set('select_all', false);
+                }
+            });
+    }
+
     public static function getRoleNameInput(): TextInput
     {
         return TextInput::make('name')
@@ -42,22 +136,6 @@ trait Form
             ->afterStateUpdated(fn(Set $set, $state) => $set('name', Str::snake($state)));
     }
 
-    public static function getGradeSelect(): Select
-    {
-        return Select::make('grade')
-            ->label(__('resources/role/strings.form.grade'))
-            ->options(['junior' => '⭐', 'mid' => '⭐⭐', 'senior' => '⭐⭐⭐'])
-            ->afterStateUpdated(function (Set $set, Get $get, ?string $grade) {
-                $base = Role::extractBaseName($get('name') ?? '');
-                $set('name', Role::combineName($base, $grade));
-            })
-            ->required()
-            ->validationAttribute(__('resources/role/strings.form.grade'))
-            ->validationMessages([
-                'required' => __('resources/role/strings.form.validation_grade_required'),
-            ]);
-    }
-
     public static function getSelectAllToggle(): Toggle
     {
         return Toggle::make('select_all')
@@ -77,89 +155,30 @@ trait Form
             });
     }
 
-
-    public static function getModuleSelector(): Select
+    public static function getActionToggle(string $action): Toggle
     {
-        return Select::make('modules')
-            ->label(__('resources/role/strings.form.modules'))
-            ->options(PermissionLabeler::getModuleOptions())
-            ->multiple()
+        return Toggle::make("action_{$action}")
+            ->label(__("resources/general/strings.actions.{$action}"))
             ->live()
-            ->searchable()
-            ->columnSpanFull()
-            ->afterStateHydrated(function (Set $set, $record) {
+            ->afterStateHydrated(function (Toggle $component, $record) use ($action) {
                 if (!$record) return;
-
-                $permissionIds = $record->permissions()->pluck('permissions.id')->all();
-                $set('modules', Role::getModulesFromPermissions($permissionIds));
-                $set('permissions', $permissionIds);
+                $total = Permission::where('name', 'like', "%.{$action}")->count();
+                $component->state(
+                    $total > 0 &&
+                    $record->permissions()->where('name', 'like', "%.{$action}")->count() === $total
+                );
             })
-            ->afterStateUpdated(function (Set $set, Get $get, ?array $state) {
-                $state ??= [];
+            ->afterStateUpdated(function (Set $set, Get $get, bool $state) use ($action) {
                 $current = $get('permissions') ?? [];
-                $previous = collect($get('modules') ?? []);
-                $new = collect($state);
+                $actionPerms = Permission::where('name', 'like', "%.{$action}")->pluck('id')->all();
 
-                $added = $new->diff($previous);
-                $removed = $previous->diff($new);
+                $current = $state
+                    ? array_values(array_unique(array_merge($current, $actionPerms)))
+                    : array_values(array_diff($current, $actionPerms));
 
-                if ($added->isNotEmpty()) {
-                    $current = array_unique(array_merge(
-                        $current,
-                        Role::getPermissionsForModules($added->all())
-                    ));
-                }
-
-                if ($removed->isNotEmpty()) {
-                    $current = array_diff(
-                        $current,
-                        Role::getPermissionsForModules($removed->all())
-                    );
-                }
-
-                $set('permissions', array_values($current));
-                $set('select_all', false);
-            });
-    }
-
-
-    public static function getPermissionSelector(): Select
-    {
-        return Select::make('permissions')
-            ->label(__('resources/role/strings.form.permissions'))
-            ->columnSpanFull()
-            ->options(function (Get $get) {
-                $modules = $get('modules');
-                $selectAll = $get('select_all');
-
-                if (empty($modules) && !$selectAll) return [];
-
-                $query = Permission::query();
-
-                if (!empty($modules) && !$selectAll) {
-                    $query->where(function ($q) use ($modules) {
-                        foreach ($modules as $module) {
-                            $q->orWhere('name', 'like', "{$module}.%");
-                        }
-                    });
-                }
-
-                return $query->get()
-                    ->mapWithKeys(fn($p) => [$p->id => PermissionLabeler::getLabel($p->name)])
-                    ->toArray();
-            })
-            ->multiple()
-            ->live()
-            ->searchable()
-            ->disabled(fn(Get $get) => empty($get('modules')) && !$get('select_all'))
-            ->afterStateUpdated(function (Set $set, Get $get, ?array $state) {
-                $state ??= [];
-
-                $set('modules', Role::getModulesFromPermissions($state));
-
-                if (count($state) < Permission::count()) {
-                    $set('select_all', false);
-                }
+                $set('permissions', $current);
+                $set('modules', Role::getModulesFromPermissions($current));
+                $set('select_all', count($current) === Permission::count());
             });
     }
 }

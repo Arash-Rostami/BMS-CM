@@ -29,6 +29,12 @@ return new class extends Migration
             $table->foreignId('updated_by_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['buyer_id', 'deleted_at']);
+            $table->index(['status_id', 'deleted_at']);
+            $table->index('seller_id');
+            $table->index('currency_id');
+            $table->index('user_id');
         });
     }
 

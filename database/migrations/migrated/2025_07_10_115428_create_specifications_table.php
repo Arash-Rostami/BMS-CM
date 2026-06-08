@@ -33,6 +33,14 @@ return new class extends Migration
                 $table->index(['specifiable_type', 'specifiable_id'], 'specifiable_index');
                 $table->softDeletes();
                 $table->timestamps();
+
+                $table->index(
+                    ['specifiable_type', 'specifiable_id', 'deleted_at'],
+                    'idx_specifiable_deleted'
+                );
+                $table->index('hs_code');
+                $table->index('tax_id');
+                $table->index('manufacturer');
             });
         }
     }

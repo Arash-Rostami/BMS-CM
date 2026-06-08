@@ -30,6 +30,10 @@ return new class extends Migration
             $table->foreignId('updated_by_id')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index(['targetable_type', 'targetable_id', 'deleted_at'], 'idx_targets_targetable_deleted');
+            $table->index(['year', 'deleted_at'], 'idx_targets_year_deleted');
+            $table->index(['status', 'deleted_at'], 'idx_targets_status_deleted');
         });
     }
 

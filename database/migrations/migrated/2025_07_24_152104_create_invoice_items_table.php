@@ -27,6 +27,9 @@ return new class extends Migration
             $table->decimal('total_amount', 15, 2)->nullable()->comment('quantity × unit_price');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['proforma_invoice_id', 'deleted_at']);
+            $table->index('product_id');
         });
     }
 

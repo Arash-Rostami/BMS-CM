@@ -23,6 +23,11 @@ return new class extends Migration
             $table->string('company')->nullable()->after('ip');
             $table->json('settings')->nullable()->after('company');
             $table->softDeletes()->after('settings');
+
+            $table->index(['role', 'deleted_at'], 'idx_users_role_deleted');
+            $table->index(['status', 'deleted_at'], 'idx_users_status_deleted');
+            $table->index(['department_id', 'deleted_at'], 'idx_users_department_deleted');
+            $table->index(['company', 'deleted_at'], 'idx_users_company_deleted');
         });
     }
 

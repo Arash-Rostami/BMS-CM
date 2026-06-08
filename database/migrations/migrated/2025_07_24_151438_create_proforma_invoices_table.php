@@ -40,6 +40,11 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('contract_no');
+            $table->index(['buyer_id', 'deleted_at']);
+            $table->index(['seller_id', 'deleted_at']);
+            $table->index('main_currency_id');
         });
     }
 

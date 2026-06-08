@@ -44,6 +44,12 @@ return new class extends Migration
 
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['shipment_id', 'deleted_at']);
+            $table->index(['registered_order_id', 'deleted_at']);
+            $table->index('declaration_no');
+            $table->index('shipment_no');
+            $table->index('contract_no');
         });
     }
 

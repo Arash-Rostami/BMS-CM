@@ -15,6 +15,9 @@ return new class extends Migration
             $table->primary(['purchase_order_id', 'purchase_request_id']);
             $table->foreignId('purchase_order_id')->constrained()->cascadeOnDelete();
             $table->foreignId('purchase_request_id')->constrained()->cascadeOnDelete();
+
+            table->unique(['purchase_order_id', 'purchase_request_id'], 'uidx_po_pr');
+            $table->index('purchase_request_id');
         });
     }
 

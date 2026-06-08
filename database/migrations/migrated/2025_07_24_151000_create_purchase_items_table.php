@@ -21,6 +21,9 @@ return new class extends Migration {
             $table->text('notes')->nullable()->comment('Additional remarks');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['purchase_request_id', 'deleted_at']);
+            $table->index('product_id');
         });
     }
 

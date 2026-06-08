@@ -21,6 +21,9 @@ return new class extends Migration
                 ->cascadeOnDelete();
             $table->timestamps();
             $table->unique(['registered_order_id', 'purchase_order_id'], 'ro_po_unique');
+
+            $table->unique(['registered_order_id', 'purchase_order_id'], 'uidx_ro_po');
+            $table->index('purchase_order_id');
         });
     }
 

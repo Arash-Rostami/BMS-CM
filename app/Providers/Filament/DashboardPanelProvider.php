@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\AccountWidget;
+use App\Http\Middleware\EnsureUserIsActive;
 use Filament\Enums\GlobalSearchPosition;
 use Filament\Enums\ThemeMode;
 use Filament\FontProviders\LocalFontProvider;
@@ -16,7 +18,6 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Platform;
 use Filament\Support\Enums\Width;
-use App\Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -104,6 +105,7 @@ class DashboardPanelProvider extends PanelProvider
             ->default()
             ->authMiddleware([
                 Authenticate::class,
+                EnsureUserIsActive::class,
             ])
             ->defaultThemeMode(ThemeMode::Dark);
     }

@@ -52,6 +52,13 @@ return new class extends Migration {
 
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('contract_no');
+            $table->index('bl_number');
+            $table->index('container_no');
+            $table->index(['registered_order_id', 'deleted_at']);
+            $table->index('company_id');
+            $table->index('status_id');
         });
     }
 
