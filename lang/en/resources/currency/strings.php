@@ -12,7 +12,7 @@ return [
         'english_name' => 'Name (English)',
         'description' => 'Symbol',
         'is_active' => 'Is Active?',
-        'helper_is_active' => 'Specifies the active/inactive status of this record.',
+        'helper_is_active' => 'Toggle off to hide this currency from dropdowns without deleting its history.',
         'creator' => 'Created By',
         'updater' => 'Last Updated By',
         'validation_name_required' => 'Please enter the Persian name.',

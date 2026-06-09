@@ -14,6 +14,33 @@ use Illuminate\Support\Str;
 
 trait Form
 {
+    public static function getActionToggle(string $action): Toggle
+    {
+        return Toggle::make("action_{$action}")
+            ->label(__("resources/general/strings.actions.{$action}"))
+            ->live()
+            ->afterStateHydrated(function (Toggle $component, $record) use ($action) {
+                if (!$record) return;
+                $total = Permission::where('name', 'like', "%.{$action}")->count();
+                $component->state(
+                    $total > 0 &&
+                    $record->permissions()->where('name', 'like', "%.{$action}")->count() === $total
+                );
+            })
+            ->afterStateUpdated(function (Set $set, Get $get, bool $state) use ($action) {
+                $current = $get('permissions') ?? [];
+                $actionPerms = Permission::where('name', 'like', "%.{$action}")->pluck('id')->all();
+
+                $current = $state
+                    ? array_values(array_unique(array_merge($current, $actionPerms)))
+                    : array_values(array_diff($current, $actionPerms));
+
+                $set('permissions', $current);
+                $set('modules', Role::getModulesFromPermissions($current));
+                $set('select_all', count($current) === Permission::count());
+            });
+    }
+
     public static function getGradeSelect(): Select
     {
         return Select::make('grade')
@@ -25,6 +52,7 @@ trait Form
             })
             ->required()
             ->validationAttribute(__('resources/role/strings.form.grade'))
+            ->helperText(__('resources/role/strings.form.helper_grade'))
             ->validationMessages([
                 'required' => __('resources/role/strings.form.validation_grade_required'),
             ]);
@@ -39,6 +67,7 @@ trait Form
             ->live()
             ->searchable()
             ->columnSpanFull()
+            ->helperText(__('resources/role/strings.form.helper_modules'))
             ->afterStateHydrated(function (Set $set, $record) {
                 if (!$record) return;
                 $permissionIds = $record->permissions()->pluck('permissions.id')->all();
@@ -152,33 +181,6 @@ trait Form
 
                 $set('modules', array_keys(PermissionLabeler::getModuleOptions()));
                 $set('permissions', Role::getAllPermissionIds());
-            });
-    }
-
-    public static function getActionToggle(string $action): Toggle
-    {
-        return Toggle::make("action_{$action}")
-            ->label(__("resources/general/strings.actions.{$action}"))
-            ->live()
-            ->afterStateHydrated(function (Toggle $component, $record) use ($action) {
-                if (!$record) return;
-                $total = Permission::where('name', 'like', "%.{$action}")->count();
-                $component->state(
-                    $total > 0 &&
-                    $record->permissions()->where('name', 'like', "%.{$action}")->count() === $total
-                );
-            })
-            ->afterStateUpdated(function (Set $set, Get $get, bool $state) use ($action) {
-                $current = $get('permissions') ?? [];
-                $actionPerms = Permission::where('name', 'like', "%.{$action}")->pluck('id')->all();
-
-                $current = $state
-                    ? array_values(array_unique(array_merge($current, $actionPerms)))
-                    : array_values(array_diff($current, $actionPerms));
-
-                $set('permissions', $current);
-                $set('modules', Role::getModulesFromPermissions($current));
-                $set('select_all', count($current) === Permission::count());
             });
     }
 }

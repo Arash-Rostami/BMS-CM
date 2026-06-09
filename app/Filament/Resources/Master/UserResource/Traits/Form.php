@@ -38,7 +38,8 @@ trait Form
                 titleAttribute: fn() => app()->getLocale() === 'fa' ? ('name' ?? 'english_name') : 'english_name')
             ->nullable()
             ->searchable()
-            ->preload();
+            ->preload()
+            ->helperText(__('resources/user/strings.form.helper_department'));
     }
 
     public static function getEmail(): TextInput
@@ -182,7 +183,20 @@ trait Form
         return Select::make('position')
             ->label(__('resources/user/strings.form.position'))
             ->options(PositionStatus::class)
-            ->nullable();
+            ->nullable()
+            ->helperText(__('resources/user/strings.form.helper_position'));
+    }
+
+    public static function getRoles(): Select
+    {
+        return Select::make('roles')
+            ->label(__('resources/user/strings.form.role'))
+            ->relationship('roles', 'name')
+            ->getOptionLabelFromRecordUsing(fn(Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
+            ->multiple()
+            ->preload()
+            ->searchable()
+            ->helperText(__('resources/user/strings.form.helper_roles'));
     }
 
     public static function getStatus(): Select
@@ -194,17 +208,7 @@ trait Form
             ->validationAttribute(__('resources/user/strings.form.status'))
             ->validationMessages([
                 'required' => __('resources/user/strings.form.validation_status_required'),
-            ]);
-    }
-
-    public static function getRoles(): Select
-    {
-        return Select::make('roles')
-            ->label(__('resources/user/strings.form.role'))
-            ->relationship('roles', 'name')
-            ->getOptionLabelFromRecordUsing(fn (Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
-            ->multiple()
-            ->preload()
-            ->searchable();
+            ])
+            ->helperText(__('resources/user/strings.form.helper_status'));
     }
 }

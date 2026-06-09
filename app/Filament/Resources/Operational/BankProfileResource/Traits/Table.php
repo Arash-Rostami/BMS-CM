@@ -42,6 +42,24 @@ trait Table
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
+    public static function showCommitmentPaymentDate(): TextColumn
+    {
+        return TextColumn::make('commitment_payment_date')
+            ->label(__('resources/bankProfile/strings.table.commitment_payment_date'))
+            ->date()
+            ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function showPaymentDueDate(): TextColumn
+    {
+        return TextColumn::make('payment_due_date')
+            ->label(__('resources/bankProfile/strings.table.payment_due_date'))
+            ->date()
+            ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
     public static function showCreationTime(): TextColumn
     {
         return TextColumn::make('created_at')

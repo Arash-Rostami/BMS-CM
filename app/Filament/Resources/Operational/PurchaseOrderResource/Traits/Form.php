@@ -2,14 +2,12 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Traits;
 
-use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\UpdatesFromPurchaseRequests;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\UpdatesFromProformaInvoice;
+use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\UpdatesFromPurchaseRequests;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\UpdatesFromRegisteredOrders;
 use App\Models\Status;
 use App\Services\CodeGenerator;
-use App\Services\FileUploadManager;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -20,7 +18,6 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\UploadedFile;
 
 
 trait Form
@@ -395,7 +392,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
             ])
-            ->validationAttribute(__('resources/purchaseOrder/strings.form.status'));
+            ->validationAttribute(__('resources/purchaseOrder/strings.form.status'))
+            ->helperText(__('resources/purchaseOrder/strings.form.helper_status'));
     }
 
     public static function getTotalAmountField(): TextEntry

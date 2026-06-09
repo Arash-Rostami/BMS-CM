@@ -30,6 +30,7 @@ return [
         'validation_english_name_unique' => 'Ce nom anglais est déjà pris.',
         'helper_name' => 'Saisissez le nom uniquement en persan ; les entrées contenant des caractères non persans seront rejetées à l\'enregistrement.',
         'helper_english_name' => 'Utilisez le nom anglais officiel, tel qu\'il apparaît sur les rapports et les documents partagés.',
+        'helper_description' => 'Ajoutez des notes supplémentaires ou des détails sur cette entreprise.',
     ],
     'table' => [
         'name' => 'Nom (Persan)',

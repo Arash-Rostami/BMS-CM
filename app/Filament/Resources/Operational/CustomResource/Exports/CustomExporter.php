@@ -33,8 +33,6 @@ class CustomExporter extends Exporter
             ExportColumn::make('clearance_date')->label('Clearance Date'),
             ExportColumn::make('doc_submission_date')->label('Doc Submission Date'),
             ExportColumn::make('ten_percent_exit_date')->label('10% Exit Date'),
-            ExportColumn::make('payment_due_date')->label('Payment Due Date'),
-            ExportColumn::make('commitment_payment_date')->label('Commitment Payment Date'),
             ExportColumn::make('rial_return_date')->label('Rial Return Date'),
 
             // Statuses (Double Columns)

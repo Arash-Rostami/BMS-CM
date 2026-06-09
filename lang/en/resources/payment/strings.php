@@ -59,6 +59,7 @@ return [
         'validation_max_length' => 'Please keep this to 255 characters or fewer.',
         'helper_iban' => 'Double-check the IBAN before saving — a single wrong digit can send funds to the wrong account.',
         'helper_targetable' => 'Choose what this payment is for first; it unlocks the currency, status, and date fields and drives the calculated totals.',
+            'helper_status' => 'Current status of the payment in the pipeline.',
     ],
     'table' => [
         'id' => 'ID',

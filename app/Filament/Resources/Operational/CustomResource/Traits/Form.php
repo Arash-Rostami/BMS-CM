@@ -61,7 +61,8 @@ trait Form
             ->options(__('resources/custom/strings.general.clearance_types'))
             ->native(false)
             ->searchable()
-            ->preload();
+            ->preload()
+            ->helperText(__('resources/custom/strings.form.helper_clearance_type'));
     }
 
     public static function getCommitmentBalanceField(): TextInput
@@ -69,23 +70,12 @@ trait Form
         return TextInput::make('commitment_balance')
             ->label(__('resources/custom/strings.form.commitment_balance'))
             ->numeric()
+            ->live()
             ->prefix('💰')
             ->hint(fn(Get $get) => delimiter($get('commitment_balance')))
             ->validationAttribute(__('resources/custom/strings.form.commitment_balance'))
             ->validationMessages([
                 'numeric' => __('resources/custom/strings.form.validation_numeric'),
-            ]);
-    }
-
-    public static function getCommitmentPaymentDateField()
-    {
-        return DatePicker::make('commitment_payment_date')
-            ->label(__('resources/custom/strings.form.commitment_payment_date'))
-            ->native(false)
-            ->adaptive()
-            ->validationAttribute(__('resources/custom/strings.form.commitment_payment_date'))
-            ->validationMessages([
-                'date' => __('resources/custom/strings.form.validation_date'),
             ]);
     }
 
@@ -160,18 +150,6 @@ trait Form
             ->label(__('resources/custom/strings.form.notes'))
             ->rows(3)
             ->columnSpanFull();
-    }
-
-    public static function getPaymentDueDateField()
-    {
-        return DatePicker::make('payment_due_date')
-            ->label(__('resources/custom/strings.form.payment_due_date'))
-            ->native(false)
-            ->adaptive()
-            ->validationAttribute(__('resources/custom/strings.form.payment_due_date'))
-            ->validationMessages([
-                'date' => __('resources/custom/strings.form.validation_date'),
-            ]);
     }
 
     public static function getRegisteredOrderField(): Select

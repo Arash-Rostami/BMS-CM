@@ -42,8 +42,6 @@ class Custom extends Model
         'clearance_date',
         'doc_submission_date',
         'ten_percent_exit_date',
-        'payment_due_date',
-        'commitment_payment_date',
         'rial_return_date',
         'clearance_status_id',
         'bank_guarantee_status_id',
@@ -58,8 +56,6 @@ class Custom extends Model
         'clearance_date' => 'date',
         'doc_submission_date' => 'date',
         'ten_percent_exit_date' => 'date',
-        'payment_due_date' => 'date',
-        'commitment_payment_date' => 'date',
         'rial_return_date' => 'date',
     ];
 }

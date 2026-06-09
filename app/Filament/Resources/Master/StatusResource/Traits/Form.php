@@ -2,21 +2,15 @@
 
 namespace App\Filament\Resources\Master\StatusResource\Traits;
 
-use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Components\Utilities\Get;
 use App\Models\Status;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 
 trait Form
 {
-
-    public static function getCustomType(): Hidden
-    {
-        return Hidden::make('custom_type')
-            ->default(false);
-    }
 
     public static function getCustomEnglishType(): Hidden
     {
@@ -24,45 +18,32 @@ trait Form
             ->default(false);
     }
 
-    public static function getType(): Select
+    public static function getCustomType(): Hidden
     {
-        return Select::make('type')
-            ->label(__('resources/status/strings.form.type'))
-            ->options(fn() => Status::query()
-                    ->distinct()
-                    ->pluck('type', 'type')
-                    ->toArray() + ['write' => __('resources/status/strings.form.custom')]
-            )
-            ->reactive()
-            ->afterStateUpdated(function (Set $set, $state) {
-                if ($state === 'write') {
-                    $set('custom_type', true);
-                    $set('custom_english_type', true);
-                } else {
-                    $set('custom_type', false);
-                    $english = Status::where('type', $state)->value('english_type');
-                    $set('english_type', $english);
-                    $set('custom_english_type', false);
-                }
-            })
-            ->required(fn(Get $get) => !$get('custom_type'))
-            ->validationAttribute(__('resources/status/strings.form.type'))
-            ->validationMessages([
-                'required' => __('resources/status/strings.form.validation_type_required'),
-            ])
-            ->visible(fn(Get $get) => !$get('custom_type'));
+        return Hidden::make('custom_type')
+            ->default(false);
     }
 
-    public static function getTypeCustomField(): TextInput
+    public static function getEnglishName(): TextInput
     {
-        return TextInput::make('type_custom')
-            ->label(__('resources/status/strings.form.type') . ' (' . __('resources/status/strings.form.custom') . ')')
-            ->required(fn(Get $get) => $get('custom_type'))
-            ->validationAttribute(__('resources/status/strings.form.type'))
+        return TextInput::make('english_name')
+            ->label(__('resources/status/strings.form.english_name'))
+            ->required()
+            ->maxLength(255)
+            ->rule('regex:/^[A-Za-z\s\p{P}\d\*]+$/')
+            ->unique(
+                column: 'english_name',
+                ignoreRecord: true,
+                modifyRuleUsing: fn($rule, $get) => $rule->where('english_type', $get('english_type'))
+            )
+            ->placeholder(__('resources/status/strings.form.validation_english_name'))
             ->validationMessages([
-                'required' => __('resources/status/strings.form.validation_type_custom_required'),
+                'required' => __('resources/status/strings.form.validation_english_name_required'),
+                'regex' => __('resources/status/strings.form.validation_english_name'),
+                'unique' => __('resources/status/strings.form.validation_english_name_unique'),
+                'max' => __('resources/status/strings.form.validation_english_name_max'),
             ])
-            ->visible(fn(Get $get) => $get('custom_type'));
+            ->validationAttribute(__('resources/status/strings.form.english_name'));
     }
 
     public static function getEnglishType(): Select
@@ -91,7 +72,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/status/strings.form.validation_english_type_required'),
             ])
-            ->visible(fn(Get $get) => !$get('custom_english_type'));
+            ->visible(fn(Get $get) => !$get('custom_english_type'))
+            ->helperText(__('resources/status/strings.form.helper_english_type'));
     }
 
     public static function getEnglishTypeCustomField(): TextInput
@@ -116,7 +98,7 @@ trait Form
             ->unique(
                 column: 'name',
                 ignoreRecord: true,
-                modifyRuleUsing: fn ($rule, $get) => $rule->where('type', $get('type'))
+                modifyRuleUsing: fn($rule, $get) => $rule->where('type', $get('type'))
             )
             ->placeholder(__('resources/status/strings.form.validation_name'))
             ->helperText(__('resources/status/strings.form.helper_name'))
@@ -129,25 +111,45 @@ trait Form
             ->validationAttribute(__('resources/status/strings.form.name'));
     }
 
-    public static function getEnglishName(): TextInput
+    public static function getType(): Select
     {
-        return TextInput::make('english_name')
-            ->label(__('resources/status/strings.form.english_name'))
-            ->required()
-            ->maxLength(255)
-            ->rule('regex:/^[A-Za-z\s\p{P}\d\*]+$/')
-            ->unique(
-                column: 'english_name',
-                ignoreRecord: true,
-                modifyRuleUsing: fn($rule, $get) => $rule->where('english_type', $get('english_type'))
+        return Select::make('type')
+            ->label(__('resources/status/strings.form.type'))
+            ->options(fn() => Status::query()
+                    ->distinct()
+                    ->pluck('type', 'type')
+                    ->toArray() + ['write' => __('resources/status/strings.form.custom')]
             )
-            ->placeholder(__('resources/status/strings.form.validation_english_name'))
+            ->reactive()
+            ->afterStateUpdated(function (Set $set, $state) {
+                if ($state === 'write') {
+                    $set('custom_type', true);
+                    $set('custom_english_type', true);
+                } else {
+                    $set('custom_type', false);
+                    $english = Status::where('type', $state)->value('english_type');
+                    $set('english_type', $english);
+                    $set('custom_english_type', false);
+                }
+            })
+            ->required(fn(Get $get) => !$get('custom_type'))
+            ->validationAttribute(__('resources/status/strings.form.type'))
             ->validationMessages([
-                'required' => __('resources/status/strings.form.validation_english_name_required'),
-                'regex' => __('resources/status/strings.form.validation_english_name'),
-                'unique' => __('resources/status/strings.form.validation_english_name_unique'),
-                'max' => __('resources/status/strings.form.validation_english_name_max'),
+                'required' => __('resources/status/strings.form.validation_type_required'),
             ])
-            ->validationAttribute(__('resources/status/strings.form.english_name'));
+            ->visible(fn(Get $get) => !$get('custom_type'))
+            ->helperText(__('resources/status/strings.form.helper_type'));
+    }
+
+    public static function getTypeCustomField(): TextInput
+    {
+        return TextInput::make('type_custom')
+            ->label(__('resources/status/strings.form.type') . ' (' . __('resources/status/strings.form.custom') . ')')
+            ->required(fn(Get $get) => $get('custom_type'))
+            ->validationAttribute(__('resources/status/strings.form.type'))
+            ->validationMessages([
+                'required' => __('resources/status/strings.form.validation_type_custom_required'),
+            ])
+            ->visible(fn(Get $get) => $get('custom_type'));
     }
 }

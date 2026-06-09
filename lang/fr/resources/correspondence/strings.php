@@ -47,6 +47,7 @@ return [
         'validation_required' => 'Le champ :attribute est requis.',
         'validation_unique' => 'Cette valeur existe déjà.',
         'validation_subject_max' => 'Le sujet ne doit pas dépasser 255 caractères.',
+            'helper_priority' => 'Définissez l\'urgence de ce message. Une priorité élevée alerte les destinataires.',
     ],
     'table' => [
         'subject' => 'Sujet',

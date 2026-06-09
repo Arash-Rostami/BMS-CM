@@ -75,15 +75,6 @@ trait Infolist
             ->placeholder('-');
     }
 
-    public static function viewCommitmentPaymentDate(): TextEntry
-    {
-        return TextEntry::make('commitment_payment_date')
-            ->label(__('resources/custom/strings.form.commitment_payment_date'))
-            ->jalaliDate()
-            ->icon('heroicon-m-calendar-days')
-            ->placeholder('-');
-    }
-
     public static function viewCommitmentStatus(): TextEntry
     {
         return TextEntry::make('commitmentStatus.name')
@@ -159,15 +150,6 @@ trait Infolist
             ->markdown()
             ->prose()
             ->columnSpanFull()
-            ->placeholder('-');
-    }
-
-    public static function viewPaymentDueDate(): TextEntry
-    {
-        return TextEntry::make('payment_due_date')
-            ->label(__('resources/custom/strings.form.payment_due_date'))
-            ->jalaliDate()
-            ->icon('heroicon-m-clock')
             ->placeholder('-');
     }
 

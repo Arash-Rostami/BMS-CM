@@ -4,6 +4,7 @@ namespace App\Configurators;
 
 use BezhanSalleh\LanguageSwitch\Enums\Placement;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Vite;
 
 class LanguageSwitcher
@@ -12,10 +13,8 @@ class LanguageSwitcher
     {
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
             $switch
-                ->locales(config('language-switch.locales', ['fa', 'en' ,'fr']))
-                ->outsidePanelPlacement(
-                    config('language-switch.outside_panel_placement', Placement::BottomRight)
-                )
+                ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_BEFORE)
+                ->locales(config('language-switch.locales', ['fa', 'en', 'fr']))
                 ->flags([
                     'fa' => Vite::asset('resources/img/flags/iran.svg'),
                     'en' => Vite::asset('resources/img/flags/usa.svg'),

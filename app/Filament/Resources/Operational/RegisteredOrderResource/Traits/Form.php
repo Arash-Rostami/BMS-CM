@@ -188,6 +188,17 @@ trait Form
             ->columnSpanFull();
     }
 
+    public static function getOfficialRegistrationNoField(): TextInput
+    {
+        return TextInput::make('official_registration_no')
+            ->label(__('resources/registeredOrder/strings.form.official_registration_no'))
+            ->maxLength(255)
+            ->validationMessages([
+                'max' => __('resources/registeredOrder/strings.form.validation_max_string'),
+            ])
+            ->validationAttribute(__('resources/registeredOrder/strings.form.official_registration_no'));
+    }
+
     public static function getOrderDateField()
     {
         return DatePicker::make('order_date')
@@ -317,17 +328,6 @@ trait Form
             ->live();
     }
 
-    public static function getOfficialRegistrationNoField(): TextInput
-    {
-        return TextInput::make('official_registration_no')
-            ->label(__('resources/registeredOrder/strings.form.official_registration_no'))
-            ->maxLength(255)
-            ->validationMessages([
-                'max' => __('resources/registeredOrder/strings.form.validation_max_string'),
-            ])
-            ->validationAttribute(__('resources/registeredOrder/strings.form.official_registration_no'));
-    }
-
     public static function getStatusField(): Select
     {
         return Select::make('status_id')
@@ -344,7 +344,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
             ])
-            ->validationAttribute(__('resources/registeredOrder/strings.form.status'));
+            ->validationAttribute(__('resources/registeredOrder/strings.form.status'))
+            ->helperText(__('resources/registeredOrder/strings.form.helper_status'));
     }
 
     public static function getTotalAmountField(): TextEntry

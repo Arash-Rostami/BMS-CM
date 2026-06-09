@@ -3,73 +3,67 @@
 namespace App\Filament\Resources\Operational\TargetResource\Traits;
 
 
-use Filament\Forms\Components\MorphToSelect\Type;
-use App\Services\PersianCalendar;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\ToggleButtons;
+use App\Filament\Resources\Operational\TargetResource\Enums\Status as TargetStatus;
 use App\Models\Category;
 use App\Models\Product;
-use App\Filament\Resources\Operational\TargetResource\Enums\Status as TargetStatus;
-use Illuminate\Support\Facades\Cache;
-
-// Import Builder
+use App\Services\PersianCalendar;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\MorphToSelect;
+use Filament\Forms\Components\MorphToSelect\Type;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 
 
 trait Form
 {
-    public static function getTargetableField(): MorphToSelect
+    public static function getAchievedAmountField(): TextInput
     {
-        return MorphToSelect::make('targetable')
-            ->label(__('resources/target/strings.form.targetable'))
-            ->types([
-                Type::make(Category::class)
-                    ->label(__('resources/target/strings.form.targetable_category'))
-                    ->titleAttribute(app()->isLocale('fa') ? 'name' : 'english_name')
-                    ->searchColumns(['name', 'english_name']),
-                Type::make(Product::class)
-                    ->label(__('resources/target/strings.form.targetable_product'))
-                    ->getOptionLabelFromRecordUsing(fn(Product $r): string => $r->customized_label)
-                    ->searchColumns(['code', 'name', 'english_name'])
+        return TextInput::make('achieved_amount')
+            ->label(__('resources/target/strings.form.achieved_amount'))
+            ->numeric()
+            ->step(0.01)
+            ->nullable()
+            ->validationMessages([
+                'numeric' => __('resources/target/strings.form.validation_numeric'),
             ])
-            ->searchable()
-            ->columnSpan(2)
-            ->required();
+            ->validationAttribute(__('resources/target/strings.form.achieved_amount'));
     }
 
-
-    public static function getYearField(): Select
+    public static function getAchievedQuantityField(): TextInput
     {
-        $calendar = app(PersianCalendar::class);
-
-        return Select::make('year')
-            ->label(__('resources/target/strings.form.year'))
-            ->options($calendar->yearOptions(1, 5))
-            ->searchable()
-            ->required()
-            ->validationAttribute(__('resources/target/strings.form.year'))
+        return TextInput::make('achieved_quantity')
+            ->label(__('resources/target/strings.form.achieved_quantity'))
+            ->numeric()
+            ->step(0.01)
+            ->nullable()
             ->validationMessages([
-                'required' => __('resources/target/strings.form.validation_required'),
-            ]);
+                'numeric' => __('resources/target/strings.form.validation_numeric'),
+            ])
+            ->validationAttribute(__('resources/target/strings.form.achieved_quantity'));
     }
 
-
-    public static function getStartFromField()
+    public static function getAmountField(): TextInput
     {
-        return DatePicker::make('start_from')
-            ->label(__('resources/target/strings.form.start_from'))
-            ->adaptive()
-            ->native(false)
-            ->required()
-            ->validationAttribute(__('resources/target/strings.form.start_from'))
+        return TextInput::make('amount')
+            ->label(__('resources/target/strings.form.amount'))
+            ->numeric()
+            ->step(0.01)
             ->validationMessages([
-                'required' => __('resources/target/strings.form.validation_required'),
-                'date' => __('resources/target/strings.form.validation_date'),
-            ]);
+                'numeric' => __('resources/target/strings.form.validation_numeric'),
+            ])
+            ->validationAttribute(__('resources/target/strings.form.amount'))
+            ->helperText(__('resources/target/strings.form.helper_amount'));
+    }
+
+    public static function getDescriptionField(): Textarea
+    {
+        return Textarea::make('description')
+            ->label(__('resources/target/strings.form.description'))
+            ->maxLength(65535)
+            ->nullable();
     }
 
     public static function getEndInField()
@@ -89,6 +83,16 @@ trait Form
             ]);
     }
 
+    public static function getMetricsField(): Select
+    {
+        return Select::make('metrics')
+            ->label(__('resources/target/strings.form.metrics'))
+            ->options(__('resources/target/strings.metrics'))
+            ->searchable()
+            ->preload()
+            ->nullable();
+    }
+
     public static function getQuantityField(): TextInput
     {
         return TextInput::make('quantity')
@@ -103,34 +107,18 @@ trait Form
             ->validationAttribute(__('resources/target/strings.form.quantity'));
     }
 
-    public static function getAmountField(): TextInput
+    public static function getStartFromField()
     {
-        return TextInput::make('amount')
-            ->label(__('resources/target/strings.form.amount'))
-            ->numeric()
-            ->step(0.01)
+        return DatePicker::make('start_from')
+            ->label(__('resources/target/strings.form.start_from'))
+            ->adaptive()
+            ->native(false)
+            ->required()
+            ->validationAttribute(__('resources/target/strings.form.start_from'))
             ->validationMessages([
-                'numeric' => __('resources/target/strings.form.validation_numeric'),
-            ])
-            ->validationAttribute(__('resources/target/strings.form.amount'));
-    }
-
-    public static function getMetricsField(): Select
-    {
-        return Select::make('metrics')
-            ->label(__('resources/target/strings.form.metrics'))
-            ->options(__('resources/target/strings.metrics'))
-            ->searchable()
-            ->preload()
-            ->nullable();
-    }
-
-    public static function getDescriptionField(): Textarea
-    {
-        return Textarea::make('description')
-            ->label(__('resources/target/strings.form.description'))
-            ->maxLength(65535)
-            ->nullable();
+                'required' => __('resources/target/strings.form.validation_required'),
+                'date' => __('resources/target/strings.form.validation_date'),
+            ]);
     }
 
     public static function getStatusField(): ToggleButtons
@@ -147,38 +135,45 @@ trait Form
             ->inline();
     }
 
-    public static function getAchievedQuantityField(): TextInput
-    {
-        return TextInput::make('achieved_quantity')
-            ->label(__('resources/target/strings.form.achieved_quantity'))
-            ->numeric()
-            ->step(0.01)
-            ->nullable()
-            ->validationMessages([
-                'numeric' => __('resources/target/strings.form.validation_numeric'),
-            ])
-            ->validationAttribute(__('resources/target/strings.form.achieved_quantity'));
-    }
-
-    public static function getAchievedAmountField(): TextInput
-    {
-        return TextInput::make('achieved_amount')
-            ->label(__('resources/target/strings.form.achieved_amount'))
-            ->numeric()
-            ->step(0.01)
-            ->nullable()
-            ->validationMessages([
-                'numeric' => __('resources/target/strings.form.validation_numeric'),
-            ])
-            ->validationAttribute(__('resources/target/strings.form.achieved_amount'));
-    }
-
-
     public static function getTagField(): TagsInput
     {
         return TagsInput::make('tags')
             ->label(__('resources/target/strings.form.tags'))
             ->columnSpan(2)
             ->nullable();
+    }
+
+    public static function getTargetableField(): MorphToSelect
+    {
+        return MorphToSelect::make('targetable')
+            ->label(__('resources/target/strings.form.targetable'))
+            ->types([
+                Type::make(Category::class)
+                    ->label(__('resources/target/strings.form.targetable_category'))
+                    ->titleAttribute(app()->isLocale('fa') ? 'name' : 'english_name')
+                    ->searchColumns(['name', 'english_name']),
+                Type::make(Product::class)
+                    ->label(__('resources/target/strings.form.targetable_product'))
+                    ->getOptionLabelFromRecordUsing(fn(Product $r): string => $r->customized_label)
+                    ->searchColumns(['code', 'name', 'english_name'])
+            ])
+            ->searchable()
+            ->columnSpan(2)
+            ->required();
+    }
+
+    public static function getYearField(): Select
+    {
+        $calendar = app(PersianCalendar::class);
+
+        return Select::make('year')
+            ->label(__('resources/target/strings.form.year'))
+            ->options($calendar->yearOptions(1, 5))
+            ->searchable()
+            ->required()
+            ->validationAttribute(__('resources/target/strings.form.year'))
+            ->validationMessages([
+                'required' => __('resources/target/strings.form.validation_required'),
+            ]);
     }
 }

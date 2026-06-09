@@ -85,6 +85,8 @@ class BankProfileResource extends Resource
                                                 static::getAllocationDateField(),
                                                 static::getPurchaseDateField(),
                                                 static::getDeliveryDateField(),
+                                                static::getPaymentDueDateField(),
+                                                static::getCommitmentPaymentDateField(),
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField()
                                             ])
@@ -245,6 +247,8 @@ class BankProfileResource extends Resource
                                     static::viewWaitingDuration(),
                                     static::viewPurchaseDate(),
                                     static::viewDeliveryDate(),
+                                    static::viewPaymentDueDate(),
+                                    static::viewCommitmentPaymentDate(),
                                     static::viewNotes(),
                                     static::viewCreator(),
                                     static::viewUpdater(),
@@ -301,6 +305,8 @@ class BankProfileResource extends Resource
                 static::showBank(),
                 static::showCompany(),
                 static::showStatus(),
+                static::showPaymentDueDate(),
+                static::showCommitmentPaymentDate(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
@@ -309,6 +315,7 @@ class BankProfileResource extends Resource
             ->filters([
                 static::getRegisteredOrderFilter(),
                 static::getStatusFilter(),
+                static::getPaymentDueDateFilter(),
                 static::getBankFilter(),
                 static::getCompanyFilter(),
                 static::getCreatorFilter(),

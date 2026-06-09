@@ -12,7 +12,7 @@ return [
         'english_name' => 'Name (English)',
         'description' => 'Description',
         'is_active' => 'Is Active?',
-        'helper_is_active' => 'Specifies the active/inactive status of this record.',
+        'helper_is_active' => 'Toggle off to hide this company from dropdowns without deleting its history.',
         'basic_information' => 'General',
         'company_classification' => 'Classification',
         'classification_description' => 'Define the business types and roles of this company',
@@ -31,6 +31,7 @@ return [
         'validation_english_name_unique' => 'This English name is already taken.',
         'helper_name' => 'Type the name in Persian only; entries with non-Persian characters will be rejected on save.',
         'helper_english_name' => 'Use the official English name, as it appears on reports and shared documents.',
+        'helper_description' => 'Add any additional notes or details about this company.',
     ],
     'table' => [
         'name' => 'Name (Persian)',

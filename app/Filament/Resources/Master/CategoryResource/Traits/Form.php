@@ -2,29 +2,30 @@
 
 namespace App\Filament\Resources\Master\CategoryResource\Traits;
 
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 
 trait Form
 {
-    public static function getName(): TextInput
+    public static function getActive(): Toggle
     {
-        return TextInput::make('name')
-            ->label(__('resources/category/strings.form.name'))
-            ->required()
-            ->maxLength(255)
-            ->rule(['string', 'max:255'])
-            ->unique(column: 'name', ignoreRecord: true)
-            ->placeholder(__('resources/category/strings.form.validation_name'))
-            ->validationMessages([
-                'required' => __('resources/category/strings.form.validation_name_required'),
-                'max' => __('resources/category/strings.form.validation_name_max'),
-                'regex' => __('resources/category/strings.form.validation_name'),
-                'unique' => __('resources/category/strings.form.validation_name_unique'),
-            ])
-            ->validationAttribute(__('resources/category/strings.form.name'));
+        return Toggle::make('active')
+            ->label(__('resources/category/strings.form.active'))
+            ->extraAttributes(['style' => 'display:flex; justify-content:center!important; align-items:center;'])
+            ->onColor('success')
+            ->onIcon('heroicon-m-bolt')
+            ->inline()
+            ->default(true);
+    }
+
+    public static function getDescription(): Textarea
+    {
+        return Textarea::make('description')
+            ->label(__('resources/category/strings.form.description'))
+            ->maxLength(65535)
+            ->nullable();
     }
 
     public static function getEnglishName(): TextInput
@@ -42,15 +43,8 @@ trait Form
                 'regex' => __('resources/category/strings.form.validation_english_name'),
                 'unique' => __('resources/category/strings.form.validation_english_name_unique'),
             ])
-            ->validationAttribute(__('resources/category/strings.form.english_name'));
-    }
-
-    public static function getDescription(): Textarea
-    {
-        return Textarea::make('description')
-            ->label(__('resources/category/strings.form.description'))
-            ->maxLength(65535)
-            ->nullable();
+            ->validationAttribute(__('resources/category/strings.form.english_name'))
+            ->helperText(__('resources/category/strings.form.helper_english_name'));
     }
 
     public static function getLevel(): TextInput
@@ -72,6 +66,25 @@ trait Form
             ->required();
     }
 
+    public static function getName(): TextInput
+    {
+        return TextInput::make('name')
+            ->label(__('resources/category/strings.form.name'))
+            ->required()
+            ->maxLength(255)
+            ->rule(['string', 'max:255'])
+            ->unique(column: 'name', ignoreRecord: true)
+            ->placeholder(__('resources/category/strings.form.validation_name'))
+            ->validationMessages([
+                'required' => __('resources/category/strings.form.validation_name_required'),
+                'max' => __('resources/category/strings.form.validation_name_max'),
+                'regex' => __('resources/category/strings.form.validation_name'),
+                'unique' => __('resources/category/strings.form.validation_name_unique'),
+            ])
+            ->validationAttribute(__('resources/category/strings.form.name'))
+            ->helperText(__('resources/category/strings.form.helper_name'));
+    }
+
     public static function getParentCategory(): Select
     {
         return Select::make('parent_id')
@@ -81,16 +94,5 @@ trait Form
             ->preload()
             ->helperText(__('resources/category/strings.form.helper_parent'))
             ->nullable();
-    }
-
-    public static function getActive(): Toggle
-    {
-        return Toggle::make('active')
-            ->label(__('resources/category/strings.form.active'))
-            ->extraAttributes(['style' => 'display:flex; justify-content:center!important; align-items:center;'])
-            ->onColor('success')
-            ->onIcon('heroicon-m-bolt')
-            ->inline()
-            ->default(true);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Operational\ShipmentResource\Traits;
 
+use App\Models\BankProfile;
 use App\Models\RegisteredOrder;
 use App\Models\Shipment;
 use App\Models\Status;
@@ -103,6 +104,7 @@ trait Form
             ->label(__('resources/shipment/strings.form.customs_quantity'))
             ->numeric()
             ->minValue(0)
+            ->live()
             ->step(0.01)
             ->validationMessages([
                 'numeric' => __('resources/shipment/strings.form.validation.numeric'),
@@ -261,7 +263,16 @@ trait Form
             ->preload()
             ->required()
             ->live()
-            ->afterStateUpdated(fn($state, Set $set) => $set('contract_no', RegisteredOrder::find($state, ['contract_no'])?->contract_no ?? null))
+            ->afterStateUpdated(function ($state, Set $set) {
+                $set('contract_no', RegisteredOrder::find($state, ['contract_no'])?->contract_no ?? null);
+                $total = $state
+                    ? BankProfile::where('registered_order_id', $state)
+                        ->whereNull('deleted_at')
+                        ->get()
+                        ->sum(fn($bp) => $bp->total_purchased_remittance)
+                    : 0;
+                $set('remittance_amount', $total > 0 ? round((float) $total, 2) : null);
+            })
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
             ])
@@ -273,13 +284,9 @@ trait Form
         return TextInput::make('remittance_amount')
             ->label(__('resources/shipment/strings.form.remittance_amount'))
             ->numeric()
-            ->minValue(0)
+            ->dehydrated()
             ->prefix('💰')
-            ->validationMessages([
-                'numeric' => __('resources/shipment/strings.form.validation.numeric'),
-                'min' => __('resources/shipment/strings.form.validation.min_numeric_zero'),
-            ])
-            ->validationAttribute(__('resources/shipment/strings.form.remittance_amount'))
+            ->helperText(__('resources/shipment/strings.form.helper_remittance_amount'))
             ->hint(fn($get) => delimiter($get('remittance_amount')));
     }
 
@@ -317,6 +324,7 @@ trait Form
             ->numeric()
             ->minValue(0)
             ->step(0.01)
+            ->live()
             ->validationMessages([
                 'numeric' => __('resources/shipment/strings.form.validation.numeric'),
                 'min' => __('resources/shipment/strings.form.validation.min_numeric_zero'),
@@ -330,6 +338,7 @@ trait Form
         return Toggle::make('doc_tracking')
             ->label(__('resources/shipment/strings.form.docs_options.track'))
             ->default(true)
+            ->helperText(__('resources/shipment/strings.form.smart_tracer_hint'))
             ->live()
             ->inline(false)
             ->onIcon('heroicon-s-bolt')
@@ -355,7 +364,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
             ])
-            ->validationAttribute(__('resources/shipment/strings.form.status'));
+            ->validationAttribute(__('resources/shipment/strings.form.status'))
+            ->helperText(__('resources/shipment/strings.form.helper_status'));
     }
 
     public static function getWarehouseDateField()

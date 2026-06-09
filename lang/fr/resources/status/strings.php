@@ -29,6 +29,8 @@ return [
         'validation_english_type_required' => 'Veuillez choisir un type anglais, ou sélectionnez Nouveau pour en créer un.',
         'validation_english_type_custom_required' => 'Veuillez saisir le nouveau type anglais que vous souhaitez créer.',
         'helper_name' => 'Le nom doit seulement être unique au sein du type sélectionné, le même nom peut donc être réutilisé sous un autre type.',
+            'helper_type' => 'Sélectionnez le modèle/l\'entité auquel ce statut s\'applique.',
+            'helper_english_type' => 'Sélectionnez le mappage du type anglais.',
     ],
     'table' => [
         'type' => 'Type',

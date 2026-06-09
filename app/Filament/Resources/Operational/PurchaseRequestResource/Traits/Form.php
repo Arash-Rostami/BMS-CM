@@ -11,7 +11,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +18,6 @@ use Illuminate\Database\Eloquent\Model;
 
 trait Form
 {
-    // Main Form Fields
     public static function getApprovalDateField(): DatePicker
     {
         return DatePicker::make('approval_date')
@@ -276,6 +274,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_urgency_required'),
             ])
-            ->validationAttribute(__('resources/purchaseRequest/strings.form.urgency_level'));
+            ->validationAttribute(__('resources/purchaseRequest/strings.form.urgency_level'))
+            ->helperText(__('resources/purchaseRequest/strings.form.helper_urgency_level'));
     }
 }
