@@ -40,6 +40,8 @@ return [
             'line' => '❸ Line',
             'model' => '❹ Model',
         ],
+            'helper_name' => 'Enter a clear, descriptive category name.',
+            'helper_english_name' => 'Enter the English equivalent for sorting and URL slugs.',
     ],
     'table' => [
         'name' => 'Name (Persian)',

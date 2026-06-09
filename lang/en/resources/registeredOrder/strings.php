@@ -91,13 +91,14 @@ return [
         'validation_min_numeric' => 'The :attribute must be at least :min, please enter a higher value.',
         'validation_min_numeric_zero' => 'The :attribute cannot be negative, please enter zero or more.',
 
-        'helper_ro_number' => 'Auto-generated and locked to keep registered orders unique, do not edit unless you know the numbering scheme.',
+        'helper_ro_number' => 'This number is auto-generated and locked to prevent duplicates.',
         'helper_seller' => 'The seller must differ from the buyer, pick the supplying party here.',
         'helper_expected_delivery_date' => 'Must fall on or after the order date, set it once the order date is fixed.',
         'helper_quantity' => 'Use a value greater than zero, this drives the line total and the order summary.',
         'helper_unit_price' => 'Price per single unit, the line total is calculated automatically from this.',
-        'helper_source_type' => 'This choice decides which source documents you link and auto-fills the line items, so pick it before adding products.',
+        'helper_source_type' => 'Selecting a source type automatically populates the order items. Please set this before manually adding products.',
         'helper_validity_date' => 'Set this on or after the order date to mark how long the order stays valid.',
+            'helper_status' => 'Current governmental registration status.',
     ],
     'table' => [
         'related_to' => 'Related to',

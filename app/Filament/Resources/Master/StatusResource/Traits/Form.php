@@ -50,7 +50,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/status/strings.form.validation_type_required'),
             ])
-            ->visible(fn(Get $get) => !$get('custom_type'));
+            ->visible(fn(Get $get) => !$get('custom_type'))
+            ->helperText(__('resources/status/strings.form.helper_type'));
     }
 
     public static function getTypeCustomField(): TextInput
@@ -91,7 +92,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/status/strings.form.validation_english_type_required'),
             ])
-            ->visible(fn(Get $get) => !$get('custom_english_type'));
+            ->visible(fn(Get $get) => !$get('custom_english_type'))
+            ->helperText(__('resources/status/strings.form.helper_english_type'));
     }
 
     public static function getEnglishTypeCustomField(): TextInput

@@ -11,7 +11,7 @@ return [
         'english_name' => 'Name (English)',
         'description' => 'Description',
         'is_active' => 'Is Active?',
-        'helper_is_active' => 'Specifies the active/inactive status of this record.',
+        'helper_is_active' => 'Toggle off to hide this bank from dropdowns without deleting its history.',
         'creator' => 'Created By',
         'updater' => 'Last Updated By',
         'validation_name_required' => 'Please enter the Persian name.',
@@ -19,7 +19,9 @@ return [
         'validation_name_unique' => 'The name already exists.',
         'validation_english_name_required' => 'Please enter the English name.',
         'validation_english_name' => 'Only English characters are allowed.',
-        'validation_english_name_unique' => 'The English name already exists.'
+        'validation_english_name_unique' => 'The English name already exists.',
+            'helper_name' => 'Enter the official bank name.',
+            'helper_english_name' => 'Enter the official English name for international records.',
     ],
     'table' => [
         'name' => 'Name (Persian)',

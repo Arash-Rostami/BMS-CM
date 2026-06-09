@@ -240,7 +240,8 @@ trait Form
             ])
             ->hint(fn(Get $get) => is_numeric($get('documents_amount')) ? delimiter($get('documents_amount')) : $get('documents_amount'))
             ->afterStateUpdated(fn(Get $get, Set $set) => static::updateComputations($get, $set))
-            ->validationAttribute(__('resources/bankProfile/strings.form.documents_amount'));
+            ->validationAttribute(__('resources/bankProfile/strings.form.documents_amount'))
+            ->helperText(__('resources/bankProfile/strings.form.helper_documents_amount'));
     }
 
     public static function getEurEquivalentRateField(): TextInput

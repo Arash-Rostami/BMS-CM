@@ -35,7 +35,8 @@ trait Form
                 'max' => __('resources/product/strings.form.validation_name_max'),
             ])
             ->live()
-            ->validationAttribute(__('resources/product/strings.form.name'));
+            ->validationAttribute(__('resources/product/strings.form.name'))
+            ->helperText(__('resources/product/strings.form.helper_name'));
     }
 
     public static function getEnglishNameField(): TextInput
@@ -188,14 +189,16 @@ trait Form
     {
         return TextInput::make('hs_code')
             ->label(__('resources/product/strings.form.hs_code'))
-            ->columnSpan(1);
+            ->columnSpan(1)
+            ->helperText(__('resources/product/strings.form.helper_hs_code'));
     }
 
     public static function getImportDuty(): TextInput
     {
         return TextInput::make('import_duty')
             ->label(__('resources/product/strings.form.import_duty'))
-            ->columnSpan(1);
+            ->columnSpan(1)
+            ->helperText(__('resources/product/strings.form.helper_import_duty'));
     }
 
     public static function getPackagingType(): TextInput

@@ -73,7 +73,7 @@ return [
         'doc_status' => 'Doc Status',
 
         'smart_tracer' => 'Smart Document Tracer',
-        'smart_tracer_hint' => 'When enabled, the checklist is automatically updated from the attached files; when disabled, it is completely manual.',        'docs' => 'Documents Checklist',
+        'smart_tracer_hint' => 'If enabled, the system automatically checks off items based on your uploaded attachments.',        'docs' => 'Documents Checklist',
         'doc_name' => 'Document Name',
         'doc_name_placeholder' => 'e.g. Inspection Certificate',
         'doc_received' => 'Received',
@@ -101,6 +101,7 @@ return [
             'min_numeric_zero' => 'This value cannot be negative.',
             'max' => 'Please keep this to 255 characters or fewer.',
         ],
+            'helper_status' => 'Overall logistical status of the shipment.',
     ],
     'table' => [
         'id' => 'ID',

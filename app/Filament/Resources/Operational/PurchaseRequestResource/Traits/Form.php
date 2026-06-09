@@ -276,6 +276,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_urgency_required'),
             ])
-            ->validationAttribute(__('resources/purchaseRequest/strings.form.urgency_level'));
+            ->validationAttribute(__('resources/purchaseRequest/strings.form.urgency_level'))
+            ->helperText(__('resources/purchaseRequest/strings.form.helper_urgency_level'));
     }
 }

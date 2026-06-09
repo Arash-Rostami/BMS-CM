@@ -40,13 +40,14 @@ return [
         'recipients_to' => 'To (Action Required)',
         'recipients_cc' => 'CC (Information Only)',
 
-        'helper_internal' => 'Visible only to internal staff members.',
-        'helper_private' => 'Visible ONLY to you and the selected recipients.',
+        'helper_internal' => 'Toggle this to restrict visibility strictly to internal staff.',
+        'helper_private' => 'This makes the correspondence entirely private between you and the specific recipients.',
         'helper_subject' => 'Keep it short and descriptive so recipients can scan their inbox at a glance.',
 
         'validation_required' => 'The :attribute field is required.',
         'validation_unique' => 'This value already exists.',
         'validation_subject_max' => 'The subject must not exceed 255 characters.',
+            'helper_priority' => 'Set the urgency of this message. High priority alerts recipients.',
     ],
     'table' => [
         'subject' => 'Subject',

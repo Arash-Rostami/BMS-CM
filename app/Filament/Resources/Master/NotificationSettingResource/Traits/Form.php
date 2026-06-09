@@ -23,7 +23,8 @@ trait Form
             ->live()
             ->multiple()
             ->columnSpan(1)
-            ->columnSpanFull();
+            ->columnSpanFull()
+            ->helperText(__('resources/notificationSetting/strings.form.helper_actions'));
     }
 
     public static function getColumnSelector(): Select
@@ -38,7 +39,8 @@ trait Form
             ->searchable()
             ->disabled(fn($get) => !in_array('update', (array) $get('settings.actions')))
             ->hidden(fn($get) => !in_array('update', (array) $get('settings.actions')))
-            ->nullable();
+            ->nullable()
+            ->helperText(__('resources/notificationSetting/strings.form.helper_columns'));
     }
 
     public static function getColumnValueSelector()
@@ -56,7 +58,8 @@ trait Form
             ->live()
             ->disabled(fn($get) => !in_array('update', (array) $get('settings.actions')))
             ->hidden(fn($get) => !in_array('update', (array) $get('settings.actions')))
-            ->nullable();
+            ->nullable()
+            ->helperText(__('resources/notificationSetting/strings.form.helper_column_values'));
     }
 
     public static function getDescription(): Textarea

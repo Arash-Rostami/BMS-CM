@@ -276,7 +276,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/payment/strings.form.validation_required'),
             ])
-            ->validationAttribute(__('resources/payment/strings.form.status'));
+            ->validationAttribute(__('resources/payment/strings.form.status'))
+            ->helperText(__('resources/payment/strings.form.helper_status'));
     }
 
     public static function getSummaryFields(): array

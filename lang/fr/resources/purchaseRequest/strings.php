@@ -75,6 +75,7 @@ return [
         'validation_item_attachments_max_files' => '5 fichiers maximum par article',
         'validation_item_attachments_type' => 'Format de fichier invalide (images, PDF, Excel)',
         'validation_item_attachments_size' => 'La taille du fichier ne doit pas dépasser 2,5 Mo',
+            'helper_urgency_level' => 'Sélectionnez l\'urgence et la rapidité avec lesquelles cette demande doit être traitée.',
     ],
     'table' => [
         'id' => 'ID',

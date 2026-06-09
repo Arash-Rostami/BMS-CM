@@ -38,7 +38,8 @@ trait Form
                 titleAttribute: fn() => app()->getLocale() === 'fa' ? ('name' ?? 'english_name') : 'english_name')
             ->nullable()
             ->searchable()
-            ->preload();
+            ->preload()
+            ->helperText(__('resources/user/strings.form.helper_department'));
     }
 
     public static function getEmail(): TextInput
@@ -182,7 +183,8 @@ trait Form
         return Select::make('position')
             ->label(__('resources/user/strings.form.position'))
             ->options(PositionStatus::class)
-            ->nullable();
+            ->nullable()
+            ->helperText(__('resources/user/strings.form.helper_position'));
     }
 
     public static function getStatus(): Select
@@ -194,7 +196,8 @@ trait Form
             ->validationAttribute(__('resources/user/strings.form.status'))
             ->validationMessages([
                 'required' => __('resources/user/strings.form.validation_status_required'),
-            ]);
+            ])
+            ->helperText(__('resources/user/strings.form.helper_status'));
     }
 
     public static function getRoles(): Select
@@ -205,6 +208,7 @@ trait Form
             ->getOptionLabelFromRecordUsing(fn (Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
             ->multiple()
             ->preload()
-            ->searchable();
+            ->searchable()
+            ->helperText(__('resources/user/strings.form.helper_roles'));
     }
 }

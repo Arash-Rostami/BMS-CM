@@ -25,6 +25,7 @@ trait Form
             })
             ->required()
             ->validationAttribute(__('resources/role/strings.form.grade'))
+            ->helperText(__('resources/role/strings.form.helper_grade'))
             ->validationMessages([
                 'required' => __('resources/role/strings.form.validation_grade_required'),
             ]);
@@ -39,6 +40,7 @@ trait Form
             ->live()
             ->searchable()
             ->columnSpanFull()
+            ->helperText(__('resources/role/strings.form.helper_modules'))
             ->afterStateHydrated(function (Set $set, $record) {
                 if (!$record) return;
                 $permissionIds = $record->permissions()->pluck('permissions.id')->all();
