@@ -93,10 +93,11 @@ return [
         'validation_unique' => 'This value already exists.',
         'validation_max_length' => 'Please keep this to :max characters or fewer.',
 
-        'helper_commission_input_mode' => '⚡ Smart: Enter rate or percentage, the amount will be calculated. Enter commission, the rate will be calculated.',        'helper_commission_amount_purchased' => 'Enter the exact commission fee charged by the bank. The equivalent percentage is derived automatically and applied to all calculations.',
+        'helper_commission_input_mode' => '⚡ Smart Entry: Enter the rate, and the amount calculates automatically—or enter the amount to derive the rate.',        'helper_commission_amount_purchased' => 'Enter the exact commission fee. The percentage is derived automatically and applied to calculations.',
         'helper_commission_rate' => 'Enter the percentage only (e.g. 1.5, not 1.5%) — it is added on top of the exchange rate to compute the final rate.',
         'helper_delivery_date' => 'Delivery cannot be earlier than the purchase date, so set the purchase date first.',
         'helper_requested_amount' => 'This drives every calculation below, including the remaining commitment — double-check it before saving.',
+            'helper_documents_amount' => 'The total document valuation.',
     ],
     'table' => [
         'id' => 'ID',

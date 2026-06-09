@@ -83,6 +83,9 @@ return [
         'extra' => 'Extra Specs (Key → Value)',
         'key_label' => 'Key',
         'value_label' => 'Value',
+            'helper_name' => 'The local name of the product.',
+            'helper_hs_code' => 'Harmonized System code for customs and duties.',
+            'helper_import_duty' => 'Applicable percentage or amount for import duty.',
     ],
     'table' => [
         'name' => 'Name (Persian)',

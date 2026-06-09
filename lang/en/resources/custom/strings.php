@@ -64,7 +64,7 @@ return [
         'notes' => 'Notes',
         'attachments' => 'Attachments',
 
-        'helper_custom_no' => 'This number is generated automatically and cannot be edited.',
+        'helper_custom_no' => 'This customs number is auto-generated and locked for tracking purposes.',
         'helper_shipment' => 'Choosing a shipment auto-fills its registered order and contract number for you.',
 
         'validation_required' => 'This field is required.',
@@ -73,6 +73,7 @@ return [
         'validation_date' => 'Please enter a valid date.',
         'validation_contract_no_max' => 'The contract number must not exceed 255 characters.',
         'validation_declaration_no_max' => 'The declaration number must not exceed 255 characters.',
+            'helper_clearance_type' => 'Select the type of customs clearance process.',
     ],
     'table' => [
         'declaration_no' => 'Declaration No.',

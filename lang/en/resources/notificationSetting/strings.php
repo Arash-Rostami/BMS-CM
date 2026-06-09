@@ -29,7 +29,7 @@ return [
         'notes' => 'Additional Notes',
         'actions' => 'Actions',
 
-        'tables_description' => '⚡ Based on Tables, columns and values change.',
+        'tables_description' => '⚡ Select one or more resources. The available columns and values will update dynamically based on your choice.',
 
         'validation_required' => 'This field is required.',
         'validation_numeric' => 'This field must be a number.',
@@ -37,6 +37,9 @@ return [
         'validation_notes_max' => 'Please keep your notes to 500 characters or fewer.',
 
         'helper_notes' => 'Use this space for quick context, but keep it under 500 characters.',
+            'helper_actions' => 'Select which database actions trigger this notification.',
+            'helper_columns' => 'Trigger notification only when these specific columns change.',
+            'helper_column_values' => 'Trigger notification only when columns change to these specific values.',
     ],
 
     'table' => [

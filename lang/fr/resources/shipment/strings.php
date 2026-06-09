@@ -103,6 +103,7 @@ return [
             'min_numeric_zero' => 'Cette valeur ne peut pas être négative.',
             'max' => 'Veuillez limiter cette valeur à 255 caractères ou moins.',
         ],
+            'helper_status' => 'Statut logistique global de l\'expédition.',
     ],
     'table' => [
         'id' => 'ID',

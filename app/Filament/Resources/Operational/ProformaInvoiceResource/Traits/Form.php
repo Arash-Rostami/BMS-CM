@@ -86,7 +86,8 @@ trait Form
         return Select::make('delivery_terms')
             ->label(__('resources/proformaInvoice/strings.form.delivery_terms'))
             ->options(__('resources/proformaInvoice/strings.general.delivery_terms'))
-            ->validationAttribute(__('resources/proformaInvoice/strings.form.delivery_terms'));
+            ->validationAttribute(__('resources/proformaInvoice/strings.form.delivery_terms'))
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_delivery_terms'));
     }
 
     public static function getDestinationCountryField(): Select

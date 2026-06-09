@@ -30,6 +30,7 @@ return [
         'validation_numeric' => 'L\'entrée doit être un nombre.',
         'validation_date' => 'Veuillez entrer une date valide.',
         'validation_end_in_after_start_from' => 'La date de fin doit être postérieure à la date de début.',
+            'helper_amount' => 'Définissez l\'objectif financier à atteindre.',
     ],
     'table' => [
         'targetable' => 'Lié à',

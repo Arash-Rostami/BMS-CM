@@ -69,6 +69,7 @@ return [
         'helper_required_by_date' => 'Pick a future date, as the request must be needed after today.',
         'helper_quantity' => 'Decimal amounts are allowed for partial units, but the value must be greater than zero.',
         'helper_estimated_cost' => 'This amount rolls up into the request total, so keep your estimate realistic to avoid surprises during approval.',
+            'helper_urgency_level' => 'Select how critically and quickly this request needs fulfillment.',
     ],
     'table' => [
         'id' => 'ID',

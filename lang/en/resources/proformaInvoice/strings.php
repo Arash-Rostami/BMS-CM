@@ -114,8 +114,8 @@ return [
         'validation_seller_company_exists' => 'That supplier is no longer available; choose a company from the current list.',
         'validation_seller_company_different' => 'The supplier and the buyer must be two different companies.',
         'validation_validity_date_after' => 'The validity date must fall on or after the proforma issue date.',
-        'helper_invoice_no' => 'Leave the auto-generated number unless you must match an external document; it has to stay unique.',
-        'helper_invoice_date' => 'This date drives validity and aging, and it cannot be set in the future.',
+        'helper_invoice_no' => 'Only edit the auto-generated number if you need to match an external document (it must remain unique).',
+        'helper_invoice_date' => 'Set the issue date; this drives validity calculations and cannot be in the future.',
         'helper_validity_date' => 'Set how long the quote stands; it must be on or after the issue date.',
         'helper_buyer_company' => 'The buyer cannot be the same company as the supplier.',
         'helper_main_currency' => 'This is the currency all amounts are calculated in; it must differ from the secondary currency.',
@@ -138,6 +138,7 @@ return [
             'gte_net_weight' => 'Gross weight must be greater than or equal to net weight.',
             'max_string' => 'The :attribute may not be greater than :max characters.',
         ],
+            'helper_delivery_terms' => 'Select the Incoterms rule governing this shipment.',
     ],
     'table' => [
         'id' => 'ID',

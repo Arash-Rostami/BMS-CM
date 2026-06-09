@@ -22,7 +22,8 @@ trait Form
                 'regex' => __('resources/currency/strings.form.validation_name'),
                 'unique' => __('resources/currency/strings.form.validation_name_unique')
             ])
-            ->validationAttribute(__('resources/currency/strings.form.name'));
+            ->validationAttribute(__('resources/currency/strings.form.name'))
+            ->helperText(__('resources/currency/strings.form.helper_name'));
     }
 
     public static function getEnglishName(): TextInput
@@ -39,7 +40,8 @@ trait Form
                 'regex' => __('resources/currency/strings.form.validation_english_name'),
                 'unique' => __('resources/currency/strings.form.validation_english_name_unique')
             ])
-            ->validationAttribute(__('resources/currency/strings.form.english_name'));
+            ->validationAttribute(__('resources/currency/strings.form.english_name'))
+            ->helperText(__('resources/currency/strings.form.helper_english_name'));
     }
 
     public static function getDescription(): Textarea

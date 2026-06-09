@@ -330,6 +330,7 @@ trait Form
         return Toggle::make('doc_tracking')
             ->label(__('resources/shipment/strings.form.docs_options.track'))
             ->default(true)
+            ->helperText(__('resources/shipment/strings.form.smart_tracer_hint'))
             ->live()
             ->inline(false)
             ->onIcon('heroicon-s-bolt')
@@ -355,7 +356,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
             ])
-            ->validationAttribute(__('resources/shipment/strings.form.status'));
+            ->validationAttribute(__('resources/shipment/strings.form.status'))
+            ->helperText(__('resources/shipment/strings.form.helper_status'));
     }
 
     public static function getWarehouseDateField()

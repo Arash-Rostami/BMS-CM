@@ -395,7 +395,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
             ])
-            ->validationAttribute(__('resources/purchaseOrder/strings.form.status'));
+            ->validationAttribute(__('resources/purchaseOrder/strings.form.status'))
+            ->helperText(__('resources/purchaseOrder/strings.form.helper_status'));
     }
 
     public static function getTotalAmountField(): TextEntry

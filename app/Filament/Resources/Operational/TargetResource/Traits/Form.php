@@ -112,7 +112,8 @@ trait Form
             ->validationMessages([
                 'numeric' => __('resources/target/strings.form.validation_numeric'),
             ])
-            ->validationAttribute(__('resources/target/strings.form.amount'));
+            ->validationAttribute(__('resources/target/strings.form.amount'))
+            ->helperText(__('resources/target/strings.form.helper_amount'));
     }
 
     public static function getMetricsField(): Select

@@ -83,6 +83,9 @@ return [
         'extra' => 'Spécifications supplémentaires (Clé → Valeur)',
         'key_label' => 'Clé',
         'value_label' => 'Valeur',
+            'helper_name' => 'Le nom local du produit.',
+            'helper_hs_code' => 'Code du Système Harmonisé (SH) pour les douanes.',
+            'helper_import_duty' => 'Pourcentage ou montant applicable pour les droits d\'importation.',
     ],
     'table' => [
         'choose_action' => 'Voulez-vous vérifier ou créer un produit ?',
