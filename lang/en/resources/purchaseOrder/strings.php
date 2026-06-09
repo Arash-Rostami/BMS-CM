@@ -79,6 +79,10 @@ return [
         'helper_unit_price' => 'Entering the unit price instantly updates the line total automatically.',
 
             'helper_status' => 'Tracks the lifecycle of the PO from draft to fulfilled.',
+
+        'validation_attachments_type' => 'The :attribute file type is not allowed.',
+
+        'validation_attachments_size' => 'The :attribute file must not exceed :max kilobytes.',
     ],
     'table' => [
         'po_number' => 'PO Number',

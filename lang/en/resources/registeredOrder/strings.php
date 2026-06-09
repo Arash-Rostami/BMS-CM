@@ -99,6 +99,10 @@ return [
         'helper_source_type' => 'Selecting a source type automatically populates the order items. Please set this before manually adding products.',
         'helper_validity_date' => 'Set this on or after the order date to mark how long the order stays valid.',
             'helper_status' => 'Current governmental registration status.',
+
+        'validation_attachments_type' => 'The :attribute file type is not allowed.',
+
+        'validation_attachments_size' => 'The :attribute file must not exceed :max kilobytes.',
     ],
     'table' => [
         'related_to' => 'Related to',

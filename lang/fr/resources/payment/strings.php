@@ -73,6 +73,12 @@ return [
         'total_amount' => 'Montant total',
         'created_by' => 'Créé par',
         'created_at' => 'Créé le',
+
+        'creator' => 'Créateur',
+
+        'updater' => 'Modificateur',
+
+        'updated_at' => 'Mis à jour le',
     ],
     'filters' => [
         'payor' => 'Payeur',

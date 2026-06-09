@@ -105,6 +105,16 @@ return [
         'created_at' => 'تاریخ ایجاد',
         'updated_at' => 'تاریخ بروزرسانی',
         'deleted_at' => 'تاریخ حذف',
+
+        'choose_action' => 'آیا می‌خواهید محصول را بررسی یا ایجاد کنید؟',
+
+        'action_check' => 'بررسی وجود',
+
+        'action_create' => 'ایجاد محصول جدید',
+
+        'section_check' => 'بررسی محصول',
+
+        'section_create' => 'ایجاد محصول',
     ],
     'filters' => [
         'category' => 'دسته بندی',

@@ -105,6 +105,16 @@ return [
         'created_at' => 'Date Created',
         'updated_at' => 'Last Updated',
         'deleted_at' => 'Date Deleted',
+
+        'choose_action' => 'Do you want to check or create a product?',
+
+        'action_check' => 'Check existence',
+
+        'action_create' => 'Create new product',
+
+        'section_check' => 'Check Product',
+
+        'section_create' => 'Create Product',
     ],
     'filters' => [
         'category' => 'Category',

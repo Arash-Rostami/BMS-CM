@@ -137,6 +137,10 @@ return [
             'min_numeric' => ':attribute باید حداقل :min باشد.',
             'gte_net_weight' => 'وزن ناخالص باید بزرگتر یا مساوی وزن خالص باشد.',
             'max_string' => 'فیلد :attribute نمی‌تواند بیش از :max کاراکتر باشد.',
+
+            'attachments_type' => 'نوع فایل :attribute مجاز نیست.',
+
+            'attachments_size' => 'حجم فایل :attribute نباید از :max کیلوبایت بیشتر باشد.',
         ],
             'helper_delivery_terms' => 'قاعدهٔ اینکوترمز حاکم بر این محموله را انتخاب کنید.',
     ],

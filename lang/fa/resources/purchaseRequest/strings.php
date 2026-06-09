@@ -70,6 +70,20 @@ return [
         'helper_quantity' => 'می‌توانید برای واحدهای خرد از اعشار استفاده کنید؛ فقط مطمئن شوید مقدار بیشتر از صفر است.',
         'helper_estimated_cost' => 'این برآورد مستقیماً روی جمع کل درخواست اثر می‌گذارد. لطفاً آن را واقع‌بینانه در نظر بگیرید تا در مرحلهٔ تأیید مشکلی پیش نیاید.',
             'helper_urgency_level' => 'مشخص کنید این درخواست با چه درجه‌ای از فوریت باید تأمین شود.',
+
+        'id' => 'شناسه',
+
+        'validation_attachments_max_files' => 'حداکثر ۱۰ فایل مجاز است',
+
+        'validation_attachments_type' => 'فرمت فایل نامعتبر است (تصاویر، PDF، اکسل)',
+
+        'validation_attachments_size' => 'حجم فایل نباید بیش از ۲.۵ مگابایت باشد',
+
+        'validation_item_attachments_max_files' => 'حداکثر ۵ فایل برای هر آیتم',
+
+        'validation_item_attachments_type' => 'فرمت فایل نامعتبر است (تصاویر، PDF، اکسل)',
+
+        'validation_item_attachments_size' => 'حجم فایل نباید بیش از ۲.۵ مگابایت باشد',
     ],
     'table' => [
         'id' => 'شناسه',

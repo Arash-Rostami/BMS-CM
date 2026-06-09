@@ -79,4 +79,13 @@ return [
         'updated_at' => 'Last Updated',
         'deleted_at' => 'Date Deleted'
     ]
+,
+    'filter' => [
+        'department' => 'Department',
+        'role' => 'Role',
+        'status' => 'Status',
+        'position' => 'Position',
+        'company' => 'Company',
+        'trashed' => 'Deleted Records',
+    ]
 ];
