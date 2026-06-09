@@ -13,8 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Custom extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use SoftDeletes,
         Relationships,
         ExclusiveRelationships,
         HasFormattedName,

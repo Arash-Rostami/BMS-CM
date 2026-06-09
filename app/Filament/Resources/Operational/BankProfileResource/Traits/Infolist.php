@@ -379,4 +379,22 @@ trait Infolist
             ->icon('heroicon-m-pencil-square')
             ->placeholder('-');
     }
+
+    public static function viewWaitingDuration(): TextEntry
+    {
+        return TextEntry::make('waiting_duration')
+            ->label(__('resources/bankProfile/strings.form.waiting_duration'))
+            ->formatStateUsing(function ($state, $record) {
+                if ($state === null) return '-';
+                $label = $state . ' ' . __('resources/bankProfile/strings.form.days');
+                if (!$record?->allocation_date) {
+                    $label .= ' (' . __('resources/bankProfile/strings.form.ongoing') . ')';
+                }
+                return $label;
+            })
+            ->badge()
+            ->color(fn($record) => $record?->allocation_date ? 'success' : 'warning')
+            ->icon('heroicon-m-clock')
+            ->placeholder('-');
+    }
 }

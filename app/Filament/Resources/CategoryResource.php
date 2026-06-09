@@ -10,6 +10,7 @@ use App\Filament\Resources\Master\CategoryResource\Traits\Filters as CategoryFil
 use App\Filament\Resources\Master\CategoryResource\Traits\Form as CategoryForm;
 use App\Filament\Resources\Master\CategoryResource\Traits\Infolist as CategoryInfolist;
 use App\Filament\Resources\Master\CategoryResource\Traits\Table as CategoryTable;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Category;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -31,7 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CategoryResource extends Resource
 {
-    use CategoryForm, CategoryTable, CategoryInfolist, CategoryFilters;
+    use CategoryForm, CategoryTable, CategoryInfolist, CategoryFilters, HasResourcePermissions;
 
     protected static ?string $model = Category::class;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';

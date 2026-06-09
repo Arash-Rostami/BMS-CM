@@ -1,7 +1,10 @@
-<div x-show="loading" dir="ltr"
-     x-init="setTimeout(() => loading = false, 2900)"
+<div x-data="{ showing: true }"
+     x-cloak
+     x-show="showing"
+     x-init="setTimeout(() => showing = false, 2900)"
      x-transition:leave="transition-opacity duration-700 ease-in-out"
-     class="loader-overlay">
+     class="loader-overlay"
+     dir="ltr">
 
     <div class="ldr-grid"></div>
     <div class="ldr-scan"></div>

@@ -7,6 +7,7 @@ use App\Filament\Resources\Master\RoleResource\Traits\Filters as RoleFilters;
 use App\Filament\Resources\Master\RoleResource\Traits\Form as RoleForm;
 use App\Filament\Resources\Master\RoleResource\Traits\Infolist as RoleInfolist;
 use App\Filament\Resources\Master\RoleResource\Traits\Table as RoleTable;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Role;
 use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
@@ -22,11 +23,10 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 
 class RoleResource extends Resource
 {
-    use RoleForm, RoleTable, RoleInfolist, RoleFilters;
+    use RoleForm, RoleTable, RoleInfolist, RoleFilters, HasResourcePermissions;
 
     protected static ?string $model = Role::class;
 

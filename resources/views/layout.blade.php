@@ -16,7 +16,6 @@
 {{ $slot }}
 @yield('content')
 
-
 @filamentScripts
 @livewireScripts
 @stack('scripts')

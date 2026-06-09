@@ -223,7 +223,7 @@
             </div>
         </button>
 
-        <div x-show="recordsOpen" x-collapse x-cloak>
+        <div x-show="recordsOpen"  x-cloak>
             <div class="px-6 pb-6 pt-2 border-t" :class="darkMode ? 'border-white/5' : 'border-slate-200'">
                 <div class="{{ $panelShell }}" :class="{{ $panelTone }}">
                     <div class="p-4 sm:p-5">

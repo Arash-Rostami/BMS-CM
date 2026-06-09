@@ -12,6 +12,7 @@ use App\Filament\Resources\Operational\BankProfileResource\Traits\Filters as Ban
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Form as BankProfileForm;
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Infolist as BankProfileInfolist;
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Table as BankProfileTable;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\BankProfile;
 use App\Models\Category;
 use App\Models\Product;
@@ -42,7 +43,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BankProfileResource extends Resource
 {
-    use BankProfileForm, BankProfileTable, BankProfileFilters, BankProfileInfolist;
+    use BankProfileForm, BankProfileTable, BankProfileFilters, BankProfileInfolist, HasResourcePermissions;
 
     protected static ?string $model = BankProfile::class;
 
@@ -78,6 +79,7 @@ class BankProfileResource extends Resource
                                     ->schema([
                                         Section::make(__('resources/bankProfile/strings.form.section_dates_notes'))
                                             ->schema([
+                                                static::getWaitingDurationField(),
                                                 static::getCreationDateField(),
                                                 static::getAllocationDateField(),
                                                 static::getPurchaseDateField(),
@@ -106,11 +108,13 @@ class BankProfileResource extends Resource
 
                                         Section::make(__('resources/bankProfile/strings.form.section_rates'))
                                             ->schema([
+                                                static::getCommissionInputModeField(),
                                                 static::getCommissionRateField(),
+                                                static::getCommissionAmountPurchasedField(),
                                                 static::getExchangeRateField(),
                                                 static::getConversionRateField(),
                                                 static::getDocumentsAmountField(),
-                                            ])->columns(4),
+                                            ])->columns(3),
                                     ])
                                     ->columnSpan(['lg' => 2]),
                                 Group::make()
@@ -235,6 +239,7 @@ class BankProfileResource extends Resource
                                     static::viewStatus(),
                                     static::viewCreationDate(),
                                     static::viewAllocationDate(),
+                                    static::viewWaitingDuration(),
                                     static::viewPurchaseDate(),
                                     static::viewDeliveryDate(),
                                     static::viewNotes(),

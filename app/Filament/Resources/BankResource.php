@@ -9,6 +9,7 @@ use App\Filament\Resources\Master\BankResource\Traits\Form as BankForm;
 use App\Filament\Resources\Master\BankResource\Traits\Infolist as BankInfolist;
 use App\Filament\Resources\Master\BankResource\Traits\Table as BankTable;
 use App\Filament\Traits\HandleActivation;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Bank;
 use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
@@ -31,7 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BankResource extends Resource
 {
-    use BankForm, BankTable, BankInfolist, BankFilters, HandleActivation;
+    use BankForm, BankTable, BankInfolist, BankFilters, HandleActivation, HasResourcePermissions;
 
     protected static ?string $model = Bank::class;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-library';

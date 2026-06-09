@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\BankProfile\HasComputedAttributes;
 use App\Models\Traits\BankProfile\HasSearchableRelations;
 use App\Models\Traits\BankProfile\Relationships as ExclusiveRelationships;
+use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasProductCategoryFormatting;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\SearchTargetable;
@@ -15,14 +16,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BankProfile extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use SoftDeletes,
         Relationships,
         ExclusiveRelationships,
         HasComputedAttributes,
         searchTargetable,
         HasProductCategoryFormatting,
         HasSearchableRelations,
+        HasCustomAttributes,
         UserStamps;
 
     public const TYPE_BANK_PROFILE = 'Bank Profile Status';
@@ -46,6 +47,7 @@ class BankProfile extends Model
         'purchased_equivalent',
         'purchased_currency_id',
         'commission_rate',
+        'commission_amount_purchased',
         'exchange_rate',
         'final_rate',
         'conversion_rate',
@@ -60,7 +62,7 @@ class BankProfile extends Model
     ];
 
     protected $appends = [
-        'commission_amount_purchased',
+        'commission_input_mode',
         'commission_equivalent',
         'final_equivalent',
         'final_rate_display',
@@ -68,6 +70,7 @@ class BankProfile extends Model
         'total_rial_remittance',
         'total_requested_remittance',
         'total_purchased_remittance',
+        'waiting_duration',
     ];
 
 
@@ -79,6 +82,7 @@ class BankProfile extends Model
         'requested_amount' => 'decimal:2',
         'purchased_equivalent' => 'decimal:2',
         'commission_rate' => 'decimal:5',
+        'commission_amount_purchased' => 'decimal:2',
         'exchange_rate' => 'decimal:5',
         'final_rate' => 'decimal:5',
         'conversion_rate' => 'decimal:5',

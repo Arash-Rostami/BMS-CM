@@ -14,6 +14,7 @@ use App\Filament\Resources\Operational\ShipmentResource\Traits\Filters as Shipme
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Form as ShipmentForm;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Infolist as ShipmentInfolist;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Table as ShipmentTable;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Shipment;
 use App\Services\SmartCacheManager;
 use BackedEnum;
@@ -42,7 +43,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ShipmentResource extends Resource
 {
-    use ShipmentForm, ShipmentTable, ShipmentFilters, ShipmentInfolist;
+    use ShipmentForm, ShipmentTable, ShipmentFilters, ShipmentInfolist, HasResourcePermissions;
 
     protected static ?string $model = Shipment::class;
 

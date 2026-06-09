@@ -18,6 +18,7 @@ use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Form as Purc
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Infolist as PurchaseOrderInfolist;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as PurchaseOrderTable;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\TotalCalculation;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\PurchaseOrder;
 use App\Services\SmartCacheManager;
 use BackedEnum;
@@ -49,7 +50,7 @@ use UnitEnum;
 
 class PurchaseOrderResource extends Resource
 {
-    use TotalCalculation, PurchaseOrderForm, PurchaseOrderTable, PurchaseOrderFilters, PurchaseOrderInfolist;
+    use TotalCalculation, PurchaseOrderForm, PurchaseOrderTable, PurchaseOrderFilters, PurchaseOrderInfolist, HasResourcePermissions;
 
     protected static ?string $model = PurchaseOrder::class;
 

@@ -2,7 +2,6 @@ export default function landingPage() {
     return {
         darkMode: false,
         activeTab: 'workflow',
-        loading: true,
         widgetOpen: false,
 
         init() {

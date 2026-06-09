@@ -9,7 +9,23 @@ trait HasComputedAttributes
     public function commissionAmountPurchased(): Attribute
     {
         return Attribute::make(
-            get: fn() => ($this->purchased_equivalent ?? 0) * (($this->commission_rate ?? 0) / 100)
+            get: function () {
+                $raw = $this->attributes['commission_amount_purchased'] ?? null;
+                if ($raw !== null) {
+                    return (float) $raw;
+                }
+                return (float)($this->purchased_equivalent ?? 0) * ((float)($this->commission_rate ?? 0) / 100);
+            }
+        );
+    }
+
+    public function commissionInputMode(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $raw = $this->attributes['commission_amount_purchased'] ?? null;
+                return $raw !== null ? 'amount' : 'rate';
+            }
         );
     }
 
@@ -89,6 +105,17 @@ trait HasComputedAttributes
 
 
                 return ($this->purchased_equivalent ?? 0) * $exchangeRate;
+            }
+        );
+    }
+
+    public function waitingDuration(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (!$this->creation_date) return null;
+                $end = $this->allocation_date ?? now()->startOfDay();
+                return (int) abs($this->creation_date->diffInDays($end));
             }
         );
     }

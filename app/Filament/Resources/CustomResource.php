@@ -14,6 +14,7 @@ use App\Filament\Resources\Operational\CustomResource\Traits\Form as CustomForm;
 use App\Filament\Resources\Operational\CustomResource\Traits\Infolist as CustomInfolist;
 use App\Filament\Resources\Operational\CustomResource\Traits\Table as CustomTable;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\CorrespondenceRelationManager;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Custom;
 use App\Services\SmartCacheManager;
 use BackedEnum;
@@ -41,7 +42,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomResource extends Resource
 {
-    use CustomForm, CustomTable, CustomFilters, CustomInfolist;
+    use CustomForm, CustomTable, CustomFilters, CustomInfolist, HasResourcePermissions;
 
     protected static ?string $model = Custom::class;
 

@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Models\Role;
+use App\Models\Permission;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,56 +14,32 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Define Permissions
+        // 1. Define Permissions — singular snake_case prefix matching Eloquent model names
         $permissions = [
-            // attachments
-            'attachments.view', 'attachments.create', 'attachments.edit', 'attachments.delete',
-            // banks
-            'banks.view', 'banks.create', 'banks.edit', 'banks.delete',
-            // bank_profiles
-            'bank_profiles.view', 'bank_profiles.create', 'bank_profiles.edit', 'bank_profiles.delete',
-            // categories
-            'categories.view', 'categories.create', 'categories.edit', 'categories.delete',
-            // companies
-            'companies.view', 'companies.create', 'companies.edit', 'companies.delete',
-            // correspondences
-            'correspondences.view', 'correspondences.create', 'correspondences.edit', 'correspondences.delete',
-            // correspondence_recipients
-            'correspondence_recipients.view', 'correspondence_recipients.create', 'correspondence_recipients.edit', 'correspondence_recipients.delete',
-            // currencies
-            'currencies.view', 'currencies.create', 'currencies.edit', 'currencies.delete',
-            // customs
-            'customs.view', 'customs.create', 'customs.edit', 'customs.delete',
-            // departments
-            'departments.view', 'departments.create', 'departments.edit', 'departments.delete',
-            // payments
-            'payments.view', 'payments.create', 'payments.edit', 'payments.delete',
-            // products
-            'products.view', 'products.create', 'products.edit', 'products.delete',
-            // proforma_invoices
-            'proforma_invoices.view', 'proforma_invoices.create', 'proforma_invoices.edit', 'proforma_invoices.delete',
-            // proforma_invoice_items
-            'proforma_invoice_items.view', 'proforma_invoice_items.create', 'proforma_invoice_items.edit', 'proforma_invoice_items.delete',
-            // purchase_orders
-            'purchase_orders.view', 'purchase_orders.create', 'purchase_orders.edit', 'purchase_orders.delete',
-            // purchase_requests
-            'purchase_requests.view', 'purchase_requests.create', 'purchase_requests.edit', 'purchase_requests.delete',
-            // permission
+            'attachment.view', 'attachment.create', 'attachment.edit', 'attachment.delete',
+            'bank.view', 'bank.create', 'bank.edit', 'bank.delete',
+            'bank_profile.view', 'bank_profile.create', 'bank_profile.edit', 'bank_profile.delete',
+            'category.view', 'category.create', 'category.edit', 'category.delete',
+            'company.view', 'company.create', 'company.edit', 'company.delete',
+            'correspondence.view', 'correspondence.create', 'correspondence.edit', 'correspondence.delete',
+            'correspondence_recipient.view', 'correspondence_recipient.create', 'correspondence_recipient.edit', 'correspondence_recipient.delete',
+            'currency.view', 'currency.create', 'currency.edit', 'currency.delete',
+            'custom.view', 'custom.create', 'custom.edit', 'custom.delete',
+            'department.view', 'department.create', 'department.edit', 'department.delete',
+            'payment.view', 'payment.create', 'payment.edit', 'payment.delete',
+            'product.view', 'product.create', 'product.edit', 'product.delete',
+            'proforma_invoice.view', 'proforma_invoice.create', 'proforma_invoice.edit', 'proforma_invoice.delete',
+            'proforma_invoice_item.view', 'proforma_invoice_item.create', 'proforma_invoice_item.edit', 'proforma_invoice_item.delete',
+            'purchase_order.view', 'purchase_order.create', 'purchase_order.edit', 'purchase_order.delete',
+            'purchase_request.view', 'purchase_request.create', 'purchase_request.edit', 'purchase_request.delete',
             'permission.view', 'permission.create', 'permission.edit', 'permission.delete',
-            // registered_orders
-            'registered_orders.view', 'registered_orders.create', 'registered_orders.edit', 'registered_orders.delete',
-            // role
+            'registered_order.view', 'registered_order.create', 'registered_order.edit', 'registered_order.delete',
             'role.view', 'role.create', 'role.edit', 'role.delete',
-            // shipments
-            'shipments.view', 'shipments.create', 'shipments.edit', 'shipments.delete',
-            // specifications
-            'specifications.view', 'specifications.create', 'specifications.edit', 'specifications.delete',
-            // statuses
-            'statuses.view', 'statuses.create', 'statuses.edit', 'statuses.delete',
-            // targets
-            'targets.view', 'targets.create', 'targets.edit', 'targets.delete',
-            // users
-            'users.view', 'users.create', 'users.edit', 'users.delete',
+            'shipment.view', 'shipment.create', 'shipment.edit', 'shipment.delete',
+            'specification.view', 'specification.create', 'specification.edit', 'specification.delete',
+            'status.view', 'status.create', 'status.edit', 'status.delete',
+            'target.view', 'target.create', 'target.edit', 'target.delete',
+            'user.view', 'user.create', 'user.edit', 'user.delete',
         ];
 
         foreach ($permissions as $permissionName) {

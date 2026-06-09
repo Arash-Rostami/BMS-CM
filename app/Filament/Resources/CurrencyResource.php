@@ -9,8 +9,8 @@ use App\Filament\Resources\Master\CurrencyResource\Traits\Form as CurrencyForm;
 use App\Filament\Resources\Master\CurrencyResource\Traits\Infolist as CurrencyInfolist;
 use App\Filament\Resources\Master\CurrencyResource\Traits\Table as CurrencyTable;
 use App\Filament\Traits\HandleActivation;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Currency;
-use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CurrencyResource extends Resource
 {
-    use CurrencyForm, CurrencyTable, CurrencyInfolist, CurrencyFilters, HandleActivation;
+    use CurrencyForm, CurrencyTable, CurrencyInfolist, CurrencyFilters, HandleActivation, HasResourcePermissions;
 
     protected static ?string $model = Currency::class;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-currency-dollar';

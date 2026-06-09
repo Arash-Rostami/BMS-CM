@@ -21,6 +21,7 @@ use App\Filament\Resources\Operational\TargetResource\Traits\Filters as TargetFi
 use App\Filament\Resources\Operational\TargetResource\Traits\Form as TargetForm;
 use App\Filament\Resources\Operational\TargetResource\Traits\Infolist as TargetInfolist;
 use App\Filament\Resources\Operational\TargetResource\Traits\Table as TargetTable;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Target;
 use App\Services\SmartCacheManager;
 use Filament\Forms;
@@ -35,7 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TargetResource extends Resource
 {
-    use TargetForm, TargetTable, TargetInfolist, TargetFilters;
+    use TargetForm, TargetTable, TargetInfolist, TargetFilters, HasResourcePermissions;
 
     protected static ?string $model = Target::class;
 

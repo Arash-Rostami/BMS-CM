@@ -29,7 +29,7 @@ export default function workspace(config = {}) {
 
             // Fresh user: open Modules. Otherwise open whatever has pins.
             this.modulesOpen = this.pinnedModuleIds.length > 0 || this.recordPins.length === 0;
-            this.recordsOpen = this.recordPins.length > 0;
+            this.recordsOpen = this.recordPins.length > 0 || this.recordPins.length === 0 ;
 
             const first = this.modules.find(m => m.searchable);
             if (first) {

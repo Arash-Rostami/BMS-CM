@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Operational\BankProfileResource\Pages;
 
+use App\Filament\Actions\ManageCustomAttributesAction;
 use App\Filament\Resources\BankProfileResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -17,9 +18,22 @@ class EditBankProfile extends EditRecord
     {
         return [
             ViewAction::make(),
+            ManageCustomAttributesAction::make(),
             DeleteAction::make(),
             ForceDeleteAction::make(),
             RestoreAction::make(),
         ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // In rate mode the amount is display-only; write NULL so the DB stays
+        // canonical (accessor computes from rate). Switching from amount → rate
+        // also clears the previously stored amount.
+        if (($data['commission_input_mode'] ?? 'rate') === 'rate') {
+            $data['commission_amount_purchased'] = null;
+        }
+        unset($data['commission_input_mode']);
+        return $data;
     }
 }
