@@ -70,6 +70,20 @@ return [
         'helper_quantity' => 'Decimal amounts are allowed for partial units, but the value must be greater than zero.',
         'helper_estimated_cost' => 'This amount rolls up into the request total, so keep your estimate realistic to avoid surprises during approval.',
             'helper_urgency_level' => 'Select how critically and quickly this request needs fulfillment.',
+
+        'validation_attachments_max_files' => 'Maximum 10 files allowed',
+
+        'validation_attachments_type' => 'Invalid file format (images, PDF, Excel)',
+
+        'validation_attachments_size' => 'File size must not exceed 2.5MB',
+
+        'validation_item_attachments_max_files' => 'Maximum 5 files per item',
+
+        'validation_item_attachments_type' => 'Invalid file format (images, PDF, Excel)',
+
+        'validation_item_attachments_size' => 'File size must not exceed 2.5MB',
+
+        'id' => 'ID',
     ],
     'table' => [
         'id' => 'ID',

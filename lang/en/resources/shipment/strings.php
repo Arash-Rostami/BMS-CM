@@ -58,6 +58,50 @@ return [
                 'LCL' => 'LCL',
                 'Bulk' => 'Bulk',
             ],
+
+            'استاندارد' => [
+                '20ft Standard' => '20ft Standard',
+
+                '40ft Standard' => '40ft Standard',
+
+                '40ft High Cube' => '40ft High Cube',
+            ],
+
+            'یخچالی' => [
+                '20ft Refrigerated' => '20ft Refrigerated',
+
+                '40ft Refrigerated' => '40ft Refrigerated',
+            ],
+
+            'روباز' => [
+                '20ft Open Top' => '20ft Open Top',
+
+                '40ft Open Top' => '40ft Open Top',
+            ],
+
+            'فلت رک' => [
+                '20ft Flat Rack' => '20ft Flat Rack',
+
+                '40ft Flat Rack' => '40ft Flat Rack',
+            ],
+
+            'سایر' => [
+                'LCL' => 'LCL',
+
+                'Bulk' => 'Bulk',
+            ],
+
+            'Frigorifique' => [
+                '20ft Refrigerated' => '20ft Refrigerated',
+
+                '40ft Refrigerated' => '40ft Refrigerated',
+            ],
+
+            'Autres' => [
+                'LCL' => 'LCL',
+
+                'Bulk' => 'Bulk',
+            ],
         ],
         'container_types' => ['20ft Standard' => '20ft Standard', '40ft Standard' => '40ft Standard', '40ft High Cube' => '40ft High Cube', '20ft Refrigerated' => '20ft Refrigerated', '40ft Refrigerated' => '40ft Refrigerated', '20ft Open Top' => '20ft Open Top', '40ft Open Top' => '40ft Open Top', '20ft Flat Rack' => '20ft Flat Rack', '40ft Flat Rack' => '40ft Flat Rack', 'LCL' => 'LCL', 'Bulk' => 'Bulk',],
 

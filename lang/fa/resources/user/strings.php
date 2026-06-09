@@ -79,4 +79,13 @@ return [
         'updated_at' => 'آخرین به‌روزرسانی',
         'deleted_at' => 'تاریخ حذف',
     ]
+,
+    'filter' => [
+        'department' => 'دپارتمان',
+        'role' => 'نقش',
+        'status' => 'وضعیت',
+        'position' => 'سمت',
+        'company' => 'شرکت',
+        'trashed' => 'رکوردهای حذف شده',
+    ]
 ];

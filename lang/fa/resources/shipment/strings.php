@@ -58,6 +58,50 @@ return [
                 'LCL' => 'خرده‌بار (LCL)',
                 'Bulk' => 'فله',
             ],
+
+            'Standard' => [
+                '20ft Standard' => '۲۰ فوت استاندارد',
+
+                '40ft Standard' => '۴۰ فوت استاندارد',
+
+                '40ft High Cube' => '۴۰ فوت های‌کیوب',
+            ],
+
+            'Refrigerated' => [
+                '20ft Refrigerated' => '۲۰ فوت یخچالی',
+
+                '40ft Refrigerated' => '۴۰ فوت یخچالی',
+            ],
+
+            'Open Top' => [
+                '20ft Open Top' => '۲۰ فوت روباز',
+
+                '40ft Open Top' => '۴۰ فوت روباز',
+            ],
+
+            'Flat Rack' => [
+                '20ft Flat Rack' => '۲۰ فوت فلت رک',
+
+                '40ft Flat Rack' => '۴۰ فوت فلت رک',
+            ],
+
+            'Other' => [
+                'LCL' => 'خرده‌بار (LCL)',
+
+                'Bulk' => 'فله',
+            ],
+
+            'Frigorifique' => [
+                '20ft Refrigerated' => '۲۰ فوت یخچالی',
+
+                '40ft Refrigerated' => '۴۰ فوت یخچالی',
+            ],
+
+            'Autres' => [
+                'LCL' => 'خرده‌بار (LCL)',
+
+                'Bulk' => 'فله',
+            ],
         ],
         'container_types' => ['20ft Standard' => '۲۰ فوت استاندارد', '40ft Standard' => '۴۰ فوت استاندارد', '40ft High Cube' => '۴۰ فوت‌های کیوب', '20ft Refrigerated' => '۲۰ فوت یخچالی', '40ft Refrigerated' => '۴۰ فوت یخچالی', '20ft Open Top' => '۲۰ فوت روباز', '40ft Open Top' => '۴۰ فوت روباز', '20ft Flat Rack' => '۲۰ فوت فلت رک', '40ft Flat Rack' => '۴۰ فوت فلت رک', 'LCL' => 'خرده‌بار (LCL)', 'Bulk' => 'فله',],
 
