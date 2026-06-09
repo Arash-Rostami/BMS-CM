@@ -12,6 +12,7 @@ use App\Filament\Resources\Operational\BankProfileResource\Traits\Filters as Ban
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Form as BankProfileForm;
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Infolist as BankProfileInfolist;
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Table as BankProfileTable;
+use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\BankProfile;
 use App\Models\Category;
@@ -43,7 +44,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BankProfileResource extends Resource
 {
-    use BankProfileForm, BankProfileTable, BankProfileFilters, BankProfileInfolist, HasResourcePermissions;
+    use BankProfileForm, BankProfileTable, BankProfileFilters, BankProfileInfolist, HasResourcePermissions, HasExtraAttributesManagement;
 
     protected static ?string $model = BankProfile::class;
 
@@ -124,7 +125,8 @@ class BankProfileResource extends Resource
                                             ->columns(2),
                                     ])
                                     ->columnSpan(['lg' => 1]),
-                            ])->columns(3)
+                            ])->columns(3),
+                        static::getExtraAttributesFormTab(),
                     ])
                     ->columnSpan('full'),
             ]);
@@ -137,6 +139,7 @@ class BankProfileResource extends Resource
                 'creator',
                 'updater',
                 'attachments',
+                'extraAttributes',
                 'bank',
                 'company',
                 'requestedCurrency',
@@ -281,7 +284,8 @@ class BankProfileResource extends Resource
                             __('resources/bankProfile/strings.infolist.tab_documents'),
                             $record?->attachments->count() ?? 0,
                             'info'
-                        ))
+                        )),
+                    static::getExtraAttributesInfolistTab(),
                 ])->columnSpanFull(),
             ]);
     }

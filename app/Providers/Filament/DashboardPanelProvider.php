@@ -52,6 +52,7 @@ class DashboardPanelProvider extends PanelProvider
                     ->collapsed(),
             ])
             ->login()
+            ->userMenu()
             ->colors([
                 'danger' => Color::Rose,
                 'info' => Color::Blue,

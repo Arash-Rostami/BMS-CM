@@ -2,27 +2,27 @@
 
 namespace App\Models;
 
+use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\SellerEntity;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\PurchaseOrder\Accessors;
+use App\Models\Traits\PurchaseOrder\HasFormattedName;
 use App\Models\Traits\PurchaseOrder\HasSearchableRelations;
 use App\Models\Traits\PurchaseOrder\Relationships as ExclusiveRelationships;
-use App\Models\Traits\PurchaseOrder\HasFormattedName;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PurchaseOrder extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use SoftDeletes,
         Relationships,
         ExclusiveRelationships,
         SellerEntity,
         Accessors,
         HasFormattedName,
         HasSearchableRelations,
+        HasCustomAttributes,
         UserStamps;
 
     const SCANNABLE_TABLE = 'purchase_orders';

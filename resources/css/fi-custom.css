@@ -1,25 +1,14 @@
-/* ==========================================================================
-   1. IMPORTS & FRAMEWORK SOURCES
-   ========================================================================== */
 @import "../../vendor/filament/filament/resources/css/theme.css";
 
-/* Tailwind Content Sources */
 @source '../../app/Filament/**/*.php';
 @source '../views/filament/**/*.blade.php';
 @source '../views/**/*.blade.php';
 @source '../../../../app/Filament';
 @source '../../../../resources/views/filament';
 @source '../../../../vendor/mokhosh/filament-jalali/resources/**/*';
-
-
-/* Third-Party Plugin Sources */
 @source '../../../../vendor/bezhansalleh/filament-language-switch/resources/views/**/*.blade.php';
 
-/* ==========================================================================
-   2. DESIGN TOKENS (COLORS, GRADIENTS & MD3 PHYSICS)
-   ========================================================================== */
 :root {
-    /* -- Core Brand Colors -- */
     --custom-first: #F8FAFC;
     --custom-second: #D9EAFD;
     --custom-third: #BCCCDC;
@@ -27,31 +16,26 @@
     --custom-neutral: #E8E8E8;
     --filament-dark: #09090B;
 
-    /* -- Mid-Tone Translucencies (70% Opacity) -- */
     --custom-second-mid: rgb(217, 234, 253, 0.7);
     --custom-third-mid: rgb(188, 204, 220, 0.7);
     --custom-fourth-mid: rgb(154, 166, 178, 0.7);
     --filament-dark-mid: #18181B;
 
-    /* -- Light Translucencies (40% Opacity for Glass/Surface Effects) -- */
     --custom-second-light: rgb(217, 234, 253, 0.4);
     --custom-third-light: rgb(188, 204, 220, 0.4);
     --custom-fourth-light: rgb(154, 166, 178, 0.4);
     --custom-neutral-light: rgb(232, 232, 232, 0.5);
 
-    /* -- Google Material 3 Inspired Light Theme -- */
     --google-first-light: #FFFFFF;
     --google-second-light: #E1E4E8;
     --google-third-light: #C1C6CC;
     --google-fourth-light: #5C6AC4;
 
-    /* -- Google Material 3 Inspired Dark Theme -- */
     --google-first-dark: #1E1E1E;
     --google-second-dark: #2C2B2F;
     --google-third-dark: #49454F;
     --google-fourth-dark: #6750A4;
 
-    /* -- Reusable UI Surface Gradients -- */
     --gradient-primary: linear-gradient(135deg, var(--custom-first), var(--custom-second));
     --gradient-secondary: linear-gradient(135deg, var(--custom-second), var(--custom-third));
     --gradient-accent: linear-gradient(135deg, var(--custom-third), var(--custom-fourth));
@@ -61,7 +45,6 @@
     --gradient-light: linear-gradient(135deg, var(--custom-second-light), var(--custom-third-light));
     --gradient-soft: linear-gradient(135deg, var(--custom-fourth-light), var(--custom-neutral-light));
 
-    /* -- Cross-Theme Gradients -- */
     --gradient-google-light: linear-gradient(135deg, var(--google-first-light), var(--google-second-light));
     --gradient-google-accent: linear-gradient(135deg, var(--google-third-light), var(--google-fourth-light));
     --gradient-google-dark: linear-gradient(135deg, var(--google-first-dark), var(--google-second-dark));
@@ -70,40 +53,39 @@
     --gradient-brand: linear-gradient(135deg, var(--google-fourth-light), var(--google-fourth-dark));
     --gradient-hero: linear-gradient(135deg, var(--custom-second), var(--filament-dark));
 
-    /* -- Material Design 3 Physics (Motion Curves) --
-       Emphasized Decelerate: Used for incoming elements and state changes (hover/focus).
-       Creates a snappy start that softly glides into resting position. */
     --md-motion: cubic-bezier(0.2, 0, 0, 1);
     --md-motion-exit: cubic-bezier(0.4, 0, 1, 1);
+
+    --md-elevation-1: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+    --md-elevation-2: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+    --md-elevation-3: 0px 1px 3px 0px rgba(0, 0, 0, 0.3), 0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+
+    --md-elevation-1-dark: 0px 1px 2px 0px rgba(0, 0, 0, 0.5), 0px 1px 3px 1px rgba(0, 0, 0, 0.3);
+    --md-elevation-2-dark: 0px 1px 2px 0px rgba(0, 0, 0, 0.5), 0px 2px 6px 2px rgba(0, 0, 0, 0.3);
+    --md-elevation-3-dark: 0px 1px 3px 0px rgba(0, 0, 0, 0.5), 0px 4px 8px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* ==========================================================================
-   3. TYPOGRAPHY ENGINE & BASE RENDER
-   ========================================================================== */
-/* ERP systems require peak legibility for dense data grids.
-   These rules enforce hardware-accelerated text rendering and sub-pixel antialiasing. */
 body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Brand Logo Animation. Hardware accelerated (translateZ) to prevent repaints. */
 .fi-logo {
     animation: jello-horizontal 0.9s 2s both;
     -webkit-animation: jello-horizontal 0.9s 2s both;
     transform: translateZ(0);
 }
 
-/*:not(.dark) .fi-body {*/
-/* background-color: var(--custom-first) !important;*/
-/*}*/
+.fi-body {
+    background-color: var(--custom-first) !important;
+    background-image: radial-gradient(ellipse at 50% 0%, var(--google-second-light), transparent 70%) !important;
+    background-attachment: fixed !important;
+}
 
-/* Light Mode Global Mesh Surface
-   Utilizes an oversized gradient mapping with a slow, infinite shift animation.
-   will-change informs the browser to allocate dedicated GPU memory for background shifts. */
-:not(.dark) .fi-body {
-    background-image: linear-gradient(135deg, var(--google-first-light) 0%, var(--google-second-light) 25%, var(--custom-second-light) 50%, var(--custom-neutral) 75%, var(--google-first-light) 100%) !important;
-    background-size: 400% 400% !important;
+.dark .fi-body {
+    background-color: var(--filament-dark) !important;
+    background-image: radial-gradient(ellipse at 50% 120%, var(--custom-third-mid), transparent 60%) !important;
+    background-attachment: fixed !important;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -112,13 +94,8 @@ body {
     }
 }
 
-/* ==========================================================================
-   4. NAVIGATION SURFACES (TOPBAR & SIDEBAR)
-   ========================================================================== */
-/* --- Top Navigation Bar --- */
-/* MD3 Surface Elevation Level 2: Casts a soft, layered shadow indicating hierarchy above the main view. */
 .fi-topbar {
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 2px 6px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--md-elevation-2) !important;
     max-height: 20px !important;
     border: none !important;
     background-color: var(--custom-third-mid) !important;
@@ -127,40 +104,64 @@ body {
 
 .dark .fi-topbar {
     background-color: var(--filament-dark-mid) !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--md-elevation-2-dark) !important;
 }
 
 .fi-topbar-start {
     flex-direction: row-reverse !important;
 }
 
-/* --- Sidebar Toggle Controls (Tactile Buttons) --- */
+
 .fi-topbar-close-collapse-sidebar-btn,
 .fi-topbar-open-collapse-sidebar-btn,
 .fi-sidebar-group-collapse-btn {
     transform: scale(0.8) !important;
     animation: slide-in-down 0.5s 0.5s both;
-    transition: transform 0.25s var(--md-motion), background-color 0.25s var(--md-motion);
-    border-radius: 50%;
-    /* MD3 Subtle Elevation */
-    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15) !important;
+    transition: transform 0.25s var(--md-motion), background-color 0.25s var(--md-motion), box-shadow 0.25s var(--md-motion);
+    border-radius: 8px !important;
+    box-shadow: var(--md-elevation-1) !important;
     cursor: pointer;
 }
 
-/* Tactile feedback: Scale up slightly on hover, mimicking a physical button ready to be pressed. */
-.fi-topbar-close-collapse-sidebar-btn:hover,
-.fi-topbar-open-collapse-sidebar-btn:hover,
-.fi-sidebar-group-collapse-btn:hover {
-    transform: scale(0.85) !important;
+.fi-sidebar-header button {
+    cursor: pointer;
+    display: inline-block;
+    padding: 8px;
+    border-radius: 8px !important;
+    box-shadow: var(--md-elevation-1);
+    outline: none;
+    transition: background-color 0.25s var(--md-motion), color 0.25s var(--md-motion), box-shadow 0.25s var(--md-motion);
+    fill: none;
+    stroke: var(--custom-third);
 }
 
-/* --- Language Switcher Overrides --- */
+.language-switch-trigger {
+    border-radius: 8px !important;
+    /*box-shadow: var(--md-elevation-1) !important;*/
+    transition: box-shadow 0.25s var(--md-motion), background-color 0.25s var(--md-motion) !important;
+    border: none !important;
+    ring: none !important;
+    outline: none !important;
+}
+
+.dark .language-switch-trigger {
+    box-shadow: var(--md-elevation-1-dark) !important;
+}
+
+.language-switch-trigger:hover {
+    box-shadow: var(--md-elevation-2) !important;
+}
+
+.dark .language-switch-trigger:hover {
+    box-shadow: var(--md-elevation-2-dark) !important;
+}
+
 .language-switch-trigger img,
 .fls-flag-only-width img {
     width: 1.75rem !important;
     height: 1.75rem !important;
     object-fit: cover !important;
-    border-radius: 9999px !important;
+    border-radius: 6px !important;
 }
 
 .fls-flag-only-width {
@@ -170,6 +171,7 @@ body {
 
 .fls-flag-only-width .fi-dropdown-list {
     padding: 1.0rem !important;
+    border-radius: 12px !important;
 }
 
 .fls-flag-only-width .fi-dropdown-list-item {
@@ -177,42 +179,64 @@ body {
     height: 2.75rem !important;
     padding: 0.375rem !important;
     justify-content: center !important;
+    border-radius: 8px !important;
 }
 
-/* --- Sidebar Container & Glassmorphism --- */
+
+
+.dark .fi-topbar-close-collapse-sidebar-btn,
+.dark .fi-topbar-open-collapse-sidebar-btn,
+.dark .fi-sidebar-group-collapse-btn {
+    box-shadow: var(--md-elevation-1-dark) !important;
+}
+
+.fi-topbar-close-collapse-sidebar-btn:hover,
+.fi-topbar-open-collapse-sidebar-btn:hover,
+.fi-sidebar-group-collapse-btn:hover {
+    transform: scale(0.85) !important;
+    box-shadow: var(--md-elevation-2) !important;
+}
+
+.dark .fi-topbar-close-collapse-sidebar-btn:hover,
+.dark .fi-topbar-open-collapse-sidebar-btn:hover,
+.dark .fi-sidebar-group-collapse-btn:hover {
+    box-shadow: var(--md-elevation-2-dark) !important;
+}
+
+
 :not(.dark) .fi-sidebar-header,
 :not(.dark) .fi-sidebar-close-overlay {
     background-color: var(--custom-third-mid) !important;
-    /* MD3 Directional Shadow for Drawer Components */
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04), 4px 0 16px rgba(0, 0, 0, 0.04);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    box-shadow: var(--md-elevation-2) !important;
 }
 
-/* Sidebar Action Buttons */
 .fi-sidebar-header button {
     cursor: pointer;
     display: inline-block;
     padding: 8px;
-    border-radius: 10px; /* MD3 Small Shape */
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: var(--md-elevation-1);
     outline: none;
     transition: background-color 0.25s var(--md-motion), color 0.25s var(--md-motion), box-shadow 0.25s var(--md-motion);
     fill: none;
     stroke: var(--custom-third);
 }
 
+.dark .fi-sidebar-header button {
+    box-shadow: var(--md-elevation-1-dark);
+}
+
 .fi-sidebar-header button:hover {
     background-color: var(--custom-neutral-light) !important;
     color: #707070 !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--md-elevation-2);
 }
 
 .dark .fi-sidebar-header button:hover {
     background-color: var(--google-first-dark) !important;
+    box-shadow: var(--md-elevation-2-dark);
 }
 
-/* --- Sidebar Menu Items (State Layers) --- */
 .fi-sidebar-item {
     width: auto;
     padding: 5px;
@@ -223,7 +247,7 @@ body {
     background-image: var(--gradient-neutral);
     color: inherit;
     text-decoration: none;
-    -webkit-box-shadow: 0 0 3px var(--custom-third-light);
+    transition: all 0.25s var(--md-motion);
 }
 
 .dark .fi-sidebar-item > a {
@@ -231,23 +255,31 @@ body {
     background-image: none;
 }
 
-/* Active Hover State Layer: Subtle physical shift right to indicate selection readiness */
 .fi-sidebar-item > a:hover {
     border-radius: 8px;
     width: auto;
     background-image: none;
     background-color: var(--custom-neutral) !important;
     opacity: 0.95;
-    transform: translateX(3px); /* Grounded movement, not overly bouncy */
+    transform: translateX(3px);
+    box-shadow: var(--md-elevation-1);
 }
 
 .dark .fi-sidebar-item > a:hover {
     background-color: var(--google-first-dark) !important;
+    box-shadow: var(--md-elevation-1-dark);
 }
 
-/* Active State Indicator (Hardware Accelerated Pulse) */
+.fi-sidebar-item.fi-active > a {
+    box-shadow: var(--md-elevation-1);
+}
+
+.dark .fi-sidebar-item.fi-active > a {
+    box-shadow: var(--md-elevation-1-dark);
+}
+
 .fi-sidebar-item.fi-active > a::before {
-    content: '🔹';
+    content: '\1F539';
     position: absolute;
     transform: scale(75%);
     right: -2px;
@@ -259,13 +291,9 @@ body {
     cursor: pointer;
 }
 
-/* ==========================================================================
-   5. SURFACE CONTAINERS (CARDS, WIDGETS, SECTIONS)
-   ========================================================================== */
-/* --- Widget Containers --- */
 :not(.dark) body .fi-wi-widget .fi-section-content {
     transition: background-color 0.3s var(--md-motion), box-shadow 0.3s var(--md-motion);
-    border-radius: 12px; /* MD3 Medium Shape Family */
+    border-radius: 12px;
 }
 
 body .fi-wi-widget .fi-section-content:hover {
@@ -276,13 +304,9 @@ body .fi-wi-widget .fi-section-content:hover {
     background-color: var(--google-first-dark) !important;
 }
 
-/* --- Form Sections & Primary Cards ---
-   These act as the primary structural unit of the ERP.
-   MD3 Elevation Level 1 resting, elevating to Level 2 on hover. */
 .fi-section {
     background-color: var(--custom-third-light) !important;
-    /* Layered ambient shadow for realistic depth */
-    box-shadow: 0 1px 3px rgba(9, 30, 66, 0.1), 0 1px 2px rgba(9, 30, 66, 0.06), 0 0 0 1px rgba(9, 30, 66, 0.04) !important;
+    box-shadow: var(--md-elevation-1) !important;
     transition: background-color 0.3s var(--md-motion), box-shadow 0.3s var(--md-motion), transform 0.3s var(--md-motion);
     border-radius: 12px;
     padding: 16px;
@@ -290,50 +314,39 @@ body .fi-wi-widget .fi-section-content:hover {
 
 .dark .fi-section {
     background-color: var(--filament-dark-mid) !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+    box-shadow: var(--md-elevation-1-dark) !important;
 }
 
-/* Hover State Layer: Element physically lifts toward the user */
 .fi-section:hover {
     background-color: var(--custom-neutral) !important;
-    /* MD3 Elevation Level 2 */
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--md-elevation-2) !important;
 }
 
 .dark .fi-section:hover {
     background-color: var(--google-first-dark) !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--md-elevation-2-dark) !important;
 }
 
-/* Prevent hover transforms on elements already elevated inside modals/widgets */
 .fi-modal-window-ctn .fi-section:hover,
 .fi-modal .fi-section:hover,
 .fi-wi-widget .fi-section:hover {
     transform: none !important;
 }
 
-/* ==========================================================================
-   6. DATA GRIDS (ERP TABLES)
-   ========================================================================== */
-/* --- Main Table Surface ---
-   Dense, high-contrast layouts required for enterprise data parsing. */
 .fi-ta {
     border: none;
     transition: background-color 0.3s var(--md-motion), box-shadow 0.3s var(--md-motion);
-    /* MD3 Elevation Level 2 for primary data grids */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 12px var(--custom-third-mid);
+    box-shadow: var(--md-elevation-1) !important;
 }
 
 .dark .fi-ta {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--md-elevation-1-dark) !important;
 }
 
-/* --- Table Toolbar (Search/Filters) --- */
 .fi-ta-header-ctn {
     margin: 0;
     border-radius: 12px 12px 0 0;
     background-color: var(--custom-third-light) !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -342,10 +355,9 @@ body .fi-wi-widget .fi-section-content:hover {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* --- Table Column Headers --- */
 thead > tr th {
     font-weight: 600;
-    letter-spacing: 0.02em; /* ERP Standard: Improves readability of technical column names */
+    letter-spacing: 0.02em;
     background-color: var(--custom-third) !important;
 }
 
@@ -353,7 +365,6 @@ thead > tr th {
     background-color: var(--google-second-dark) !important;
 }
 
-/* --- Table Pagination Footer --- */
 nav.fi-ta-pagination {
     padding: 8px;
     border-radius: 0 0 12px 12px;
@@ -366,49 +377,40 @@ nav.fi-ta-pagination {
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-
-/* ==========================================================================
-   7. DIALOGS, MODALS & DROPDOWNS
-   ========================================================================== */
-/* --- The Modal Card --- */
 .fi-modal-window {
     background-color: var(--custom-neutral);
-    border-radius: 16px; /* MD3 Large Shape for Dialogs */
-    /* MD3 Elevation Level 3: Highest prominence */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 16px 32px rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    box-shadow: var(--md-elevation-3) !important;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 .dark .fi-modal-window {
     background-color: var(--filament-dark-mid);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6), 0 16px 32px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--md-elevation-3-dark) !important;
 }
 
-/* --- The Modal Backdrop (Scrim) ---
-   Focuses user attention by blurring and darkening the background layer. */
 .fi-modal-window-ctn {
-    backdrop-filter: blur(3px) saturate(150%) brightness(90%);
-    background: linear-gradient(135deg,
-    var(--custom-second-light) 0%,
-    var(--custom-third-light) 50%,
-    var(--custom-fourth-light) 100%);
+    background: rgba(217, 234, 253, 0.85);
+    will-change: opacity;
 }
 
 .dark .fi-modal-window-ctn {
-    backdrop-filter: blur(3px) saturate(150%) brightness(80%);
-    background: radial-gradient(ellipse at 50% 0%, rgba(103, 80, 164, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 100%, rgba(92, 106, 196, 0.08) 0%, transparent 50%),
-    linear-gradient(135deg,
-        rgba(24, 24, 27, 0.5) 0%,
-        rgba(44, 43, 47, 0.5) 50%,
-        rgba(73, 69, 79, 0.5) 100%);
+    background: rgba(24, 24, 27, 0.9);
 }
 
-/* Database Notification Positioning Reset */
 .fi-modal-window[x-on\:keydown\.window\.escape*="database-notifications"] {
     margin-top: 0;
 }
 
-/* --- Dropdown Menus (State Layers) --- */
+.fi-dropdown-panel {
+    box-shadow: var(--md-elevation-2) !important;
+}
+
+.dark .fi-dropdown-panel {
+    box-shadow: var(--md-elevation-2-dark) !important;
+}
+
 .fi-dropdown-panel:hover {
     background-color: var(--custom-neutral) !important;
 }
@@ -417,7 +419,6 @@ nav.fi-ta-pagination {
     background-color: var(--google-first-dark) !important;
 }
 
-/* Layout Protection: Hide background scrolling/badges when a modal dominates the view */
 body:has(.fi-modal-open) .fi-sidebar-nav span.fi-badge,
 body:has(.fi-modal-open) ::-webkit-scrollbar {
     display: none;
@@ -428,28 +429,21 @@ body:has(.fi-modal-open) ::-webkit-scrollbar {
     display: none;
 }
 
-body:has(.fi-modal-open) :is(
-  nav.fi-topbar,
-  .fi-sidebar-nav,
-  aside.fi-sidebar.fi-main-sidebar.fi-sidebar-open
-) {
-    display: none !important;
+body:has(.fi-modal-open) :is(nav.fi-topbar, .fi-sidebar-nav, aside.fi-sidebar.fi-main-sidebar.fi-sidebar-open) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.2s ease-out;
 }
 
-
-/* ==========================================================================
-   8. INTERACTIVE ELEMENTS (BADGES, TABS)
-   ========================================================================== */
-/* --- Status Badges (Infolists) --- */
 .tb-badge {
     display: inline-flex;
     align-items: center;
     margin-left: 0.5rem;
     padding: 0.25rem 0.6rem;
     font-size: 0.75rem;
-    font-weight: 600; /* MD3 Boldness for status indicators */
+    font-weight: 600;
     letter-spacing: 0.025em;
-    border-radius: 6px; /* MD3 Extra Small Shape */
+    border-radius: 6px;
     border-width: 1px;
     border-style: solid;
 }
@@ -478,15 +472,13 @@ body:has(.fi-modal-open) :is(
     border-color: rgb(220 38 38 / 0.1) !important;
 }
 
-/* --- Tab Selection Navigation --- */
-/* Horizontal Scrolling Container */
 .fi-tabs {
     display: flex;
     overflow-x: auto;
     border-radius: 12px;
     scrollbar-width: thin;
     -webkit-overflow-scrolling: touch;
-    padding: 4px; /* Buffer for focus rings */
+    padding: 4px;
 }
 
 .fi-tabs::-webkit-scrollbar {
@@ -502,7 +494,6 @@ body:has(.fi-modal-open) :is(
     border-radius: 6px;
 }
 
-/* Individual Tab Targets (Resting State) */
 .fi-tabs-item {
     color: var(--custom-fourth) !important;
     background-color: transparent;
@@ -512,27 +503,27 @@ body:has(.fi-modal-open) :is(
     border: none;
     outline: none;
     font-weight: 500;
-    border-radius: 8px; /* Inner tab shape */
+    border-radius: 8px;
 }
 
-/* Tab Hover State Layer */
 .fi-tabs-item:hover {
     background-color: var(--custom-neutral-light) !important;
     color: var(--filament-dark) !important;
-    /* MD3 Tactile Feedback: Slight elevation */
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    box-shadow: var(--md-elevation-1) !important;
 }
 
-/* Accessibility Focus Ring */
+.dark .fi-tabs-item:hover {
+    box-shadow: var(--md-elevation-1-dark) !important;
+}
+
 .fi-tabs-item:focus-visible {
     box-shadow: 0 0 0 2px var(--custom-third) !important;
 }
 
-/* Active Selected Tab */
 .fi-tabs-item.fi-active {
     background-image: var(--gradient-secondary) !important;
     color: var(--custom-fourth-light);
-    box-shadow: 0 2px 4px rgba(16, 24, 40, 0.08), 0 4px 12px rgba(16, 24, 40, 0.06);
+    box-shadow: var(--md-elevation-1) !important;
 }
 
 .fi-tabs-item .fi-badge {
@@ -543,7 +534,6 @@ body:has(.fi-modal-open) :is(
     font-size: 0.75rem;
 }
 
-/* Dark Mode Overrides for Tabs */
 .dark .fi-tabs-item {
     color: var(--google-third-light) !important;
 }
@@ -556,26 +546,23 @@ body:has(.fi-modal-open) :is(
 .dark .fi-tabs-item.fi-active {
     background-image: var(--gradient-google-deep) !important;
     color: var(--google-first-light) !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--md-elevation-1-dark) !important;
 }
 
-/* ==========================================================================
-   9. CUSTOM AUTHENTICATION & LOGIN LAYOUT
-   ========================================================================== */
-/* Base wrapper for full-screen auth canvases */
 .fi-body .fi-simple-layout {
     position: relative;
     z-index: 0;
     min-height: 100vh;
     overflow: hidden;
     background: linear-gradient(135deg, #2c313c 0%, #3a4452 30%, #f5f7f9 55%, #3a4452 80%, #2c313c 100%);
+    box-shadow: inset 0 0 220px 80px rgba(0, 0, 0, .28);
 }
 
 .dark .fi-body .fi-simple-layout {
     background: linear-gradient(135deg, #1B1B1D 0%, #222225 30%, #2A2B2E 55%, #222225 80%, #1B1B1D 100%);
+    box-shadow: inset 0 0 240px 90px rgba(0, 0, 0, .45);
 }
 
-/* Atmospheric Background Overlays (Video/Image integrations) */
 .fi-body .fi-simple-layout::before {
     content: "";
     position: absolute;
@@ -618,35 +605,28 @@ body:has(.fi-modal-open) :is(
     z-index: -1;
 }
 
-/* The Central Login Card Surface */
 .fi-simple-main {
     position: absolute;
     padding: 2rem;
-    border-radius: 16px; /* MD3 Large Shape */
+    border-radius: 16px;
     transition: background-color 0.3s var(--md-motion), box-shadow 0.3s var(--md-motion);
-    box-shadow: 0 4px 6px -1px rgba(9, 30, 66, 0.1), 0 2px 4px -1px rgba(9, 30, 66, 0.06), 0 0 0 1px rgba(9, 30, 66, 0.05) !important;
+    box-shadow: var(--md-elevation-2) !important;
+}
+
+.dark .fi-simple-main {
+    box-shadow: var(--md-elevation-2-dark) !important;
 }
 
 .fi-simple-main:hover {
     background-color: var(--custom-neutral-light) !important;
-    /* MD3 Elevation Level 3 for floating auth cards */
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+    box-shadow: var(--md-elevation-3) !important;
 }
 
 .dark .fi-simple-main:hover {
     background-color: var(--google-first-dark) !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: var(--md-elevation-3-dark) !important;
 }
 
-.fi-body .fi-simple-layout {
-    box-shadow: inset 0 0 220px 80px rgba(0, 0, 0, .28);
-}
-
-.dark .fi-body .fi-simple-layout {
-    box-shadow: inset 0 0 240px 90px rgba(0, 0, 0, .45);
-}
-
-/* Film grain — pure tone, sits over gradient + your webp */
 .fi-body .fi-simple-layout::after {
     content: "";
     position: absolute;
@@ -675,9 +655,6 @@ body:has(.fi-modal-open) :is(
     }
 }
 
-/* ==========================================================================
-   10. GLOBAL SYSTEM SCROLLBARS
-   ========================================================================== */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -706,7 +683,6 @@ body:has(.fi-modal-open) :is(
     background-color: oklch(0.554 0.046 257.417) !important;
 }
 
-/* Scrollbar Stepper Buttons (Up/Down/Left/Right Arrows) */
 ::-webkit-scrollbar-button {
     width: 6px;
     height: 12px;
@@ -751,7 +727,6 @@ body:has(.fi-modal-open) :is(
     background: transparent;
 }
 
-/* Accessibility Override: Respects OS-level reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
     * {
         scroll-behavior: auto;
@@ -761,11 +736,6 @@ body:has(.fi-modal-open) :is(
         transition: none;
     }
 }
-
-/* ==========================================================================
-   11. HARDWARE-ACCELERATED KEYFRAMES
-   ========================================================================== */
-/* All active animations maintain translateZ(0) to execute purely on the GPU compositor layer */
 
 @keyframes gradient-shift {
     0%, 100% {
@@ -918,4 +888,94 @@ body:has(.fi-modal-open) :is(
     100% {
         transform: translateY(300%);
     }
+}
+
+.fi-sc-text {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    line-height: 1.6;
+    color: #374151;
+    margin-top: 0.6rem;
+    padding-right: 0.8rem;
+    position: relative;
+    opacity: 0.9;
+    transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: all 0.3s var(--md-motion);
+    cursor: help;
+}
+
+.fi-sc-text::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 15%;
+    height: 70%;
+    width: 2px;
+    background-image: var(--gradient-accent);
+    border-radius: 4px;
+    transition: all 0.3s var(--md-motion);
+}
+
+.dark .fi-sc-text {
+    color: var(--google-third-light);
+    opacity: 0.75;
+}
+
+.dark .fi-sc-text::before {
+    background-image: var(--gradient-brand);
+}
+
+.fi-sc-text:hover {
+    opacity: 1;
+    padding-right: 1.1rem;
+    color: #111827;
+}
+
+.dark .fi-sc-text:hover {
+    color: var(--google-first-light);
+}
+
+.fi-sc-text:hover::before {
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background-image: var(--gradient-secondary);
+}
+
+.dark .fi-sc-text:hover::before {
+    background-image: var(--gradient-google-light);
+}
+
+.fi-user-menu-button {
+    border-radius: 0.75rem !important;
+    min-height: 44px !important;
+    transition: all 250ms !important;
+}
+
+.fi-user-menu-trigger {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 35px !important;
+    height: 35px !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+}
+
+
+.fi-user-menu > .fi-dropdown-trigger,
+.fi-user-menu > .fi-dropdown-trigger > .fi-user-menu-trigger,
+.fi-user-menu .fi-avatar.fi-user-avatar {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: transparent !important;
+}
+
+.fi-circular, .fi-user-avatar{
+    border-radius: 0.75rem !important;
+    border: none!important;
 }

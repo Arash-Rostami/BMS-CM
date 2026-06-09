@@ -18,6 +18,7 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Form as Pu
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Infolist as PurchaseRequestInfolist;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as PurchaseRequestTable;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\TotalCostCalculation;
+use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\PurchaseRequest;
 use App\Services\SmartCacheManager;
@@ -49,7 +50,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PurchaseRequestResource extends Resource
 {
-    use PurchaseRequestForm, TotalCostCalculation, PurchaseRequestTable, PurchaseRequestFilters, PurchaseRequestInfolist, HasResourcePermissions;
+    use PurchaseRequestForm, TotalCostCalculation, PurchaseRequestTable, PurchaseRequestFilters, PurchaseRequestInfolist, HasResourcePermissions, HasExtraAttributesManagement;
 
     protected static ?string $model = PurchaseRequest::class;
 
@@ -61,63 +62,72 @@ class PurchaseRequestResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Group::make()
-                    ->schema([
-                        Section::make(__('resources/purchaseRequest/strings.form.request_details'))
+                Tabs::make('PurchaseRequest')
+                    ->tabs([
+                        Tab::make(__('resources/purchaseRequest/strings.form.tab_general'))
+                            ->icon('heroicon-o-shopping-cart')
                             ->schema([
-                                static::getPrNumberField(),
-                                static::getCostCenterIdField(),
-                                static::getRequiredByDateField(),
-                                static::getUrgencyLevelField(),
-                                static::getStatusIdField(),
+                                \Filament\Schemas\Components\Group::make()
+                                    ->schema([
+                                        Section::make(__('resources/purchaseRequest/strings.form.request_details'))
+                                            ->schema([
+                                                static::getPrNumberField(),
+                                                static::getCostCenterIdField(),
+                                                static::getRequiredByDateField(),
+                                                static::getUrgencyLevelField(),
+                                                static::getStatusIdField(),
+                                            ])
+                                            ->columns(3),
+
+                                        Section::make(__('resources/purchaseRequest/strings.form.items'))
+                                            ->heading(__('resources/purchaseRequest/strings.form.purchase_items'))
+                                            ->schema([
+                                                Repeater::make('items')
+                                                    ->hiddenLabel()
+                                                    ->relationship()
+                                                    ->schema([
+                                                        Section::make()->schema(
+                                                            [
+                                                                static::getItemProductIdField(),
+                                                                static::getItemStatusIdField(),
+                                                                static::getItemQuantityField(),
+                                                                static::getItemUnitField(),
+                                                                static::getItemEstimatedCostField(),
+                                                                static::getItemNotesToggle(),
+                                                                static::getItemNotesField(),
+                                                            ]
+                                                        )->columns(3)
+                                                    ])
+                                                    ->live(true)
+                                                    ->defaultItems(0)
+                                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotalCost($get, $set))
+                                                    ->afterStateHydrated(fn(Get $get, Set $set) => static::updateTotalCost($get, $set))
+                                                    ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => self::updateTotalCost($get, $set)))
+                                                    ->addActionLabel(__('resources/purchaseRequest/strings.form.add_purchase_item'))
+                                                    ->label(false)
+                                            ]),
+                                    ])
+                                    ->columnSpan(['lg' => 2]),
+
+                                \Filament\Schemas\Components\Group::make()
+                                    ->schema([
+                                        Section::make(__('resources/purchaseRequest/strings.form.status_and_notes'))
+                                            ->schema([
+                                                static::getTotalEstimatedCostField(),
+                                                static::getRejectionReasonField(),
+                                                static::getApproverIdField(),
+                                                static::getApprovalDateField(),
+                                                static::getNotesField(),
+                                                FormComponents::getAttachmentsField()
+                                            ]),
+                                    ])
+                                    ->columnSpan(['lg' => 1]),
                             ])
                             ->columns(3),
-
-                        Section::make(__('resources/purchaseRequest/strings.form.items'))
-                            ->heading(__('resources/purchaseRequest/strings.form.purchase_items'))
-                            ->schema([
-                                Repeater::make('items')
-                                    ->hiddenLabel()
-                                    ->relationship()
-                                    ->schema([
-                                        Section::make()->schema(
-                                            [
-                                                static::getItemProductIdField(),
-                                                static::getItemStatusIdField(),
-                                                static::getItemQuantityField(),
-                                                static::getItemUnitField(),
-                                                static::getItemEstimatedCostField(),
-                                                static::getItemNotesToggle(),
-                                                static::getItemNotesField(),
-                                            ]
-                                        )->columns(3)
-                                    ])
-                                    ->live(true)
-                                    ->defaultItems(0)
-                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotalCost($get, $set))
-                                    ->afterStateHydrated(fn(Get $get, Set $set) => static::updateTotalCost($get, $set))
-                                    ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => self::updateTotalCost($get, $set)))
-                                    ->addActionLabel(__('resources/purchaseRequest/strings.form.add_purchase_item'))
-                                    ->label(false)
-                            ]),
+                        static::getExtraAttributesFormTab(),
                     ])
-                    ->columnSpan(['lg' => 2]),
-
-                \Filament\Schemas\Components\Group::make()
-                    ->schema([
-                        Section::make(__('resources/purchaseRequest/strings.form.status_and_notes'))
-                            ->schema([
-                                static::getTotalEstimatedCostField(),
-                                static::getRejectionReasonField(),
-                                static::getApproverIdField(),
-                                static::getApprovalDateField(),
-                                static::getNotesField(),
-                                FormComponents::getAttachmentsField()
-                            ]),
-                    ])
-                    ->columnSpan(['lg' => 1]),
-            ])
-            ->columns(3);
+                    ->columnSpanFull(),
+            ]);
     }
 
     public static function getEloquentQuery(): Builder
@@ -128,6 +138,7 @@ class PurchaseRequestResource extends Resource
                 'updater',
                 'approver',
                 'attachments',
+                'extraAttributes',
                 'costCenter',
                 'department',
                 'items',
@@ -264,6 +275,7 @@ class PurchaseRequestResource extends Resource
                                 $record?->attachments->count() ?? 0,
                                 'info'
                             )),
+                        static::getExtraAttributesInfolistTab(),
                     ])->columnSpanFull(),
             ]);
     }

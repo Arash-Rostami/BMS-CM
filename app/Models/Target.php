@@ -3,20 +3,18 @@
 namespace App\Models;
 
 use App\Models\Traits\General\Relationships;
+use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\Target\HasMetricAttribute;
 use App\Models\Traits\Target\HasTargetableLabel;
 use App\Models\Traits\Target\HasYearAttribute;
 use App\Models\Traits\Target\Relationships as ExclusiveRelationships;
-use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\Target\SearchTargetable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Target extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use SoftDeletes,
         Relationships,
         ExclusiveRelationships,
         UserStamps,

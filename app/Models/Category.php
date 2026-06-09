@@ -10,14 +10,12 @@ use App\Models\Traits\General\HasSlug;
 use App\Models\Traits\General\Localization;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use SoftDeletes,
         HasSlug,
         Scopables,
         UserStamps,

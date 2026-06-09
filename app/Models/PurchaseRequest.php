@@ -2,21 +2,21 @@
 
 namespace App\Models;
 
+use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\PurchaseRequest\HasFormattedName;
 use App\Models\Traits\PurchaseRequest\HasSearchableRelations;
 use App\Models\Traits\PurchaseRequest\Relationships as ExclusiveRelationships;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PurchaseRequest extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use SoftDeletes,
         Relationships,
         ExclusiveRelationships,
+        HasCustomAttributes,
         UserStamps,
         HasFormattedName,
         HasSearchableRelations;

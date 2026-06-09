@@ -21,6 +21,7 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Filters as
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Form as RegisteredOrderForm;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Infolist as RegisteredOrderInfolist;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Table as RegisteredOrderTable;
+use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\RegisteredOrder;
 use App\Services\SmartCacheManager;
@@ -54,7 +55,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class RegisteredOrderResource extends Resource
 {
-    use RegisteredOrderForm, RegisteredOrderTable, RegisteredOrderInfolist, RegisteredOrderFilters, HasResourcePermissions;
+    use RegisteredOrderForm, RegisteredOrderTable, RegisteredOrderInfolist, RegisteredOrderFilters, HasResourcePermissions, HasExtraAttributesManagement;
 
     protected static ?string $model = RegisteredOrder::class;
 
@@ -153,6 +154,7 @@ class RegisteredOrderResource extends Resource
                                         static::getExpectedDeliveryDateField(),
                                     ])->columns(3),
                             ]),
+                        static::getExtraAttributesFormTab(),
                     ])
                     ->columnSpan('full'),
             ]);
@@ -165,6 +167,7 @@ class RegisteredOrderResource extends Resource
                 'creator',
                 'updater',
                 'attachments',
+                'extraAttributes',
                 'items',
                 'items.product',
                 'currency',
@@ -324,6 +327,7 @@ class RegisteredOrderResource extends Resource
                             $record?->attachments->count() ?? 0,
                             'info'
                         )),
+                    static::getExtraAttributesInfolistTab(),
                 ])->columnSpanFull(),
             ]);
     }

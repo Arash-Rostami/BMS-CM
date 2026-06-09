@@ -12,6 +12,11 @@ trait HasCustomAttributes
         return $this->morphMany(EntityAttribute::class, 'entity');
     }
 
+    public function extraAttributes(): MorphMany
+    {
+        return $this->morphMany(EntityAttribute::class, 'entity');
+    }
+
     public function getCustomAttributesMap(): array
     {
         return $this->customAttributes()

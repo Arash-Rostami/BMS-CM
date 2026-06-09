@@ -10,6 +10,11 @@ return [
         'entity_id' => 'شناسه رکورد',
         'key' => 'کلید',
         'value' => 'مقدار',
+        'add_attribute_action' => 'افزودن ویژگی',
+    ],
+    'infolist' => [
+        'key' => 'کلید',
+        'value' => 'مقدار',
     ],
     'table' => [
         'entity_type' => 'موجودیت',

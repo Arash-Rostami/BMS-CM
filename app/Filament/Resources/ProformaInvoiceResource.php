@@ -17,6 +17,7 @@ use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Form as Pr
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Infolist as ProformaInvoiceInfolist;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Table as ProformaInvoiceTable;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\TotalAmountCalculation;
+use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\ProformaInvoice;
 use App\Services\SmartCacheManager;
@@ -46,7 +47,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProformaInvoiceResource extends Resource
 {
-    use ProformaInvoiceForm, TotalAmountCalculation, ProformaInvoiceTable, ProformaInvoiceFilters, ProformaInvoiceInfolist, HasResourcePermissions;
+    use ProformaInvoiceForm, TotalAmountCalculation, ProformaInvoiceTable, ProformaInvoiceFilters, ProformaInvoiceInfolist, HasResourcePermissions, HasExtraAttributesManagement;
 
     protected static ?string $model = ProformaInvoice::class;
 
@@ -142,6 +143,7 @@ class ProformaInvoiceResource extends Resource
                                         static::getPortOfDischargeField(),
                                     ])->columns(4),
                             ]),
+                        static::getExtraAttributesFormTab(),
                     ])->columnSpan('full'),
             ]);
     }
@@ -153,6 +155,7 @@ class ProformaInvoiceResource extends Resource
                 'creator',
                 'updater',
                 'attachments',
+                'extraAttributes',
                 'buyerCompany',
                 'items',
                 'items.product',
@@ -304,6 +307,7 @@ class ProformaInvoiceResource extends Resource
                                 $record?->attachments->count() ?? 0,
                                 'info'
                             )),
+                        static::getExtraAttributesInfolistTab(),
                     ])->columnSpanFull(),
             ]);
     }

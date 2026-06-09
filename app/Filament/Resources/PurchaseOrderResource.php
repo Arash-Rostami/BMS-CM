@@ -18,6 +18,7 @@ use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Form as Purc
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Infolist as PurchaseOrderInfolist;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as PurchaseOrderTable;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\TotalCalculation;
+use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\PurchaseOrder;
 use App\Services\SmartCacheManager;
@@ -50,7 +51,7 @@ use UnitEnum;
 
 class PurchaseOrderResource extends Resource
 {
-    use TotalCalculation, PurchaseOrderForm, PurchaseOrderTable, PurchaseOrderFilters, PurchaseOrderInfolist, HasResourcePermissions;
+    use TotalCalculation, PurchaseOrderForm, PurchaseOrderTable, PurchaseOrderFilters, PurchaseOrderInfolist, HasResourcePermissions, HasExtraAttributesManagement;
 
     protected static ?string $model = PurchaseOrder::class;
 
@@ -64,70 +65,79 @@ class PurchaseOrderResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Group::make()
-                    ->schema([
-                        Section::make(__('resources/purchaseOrder/strings.form.section_order_details'))
+                Tabs::make('PurchaseOrder')
+                    ->tabs([
+                        Tab::make(__('resources/purchaseOrder/strings.form.tab_general'))
+                            ->icon('heroicon-o-shopping-bag')
                             ->schema([
-                                static::getSourceTypeField(),
-                                static::getPurchaseRequestsField(),
-                                static::getProformaInvoicesField(),
-                                static::getRegisteredOrdersField(),
-                                static::getPoNumberField(),
-                                static::getOrderDateField(),
-                                static::getStatusField(),
-                                static::getsellerField(),
-                                static::getBuyerField(),
-                                static::getIncotermsField(),
-                                static::getCurrencyField(),
-                                static::getValidityDateField(),
-                                static::getExpectedDeliveryDateField(),
-                            ])->columns(3),
-
-
-                        Section::make(__('resources/purchaseOrder/strings.form.section_items'))
-                            ->heading(__('resources/purchaseOrder/strings.form.section_items'))
-                            ->schema([
-                                Repeater::make('items')
-                                    ->hiddenLabel()
-                                    ->relationship()
+                                \Filament\Schemas\Components\Group::make()
                                     ->schema([
-                                        static::getItemProductIdField(),
-                                        static::getItemUnitField(),
-                                        static::getItemQuantityField(),
-                                        static::getItemUnitPriceField(),
-                                        static::getItemNetWeightField(),
-                                        static::getItemGrossWeightField(),
-                                        static::getItemNotesToggle(),
-                                        static::getItemDescriptionField(),
-                                    ])
-                                    ->columns(8)
-                                    ->defaultItems(0)
-                                    ->live(true)
-                                    ->addActionLabel(__('resources/purchaseOrder/strings.form.add_item_action'))
-                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotal($get, $set))
-                                    ->afterStateHydrated(fn(Get $get, Set $set) => static::updateTotal($get, $set))
-//                                  ->afterStateHydrated(fn($component, $state, $get) => ($items = $get('items')) ? $component->state($items) : null)
-                                    ->mutateRelationshipDataBeforeFillUsing(fn(array $data): array => $data)
-                                    ->addAction(fn($action) => $action->after(fn(Get $get, Set $set) => static::updateTotal($get, $set)))
-                                    ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => self::updateTotal($get, $set)))])
-                    ])
-                    ->columnSpan(['lg' => 2]),
+                                        Section::make(__('resources/purchaseOrder/strings.form.section_order_details'))
+                                            ->schema([
+                                                static::getSourceTypeField(),
+                                                static::getPurchaseRequestsField(),
+                                                static::getProformaInvoicesField(),
+                                                static::getRegisteredOrdersField(),
+                                                static::getPoNumberField(),
+                                                static::getOrderDateField(),
+                                                static::getStatusField(),
+                                                static::getsellerField(),
+                                                static::getBuyerField(),
+                                                static::getIncotermsField(),
+                                                static::getCurrencyField(),
+                                                static::getValidityDateField(),
+                                                static::getExpectedDeliveryDateField(),
+                                            ])->columns(3),
 
-                \Filament\Schemas\Components\Group::make()
-                    ->schema([
-                        Section::make(__('resources/purchaseOrder/strings.form.section_shipping_notes'))
-                            ->schema([
-                                static::getTotalQuantityField(),
-                                static::getTotalAmountField(),
-                                static::getPackingDetailsField(),
-                                static::getShippingAddressField(),
-                                static::getNotesField(),
-                                FormComponents::getAttachmentsField(),
-                            ])->columns(4)
+
+                                        Section::make(__('resources/purchaseOrder/strings.form.section_items'))
+                                            ->heading(__('resources/purchaseOrder/strings.form.section_items'))
+                                            ->schema([
+                                                Repeater::make('items')
+                                                    ->hiddenLabel()
+                                                    ->relationship()
+                                                    ->schema([
+                                                        static::getItemProductIdField(),
+                                                        static::getItemUnitField(),
+                                                        static::getItemQuantityField(),
+                                                        static::getItemUnitPriceField(),
+                                                        static::getItemNetWeightField(),
+                                                        static::getItemGrossWeightField(),
+                                                        static::getItemNotesToggle(),
+                                                        static::getItemDescriptionField(),
+                                                    ])
+                                                    ->columns(8)
+                                                    ->defaultItems(0)
+                                                    ->live(true)
+                                                    ->addActionLabel(__('resources/purchaseOrder/strings.form.add_item_action'))
+                                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotal($get, $set))
+                                                    ->afterStateHydrated(fn(Get $get, Set $set) => static::updateTotal($get, $set))
+//                                                  ->afterStateHydrated(fn($component, $state, $get) => ($items = $get('items')) ? $component->state($items) : null)
+                                                    ->mutateRelationshipDataBeforeFillUsing(fn(array $data): array => $data)
+                                                    ->addAction(fn($action) => $action->after(fn(Get $get, Set $set) => static::updateTotal($get, $set)))
+                                                    ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => self::updateTotal($get, $set)))])
+                                    ])
+                                    ->columnSpan(['lg' => 2]),
+
+                                \Filament\Schemas\Components\Group::make()
+                                    ->schema([
+                                        Section::make(__('resources/purchaseOrder/strings.form.section_shipping_notes'))
+                                            ->schema([
+                                                static::getTotalQuantityField(),
+                                                static::getTotalAmountField(),
+                                                static::getPackingDetailsField(),
+                                                static::getShippingAddressField(),
+                                                static::getNotesField(),
+                                                FormComponents::getAttachmentsField(),
+                                            ])->columns(4)
+                                    ])
+                                    ->columnSpan(['lg' => 1]),
+                            ])
+                            ->columns(3),
+                        static::getExtraAttributesFormTab(),
                     ])
-                    ->columnSpan(['lg' => 1]),
-            ])
-            ->columns(3);
+                    ->columnSpanFull(),
+            ]);
     }
 
     public static function getEloquentQuery(): Builder
@@ -137,6 +147,7 @@ class PurchaseOrderResource extends Resource
                 'creator',
                 'updater',
                 'attachments',
+                'extraAttributes',
                 'currency',
                 'items',
                 'items.product',
@@ -280,6 +291,7 @@ class PurchaseOrderResource extends Resource
                         $record?->attachments->count() ?? 0,
                         'info'
                     )),
+                static::getExtraAttributesInfolistTab(),
             ])->columnSpanFull(),
         ]);
     }

@@ -16,7 +16,6 @@ class LanguageSwitcher
                 ->outsidePanelPlacement(
                     config('language-switch.outside_panel_placement', Placement::BottomRight)
                 )
-                ->circular()
                 ->flags([
                     'fa' => Vite::asset('resources/img/flags/iran.svg'),
                     'en' => Vite::asset('resources/img/flags/usa.svg'),

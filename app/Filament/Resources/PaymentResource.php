@@ -14,6 +14,7 @@ use App\Filament\Resources\Operational\PaymentResource\Traits\Form as PaymentFor
 use App\Filament\Resources\Operational\PaymentResource\Traits\Infolist as PaymentInfolist;
 use App\Filament\Resources\Operational\PaymentResource\Traits\Table as PaymentTable;
 use App\Filament\Resources\Operational\PaymentResource\Traits\VisibilityCheck;
+use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\BankProfile;
 use App\Models\Payment;
@@ -48,7 +49,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PaymentResource extends Resource
 {
-    use PaymentForm, PaymentTable, PaymentFilters, PaymentInfolist, VisibilityCheck, HasResourcePermissions;
+    use PaymentForm, PaymentTable, PaymentFilters, PaymentInfolist, VisibilityCheck, HasResourcePermissions, HasExtraAttributesManagement;
 
     protected static ?string $model = Payment::class;
 
@@ -145,6 +146,7 @@ class PaymentResource extends Resource
                                     ->hidden(fn(Get $get): bool => !static::isTargetSelected($get))
                                     ->columnSpan(['lg' => 1]),
                             ])->columns(3),
+                        static::getExtraAttributesFormTab(),
                     ])
                     ->columnSpan('full'),
             ]);
@@ -157,6 +159,7 @@ class PaymentResource extends Resource
                 'creator',
                 'updater',
                 'attachments',
+                'extraAttributes',
                 'payor',
                 'payee',
                 'currency',
@@ -295,6 +298,7 @@ class PaymentResource extends Resource
                             $record?->attachments->count() ?? 0,
                             'info'
                         )),
+                    static::getExtraAttributesInfolistTab(),
                 ])->columnSpanFull(),
             ]);
     }

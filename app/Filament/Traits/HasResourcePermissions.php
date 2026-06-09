@@ -7,8 +7,7 @@ use Illuminate\Support\Str;
 trait HasResourcePermissions
 {
     /**
-     * Derives the singular snake_case permission prefix from the model class name.
-     * Bank → bank, BankProfile → bank_profile, ProformaInvoice → proforma_invoice
+     * Derives the singular snake_case permission prefix from the model class name, ie ProformaInvoice → proforma_invoice
      */
     public static function getPermissionPrefix(): string
     {

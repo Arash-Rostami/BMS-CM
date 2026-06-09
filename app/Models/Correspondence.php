@@ -8,14 +8,12 @@ use App\Models\Traits\Correspondence\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Correspondence extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use SoftDeletes,
         Relationships,
         HasCorrespondenceBodyField,
         HasThreadGroup,
@@ -48,7 +46,7 @@ class Correspondence extends Model
     protected function conversationId(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->parent_id ?? $this->id,
+            get: fn() => $this->parent_id ?? $this->id,
         );
     }
 }

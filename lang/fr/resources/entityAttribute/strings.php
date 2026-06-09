@@ -10,6 +10,11 @@ return [
         'entity_id' => 'ID de l\'enregistrement',
         'key' => 'Clé',
         'value' => 'Valeur',
+        'add_attribute_action' => 'Ajouter un attribut',
+    ],
+    'infolist' => [
+        'key' => 'Clé',
+        'value' => 'Valeur',
     ],
     'table' => [
         'entity_type' => 'Entité',

@@ -3,14 +3,12 @@
 namespace App\Models;
 
 use App\Models\Traits\RegisteredOrderItem\Relationships;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RegisteredOrderItem extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use SoftDeletes,
         Relationships;
 
     protected $fillable = [

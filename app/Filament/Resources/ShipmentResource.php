@@ -14,6 +14,7 @@ use App\Filament\Resources\Operational\ShipmentResource\Traits\Filters as Shipme
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Form as ShipmentForm;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Infolist as ShipmentInfolist;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Table as ShipmentTable;
+use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Shipment;
 use App\Services\SmartCacheManager;
@@ -43,7 +44,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ShipmentResource extends Resource
 {
-    use ShipmentForm, ShipmentTable, ShipmentFilters, ShipmentInfolist, HasResourcePermissions;
+    use ShipmentForm, ShipmentTable, ShipmentFilters, ShipmentInfolist, HasResourcePermissions, HasExtraAttributesManagement;
 
     protected static ?string $model = Shipment::class;
 
@@ -132,6 +133,7 @@ class ShipmentResource extends Resource
                                             ])->columns(1),
                                     ])->columnSpan(['lg' => 1]),
                             ])->columns(3),
+                        static::getExtraAttributesFormTab(),
                     ])
                     ->columnSpanFull(),
             ]);
@@ -143,6 +145,7 @@ class ShipmentResource extends Resource
             ->with([
                 'creator',
                 'updater',
+                'extraAttributes',
                 'registeredOrder',
                 'carrier',
                 'status',
@@ -299,7 +302,8 @@ class ShipmentResource extends Resource
                                 'info'
                             ))
                             ->icon('heroicon-o-paper-clip')
-                            ->schema([Section::make()->schema([static::viewAttachments()])])
+                            ->schema([Section::make()->schema([static::viewAttachments()])]),
+                        static::getExtraAttributesInfolistTab(),
                     ])
                     ->columnSpanFull(),
             ]);

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Contracts\HasDocumentChecklist;
+use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\Shipment\HasFormattedName;
@@ -18,6 +19,7 @@ class Shipment extends Model implements HasDocumentChecklist
         HasFormattedName,
         HasPartSelection,
         HasSearchableRelations,
+        HasCustomAttributes,
         Relationships,
         SoftDeletes,
         UserStamps;

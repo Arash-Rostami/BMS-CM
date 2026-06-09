@@ -27,6 +27,7 @@ return [
     ],
     'form' => [
         // Section Titles
+        'tab_general' => 'عمومی',
         'section_order_details' => 'جزئیات سفارش',
         'section_items' => 'کالاهای سفارش',
         'section_shipping_notes' => 'حمل و نقل و یادداشت‌ها',

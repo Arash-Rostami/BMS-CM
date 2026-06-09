@@ -18,6 +18,7 @@ return [
         ],
     ],
     'form' => [
+        'tab_general' => 'General',
         'request_details' => 'Request Details',
         'pr_number' => 'Purchase Request No.',
         'requester' => 'Requester',
