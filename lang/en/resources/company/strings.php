@@ -17,7 +17,7 @@ return [
         'company_classification' => 'Classification',
         'classification_description' => 'Define the business types and roles of this company',
         'company_types' => 'Company Types',
-        'company_types_description' => 'Select one or more types that describe this company',
+        'company_types_helper' => 'Select one or more types that describe this company',
         'company_types_description' => 'Choose multiple types to define what kind of business this company operates',
         'creator' => 'Created By',
         'updater' => 'Last Updated By',
@@ -31,6 +31,7 @@ return [
         'validation_english_name_unique' => 'This English name is already taken.',
         'helper_name' => 'Type the name in Persian only; entries with non-Persian characters will be rejected on save.',
         'helper_english_name' => 'Use the official English name, as it appears on reports and shared documents.',
+        'helper_description' => 'Add any additional notes or details about this company.',
     ],
     'table' => [
         'name' => 'Name (Persian)',

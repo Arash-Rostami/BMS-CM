@@ -30,7 +30,8 @@ trait Form
             ->label(__('resources/company/strings.form.description'))
             ->maxLength(65535)
             ->columnSpanFull()
-            ->nullable();
+            ->nullable()
+            ->helperText(__('resources/company/strings.form.helper_description'));
     }
 
     public static function getEnglishName(): TextInput
