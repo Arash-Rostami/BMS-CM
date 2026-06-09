@@ -102,7 +102,8 @@ trait Form
             ->validationAttribute(__('resources/correspondence/strings.form.priority'))
             ->validationMessages([
                 'required' => __('resources/correspondence/strings.form.validation_required'),
-            ]);
+            ])
+            ->helperText(__('resources/correspondence/strings.form.helper_priority'));
     }
 
     public static function getRecipientsCcField(): TagsInput
