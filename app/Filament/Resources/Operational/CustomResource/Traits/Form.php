@@ -61,7 +61,8 @@ trait Form
             ->options(__('resources/custom/strings.general.clearance_types'))
             ->native(false)
             ->searchable()
-            ->preload();
+            ->preload()
+            ->helperText(__('resources/custom/strings.form.helper_clearance_type'));
     }
 
     public static function getCommitmentBalanceField(): TextInput
