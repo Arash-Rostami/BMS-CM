@@ -27,6 +27,7 @@ return [
     ],
     'form' => [
         // Section Titles
+        'tab_general' => 'Général',
         'section_order_details' => 'Détails de la commande',
         'section_items' => 'Articles de la commande',
         'section_shipping_notes' => 'Livraison & Notes',

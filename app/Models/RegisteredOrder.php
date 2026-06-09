@@ -2,30 +2,30 @@
 
 namespace App\Models;
 
+use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\SellerEntity;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\RegisteredOrder\HasFormattedName;
 use App\Models\Traits\RegisteredOrder\HasSearchableRelations;
 use App\Models\Traits\RegisteredOrder\Relationships as ExclusiveRelationships;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RegisteredOrder extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use SoftDeletes,
         Relationships,
         ExclusiveRelationships,
         HasFormattedName,
         HasSearchableRelations,
         SellerEntity,
+        HasCustomAttributes,
         UserStamps;
 
 
-   public const SCANNABLE_TABLE = 'registered_orders';
-   public  const SCANNABLE_IDENTIFIER = 'ro_number';
+    public const SCANNABLE_TABLE = 'registered_orders';
+    public const SCANNABLE_IDENTIFIER = 'ro_number';
 
     public const TYPE_REGISTERED_ORDER = 'Registered Order Status';
 
@@ -53,7 +53,7 @@ class RegisteredOrder extends Model
         'order_date' => 'date',
         'validity_date' => 'date',
         'expected_delivery_date' => 'date',
-        'insurance_date'        => 'date'
+        'insurance_date' => 'date'
     ];
 
 }

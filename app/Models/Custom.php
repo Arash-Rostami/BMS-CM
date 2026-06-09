@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\Custom\HasFormattedName;
 use App\Models\Traits\Custom\HasSearchableRelations;
 use App\Models\Traits\Custom\Relationships as ExclusiveRelationships;
+use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +19,7 @@ class Custom extends Model
         ExclusiveRelationships,
         HasFormattedName,
         HasSearchableRelations,
+        HasCustomAttributes,
         UserStamps;
 
     const SCANNABLE_TABLE = 'customs';

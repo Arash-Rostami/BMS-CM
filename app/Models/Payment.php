@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\Payment\HasComputedAttributes;
@@ -21,6 +22,7 @@ class Payment extends Model
         HasSearchableRelations,
         HasComputedAttributes,
         HasTargetableDisplay,
+        HasCustomAttributes,
         UserStamps;
 
     const SCANNABLE_TABLE = 'payments';

@@ -2,22 +2,22 @@
 
 namespace App\Models;
 
+use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\ProformaInvoice\HasFormattedName;
 use App\Models\Traits\ProformaInvoice\HasSearchableRelations;
 use App\Models\Traits\ProformaInvoice\Relationships as ExclusiveRelationships;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProformaInvoice extends Model
 {
-    use HasFactory,
-        SoftDeletes,
+    use SoftDeletes,
         Relationships,
         HasFormattedName,
         HasSearchableRelations,
+        HasCustomAttributes,
         ExclusiveRelationships,
         UserStamps;
 

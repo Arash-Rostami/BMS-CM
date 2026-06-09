@@ -3,15 +3,12 @@
 namespace App\Models;
 
 use App\Models\Traits\PurchaseRequestItem\Relationships;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PurchaseRequestItem extends Model
 {
-    use HasFactory,
-        SoftDeletes,
-        Relationships;
+    use SoftDeletes, Relationships;
 
     public const TYPE_PURCHASE_REQUEST = 'Purchase Item Status';
 

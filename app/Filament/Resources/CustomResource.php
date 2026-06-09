@@ -14,6 +14,7 @@ use App\Filament\Resources\Operational\CustomResource\Traits\Form as CustomForm;
 use App\Filament\Resources\Operational\CustomResource\Traits\Infolist as CustomInfolist;
 use App\Filament\Resources\Operational\CustomResource\Traits\Table as CustomTable;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\CorrespondenceRelationManager;
+use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Custom;
 use App\Services\SmartCacheManager;
@@ -42,7 +43,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomResource extends Resource
 {
-    use CustomForm, CustomTable, CustomFilters, CustomInfolist, HasResourcePermissions;
+    use CustomForm, CustomTable, CustomFilters, CustomInfolist, HasResourcePermissions, HasExtraAttributesManagement;
 
     protected static ?string $model = Custom::class;
 
@@ -109,6 +110,7 @@ class CustomResource extends Resource
                                     ])->columnSpan(['lg' => 2]),
 
                             ])->columns(4),
+                        static::getExtraAttributesFormTab(),
                     ])
                     ->columnSpanFull(),
             ]);
@@ -120,6 +122,7 @@ class CustomResource extends Resource
             ->with([
                 'creator',
                 'updater',
+                'extraAttributes',
                 'registeredOrder',
                 'clearanceStatus',
                 'bankGuaranteeStatus',
@@ -255,6 +258,7 @@ class CustomResource extends Resource
                                 $record?->attachments->count() ?? 0,
                                 'info'
                             )),
+                        static::getExtraAttributesInfolistTab(),
                     ])
                     ->columnSpanFull(),
             ]);

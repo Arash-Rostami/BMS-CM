@@ -10,7 +10,6 @@ use App\Models\Traits\General\HasProductCategoryFormatting;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\SearchTargetable;
 use App\Models\Traits\General\UserStamps;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 

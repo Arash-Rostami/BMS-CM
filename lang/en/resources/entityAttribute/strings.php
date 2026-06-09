@@ -10,6 +10,11 @@ return [
         'entity_id' => 'Record ID',
         'key' => 'Key',
         'value' => 'Value',
+        'add_attribute_action' => 'Add Attribute',
+    ],
+    'infolist' => [
+        'key' => 'Key',
+        'value' => 'Value',
     ],
     'table' => [
         'entity_type' => 'Entity',
