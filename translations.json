@@ -1,0 +1,50 @@
+{
+  "dashboard/strings.php": {
+    "shortcuts_pinned": { "en": "shortcuts pinned", "fr": "raccourcis épinglés", "fa": "میانبرهای پین‌شده" },
+    "resources.registered_orders": { "en": "Registered orders", "fr": "Commandes enregistrées", "fa": "ثبت سفارشها" },
+    "resources.bank_profiles": { "en": "Bank profiles", "fr": "Profils bancaires", "fa": "پروفایل‌های بانکی" },
+    "resources.shipments": { "en": "Shipments & Logistics", "fr": "Expéditions et logistique", "fa": "محموله‌ها و لاجیستیک" },
+    "resources.customs": { "en": "Customs clearance", "fr": "Dédouanement", "fa": "امور گمرکی و ترخیص" }
+  },
+  "resources/user/strings.php": {
+    "filter.department": { "en": "Department", "fr": "Département", "fa": "دپارتمان" },
+    "filter.role": { "en": "Role", "fr": "Rôle", "fa": "نقش" },
+    "filter.status": { "en": "Status", "fr": "Statut", "fa": "وضعیت" },
+    "filter.position": { "en": "Position", "fr": "Poste", "fa": "موقعیت" },
+    "filter.company": { "en": "Company", "fr": "Entreprise", "fa": "شرکت" },
+    "filter.trashed": { "en": "Trashed", "fr": "Corbeille", "fa": "حذف شده‌ها" }
+  },
+  "resources/registeredOrder/strings.php": {
+    "form.validation_attachments_type": { "en": "Invalid attachment type", "fr": "Type de pièce jointe invalide", "fa": "نوع پیوست نامعتبر است" },
+    "form.validation_attachments_size": { "en": "Attachment size is too large", "fr": "La taille de la pièce jointe est trop grande", "fa": "حجم پیوست خیلی زیاد است" }
+  },
+  "resources/purchaseRequest/strings.php": {
+    "form.id": { "en": "ID", "fr": "ID", "fa": "شناسه" },
+    "form.validation_attachments_max_files": { "en": "Maximum files reached", "fr": "Nombre maximum de fichiers atteint", "fa": "تعداد فایل‌ها بیش از حد مجاز است" },
+    "form.validation_attachments_type": { "en": "Invalid attachment type", "fr": "Type de pièce jointe invalide", "fa": "نوع پیوست نامعتبر است" },
+    "form.validation_attachments_size": { "en": "Attachment size is too large", "fr": "La taille de la pièce jointe est trop grande", "fa": "حجم پیوست خیلی زیاد است" },
+    "form.validation_item_attachments_max_files": { "en": "Maximum files reached", "fr": "Nombre maximum de fichiers atteint", "fa": "تعداد فایل‌ها بیش از حد مجاز است" },
+    "form.validation_item_attachments_type": { "en": "Invalid attachment type", "fr": "Type de pièce jointe invalide", "fa": "نوع پیوست نامعتبر است" },
+    "form.validation_item_attachments_size": { "en": "Attachment size is too large", "fr": "La taille de la pièce jointe est trop grande", "fa": "حجم پیوست خیلی زیاد است" }
+  },
+  "resources/payment/strings.php": {
+    "table.creator": { "en": "Creator", "fr": "Créateur", "fa": "ایجاد کننده" },
+    "table.updater": { "en": "Updater", "fr": "Modificateur", "fa": "بروزرسانی کننده" },
+    "table.updated_at": { "en": "Updated at", "fr": "Mis à jour à", "fa": "تاریخ بروزرسانی" }
+  },
+  "resources/product/strings.php": {
+    "table.choose_action": { "en": "Choose action", "fr": "Choisir l\\'action", "fa": "انتخاب عملیات" },
+    "table.action_check": { "en": "Check", "fr": "Vérifier", "fa": "بررسی" },
+    "table.action_create": { "en": "Create", "fr": "Créer", "fa": "ایجاد" },
+    "table.section_check": { "en": "Check Product", "fr": "Vérifier le produit", "fa": "بررسی محصول" },
+    "table.section_create": { "en": "Create Product", "fr": "Créer un produit", "fa": "ایجاد محصول" }
+  },
+  "resources/proformaInvoice/strings.php": {
+    "form.validation.attachments_type": { "en": "Invalid attachment type", "fr": "Type de pièce jointe invalide", "fa": "نوع پیوست نامعتبر است" },
+    "form.validation.attachments_size": { "en": "Attachment size is too large", "fr": "La taille de la pièce jointe est trop grande", "fa": "حجم پیوست خیلی زیاد است" }
+  },
+  "resources/purchaseOrder/strings.php": {
+    "form.validation_attachments_type": { "en": "Invalid attachment type", "fr": "Type de pièce jointe invalide", "fa": "نوع پیوست نامعتبر است" },
+    "form.validation_attachments_size": { "en": "Attachment size is too large", "fr": "La taille de la pièce jointe est trop grande", "fa": "حجم پیوست خیلی زیاد است" }
+  }
+}

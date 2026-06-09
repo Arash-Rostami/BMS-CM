@@ -68,7 +68,7 @@ return [
         'hs_code' => 'کد تعرفه (HS Code)',
         'net_weight' => 'وزن خالص',
         'gross_weight' => 'وزن ناخالص',
-        'add_notes' =>  'توضیحات ',
+        'add_notes' => 'توضیحات ',
         'item_description' => 'توضیحات ',
         'item_freight_charges' => 'هزینه حمل (هر واحد)',
         'item_total_amount' => 'مبلغ کل کالا ⚡',
@@ -137,8 +137,12 @@ return [
             'min_numeric' => ':attribute باید حداقل :min باشد.',
             'gte_net_weight' => 'وزن ناخالص باید بزرگتر یا مساوی وزن خالص باشد.',
             'max_string' => 'فیلد :attribute نمی‌تواند بیش از :max کاراکتر باشد.',
+            'attachments_type' => 'نوع پیوست نامعتبر است',
+            'attachments_size' => 'حجم پیوست خیلی زیاد است',
         ],
-            'helper_delivery_terms' => 'قاعدهٔ اینکوترمز حاکم بر این محموله را انتخاب کنید.',
+        'helper_delivery_terms' => 'قاعدهٔ اینکوترمز حاکم بر این محموله را انتخاب کنید.',
+        'item_english_description' => 'توضیحات انگلیسی',
+        'shipment_info' => 'اطلاعات حمل',
     ],
     'table' => [
         'id' => 'شناسه',
@@ -166,7 +170,6 @@ return [
         'invoice_date_until' => 'تاریخ  پیش فاکتور (تا)',
         'has_purchase_requests' => 'دارای درخواست خرید',
         'has_purchase_orders' => 'دارای سفارش خرید',
-
     ],
     'infolist' => [
         'tab_general' => 'عمومی',

@@ -56,10 +56,10 @@ return [
         'validation_password_max' => 'Le mot de passe ne peut pas dépasser 255 caractères.',
         'validation_password_confirmation_max' => 'La confirmation du mot de passe ne peut pas dépasser 255 caractères.',
         'validation_company_max' => 'Le nom de l\'entreprise ne peut pas dépasser 255 caractères.',
-            'helper_department' => 'Attribuez l\'utilisateur à un département pour le routage et les approbations.',
-            'helper_position' => 'Sélectionnez le rôle/la position organisationnelle.',
-            'helper_status' => 'Les utilisateurs actifs peuvent se connecter ; les utilisateurs suspendus ne le peuvent pas.',
-            'helper_roles' => 'Accordez des autorisations système spécifiques en attribuant des rôles.',
+        'helper_department' => 'Attribuez l\'utilisateur à un département pour le routage et les approbations.',
+        'helper_position' => 'Sélectionnez le rôle/la position organisationnelle.',
+        'helper_status' => 'Les utilisateurs actifs peuvent se connecter ; les utilisateurs suspendus ne le peuvent pas.',
+        'helper_roles' => 'Accordez des autorisations système spécifiques en attribuant des rôles.',
     ],
     'table' => [
         'id' => 'ID',
@@ -85,6 +85,6 @@ return [
         'status' => 'Statut',
         'position' => 'Poste',
         'company' => 'Entreprise',
-        'trashed' => 'Enregistrements supprimés',
-    ]
+        'trashed' => 'Corbeille',
+    ],
 ];

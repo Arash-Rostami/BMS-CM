@@ -9,7 +9,7 @@ return [
     'form' => [
         'tabs' => [
             'general' => 'General',
-            'financials' => 'Financials & Bank'
+            'financials' => 'Financials & Bank',
         ],
         'section_main' => 'Payment Details',
         'section_financial' => 'Financial Details',
@@ -50,7 +50,6 @@ return [
             'bank_charges' => 'Bank charges — fees charged by the bank; these will be added to the payable amount.',
             'exchange_rate' => 'Exchange rate — the USD→Rial rate used on the day the payment record is created.',
         ],
-
         'validation_required' => 'This field is required.',
         'validation_numeric' => 'This field must be a number.',
         'validation_min_numeric_zero' => 'This field cannot be negative.',
@@ -59,7 +58,7 @@ return [
         'validation_max_length' => 'Please keep this to 255 characters or fewer.',
         'helper_iban' => 'Double-check the IBAN before saving — a single wrong digit can send funds to the wrong account.',
         'helper_targetable' => 'Choose what this payment is for first; it unlocks the currency, status, and date fields and drives the calculated totals.',
-            'helper_status' => 'Current status of the payment in the pipeline.',
+        'helper_status' => 'Current status of the payment in the pipeline.',
     ],
     'table' => [
         'id' => 'ID',
@@ -74,7 +73,7 @@ return [
         'creator' => 'Creator',
         'updater' => 'Updater',
         'created_at' => 'Created At',
-        'updated_at' => 'Updated At',
+        'updated_at' => 'Updated at',
     ],
     'filters' => [
         'payor' => 'Payor',
@@ -101,6 +100,6 @@ return [
         'creator' => 'Creator',
         'updater' => 'Updater',
         'created_at' => 'Created At',
-        'updated_at' => 'Updated At'
+        'updated_at' => 'Updated At',
     ],
 ];

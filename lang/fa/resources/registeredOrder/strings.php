@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'ثبت سفارش',
@@ -21,11 +20,11 @@ return [
             'fob' => 'FOB (تحویل روی عرشه کشتی)',
         ],
         'currency_types' => [
-            'export'             => 'صادرات',
-            'exchange_center_1'  => 'مرکز مبادلات یک',
-            'exchange_center_2'  => 'مرکز مبادلات دوم',
-            'individuals'        => 'اشخاص',
-            'other'              => 'سایر',
+            'export' => 'صادرات',
+            'exchange_center_1' => 'مرکز مبادلات یک',
+            'exchange_center_2' => 'مرکز مبادلات دوم',
+            'individuals' => 'اشخاص',
+            'other' => 'سایر',
         ],
     ],
     'form' => [
@@ -60,7 +59,7 @@ return [
         'insurance_provider' => 'ارائه‌دهنده بیمه',
         'insurance_date' => 'تاریخ بیمه',
         'notes' => 'یادداشت‌ها',
-        'add_notes' =>  'توضیحات ',
+        'add_notes' => 'توضیحات ',
         'item_description' => 'توضیحات ',
         'total_quantity' => 'مقدار کل',
         'total_amount' => 'مبلغ کل',
@@ -78,8 +77,6 @@ return [
         'attachments' => 'پیوست‌ها',
         'add_item' => 'افزودن کالا',
         'official_registration_no' => 'شماره/کد ثبت سفارش',
-
-
         'validation_required' => 'لطفاً :attribute را برای ادامه تکمیل کنید.',
         'validation_unique' => 'این :attribute قبلاً استفاده شده است، لطفاً مقدار دیگری وارد کنید.',
         'validation_max_string' => ':attribute بیش از حد طولانی است، لطفاً آن را کمتر از :max کاراکتر نگه دارید.',
@@ -89,7 +86,6 @@ return [
         'validation_numeric' => ':attribute باید عدد باشد، لطفاً حروف و نمادها را حذف کنید.',
         'validation_min_numeric' => ':attribute باید حداقل :min باشد، لطفاً مقدار بزرگ‌تری وارد کنید.',
         'validation_min_numeric_zero' => ':attribute نمی‌تواند منفی باشد، لطفاً صفر یا بیشتر وارد کنید.',
-
         'helper_ro_number' => 'این شماره به‌طور خودکار تولید و قفل می‌شود تا سفارش‌ها تکراری نشوند.',
         'helper_seller' => 'نام شرکتی که قرار است کالا را تأمین کند در اینجا وارد کنید (نمی‌تواند با خریدار یکی باشد).',
         'helper_expected_delivery_date' => 'تاریخ پیش‌بینی شده برای تحویل سفارش را تعیین کنید (باید پس از تاریخ سفارش باشد).',
@@ -97,7 +93,9 @@ return [
         'helper_unit_price' => 'با وارد کردن قیمت هر واحد، جمع کل این ردیف به‌طور خودکار محاسبه می‌شود.',
         'helper_source_type' => 'با انتخاب نوع سند مبدأ، اقلام سفارش به‌طور خودکار بارگذاری می‌شوند. لطفاً پیش از افزودن دستی محصولات، این مورد را مشخص کنید.',
         'helper_validity_date' => 'برای تعیین مدت‌زمان معتبر بودن این سفارش، تاریخی را مشخص کنید (باید مساوی یا پس از تاریخ سفارش باشد).',
-            'helper_status' => 'وضعیت کنونی ثبت در سامانه‌های دولتی.',
+        'helper_status' => 'وضعیت کنونی ثبت در سامانه‌های دولتی.',
+        'validation_attachments_type' => 'نوع پیوست نامعتبر است',
+        'validation_attachments_size' => 'حجم پیوست خیلی زیاد است',
     ],
     'table' => [
         'related_to' => 'مرتبط با',

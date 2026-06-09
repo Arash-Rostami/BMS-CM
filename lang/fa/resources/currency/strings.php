@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'ارز',
@@ -21,7 +20,8 @@ return [
         'validation_english_name_required' => 'لطفاً نام انگلیسی را وارد کنید.',
         'validation_english_name' => 'فقط حروف انگلیسی مجاز هستند.',
         'validation_english_name_unique' => 'این نام انگلیسی قبلاً ثبت شده است.',
-
+        'helper_english_name' => 'نام انگلیسی ارز',
+        'helper_name' => 'نام ارز',
     ],
     'table' => [
         'name' => 'نام (فارسی)',

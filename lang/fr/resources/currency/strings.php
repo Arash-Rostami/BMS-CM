@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'Devise',
@@ -21,6 +20,8 @@ return [
         'validation_english_name_required' => 'Veuillez saisir le nom en anglais.',
         'validation_english_name' => 'Seuls les caractères anglais sont autorisés.',
         'validation_english_name_unique' => 'Ce nom anglais existe déjà.',
+        'helper_english_name' => 'Nom de la devise en anglais',
+        'helper_name' => 'Nom de la devise',
     ],
     'table' => [
         'name' => 'Nom (Persan)',

@@ -26,7 +26,10 @@ return [
         ],
     ],
     'form' => [
-        'tabs' => ['general' => 'عمومی', 'details' => 'وضعیت حواله ارزی'],
+        'tabs' => [
+            'general' => 'عمومی',
+            'details' => 'وضعیت حواله ارزی',
+        ],
         'section_main' => 'جزئیات پروفایل',
         'section_dates_notes' => 'تاریخ‌ها، یادداشت‌ها و پیوست‌ها',
         'section_financial' => 'ارزها',
@@ -34,7 +37,6 @@ return [
         'section_dates' => 'تاریخ‌های کلیدی',
         'section_notes' => 'یادداشت‌ها',
         'section_summary' => '⚡خلاصه محاسبه‌شده',
-
         'bp_number' => 'شماره پروفایل بانکی',
         'status' => 'وضعیت',
         'registered_order' => 'ثبت سفارش',
@@ -76,7 +78,6 @@ return [
             'conversion_rate' => 'نرخ تبدیل — به‌صورت خودکار بین ارز درخواستی و خریداری‌شده محاسبه می‌شود.',
             'eur_equivalent_rate' => 'نرخ معادل یورو — معادل نرخ بر حسب یورو که به‌صورت خودکار محاسبه می‌شود و نیازی به ورود دستی ندارد.',
         ],
-
         'summary_commission_amount' => 'مبلغ کارمزد',
         'summary_commission_equivalent' => 'معادل کارمزد',
         'summary_final_equivalent' => 'معادل نهایی',
@@ -84,20 +85,21 @@ return [
         'summary_total_rial' => 'جمع (ریال، خالص)',
         'summary_total_purchased' => 'جمع مبلغ خریداری‌شده',
         'summary_total_requested' => 'جمع مبلغ معادل',
-
         'validation_required' => 'این فیلد الزامی است.',
         'validation_numeric' => 'این فیلد باید عدد باشد.',
         'validation_min_numeric_zero' => 'این فیلد نمی‌تواند منفی باشد.',
         'validation_date_after_or_equal' => 'این تاریخ باید برابر یا بعد از :date باشد.',
         'validation_unique' => 'این مقدار قبلاً وجود دارد.',
         'validation_max_length' => 'لطفاً این مقدار را در :max نویسه یا کمتر وارد کنید.',
-
         'helper_commission_input_mode' => '⚡ هوشمند: اگر درصد وارد کنید، مبلغ محاسبه می‌شود. اگر مبلغ را وارد کنید، درصد به دست می‌آید.',
         'helper_commission_amount_purchased' => 'مبلغ دقیق کارمزد بانک را وارد کنید. نرخ معادل به‌طور خودکار محاسبه شده و در تمام محاسبات اعمال می‌شود.',
         'helper_commission_rate' => 'فقط درصد را وارد کنید (مثلاً ۱.۵، نه ۱.۵٪) — این مقدار به نرخ ارز افزوده می‌شود تا نرخ نهایی به‌دست آید.',
         'helper_delivery_date' => 'تاریخ تحویل نمی‌تواند پیش از تاریخ خرید باشد، پس ابتدا تاریخ خرید را تعیین کنید.',
         'helper_requested_amount' => 'این مقدار مبنای همهٔ محاسبات زیر از جمله تعهد باقی‌مانده است؛ پیش از ذخیره آن را با دقت بررسی کنید.',
-            'helper_documents_amount' => 'مجموع ارزش‌گذاری اسناد.',
+        'helper_documents_amount' => 'مجموع ارزش‌گذاری اسناد.',
+        'summary_final_eur' => 'مبلغ نهایی (یورو)',
+        'summary_total_eur' => 'مبلغ کل (یورو)',
+        'summary_total_usd' => 'مبلغ کل (دلار)',
     ],
     'table' => [
         'id' => 'شناسه',

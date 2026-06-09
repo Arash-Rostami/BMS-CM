@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'Commande Enregistrée',
@@ -22,19 +21,19 @@ return [
         ],
         'currency_types' => [
             'export' => 'Exportation',
-            'exchange_center_1' => "Centre d'échange 1",
-            'exchange_center_2' => "Centre d'échange 2",
+            'exchange_center_1' => 'Centre d\'échange 1',
+            'exchange_center_2' => 'Centre d\'échange 2',
             'individuals' => 'Particuliers',
             'other' => 'Autre',
         ],
     ],
     'form' => [
         'tabs' => [
-            'general'   => 'Général',
+            'general' => 'Général',
             'insurance' => 'Assurance',
         ],
         'section_order_details' => 'Détails de la commande',
-        'section_insurance_details' => "Détails d'assurance",
+        'section_insurance_details' => 'Détails d\'assurance',
         'section_line_items' => 'Lignes de commande',
         'section_summary_notes' => 'Résumé & Notes',
         'purchase_requests' => 'Demandes d’achat',
@@ -78,9 +77,6 @@ return [
         'attachments' => 'Pièces Jointes',
         'add_item' => 'Ajouter un Article',
         'official_registration_no' => 'Numéro d\'enregistrement officiel',
-
-
-
         'validation_required' => 'Veuillez renseigner le champ :attribute pour continuer.',
         'validation_unique' => 'Ce :attribute est déjà utilisé, veuillez en saisir un autre.',
         'validation_max_string' => 'Le champ :attribute est trop long, veuillez le limiter à :max caractères.',
@@ -90,9 +86,8 @@ return [
         'validation_numeric' => 'Le champ :attribute doit être un nombre, veuillez retirer les lettres ou symboles.',
         'validation_min_numeric' => 'Le champ :attribute doit être au moins :min, veuillez saisir une valeur plus élevée.',
         'validation_min_numeric_zero' => 'Le champ :attribute ne peut pas être négatif, veuillez saisir zéro ou plus.',
-        'validation_attachments_type' => 'Le type de fichier de :attribute n\'est pas autorisé.',
-        'validation_attachments_size' => 'Le fichier :attribute ne doit pas dépasser :max kilo-octets.',
-
+        'validation_attachments_type' => 'Type de pièce jointe invalide',
+        'validation_attachments_size' => 'La taille de la pièce jointe est trop grande',
         'helper_ro_number' => 'Généré automatiquement et verrouillé pour garantir l\'unicité des commandes enregistrées, ne le modifiez pas sans connaître le schéma de numérotation.',
         'helper_seller' => 'Le fournisseur doit être différent de l\'acheteur, sélectionnez ici la partie qui fournit.',
         'helper_expected_delivery_date' => 'Doit être égale ou postérieure à la date de commande, définissez-la une fois la date de commande fixée.',
@@ -100,7 +95,7 @@ return [
         'helper_unit_price' => 'Prix par unité, le total de la ligne est calculé automatiquement à partir de celui-ci.',
         'helper_source_type' => 'Ce choix détermine les documents source à lier et préremplit les lignes de commande, choisissez-le donc avant d\'ajouter des produits.',
         'helper_validity_date' => 'Définissez cette date égale ou postérieure à la date de commande pour indiquer la durée de validité de la commande.',
-            'helper_status' => 'Statut actuel de l\'enregistrement gouvernemental.',
+        'helper_status' => 'Statut actuel de l\'enregistrement gouvernemental.',
     ],
     'table' => [
         'related_to' => 'Lié aux',
@@ -121,10 +116,10 @@ return [
         'official_registration_no' => 'Numéro d\'enregistrement officiel',
     ],
     'filters' => [
-        'seller'      => 'Vendeur',
+        'seller' => 'Vendeur',
         'supplier' => 'Fournisseur',
         'manufacturer' => 'Fabricant',
-        'buyer'         => 'Acheteur',
+        'buyer' => 'Acheteur',
         'status' => 'Statut',
         'currency' => 'Devise',
         'incoterms' => 'Incoterms',

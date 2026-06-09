@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'Currency',
@@ -20,7 +19,9 @@ return [
         'validation_name_unique' => 'The name already exists.',
         'validation_english_name_required' => 'Please enter the English name.',
         'validation_english_name' => 'Only English characters are allowed.',
-        'validation_english_name_unique' => 'The English name already exists.'
+        'validation_english_name_unique' => 'The English name already exists.',
+        'helper_english_name' => 'English name of the currency',
+        'helper_name' => 'Name of the currency',
     ],
     'table' => [
         'name' => 'Name (Persian)',
