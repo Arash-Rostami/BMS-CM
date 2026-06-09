@@ -9,6 +9,7 @@ use App\Filament\Resources\Master\CompanyResource\Traits\Form as CompanyForm;
 use App\Filament\Resources\Master\CompanyResource\Traits\Infolist as CompanyInfolist;
 use App\Filament\Resources\Master\CompanyResource\Traits\Table as CompanyTable;
 use App\Filament\Traits\HandleActivation;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Company;
 use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
@@ -31,7 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CompanyResource extends Resource
 {
-    use CompanyForm, CompanyTable, CompanyInfolist, CompanyFilters, HandleActivation;
+    use CompanyForm, CompanyTable, CompanyInfolist, CompanyFilters, HandleActivation, HasResourcePermissions;
 
     protected static ?string $model = Company::class;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';

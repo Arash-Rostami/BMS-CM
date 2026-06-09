@@ -9,6 +9,18 @@ trait Calculation
 {
     protected static function updateComputations(Get $get, Set $set): void
     {
+        $mode = $get('commission_input_mode') ?? 'rate';
+
+        if ($mode === 'amount') {
+            $purchased = (float)$get('purchased_equivalent');
+            $amount    = (float)$get('commission_amount_purchased');
+            $backRate  = $purchased > 0 ? round($amount / $purchased * 100, 5) : 0;
+            $set('commission_rate', number_format($backRate, 5, '.', ''));
+        } else {
+            $computedAmount = (float)$get('purchased_equivalent') * ((float)$get('commission_rate') / 100);
+            $set('commission_amount_purchased', $computedAmount);
+        }
+
         $finalRate = static::computeFinalRate($get);
         $set('final_rate', number_format($finalRate, 2, '.', ''));
         $set('final_rate_display', number_format($finalRate, 2, '.', ''));
@@ -16,7 +28,6 @@ trait Calculation
         $conversionRate = static::computeConversionRate($get);
         $set('conversion_rate', number_format($conversionRate, 2, '.', ''));
 
-        $set('commission_amount_purchased', static::computeCommissionAmount($get));
         $set('commission_equivalent', static::computeCommissionEquivalent($get));
         $set('final_equivalent', static::computeFinalEquivalent($get, $finalRate));
         $set('remaining_commitment', static::computeRemaining($get));
@@ -27,6 +38,9 @@ trait Calculation
 
     private static function computeCommissionAmount(Get $get): float
     {
+        if (($get('commission_input_mode') ?? 'rate') === 'amount') {
+            return (float)$get('commission_amount_purchased');
+        }
         return (float)$get('purchased_equivalent') * ((float)$get('commission_rate') / 100);
     }
 
@@ -67,6 +81,14 @@ trait Calculation
     private static function computeFinalRate(Get $get): float
     {
         $exchangeRate = (float)$get('exchange_rate');
+
+        if (($get('commission_input_mode') ?? 'rate') === 'amount') {
+            $purchased = (float)$get('purchased_equivalent');
+            $amount    = (float)$get('commission_amount_purchased');
+            $commissionFraction = $purchased > 0 ? ($amount / $purchased) : 0;
+            return $exchangeRate * (1 + $commissionFraction);
+        }
+
         $commissionRate = (float)$get('commission_rate') / 100;
         return $exchangeRate * (1 + $commissionRate);
     }
@@ -98,5 +120,16 @@ trait Calculation
         if ($purchasedCurrencyId !== 1) return (float)$get('requested_amount') * $exchangeRate;
 
         return (float)$get('purchased_equivalent') * $exchangeRate;
+    }
+
+    private static function computeWaitingDuration(Get $get): ?int
+    {
+        $creation = $get('creation_date');
+        if (!$creation) return null;
+        $start = \Carbon\Carbon::parse($creation);
+        $end   = ($allocation = $get('allocation_date'))
+            ? \Carbon\Carbon::parse($allocation)
+            : now()->startOfDay();
+        return (int) abs($start->diffInDays($end));
     }
 }

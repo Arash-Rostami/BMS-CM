@@ -13,10 +13,10 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -33,6 +33,7 @@ trait Form
             ->label(__('resources/bankProfile/strings.form.allocation_date'))
             ->native(false)
             ->adaptive()
+            ->live(onBlur: true)
             ->validationAttribute(__('resources/bankProfile/strings.form.allocation_date'));
     }
 
@@ -66,6 +67,26 @@ trait Form
             ->validationAttribute(__('resources/bankProfile/strings.form.bp_number'));
     }
 
+    public static function getCommissionInputModeField(): ToggleButtons
+    {
+        return ToggleButtons::make('commission_input_mode')
+            ->label(__('resources/bankProfile/strings.form.commission_input_mode'))
+            ->options([
+                'rate'   => __('resources/bankProfile/strings.form.commission_mode_rate'),
+                'amount' => __('resources/bankProfile/strings.form.commission_mode_amount'),
+            ])
+            ->icons([
+                'rate'   => 'heroicon-m-percent-badge',
+                'amount' => 'heroicon-m-banknotes',
+            ])
+            ->grouped()
+            ->default('rate')
+            ->live()
+            ->afterStateUpdated(fn(Get $get, Set $set) => static::updateComputations($get, $set))
+            ->helperText(__('resources/bankProfile/strings.form.helper_commission_input_mode'))
+            ->columnSpanFull();
+    }
+
     public static function getCommissionRateField(): TextInput
     {
         return TextInput::make('commission_rate')
@@ -73,6 +94,9 @@ trait Form
             ->numeric()
             ->minValue(0)
             ->live(onBlur: true)
+            ->readOnly(fn(Get $get) => ($get('commission_input_mode') ?? 'rate') !== 'rate')
+            ->dehydrated(true)
+            ->columnSpan(1)
             ->afterStateUpdated(fn(Get $get, Set $set) => static::updateComputations($get, $set))
             ->validationMessages([
                 'numeric' => __('resources/bankProfile/strings.form.validation_numeric'),
@@ -87,6 +111,31 @@ trait Form
             ->hint(fn(Get $get) => is_numeric($get('commission_rate')) ? delimiter($get('commission_rate')) : $get('commission_rate'))
             ->helperText(__('resources/bankProfile/strings.form.helper_commission_rate'))
             ->validationAttribute(__('resources/bankProfile/strings.form.commission_rate'));
+    }
+
+    public static function getCommissionAmountPurchasedField(): TextInput
+    {
+        return TextInput::make('commission_amount_purchased')
+            ->label(__('resources/bankProfile/strings.form.summary_commission_amount'))
+            ->numeric()
+            ->minValue(0)
+            ->live(onBlur: true)
+            ->readOnly(fn(Get $get) => ($get('commission_input_mode') ?? 'rate') !== 'amount')
+            ->columnSpan(1)
+            ->afterStateUpdated(fn(Get $get, Set $set) => static::updateComputations($get, $set))
+            ->validationMessages([
+                'numeric' => __('resources/bankProfile/strings.form.validation_numeric'),
+                'min'     => __('resources/bankProfile/strings.form.validation_min_numeric_zero'),
+            ])
+            ->hintAction(
+                Action::make('help')
+                    ->icon('heroicon-o-question-mark-circle')
+                    ->label('')
+                    ->tooltip(__('resources/bankProfile/strings.form.tooltips.commission_amount_purchased'))
+            )
+            ->hint(fn(Get $get) => is_numeric($get('commission_amount_purchased')) ? delimiter($get('commission_amount_purchased')) : $get('commission_amount_purchased'))
+            ->helperText(__('resources/bankProfile/strings.form.helper_commission_amount_purchased'))
+            ->validationAttribute(__('resources/bankProfile/strings.form.summary_commission_amount'));
     }
 
     public static function getCompanyField(): Select
@@ -126,7 +175,21 @@ trait Form
             ->label(__('resources/bankProfile/strings.form.creation_date'))
             ->native(false)
             ->adaptive()
+            ->live(onBlur: true)
             ->validationAttribute(__('resources/bankProfile/strings.form.creation_date'));
+    }
+
+    public static function getWaitingDurationField(): TextEntry
+    {
+        return TextEntry::make('waiting_duration')
+            ->label(__('resources/bankProfile/strings.form.waiting_duration'))
+            ->columnSpanFull()
+            ->state(function (Get $get): string {
+                $days = static::computeWaitingDuration($get);
+                if ($days === null) return '-';
+
+                return $days . ' ' . __('resources/bankProfile/strings.form.days');
+            });
     }
 
     public static function getCurrencyField(): Select

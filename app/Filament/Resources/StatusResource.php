@@ -8,6 +8,7 @@ use App\Filament\Resources\Master\StatusResource\Traits\Filters as StatusFilters
 use App\Filament\Resources\Master\StatusResource\Traits\Form as StatusForm;
 use App\Filament\Resources\Master\StatusResource\Traits\Infolist as StatusInfolist;
 use App\Filament\Resources\Master\StatusResource\Traits\Table as StatusTable;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Status;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -29,7 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class StatusResource extends Resource
 {
-    use StatusForm, StatusTable, StatusInfolist, StatusFilters;
+    use StatusForm, StatusTable, StatusInfolist, StatusFilters, HasResourcePermissions;
 
     protected static ?string $model = Status::class;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-tag';

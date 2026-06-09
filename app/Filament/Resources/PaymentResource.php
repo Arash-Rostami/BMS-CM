@@ -14,6 +14,7 @@ use App\Filament\Resources\Operational\PaymentResource\Traits\Form as PaymentFor
 use App\Filament\Resources\Operational\PaymentResource\Traits\Infolist as PaymentInfolist;
 use App\Filament\Resources\Operational\PaymentResource\Traits\Table as PaymentTable;
 use App\Filament\Resources\Operational\PaymentResource\Traits\VisibilityCheck;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\BankProfile;
 use App\Models\Payment;
 use App\Models\PurchaseOrder;
@@ -47,7 +48,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PaymentResource extends Resource
 {
-    use PaymentForm, PaymentTable, PaymentFilters, PaymentInfolist, VisibilityCheck;
+    use PaymentForm, PaymentTable, PaymentFilters, PaymentInfolist, VisibilityCheck, HasResourcePermissions;
 
     protected static ?string $model = Payment::class;
 

@@ -583,7 +583,7 @@ body:has(.fi-modal-open) :is(
     top: 0;
     width: 40%;
     height: 100%;
-    background: url("/video/2.webp") no-repeat center center;
+    background: url("../../video/2.webp") no-repeat center center;
     background-size: cover;
     mix-blend-mode: soft-light;
     opacity: 0.38;
@@ -604,12 +604,12 @@ body:has(.fi-modal-open) :is(
     top: 0;
     width: 40%;
     height: 100%;
-    background: url("/video/1.webp") no-repeat center center;
+    background: url("../../video/1.webp") no-repeat center center;
     background-size: cover;
     mix-blend-mode: lighten;
     opacity: 0.28;
     filter: contrast(120%) brightness(85%) saturate(120%) drop-shadow(0 0 20px rgba(0, 180, 255, 0.15));
-    -webkit-mask-image: -webkit-linear-gradient(to left, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
+    -webkit-mask-image: -webkit-linear-gradient(right, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-size: cover;
     mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
@@ -895,27 +895,27 @@ body:has(.fi-modal-open) :is(
 
 @keyframes slide-right {
     0% {
-        transform: translateX(-150%);
+        transform: translateX(-300%);
     }
     100% {
-        transform: translateX(150%);
+        transform: translateX(300%);
     }
 }
 
 @keyframes slide-left {
     0% {
-        transform: translateX(150%);
+        transform: translateX(300%);
     }
     100% {
-        transform: translateX(-150%);
+        transform: translateX(-300%);
     }
 }
 
 @keyframes slide-down {
     0% {
-        transform: translateY(-150%);
+        transform: translateY(-300%);
     }
     100% {
-        transform: translateY(150%);
+        transform: translateY(300%);
     }
 }

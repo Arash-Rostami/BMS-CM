@@ -21,6 +21,7 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Filters as
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Form as RegisteredOrderForm;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Infolist as RegisteredOrderInfolist;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Table as RegisteredOrderTable;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\RegisteredOrder;
 use App\Services\SmartCacheManager;
 use BackedEnum;
@@ -53,7 +54,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class RegisteredOrderResource extends Resource
 {
-    use RegisteredOrderForm, RegisteredOrderTable, RegisteredOrderInfolist, RegisteredOrderFilters;
+    use RegisteredOrderForm, RegisteredOrderTable, RegisteredOrderInfolist, RegisteredOrderFilters, HasResourcePermissions;
 
     protected static ?string $model = RegisteredOrder::class;
 

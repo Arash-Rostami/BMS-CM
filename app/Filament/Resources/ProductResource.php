@@ -9,6 +9,7 @@ use App\Filament\Resources\Master\ProductResource\Traits\Filters as ProductFilte
 use App\Filament\Resources\Master\ProductResource\Traits\Form as ProductForm;
 use App\Filament\Resources\Master\ProductResource\Traits\Infolist as ProductInfolist;
 use App\Filament\Resources\Master\ProductResource\Traits\Table as ProductTable;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Product;
 use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
@@ -37,7 +38,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProductResource extends Resource
 {
-    use ProductForm, ProductTable, ProductInfolist, ProductFilters, CategoryDrilldown;
+    use ProductForm, ProductTable, ProductInfolist, ProductFilters, CategoryDrilldown, HasResourcePermissions;
 
 
     protected static ?string $model = Product::class;

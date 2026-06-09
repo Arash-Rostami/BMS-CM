@@ -17,6 +17,7 @@ use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Form as Pr
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Infolist as ProformaInvoiceInfolist;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Table as ProformaInvoiceTable;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\TotalAmountCalculation;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\ProformaInvoice;
 use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
@@ -45,7 +46,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProformaInvoiceResource extends Resource
 {
-    use ProformaInvoiceForm, TotalAmountCalculation, ProformaInvoiceTable, ProformaInvoiceFilters, ProformaInvoiceInfolist;
+    use ProformaInvoiceForm, TotalAmountCalculation, ProformaInvoiceTable, ProformaInvoiceFilters, ProformaInvoiceInfolist, HasResourcePermissions;
 
     protected static ?string $model = ProformaInvoice::class;
 

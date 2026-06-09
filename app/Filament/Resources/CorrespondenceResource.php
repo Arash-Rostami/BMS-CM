@@ -12,6 +12,7 @@ use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Filters as 
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Form as CorrespondenceForm;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Infolist as CorrespondenceInfolist;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Table as CorrespondenceTable;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Correspondence;
 use App\Services\SmartCacheManager;
 use DB;
@@ -38,7 +39,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CorrespondenceResource extends Resource
 {
-    use CorrespondenceForm, CorrespondenceTable, CorrespondenceFilters, CorrespondenceInfolist;
+    use CorrespondenceForm, CorrespondenceTable, CorrespondenceFilters, CorrespondenceInfolist, HasResourcePermissions;
 
     protected static ?string $model = Correspondence::class;
 

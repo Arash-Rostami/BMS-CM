@@ -103,10 +103,7 @@ class DashboardPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->login()
             ->default()
-            ->authMiddleware([
-                Authenticate::class,
-                EnsureUserIsActive::class,
-            ])
+            ->authMiddleware([Authenticate::class, EnsureUserIsActive::class])
             ->defaultThemeMode(ThemeMode::Dark);
     }
 }

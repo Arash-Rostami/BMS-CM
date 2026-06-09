@@ -7,6 +7,7 @@ use App\Filament\Resources\Master\PermissionResource\Traits\Filters as Permissio
 use App\Filament\Resources\Master\PermissionResource\Traits\Form as PermissionForm;
 use App\Filament\Resources\Master\PermissionResource\Traits\Infolist as PermissionInfolist;
 use App\Filament\Resources\Master\PermissionResource\Traits\Table as PermissionTable;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Services\PermissionLabeler;
 use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
@@ -26,7 +27,7 @@ use Illuminate\Support\Str;
 
 class PermissionResource extends Resource
 {
-    use PermissionForm, PermissionTable, PermissionInfolist, PermissionFilters;
+    use PermissionForm, PermissionTable, PermissionInfolist, PermissionFilters, HasResourcePermissions;
 
     protected static ?string $model = Permission::class;
 

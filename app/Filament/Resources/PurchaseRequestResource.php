@@ -18,6 +18,7 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Form as Pu
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Infolist as PurchaseRequestInfolist;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as PurchaseRequestTable;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\TotalCostCalculation;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\PurchaseRequest;
 use App\Services\SmartCacheManager;
 use BackedEnum;
@@ -48,7 +49,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PurchaseRequestResource extends Resource
 {
-    use PurchaseRequestForm, TotalCostCalculation, PurchaseRequestTable, PurchaseRequestFilters, PurchaseRequestInfolist;
+    use PurchaseRequestForm, TotalCostCalculation, PurchaseRequestTable, PurchaseRequestFilters, PurchaseRequestInfolist, HasResourcePermissions;
 
     protected static ?string $model = PurchaseRequest::class;
 

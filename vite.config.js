@@ -17,8 +17,10 @@ export default defineConfig({
         }),
         viteStaticCopy({
             targets: [
-                {src: 'resources/img/*', dest: '../img/'},
-                {src: 'resources/js/3d.min.js', dest: '../js/'},
+                { src: 'resources/img/*', dest: '../img/' },
+                { src: 'resources/js/3d.min.js', dest: '../js/' },
+                { src: 'resources/audio/*', dest: '../audio/' },
+                { src: 'resources/video/*', dest: '../video/' }
             ]
         })
     ]

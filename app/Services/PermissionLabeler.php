@@ -26,7 +26,8 @@ class PermissionLabeler
 
     public static function getModuleOptions(): array
     {
-        return Permission::pluck('name')
+        static $cache = null;
+        return $cache ??= Permission::pluck('name')
             ->map(fn($p) => Str::before($p, '.'))
             ->unique()
             ->mapWithKeys(function ($module) {
@@ -59,7 +60,7 @@ class PermissionLabeler
 
     private static function moduleTranslationKey(string $module): string
     {
-        return Str::camel(Str::singular($module));
+        return Str::camel($module);
     }
 
     private static function getModuleLabel(string $module): string

@@ -31,51 +31,61 @@
 
     @include('components.filament.landing-page.loader')
 
-    <canvas id="canvas-bg" class="fixed top-0 left-0 w-full h-full z-0 opacity-40"></canvas>
+    <div x-data="{ appReady: false }"
+         x-init="setTimeout(() => appReady = true, 2900)"
+         x-show="appReady"
+         x-cloak
+         x-transition:enter="transition-opacity duration-700 ease-out"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         class="h-full w-full">
 
-    @include('components.filament.landing-page.switchers')
-    @include('components.filament.landing-page.widget')
+        <canvas id="canvas-bg" class="fixed top-0 left-0 w-full h-full z-0 opacity-40"></canvas>
 
-    <div class="relative z-10 h-full overflow-y-auto pt-8 custom-scrollbar">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 pb-10 max-w-7xl">
+        @include('components.filament.landing-page.switchers')
+        @include('components.filament.landing-page.widget')
 
-            @include('components.filament.landing-page.header')
+        <div class="relative z-10 h-full overflow-y-auto pt-8 custom-scrollbar">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 pb-10 max-w-7xl">
 
-            <div x-show="activeTab === 'customize'"
-                 x-transition:enter="transition-opacity duration-150 ease-in"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition-opacity duration-100 ease-out"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 x-cloak>
-                @include('components.filament.landing-page.custom-workspace')
+                @include('components.filament.landing-page.header')
+
+                <div x-show="activeTab === 'customize'"
+                     x-transition:enter="transition-opacity duration-150 ease-in"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition-opacity duration-100 ease-out"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     x-cloak>
+                    @include('components.filament.landing-page.custom-workspace')
+                </div>
+
+                <div x-show="activeTab === 'workflow'"
+                     x-transition:enter="transition-opacity duration-150 ease-in"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition-opacity duration-100 ease-out"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     x-cloak>
+                    @include('components.filament.landing-page.workflow')
+                    @include('components.filament.landing-page.footer')
+                </div>
+
+                <div x-show="activeTab === 'search'"
+                     x-transition:enter="transition-opacity duration-150 ease-in"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition-opacity duration-100 ease-out"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     x-cloak
+                     class="min-h-[calc(100vh-12rem)] flex flex-col">
+                    @include('components.filament.landing-page.search-tab')
+                </div>
+
             </div>
-
-            <div x-show="activeTab === 'workflow'"
-                 x-transition:enter="transition-opacity duration-150 ease-in"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition-opacity duration-100 ease-out"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 x-cloak>
-                @include('components.filament.landing-page.workflow')
-                @include('components.filament.landing-page.footer')
-            </div>
-
-            <div x-show="activeTab === 'search'"
-                 x-transition:enter="transition-opacity duration-150 ease-in"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition-opacity duration-100 ease-out"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 x-cloak
-                 class="min-h-[calc(100vh-12rem)] flex flex-col">
-                @include('components.filament.landing-page.search-tab')
-            </div>
-
         </div>
     </div>
 </div>

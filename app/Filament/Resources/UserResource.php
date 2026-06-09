@@ -8,6 +8,7 @@ use App\Filament\Resources\Master\UserResource\Traits\Filters;
 use App\Filament\Resources\Master\UserResource\Traits\Form as UserForm;
 use App\Filament\Resources\Master\UserResource\Traits\Infolist as UserInfolist;
 use App\Filament\Resources\Master\UserResource\Traits\Table as TableTrait;
+use App\Filament\Traits\HasResourcePermissions;
 use App\Models\User;
 use App\Services\SmartCacheManager;
 use BackedEnum;
@@ -31,7 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
 {
-    use UserForm, TableTrait, UserInfolist, Filters;
+    use UserForm, TableTrait, UserInfolist, Filters, HasResourcePermissions;
 
     protected static ?string $model = User::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';

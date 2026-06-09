@@ -18,4 +18,15 @@ class CreateBankProfile extends CreateRecord
             self::afterFillFromRegisteredOrder();
         }
     }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        // In rate mode the amount is display-only; keep the DB column NULL so the
+        // accessor can fall back to computing it from commission_rate.
+        if (($data['commission_input_mode'] ?? 'rate') === 'rate') {
+            $data['commission_amount_purchased'] = null;
+        }
+        unset($data['commission_input_mode']);
+        return $data;
+    }
 }
