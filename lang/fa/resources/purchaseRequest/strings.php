@@ -1,4 +1,5 @@
 <?php
+
 return [
     'general' => [
         'model_label' => 'درخواست خرید',
@@ -69,7 +70,13 @@ return [
         'helper_required_by_date' => 'باید تاریخی در آینده باشد تا زمان کافی برای تأمین و بررسی درخواست وجود داشته باشد.',
         'helper_quantity' => 'می‌توانید برای واحدهای خرد از اعشار استفاده کنید؛ فقط مطمئن شوید مقدار بیشتر از صفر است.',
         'helper_estimated_cost' => 'این برآورد مستقیماً روی جمع کل درخواست اثر می‌گذارد. لطفاً آن را واقع‌بینانه در نظر بگیرید تا در مرحلهٔ تأیید مشکلی پیش نیاید.',
-            'helper_urgency_level' => 'مشخص کنید این درخواست با چه درجه‌ای از فوریت باید تأمین شود.',
+        'helper_urgency_level' => 'مشخص کنید این درخواست با چه درجه‌ای از فوریت باید تأمین شود.',
+        'validation_attachments_max_files' => 'تعداد فایل‌ها بیش از حد مجاز است',
+        'validation_attachments_type' => 'نوع پیوست نامعتبر است',
+        'validation_attachments_size' => 'حجم پیوست خیلی زیاد است',
+        'validation_item_attachments_max_files' => 'تعداد فایل‌ها بیش از حد مجاز است',
+        'validation_item_attachments_type' => 'نوع پیوست نامعتبر است',
+        'validation_item_attachments_size' => 'حجم پیوست خیلی زیاد است',
     ],
     'table' => [
         'id' => 'شناسه',
@@ -97,8 +104,8 @@ return [
         'tab_general' => 'اطلاعات عمومی',
         'tab_items' => 'اقلام درخواستی',
         'purchase_items' => 'اقلام خرید',
-        'tab_documents'   => 'اسناد',
-        'attachments'     => 'پیوست‌ها',
+        'tab_documents' => 'اسناد',
+        'attachments' => 'پیوست‌ها',
         'attachment_name' => 'نام پیوست',
         'item_product' => 'محصول',
         'item_quantity' => 'مقدار',

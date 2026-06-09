@@ -1,0 +1,7522 @@
+Array
+(
+    [resources/target/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => metrics
+                )
+
+            [1] => Array
+                (
+                    [0] => form
+                    [1] => metrics
+                )
+
+            [2] => Array
+                (
+                    [0] => form
+                    [1] => achieved_amount
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => achieved_quantity
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => amount
+                )
+
+            [5] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => creator
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => description
+                )
+
+            [8] => Array
+                (
+                    [0] => form
+                    [1] => end_in
+                )
+
+            [9] => Array
+                (
+                    [0] => form
+                    [1] => quantity
+                )
+
+            [10] => Array
+                (
+                    [0] => form
+                    [1] => start_from
+                )
+
+            [11] => Array
+                (
+                    [0] => form
+                    [1] => status
+                )
+
+            [12] => Array
+                (
+                    [0] => table
+                    [1] => tags
+                )
+
+            [13] => Array
+                (
+                    [0] => form
+                    [1] => targetable
+                )
+
+            [14] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [15] => Array
+                (
+                    [0] => form
+                    [1] => updater
+                )
+
+            [16] => Array
+                (
+                    [0] => form
+                    [1] => year
+                )
+
+            [17] => Array
+                (
+                    [0] => table
+                    [1] => creator
+                )
+
+            [18] => Array
+                (
+                    [0] => filters
+                    [1] => metrics
+                )
+
+            [19] => Array
+                (
+                    [0] => filters
+                    [1] => metrics_placeholder
+                )
+
+            [20] => Array
+                (
+                    [0] => filters
+                    [1] => quantity
+                )
+
+            [21] => Array
+                (
+                    [0] => filters
+                    [1] => quantity_from
+                )
+
+            [22] => Array
+                (
+                    [0] => filters
+                    [1] => quantity_to
+                )
+
+            [23] => Array
+                (
+                    [0] => filters
+                    [1] => status
+                )
+
+            [24] => Array
+                (
+                    [0] => filters
+                    [1] => status_placeholder
+                )
+
+            [25] => Array
+                (
+                    [0] => table
+                    [1] => updater
+                )
+
+            [26] => Array
+                (
+                    [0] => filters
+                    [1] => year
+                )
+
+            [27] => Array
+                (
+                    [0] => filters
+                    [1] => year_placeholder
+                )
+
+            [28] => Array
+                (
+                    [0] => table
+                    [1] => targetable
+                )
+
+            [29] => Array
+                (
+                    [0] => table
+                    [1] => year
+                )
+
+            [30] => Array
+                (
+                    [0] => table
+                    [1] => start_from
+                )
+
+            [31] => Array
+                (
+                    [0] => table
+                    [1] => end_in
+                )
+
+            [32] => Array
+                (
+                    [0] => table
+                    [1] => quantity
+                )
+
+            [33] => Array
+                (
+                    [0] => table
+                    [1] => amount
+                )
+
+            [34] => Array
+                (
+                    [0] => table
+                    [1] => metrics
+                )
+
+            [35] => Array
+                (
+                    [0] => table
+                    [1] => status
+                )
+
+            [36] => Array
+                (
+                    [0] => table
+                    [1] => achieved_quantity
+                )
+
+            [37] => Array
+                (
+                    [0] => table
+                    [1] => achieved_amount
+                )
+
+            [38] => Array
+                (
+                    [0] => form
+                    [1] => validation_numeric
+                )
+
+            [39] => Array
+                (
+                    [0] => form
+                    [1] => helper_amount
+                )
+
+            [40] => Array
+                (
+                    [0] => form
+                    [1] => helper_end_in
+                )
+
+            [41] => Array
+                (
+                    [0] => form
+                    [1] => validation_required
+                )
+
+            [42] => Array
+                (
+                    [0] => form
+                    [1] => validation_date
+                )
+
+            [43] => Array
+                (
+                    [0] => form
+                    [1] => validation_end_in_after_start_from
+                )
+
+            [44] => Array
+                (
+                    [0] => form
+                    [1] => tags
+                )
+
+            [45] => Array
+                (
+                    [0] => form
+                    [1] => targetable_category
+                )
+
+            [46] => Array
+                (
+                    [0] => form
+                    [1] => targetable_product
+                )
+
+            [47] => Array
+                (
+                    [0] => status
+                    [1] => active
+                )
+
+            [48] => Array
+                (
+                    [0] => status
+                    [1] => inactive
+                )
+
+            [49] => Array
+                (
+                    [0] => status
+                    [1] => achieved
+                )
+
+            [50] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [51] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+        )
+
+    [resources/custom/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => general
+                )
+
+            [1] => Array
+                (
+                    [0] => form
+                    [1] => section_general
+                )
+
+            [2] => Array
+                (
+                    [0] => form
+                    [1] => section_dates
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => section_notes
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => status_financial
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => section_financial
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => section_status
+                )
+
+            [7] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [8] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [9] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_general
+                )
+
+            [10] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_dates_status
+                )
+
+            [11] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_documents
+                )
+
+            [12] => Array
+                (
+                    [0] => filters
+                    [1] => clearance_status
+                )
+
+            [13] => Array
+                (
+                    [0] => form
+                    [1] => registered_order
+                )
+
+            [14] => Array
+                (
+                    [0] => form
+                    [1] => attachments
+                )
+
+            [15] => Array
+                (
+                    [0] => form
+                    [1] => bank_guarantee_status
+                )
+
+            [16] => Array
+                (
+                    [0] => form
+                    [1] => clearance_date
+                )
+
+            [17] => Array
+                (
+                    [0] => form
+                    [1] => clearance_status
+                )
+
+            [18] => Array
+                (
+                    [0] => form
+                    [1] => clearance_type
+                )
+
+            [19] => Array
+                (
+                    [0] => form
+                    [1] => commitment_balance
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => commitment_status
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => contract_no
+                )
+
+            [22] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [23] => Array
+                (
+                    [0] => table
+                    [1] => created_by
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => custom_no
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => declaration_no
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => doc_submission_date
+                )
+
+            [27] => Array
+                (
+                    [0] => form
+                    [1] => notes
+                )
+
+            [28] => Array
+                (
+                    [0] => form
+                    [1] => rial_return_date
+                )
+
+            [29] => Array
+                (
+                    [0] => form
+                    [1] => shipment
+                )
+
+            [30] => Array
+                (
+                    [0] => form
+                    [1] => ten_percent_exit_date
+                )
+
+            [31] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [32] => Array
+                (
+                    [0] => table
+                    [1] => updated_by
+                )
+
+            [33] => Array
+                (
+                    [0] => filters
+                    [1] => registered_order
+                )
+
+            [34] => Array
+                (
+                    [0] => filters
+                    [1] => commitment_status
+                )
+
+            [35] => Array
+                (
+                    [0] => filters
+                    [1] => contract_no
+                )
+
+            [36] => Array
+                (
+                    [0] => filters
+                    [1] => bank_guarantee_status
+                )
+
+            [37] => Array
+                (
+                    [0] => filters
+                    [1] => created_from
+                )
+
+            [38] => Array
+                (
+                    [0] => filters
+                    [1] => created_until
+                )
+
+            [39] => Array
+                (
+                    [0] => table
+                    [1] => shipment
+                )
+
+            [40] => Array
+                (
+                    [0] => form
+                    [1] => validation_date
+                )
+
+            [41] => Array
+                (
+                    [0] => general
+                    [1] => clearance_types
+                )
+
+            [42] => Array
+                (
+                    [0] => form
+                    [1] => helper_clearance_type
+                )
+
+            [43] => Array
+                (
+                    [0] => form
+                    [1] => validation_numeric
+                )
+
+            [44] => Array
+                (
+                    [0] => form
+                    [1] => validation_contract_no_max
+                )
+
+            [45] => Array
+                (
+                    [0] => form
+                    [1] => helper_custom_no
+                )
+
+            [46] => Array
+                (
+                    [0] => form
+                    [1] => validation_required
+                )
+
+            [47] => Array
+                (
+                    [0] => form
+                    [1] => validation_unique
+                )
+
+            [48] => Array
+                (
+                    [0] => form
+                    [1] => validation_declaration_no_max
+                )
+
+            [49] => Array
+                (
+                    [0] => form
+                    [1] => helper_shipment
+                )
+
+            [50] => Array
+                (
+                    [0] => general
+                    [1] => add_record
+                )
+
+        )
+
+    [resources/dashboard/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => navigation_group
+                    [1] => operational_fourth
+                )
+
+            [1] => Array
+                (
+                    [0] => navigation_group
+                    [1] => operational_third
+                )
+
+            [2] => Array
+                (
+                    [0] => navigation_group
+                    [1] => operational_second
+                )
+
+            [3] => Array
+                (
+                    [0] => navigation_group
+                    [1] => base
+                )
+
+            [4] => Array
+                (
+                    [0] => navigation_group
+                    [1] => operational_first
+                )
+
+        )
+
+    [resources/payment/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => general
+                )
+
+            [1] => Array
+                (
+                    [0] => form
+                    [1] => section_main
+                )
+
+            [2] => Array
+                (
+                    [0] => form
+                    [1] => section_notes_attachments
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => financials
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => section_financial
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => section_beneficiary_bank
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => section_summary
+                )
+
+            [7] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [8] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [9] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_general
+                )
+
+            [10] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_summary
+                )
+
+            [11] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_documents
+                )
+
+            [12] => Array
+                (
+                    [0] => groups
+                    [1] => targetable
+                )
+
+            [13] => Array
+                (
+                    [0] => groups
+                    [1] => payor
+                )
+
+            [14] => Array
+                (
+                    [0] => groups
+                    [1] => payee
+                )
+
+            [15] => Array
+                (
+                    [0] => groups
+                    [1] => beneficiary_name
+                )
+
+            [16] => Array
+                (
+                    [0] => groups
+                    [1] => status
+                )
+
+            [17] => Array
+                (
+                    [0] => groups
+                    [1] => currency
+                )
+
+            [18] => Array
+                (
+                    [0] => form
+                    [1] => account_no
+                )
+
+            [19] => Array
+                (
+                    [0] => infolist
+                    [1] => attachments
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => bank_name
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => bank_address
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => bank_charges
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => beneficiary_address
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => beneficiary_name
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => summary_calculated_total
+                )
+
+            [26] => Array
+                (
+                    [0] => infolist
+                    [1] => created_at
+                )
+
+            [27] => Array
+                (
+                    [0] => table
+                    [1] => created_by
+                )
+
+            [28] => Array
+                (
+                    [0] => form
+                    [1] => currency
+                )
+
+            [29] => Array
+                (
+                    [0] => form
+                    [1] => exchange_rate
+                )
+
+            [30] => Array
+                (
+                    [0] => form
+                    [1] => iban
+                )
+
+            [31] => Array
+                (
+                    [0] => form
+                    [1] => notes
+                )
+
+            [32] => Array
+                (
+                    [0] => form
+                    [1] => payable_amount
+                )
+
+            [33] => Array
+                (
+                    [0] => form
+                    [1] => payee
+                )
+
+            [34] => Array
+                (
+                    [0] => form
+                    [1] => payment_date
+                )
+
+            [35] => Array
+                (
+                    [0] => form
+                    [1] => payment_deadline
+                )
+
+            [36] => Array
+                (
+                    [0] => form
+                    [1] => payment_no
+                )
+
+            [37] => Array
+                (
+                    [0] => form
+                    [1] => payor
+                )
+
+            [38] => Array
+                (
+                    [0] => form
+                    [1] => status
+                )
+
+            [39] => Array
+                (
+                    [0] => form
+                    [1] => swift
+                )
+
+            [40] => Array
+                (
+                    [0] => form
+                    [1] => targetable
+                )
+
+            [41] => Array
+                (
+                    [0] => form
+                    [1] => total_amount_entered
+                )
+
+            [42] => Array
+                (
+                    [0] => form
+                    [1] => summary_total_ratio
+                )
+
+            [43] => Array
+                (
+                    [0] => infolist
+                    [1] => updated_at
+                )
+
+            [44] => Array
+                (
+                    [0] => infolist
+                    [1] => updater
+                )
+
+            [45] => Array
+                (
+                    [0] => filters
+                    [1] => created_from
+                )
+
+            [46] => Array
+                (
+                    [0] => filters
+                    [1] => created_until
+                )
+
+            [47] => Array
+                (
+                    [0] => filters
+                    [1] => creator
+                )
+
+            [48] => Array
+                (
+                    [0] => filters
+                    [1] => currency
+                )
+
+            [49] => Array
+                (
+                    [0] => filters
+                    [1] => payee
+                )
+
+            [50] => Array
+                (
+                    [0] => filters
+                    [1] => payor
+                )
+
+            [51] => Array
+                (
+                    [0] => filters
+                    [1] => status
+                )
+
+            [52] => Array
+                (
+                    [0] => form
+                    [1] => targetable_purchase_order
+                )
+
+            [53] => Array
+                (
+                    [0] => form
+                    [1] => targetable_registered_order
+                )
+
+            [54] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [55] => Array
+                (
+                    [0] => table
+                    [1] => id
+                )
+
+            [56] => Array
+                (
+                    [0] => table
+                    [1] => payee
+                )
+
+            [57] => Array
+                (
+                    [0] => table
+                    [1] => payment_date
+                )
+
+            [58] => Array
+                (
+                    [0] => table
+                    [1] => payment_no
+                )
+
+            [59] => Array
+                (
+                    [0] => table
+                    [1] => payor
+                )
+
+            [60] => Array
+                (
+                    [0] => table
+                    [1] => status
+                )
+
+            [61] => Array
+                (
+                    [0] => table
+                    [1] => targetable_type
+                )
+
+            [62] => Array
+                (
+                    [0] => table
+                    [1] => total_amount
+                )
+
+            [63] => Array
+                (
+                    [0] => form
+                    [1] => validation_max_length
+                )
+
+            [64] => Array
+                (
+                    [0] => form
+                    [1] => validation_numeric
+                )
+
+            [65] => Array
+                (
+                    [0] => form
+                    [1] => validation_min_numeric_zero
+                )
+
+            [66] => Array
+                (
+                    [0] => form
+                    [1] => tooltips
+                    [2] => bank_charges
+                )
+
+            [67] => Array
+                (
+                    [0] => form
+                    [1] => validation_required
+                )
+
+            [68] => Array
+                (
+                    [0] => form
+                    [1] => tooltips
+                    [2] => exchange_rate
+                )
+
+            [69] => Array
+                (
+                    [0] => form
+                    [1] => helper_iban
+                )
+
+            [70] => Array
+                (
+                    [0] => form
+                    [1] => tooltips
+                    [2] => payable_amount
+                )
+
+            [71] => Array
+                (
+                    [0] => form
+                    [1] => validation_unique
+                )
+
+            [72] => Array
+                (
+                    [0] => form
+                    [1] => helper_status
+                )
+
+            [73] => Array
+                (
+                    [0] => form
+                    [1] => total_amount
+                )
+
+            [74] => Array
+                (
+                    [0] => form
+                    [1] => tooltips
+                    [2] => total_amount
+                )
+
+        )
+
+    [resources/bankProfile/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => general
+                )
+
+            [1] => Array
+                (
+                    [0] => form
+                    [1] => section_main
+                )
+
+            [2] => Array
+                (
+                    [0] => form
+                    [1] => section_dates_notes
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => details
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => section_financial
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => section_rates
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => section_summary
+                )
+
+            [7] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [8] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [9] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_general
+                )
+
+            [10] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_summary
+                )
+
+            [11] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_documents
+                )
+
+            [12] => Array
+                (
+                    [0] => groups
+                    [1] => bank
+                )
+
+            [13] => Array
+                (
+                    [0] => groups
+                    [1] => company
+                )
+
+            [14] => Array
+                (
+                    [0] => groups
+                    [1] => registered_order
+                )
+
+            [15] => Array
+                (
+                    [0] => groups
+                    [1] => targetable
+                )
+
+            [16] => Array
+                (
+                    [0] => form
+                    [1] => bank
+                )
+
+            [17] => Array
+                (
+                    [0] => form
+                    [1] => allocation_date
+                )
+
+            [18] => Array
+                (
+                    [0] => infolist
+                    [1] => attachments
+                )
+
+            [19] => Array
+                (
+                    [0] => form
+                    [1] => commitment_payment_date
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => payment_due_date
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => bp_number
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => summary_commission_amount
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => summary_commission_equivalent
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => commission_rate
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => company
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => conversion_rate
+                )
+
+            [27] => Array
+                (
+                    [0] => infolist
+                    [1] => created_at
+                )
+
+            [28] => Array
+                (
+                    [0] => form
+                    [1] => creation_date
+                )
+
+            [29] => Array
+                (
+                    [0] => infolist
+                    [1] => creator
+                )
+
+            [30] => Array
+                (
+                    [0] => form
+                    [1] => requested_currency
+                )
+
+            [31] => Array
+                (
+                    [0] => form
+                    [1] => delivery_date
+                )
+
+            [32] => Array
+                (
+                    [0] => form
+                    [1] => documents_amount
+                )
+
+            [33] => Array
+                (
+                    [0] => form
+                    [1] => eur_equivalent_rate
+                )
+
+            [34] => Array
+                (
+                    [0] => form
+                    [1] => exchange_rate
+                )
+
+            [35] => Array
+                (
+                    [0] => form
+                    [1] => summary_final_equivalent
+                )
+
+            [36] => Array
+                (
+                    [0] => form
+                    [1] => summary_final_eur
+                )
+
+            [37] => Array
+                (
+                    [0] => form
+                    [1] => final_rate
+                )
+
+            [38] => Array
+                (
+                    [0] => form
+                    [1] => notes
+                )
+
+            [39] => Array
+                (
+                    [0] => form
+                    [1] => order_number
+                )
+
+            [40] => Array
+                (
+                    [0] => form
+                    [1] => purchase_date
+                )
+
+            [41] => Array
+                (
+                    [0] => form
+                    [1] => purchased_currency
+                )
+
+            [42] => Array
+                (
+                    [0] => form
+                    [1] => purchased_equivalent
+                )
+
+            [43] => Array
+                (
+                    [0] => form
+                    [1] => registered_order
+                )
+
+            [44] => Array
+                (
+                    [0] => form
+                    [1] => summary_remaining
+                )
+
+            [45] => Array
+                (
+                    [0] => form
+                    [1] => requested_amount
+                )
+
+            [46] => Array
+                (
+                    [0] => form
+                    [1] => status
+                )
+
+            [47] => Array
+                (
+                    [0] => form
+                    [1] => supply_source
+                )
+
+            [48] => Array
+                (
+                    [0] => form
+                    [1] => targetable
+                )
+
+            [49] => Array
+                (
+                    [0] => form
+                    [1] => summary_total_eur
+                )
+
+            [50] => Array
+                (
+                    [0] => form
+                    [1] => summary_total_purchased
+                )
+
+            [51] => Array
+                (
+                    [0] => form
+                    [1] => summary_total_requested
+                )
+
+            [52] => Array
+                (
+                    [0] => form
+                    [1] => summary_total_rial
+                )
+
+            [53] => Array
+                (
+                    [0] => form
+                    [1] => summary_total_usd
+                )
+
+            [54] => Array
+                (
+                    [0] => infolist
+                    [1] => updated_at
+                )
+
+            [55] => Array
+                (
+                    [0] => infolist
+                    [1] => updater
+                )
+
+            [56] => Array
+                (
+                    [0] => form
+                    [1] => waiting_duration
+                )
+
+            [57] => Array
+                (
+                    [0] => form
+                    [1] => days
+                )
+
+            [58] => Array
+                (
+                    [0] => form
+                    [1] => ongoing
+                )
+
+            [59] => Array
+                (
+                    [0] => filters
+                    [1] => bank
+                )
+
+            [60] => Array
+                (
+                    [0] => filters
+                    [1] => company
+                )
+
+            [61] => Array
+                (
+                    [0] => filters
+                    [1] => created_from
+                )
+
+            [62] => Array
+                (
+                    [0] => filters
+                    [1] => created_until
+                )
+
+            [63] => Array
+                (
+                    [0] => filters
+                    [1] => creator
+                )
+
+            [64] => Array
+                (
+                    [0] => filters
+                    [1] => payment_due_from
+                )
+
+            [65] => Array
+                (
+                    [0] => filters
+                    [1] => payment_due_until
+                )
+
+            [66] => Array
+                (
+                    [0] => filters
+                    [1] => registered_order
+                )
+
+            [67] => Array
+                (
+                    [0] => filters
+                    [1] => status
+                )
+
+            [68] => Array
+                (
+                    [0] => table
+                    [1] => bank
+                )
+
+            [69] => Array
+                (
+                    [0] => table
+                    [1] => bp_number
+                )
+
+            [70] => Array
+                (
+                    [0] => table
+                    [1] => company
+                )
+
+            [71] => Array
+                (
+                    [0] => table
+                    [1] => commitment_payment_date
+                )
+
+            [72] => Array
+                (
+                    [0] => table
+                    [1] => payment_due_date
+                )
+
+            [73] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [74] => Array
+                (
+                    [0] => table
+                    [1] => created_by
+                )
+
+            [75] => Array
+                (
+                    [0] => table
+                    [1] => id
+                )
+
+            [76] => Array
+                (
+                    [0] => table
+                    [1] => registered_order
+                )
+
+            [77] => Array
+                (
+                    [0] => table
+                    [1] => status
+                )
+
+            [78] => Array
+                (
+                    [0] => table
+                    [1] => targetable
+                )
+
+            [79] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [80] => Array
+                (
+                    [0] => table
+                    [1] => updated_by
+                )
+
+            [81] => Array
+                (
+                    [0] => form
+                    [1] => validation_required
+                )
+
+            [82] => Array
+                (
+                    [0] => form
+                    [1] => validation_unique
+                )
+
+            [83] => Array
+                (
+                    [0] => form
+                    [1] => validation_numeric
+                )
+
+            [84] => Array
+                (
+                    [0] => form
+                    [1] => validation_min_numeric_zero
+                )
+
+            [85] => Array
+                (
+                    [0] => form
+                    [1] => tooltips
+                    [2] => commission_amount_purchased
+                )
+
+            [86] => Array
+                (
+                    [0] => form
+                    [1] => helper_commission_amount_purchased
+                )
+
+            [87] => Array
+                (
+                    [0] => form
+                    [1] => commission_input_mode
+                )
+
+            [88] => Array
+                (
+                    [0] => form
+                    [1] => commission_mode_rate
+                )
+
+            [89] => Array
+                (
+                    [0] => form
+                    [1] => commission_mode_amount
+                )
+
+            [90] => Array
+                (
+                    [0] => form
+                    [1] => helper_commission_input_mode
+                )
+
+            [91] => Array
+                (
+                    [0] => form
+                    [1] => tooltips
+                    [2] => commission_rate
+                )
+
+            [92] => Array
+                (
+                    [0] => form
+                    [1] => helper_commission_rate
+                )
+
+            [93] => Array
+                (
+                    [0] => form
+                    [1] => tooltips
+                    [2] => conversion_rate
+                )
+
+            [94] => Array
+                (
+                    [0] => form
+                    [1] => helper_delivery_date
+                )
+
+            [95] => Array
+                (
+                    [0] => form
+                    [1] => helper_documents_amount
+                )
+
+            [96] => Array
+                (
+                    [0] => form
+                    [1] => tooltips
+                    [2] => eur_equivalent_rate
+                )
+
+            [97] => Array
+                (
+                    [0] => form
+                    [1] => tooltips
+                    [2] => exchange_rate
+                )
+
+            [98] => Array
+                (
+                    [0] => form
+                    [1] => helper_requested_amount
+                )
+
+            [99] => Array
+                (
+                    [0] => general
+                    [1] => supply_sources
+                )
+
+            [100] => Array
+                (
+                    [0] => form
+                    [1] => targetable_category
+                )
+
+            [101] => Array
+                (
+                    [0] => form
+                    [1] => targetable_product
+                )
+
+        )
+
+    [resources/purchaseOrder/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => form
+                    [1] => tab_general
+                )
+
+            [1] => Array
+                (
+                    [0] => form
+                    [1] => section_order_details
+                )
+
+            [2] => Array
+                (
+                    [0] => form
+                    [1] => section_items
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => add_item_action
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => section_shipping_notes
+                )
+
+            [5] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [6] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [7] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_general
+                )
+
+            [8] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_items
+                )
+
+            [9] => Array
+                (
+                    [0] => infolist
+                    [1] => purchase_items
+                )
+
+            [10] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_documents
+                )
+
+            [11] => Array
+                (
+                    [0] => filters
+                    [1] => buyer
+                )
+
+            [12] => Array
+                (
+                    [0] => filters
+                    [1] => seller
+                )
+
+            [13] => Array
+                (
+                    [0] => filters
+                    [1] => supplier
+                )
+
+            [14] => Array
+                (
+                    [0] => filters
+                    [1] => manufacturer
+                )
+
+            [15] => Array
+                (
+                    [0] => general
+                    [1] => add_record
+                )
+
+            [16] => Array
+                (
+                    [0] => filters
+                    [1] => created_from
+                )
+
+            [17] => Array
+                (
+                    [0] => filters
+                    [1] => created_until
+                )
+
+            [18] => Array
+                (
+                    [0] => form
+                    [1] => buyer
+                )
+
+            [19] => Array
+                (
+                    [0] => infolist
+                    [1] => created_at
+                )
+
+            [20] => Array
+                (
+                    [0] => infolist
+                    [1] => creator
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => currency
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => expected_delivery_date
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => incoterms
+                )
+
+            [24] => Array
+                (
+                    [0] => infolist
+                    [1] => item_gross_weight
+                )
+
+            [25] => Array
+                (
+                    [0] => infolist
+                    [1] => item_net_weight
+                )
+
+            [26] => Array
+                (
+                    [0] => infolist
+                    [1] => item_product
+                )
+
+            [27] => Array
+                (
+                    [0] => infolist
+                    [1] => item_quantity
+                )
+
+            [28] => Array
+                (
+                    [0] => infolist
+                    [1] => item_unit
+                )
+
+            [29] => Array
+                (
+                    [0] => infolist
+                    [1] => item_unit_price
+                )
+
+            [30] => Array
+                (
+                    [0] => form
+                    [1] => notes
+                )
+
+            [31] => Array
+                (
+                    [0] => form
+                    [1] => order_date
+                )
+
+            [32] => Array
+                (
+                    [0] => form
+                    [1] => packing_details
+                )
+
+            [33] => Array
+                (
+                    [0] => form
+                    [1] => po_number
+                )
+
+            [34] => Array
+                (
+                    [0] => form
+                    [1] => seller
+                )
+
+            [35] => Array
+                (
+                    [0] => form
+                    [1] => shipping_address
+                )
+
+            [36] => Array
+                (
+                    [0] => form
+                    [1] => status
+                )
+
+            [37] => Array
+                (
+                    [0] => infolist
+                    [1] => total_amount
+                )
+
+            [38] => Array
+                (
+                    [0] => form
+                    [1] => total_quantity
+                )
+
+            [39] => Array
+                (
+                    [0] => infolist
+                    [1] => updated_at
+                )
+
+            [40] => Array
+                (
+                    [0] => infolist
+                    [1] => updater
+                )
+
+            [41] => Array
+                (
+                    [0] => form
+                    [1] => validity_date
+                )
+
+            [42] => Array
+                (
+                    [0] => filters
+                    [1] => creator
+                )
+
+            [43] => Array
+                (
+                    [0] => filters
+                    [1] => currency
+                )
+
+            [44] => Array
+                (
+                    [0] => filters
+                    [1] => incoterms
+                )
+
+            [45] => Array
+                (
+                    [0] => general
+                    [1] => delivery_terms
+                )
+
+            [46] => Array
+                (
+                    [0] => filters
+                    [1] => status
+                )
+
+            [47] => Array
+                (
+                    [0] => table
+                    [1] => buyer
+                )
+
+            [48] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [49] => Array
+                (
+                    [0] => table
+                    [1] => creator
+                )
+
+            [50] => Array
+                (
+                    [0] => table
+                    [1] => order_date
+                )
+
+            [51] => Array
+                (
+                    [0] => table
+                    [1] => po_number
+                )
+
+            [52] => Array
+                (
+                    [0] => table
+                    [1] => seller
+                )
+
+            [53] => Array
+                (
+                    [0] => table
+                    [1] => status
+                )
+
+            [54] => Array
+                (
+                    [0] => form
+                    [1] => total_amount
+                )
+
+            [55] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [56] => Array
+                (
+                    [0] => table
+                    [1] => updater
+                )
+
+            [57] => Array
+                (
+                    [0] => form
+                    [1] => validation_required
+                )
+
+            [58] => Array
+                (
+                    [0] => form
+                    [1] => validation_seller_buyer_different
+                )
+
+            [59] => Array
+                (
+                    [0] => form
+                    [1] => helper_expected_delivery_date
+                )
+
+            [60] => Array
+                (
+                    [0] => form
+                    [1] => validation_after_or_equal_order_date
+                )
+
+            [61] => Array
+                (
+                    [0] => form
+                    [1] => validation_max_string
+                )
+
+            [62] => Array
+                (
+                    [0] => form
+                    [1] => item_description
+                )
+
+            [63] => Array
+                (
+                    [0] => form
+                    [1] => gross_weight
+                )
+
+            [64] => Array
+                (
+                    [0] => form
+                    [1] => validation_numeric
+                )
+
+            [65] => Array
+                (
+                    [0] => form
+                    [1] => validation_min_numeric_zero
+                )
+
+            [66] => Array
+                (
+                    [0] => form
+                    [1] => net_weight
+                )
+
+            [67] => Array
+                (
+                    [0] => form
+                    [1] => add_notes
+                )
+
+            [68] => Array
+                (
+                    [0] => form
+                    [1] => product
+                )
+
+            [69] => Array
+                (
+                    [0] => form
+                    [1] => quantity
+                )
+
+            [70] => Array
+                (
+                    [0] => form
+                    [1] => validation_min_numeric
+                )
+
+            [71] => Array
+                (
+                    [0] => form
+                    [1] => unit
+                )
+
+            [72] => Array
+                (
+                    [0] => form
+                    [1] => unit_price
+                )
+
+            [73] => Array
+                (
+                    [0] => form
+                    [1] => helper_unit_price
+                )
+
+            [74] => Array
+                (
+                    [0] => form
+                    [1] => validation_max_text
+                )
+
+            [75] => Array
+                (
+                    [0] => form
+                    [1] => helper_po_number
+                )
+
+            [76] => Array
+                (
+                    [0] => form
+                    [1] => validation_unique
+                )
+
+            [77] => Array
+                (
+                    [0] => form
+                    [1] => helper_status
+                )
+
+            [78] => Array
+                (
+                    [0] => form
+                    [1] => helper_validity_date
+                )
+
+        )
+
+    [resources/registeredOrder/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [1] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [2] => Array
+                (
+                    [0] => general
+                    [1] => add_record
+                )
+
+            [3] => Array
+                (
+                    [0] => filters
+                    [1] => buyer
+                )
+
+            [4] => Array
+                (
+                    [0] => filters
+                    [1] => seller
+                )
+
+            [5] => Array
+                (
+                    [0] => filters
+                    [1] => supplier
+                )
+
+            [6] => Array
+                (
+                    [0] => filters
+                    [1] => manufacturer
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => attachments
+                )
+
+            [8] => Array
+                (
+                    [0] => form
+                    [1] => buyer
+                )
+
+            [9] => Array
+                (
+                    [0] => infolist
+                    [1] => created_at
+                )
+
+            [10] => Array
+                (
+                    [0] => infolist
+                    [1] => creator
+                )
+
+            [11] => Array
+                (
+                    [0] => form
+                    [1] => contract_number
+                )
+
+            [12] => Array
+                (
+                    [0] => form
+                    [1] => currency
+                )
+
+            [13] => Array
+                (
+                    [0] => form
+                    [1] => expected_delivery_date
+                )
+
+            [14] => Array
+                (
+                    [0] => form
+                    [1] => incoterms
+                )
+
+            [15] => Array
+                (
+                    [0] => infolist
+                    [1] => item_gross_weight
+                )
+
+            [16] => Array
+                (
+                    [0] => infolist
+                    [1] => item_net_weight
+                )
+
+            [17] => Array
+                (
+                    [0] => infolist
+                    [1] => item_product
+                )
+
+            [18] => Array
+                (
+                    [0] => infolist
+                    [1] => item_quantity
+                )
+
+            [19] => Array
+                (
+                    [0] => infolist
+                    [1] => item_unit
+                )
+
+            [20] => Array
+                (
+                    [0] => infolist
+                    [1] => item_unit_price
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => notes
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => official_registration_no
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => order_date
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => packing_details
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => ro_number
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => seller
+                )
+
+            [27] => Array
+                (
+                    [0] => form
+                    [1] => status
+                )
+
+            [28] => Array
+                (
+                    [0] => infolist
+                    [1] => total_amount
+                )
+
+            [29] => Array
+                (
+                    [0] => form
+                    [1] => total_quantity
+                )
+
+            [30] => Array
+                (
+                    [0] => infolist
+                    [1] => updated_at
+                )
+
+            [31] => Array
+                (
+                    [0] => infolist
+                    [1] => updater
+                )
+
+            [32] => Array
+                (
+                    [0] => form
+                    [1] => validity_date
+                )
+
+            [33] => Array
+                (
+                    [0] => filters
+                    [1] => creator
+                )
+
+            [34] => Array
+                (
+                    [0] => filters
+                    [1] => incoterms
+                )
+
+            [35] => Array
+                (
+                    [0] => general
+                    [1] => delivery_terms
+                )
+
+            [36] => Array
+                (
+                    [0] => filters
+                    [1] => status
+                )
+
+            [37] => Array
+                (
+                    [0] => table
+                    [1] => buyer
+                )
+
+            [38] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [39] => Array
+                (
+                    [0] => table
+                    [1] => created_by
+                )
+
+            [40] => Array
+                (
+                    [0] => table
+                    [1] => id
+                )
+
+            [41] => Array
+                (
+                    [0] => table
+                    [1] => order_date
+                )
+
+            [42] => Array
+                (
+                    [0] => table
+                    [1] => purchase_orders_count
+                )
+
+            [43] => Array
+                (
+                    [0] => table
+                    [1] => ro_number
+                )
+
+            [44] => Array
+                (
+                    [0] => table
+                    [1] => seller
+                )
+
+            [45] => Array
+                (
+                    [0] => table
+                    [1] => status
+                )
+
+            [46] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [47] => Array
+                (
+                    [0] => table
+                    [1] => updated_by
+                )
+
+            [48] => Array
+                (
+                    [0] => form
+                    [1] => validation_required
+                )
+
+            [49] => Array
+                (
+                    [0] => form
+                    [1] => validation_seller_buyer_different
+                )
+
+            [50] => Array
+                (
+                    [0] => form
+                    [1] => validation_max_string
+                )
+
+            [51] => Array
+                (
+                    [0] => form
+                    [1] => currency_type
+                )
+
+            [52] => Array
+                (
+                    [0] => general
+                    [1] => currency_types
+                )
+
+            [53] => Array
+                (
+                    [0] => form
+                    [1] => helper_expected_delivery_date
+                )
+
+            [54] => Array
+                (
+                    [0] => form
+                    [1] => validation_after_or_equal_order_date
+                )
+
+            [55] => Array
+                (
+                    [0] => form
+                    [1] => insurance_date
+                )
+
+            [56] => Array
+                (
+                    [0] => form
+                    [1] => insurance_number
+                )
+
+            [57] => Array
+                (
+                    [0] => form
+                    [1] => insurance_provider
+                )
+
+            [58] => Array
+                (
+                    [0] => form
+                    [1] => item_description
+                )
+
+            [59] => Array
+                (
+                    [0] => form
+                    [1] => add_notes
+                )
+
+            [60] => Array
+                (
+                    [0] => form
+                    [1] => validation_max_text
+                )
+
+            [61] => Array
+                (
+                    [0] => form
+                    [1] => proforma_invoices
+                )
+
+            [62] => Array
+                (
+                    [0] => form
+                    [1] => purchase_orders
+                )
+
+            [63] => Array
+                (
+                    [0] => form
+                    [1] => purchase_requests
+                )
+
+            [64] => Array
+                (
+                    [0] => form
+                    [1] => helper_ro_number
+                )
+
+            [65] => Array
+                (
+                    [0] => form
+                    [1] => validation_unique
+                )
+
+            [66] => Array
+                (
+                    [0] => form
+                    [1] => helper_seller
+                )
+
+            [67] => Array
+                (
+                    [0] => form
+                    [1] => helper_source_type
+                )
+
+            [68] => Array
+                (
+                    [0] => form
+                    [1] => purchase_requests_related
+                )
+
+            [69] => Array
+                (
+                    [0] => form
+                    [1] => proforma_invoices_related
+                )
+
+            [70] => Array
+                (
+                    [0] => form
+                    [1] => purchase_orders_related
+                )
+
+            [71] => Array
+                (
+                    [0] => form
+                    [1] => helper_status
+                )
+
+            [72] => Array
+                (
+                    [0] => form
+                    [1] => total_amount
+                )
+
+            [73] => Array
+                (
+                    [0] => form
+                    [1] => helper_validity_date
+                )
+
+            [74] => Array
+                (
+                    [0] => form
+                    [1] => entrance_fee
+                )
+
+            [75] => Array
+                (
+                    [0] => form
+                    [1] => validation_numeric
+                )
+
+            [76] => Array
+                (
+                    [0] => form
+                    [1] => validation_min_numeric_zero
+                )
+
+            [77] => Array
+                (
+                    [0] => form
+                    [1] => extra_cost
+                )
+
+            [78] => Array
+                (
+                    [0] => form
+                    [1] => gross_weight
+                )
+
+            [79] => Array
+                (
+                    [0] => form
+                    [1] => line_total
+                )
+
+            [80] => Array
+                (
+                    [0] => form
+                    [1] => net_weight
+                )
+
+            [81] => Array
+                (
+                    [0] => form
+                    [1] => product
+                )
+
+            [82] => Array
+                (
+                    [0] => form
+                    [1] => quantity
+                )
+
+            [83] => Array
+                (
+                    [0] => form
+                    [1] => helper_quantity
+                )
+
+            [84] => Array
+                (
+                    [0] => form
+                    [1] => validation_min_numeric
+                )
+
+            [85] => Array
+                (
+                    [0] => form
+                    [1] => shipping_cost
+                )
+
+            [86] => Array
+                (
+                    [0] => form
+                    [1] => unit
+                )
+
+            [87] => Array
+                (
+                    [0] => form
+                    [1] => unit_price
+                )
+
+            [88] => Array
+                (
+                    [0] => form
+                    [1] => helper_unit_price
+                )
+
+            [89] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => general
+                )
+
+            [90] => Array
+                (
+                    [0] => form
+                    [1] => section_order_details
+                )
+
+            [91] => Array
+                (
+                    [0] => form
+                    [1] => section_line_items
+                )
+
+            [92] => Array
+                (
+                    [0] => form
+                    [1] => add_item
+                )
+
+            [93] => Array
+                (
+                    [0] => form
+                    [1] => section_summary_notes
+                )
+
+            [94] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => insurance
+                )
+
+            [95] => Array
+                (
+                    [0] => form
+                    [1] => section_insurance_details
+                )
+
+            [96] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_general
+                )
+
+            [97] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_items
+                )
+
+            [98] => Array
+                (
+                    [0] => infolist
+                    [1] => line_items
+                )
+
+            [99] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_documents
+                )
+
+        )
+
+    [resources/proformaInvoice/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => general
+                    [1] => add_record
+                )
+
+            [1] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [2] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [3] => Array
+                (
+                    [0] => filters
+                    [1] => seller_company
+                )
+
+            [4] => Array
+                (
+                    [0] => filters
+                    [1] => buyer_company
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => attachments
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => beneficiary_country
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => buyer_comm_card_num
+                )
+
+            [8] => Array
+                (
+                    [0] => form
+                    [1] => buyer_company
+                )
+
+            [9] => Array
+                (
+                    [0] => form
+                    [1] => contract_no
+                )
+
+            [10] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [11] => Array
+                (
+                    [0] => table
+                    [1] => creator
+                )
+
+            [12] => Array
+                (
+                    [0] => form
+                    [1] => delivery_terms
+                )
+
+            [13] => Array
+                (
+                    [0] => form
+                    [1] => destination_country
+                )
+
+            [14] => Array
+                (
+                    [0] => form
+                    [1] => discount
+                )
+
+            [15] => Array
+                (
+                    [0] => form
+                    [1] => freight_charges
+                )
+
+            [16] => Array
+                (
+                    [0] => form
+                    [1] => invoice_date
+                )
+
+            [17] => Array
+                (
+                    [0] => infolist
+                    [1] => invoice_items
+                )
+
+            [18] => Array
+                (
+                    [0] => form
+                    [1] => product
+                )
+
+            [19] => Array
+                (
+                    [0] => form
+                    [1] => quantity
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => unit
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => unit_price
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => item_total_amount
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => origin
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => hs_code
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => net_weight
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => gross_weight
+                )
+
+            [27] => Array
+                (
+                    [0] => form
+                    [1] => item_description
+                )
+
+            [28] => Array
+                (
+                    [0] => form
+                    [1] => item_english_description
+                )
+
+            [29] => Array
+                (
+                    [0] => form
+                    [1] => invoice_no
+                )
+
+            [30] => Array
+                (
+                    [0] => form
+                    [1] => main_currency
+                )
+
+            [31] => Array
+                (
+                    [0] => form
+                    [1] => origin_country
+                )
+
+            [32] => Array
+                (
+                    [0] => form
+                    [1] => other_charges
+                )
+
+            [33] => Array
+                (
+                    [0] => form
+                    [1] => port_of_discharge
+                )
+
+            [34] => Array
+                (
+                    [0] => form
+                    [1] => port_of_loading
+                )
+
+            [35] => Array
+                (
+                    [0] => form
+                    [1] => secondary_currency
+                )
+
+            [36] => Array
+                (
+                    [0] => form
+                    [1] => seller_company
+                )
+
+            [37] => Array
+                (
+                    [0] => form
+                    [1] => shipment_info
+                )
+
+            [38] => Array
+                (
+                    [0] => form
+                    [1] => total_amount
+                )
+
+            [39] => Array
+                (
+                    [0] => form
+                    [1] => transport_mode
+                )
+
+            [40] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [41] => Array
+                (
+                    [0] => table
+                    [1] => updater
+                )
+
+            [42] => Array
+                (
+                    [0] => form
+                    [1] => validity_date
+                )
+
+            [43] => Array
+                (
+                    [0] => filters
+                    [1] => creator
+                )
+
+            [44] => Array
+                (
+                    [0] => filters
+                    [1] => delivery_terms
+                )
+
+            [45] => Array
+                (
+                    [0] => general
+                    [1] => delivery_terms
+                )
+
+            [46] => Array
+                (
+                    [0] => filters
+                    [1] => has_purchase_orders
+                )
+
+            [47] => Array
+                (
+                    [0] => filters
+                    [1] => has_purchase_requests
+                )
+
+            [48] => Array
+                (
+                    [0] => filters
+                    [1] => invoice_date_from
+                )
+
+            [49] => Array
+                (
+                    [0] => filters
+                    [1] => invoice_date_until
+                )
+
+            [50] => Array
+                (
+                    [0] => filters
+                    [1] => main_currency
+                )
+
+            [51] => Array
+                (
+                    [0] => filters
+                    [1] => transport_mode
+                )
+
+            [52] => Array
+                (
+                    [0] => general
+                    [1] => transport_modes
+                )
+
+            [53] => Array
+                (
+                    [0] => table
+                    [1] => buyer_company
+                )
+
+            [54] => Array
+                (
+                    [0] => table
+                    [1] => id
+                )
+
+            [55] => Array
+                (
+                    [0] => table
+                    [1] => invoice_date
+                )
+
+            [56] => Array
+                (
+                    [0] => table
+                    [1] => invoice_no
+                )
+
+            [57] => Array
+                (
+                    [0] => table
+                    [1] => seller_company
+                )
+
+            [58] => Array
+                (
+                    [0] => table
+                    [1] => total_amount
+                )
+
+            [59] => Array
+                (
+                    [0] => table
+                    [1] => registered_orders_count
+                )
+
+            [60] => Array
+                (
+                    [0] => form
+                    [1] => validation_buyer_comm_card_num_max
+                )
+
+            [61] => Array
+                (
+                    [0] => form
+                    [1] => validation_buyer_company_required
+                )
+
+            [62] => Array
+                (
+                    [0] => form
+                    [1] => validation_buyer_company_exists
+                )
+
+            [63] => Array
+                (
+                    [0] => form
+                    [1] => validation_buyer_company_different
+                )
+
+            [64] => Array
+                (
+                    [0] => form
+                    [1] => helper_buyer_company
+                )
+
+            [65] => Array
+                (
+                    [0] => form
+                    [1] => validation_contract_no_max
+                )
+
+            [66] => Array
+                (
+                    [0] => form
+                    [1] => helper_delivery_terms
+                )
+
+            [67] => Array
+                (
+                    [0] => form
+                    [1] => validation_discount_numeric
+                )
+
+            [68] => Array
+                (
+                    [0] => form
+                    [1] => validation_discount_min
+                )
+
+            [69] => Array
+                (
+                    [0] => form
+                    [1] => helper_discount
+                )
+
+            [70] => Array
+                (
+                    [0] => form
+                    [1] => validation_invoice_date_required
+                )
+
+            [71] => Array
+                (
+                    [0] => form
+                    [1] => validation_invoice_date_before_or_equal
+                )
+
+            [72] => Array
+                (
+                    [0] => form
+                    [1] => helper_invoice_date
+                )
+
+            [73] => Array
+                (
+                    [0] => form
+                    [1] => validation_invoice_no_max
+                )
+
+            [74] => Array
+                (
+                    [0] => form
+                    [1] => validation_invoice_no_required
+                )
+
+            [75] => Array
+                (
+                    [0] => form
+                    [1] => validation_invoice_no_unique
+                )
+
+            [76] => Array
+                (
+                    [0] => form
+                    [1] => helper_invoice_no
+                )
+
+            [77] => Array
+                (
+                    [0] => form
+                    [1] => validation
+                    [2] => max_string
+                )
+
+            [78] => Array
+                (
+                    [0] => form
+                    [1] => item_freight_charges
+                )
+
+            [79] => Array
+                (
+                    [0] => form
+                    [1] => validation_item_freight_charges_numeric
+                )
+
+            [80] => Array
+                (
+                    [0] => form
+                    [1] => validation_item_freight_charges_min
+                )
+
+            [81] => Array
+                (
+                    [0] => form
+                    [1] => validation_gross_weight_numeric
+                )
+
+            [82] => Array
+                (
+                    [0] => form
+                    [1] => validation_gross_weight_min
+                )
+
+            [83] => Array
+                (
+                    [0] => form
+                    [1] => helper_gross_weight
+                )
+
+            [84] => Array
+                (
+                    [0] => form
+                    [1] => validation_hs_code_max
+                )
+
+            [85] => Array
+                (
+                    [0] => form
+                    [1] => validation_net_weight_numeric
+                )
+
+            [86] => Array
+                (
+                    [0] => form
+                    [1] => validation_net_weight_min
+                )
+
+            [87] => Array
+                (
+                    [0] => form
+                    [1] => add_notes
+                )
+
+            [88] => Array
+                (
+                    [0] => form
+                    [1] => validation_product_required
+                )
+
+            [89] => Array
+                (
+                    [0] => form
+                    [1] => validation_product_exists
+                )
+
+            [90] => Array
+                (
+                    [0] => form
+                    [1] => validation_quantity_numeric
+                )
+
+            [91] => Array
+                (
+                    [0] => form
+                    [1] => validation_quantity_min
+                )
+
+            [92] => Array
+                (
+                    [0] => form
+                    [1] => helper_quantity
+                )
+
+            [93] => Array
+                (
+                    [0] => form
+                    [1] => validation_unit_required
+                )
+
+            [94] => Array
+                (
+                    [0] => form
+                    [1] => validation_unit_price_numeric
+                )
+
+            [95] => Array
+                (
+                    [0] => form
+                    [1] => validation_unit_price_min
+                )
+
+            [96] => Array
+                (
+                    [0] => form
+                    [1] => validation_main_currency_required
+                )
+
+            [97] => Array
+                (
+                    [0] => form
+                    [1] => validation_main_currency_exists
+                )
+
+            [98] => Array
+                (
+                    [0] => form
+                    [1] => validation_main_currency_different
+                )
+
+            [99] => Array
+                (
+                    [0] => form
+                    [1] => helper_main_currency
+                )
+
+            [100] => Array
+                (
+                    [0] => form
+                    [1] => notes
+                )
+
+            [101] => Array
+                (
+                    [0] => form
+                    [1] => validation_other_charges_numeric
+                )
+
+            [102] => Array
+                (
+                    [0] => form
+                    [1] => validation_other_charges_min
+                )
+
+            [103] => Array
+                (
+                    [0] => form
+                    [1] => validation_port_of_discharge_max
+                )
+
+            [104] => Array
+                (
+                    [0] => form
+                    [1] => validation_port_of_loading_max
+                )
+
+            [105] => Array
+                (
+                    [0] => form
+                    [1] => validation_secondary_currency_exists
+                )
+
+            [106] => Array
+                (
+                    [0] => form
+                    [1] => validation_seller_company_required
+                )
+
+            [107] => Array
+                (
+                    [0] => form
+                    [1] => validation_seller_company_exists
+                )
+
+            [108] => Array
+                (
+                    [0] => form
+                    [1] => validation_seller_company_different
+                )
+
+            [109] => Array
+                (
+                    [0] => form
+                    [1] => validation_validity_date_after
+                )
+
+            [110] => Array
+                (
+                    [0] => form
+                    [1] => helper_validity_date
+                )
+
+            [111] => Array
+                (
+                    [0] => form
+                    [1] => purchase_orders
+                )
+
+            [112] => Array
+                (
+                    [0] => form
+                    [1] => purchase_requests
+                )
+
+            [113] => Array
+                (
+                    [0] => form
+                    [1] => related_to
+                )
+
+            [114] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => general
+                )
+
+            [115] => Array
+                (
+                    [0] => form
+                    [1] => invoice_details
+                )
+
+            [116] => Array
+                (
+                    [0] => form
+                    [1] => invoice_items
+                )
+
+            [117] => Array
+                (
+                    [0] => form
+                    [1] => add_invoice_item
+                )
+
+            [118] => Array
+                (
+                    [0] => form
+                    [1] => shipment_and_charges
+                )
+
+            [119] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => details
+                )
+
+            [120] => Array
+                (
+                    [0] => form
+                    [1] => additional_details
+                )
+
+            [121] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_general
+                )
+
+            [122] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_details
+                )
+
+            [123] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_items
+                )
+
+            [124] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_documents
+                )
+
+            [125] => Array
+                (
+                    [0] => table
+                    [1] => purchase_orders
+                )
+
+        )
+
+    [resources/purchaseRequest/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => form
+                    [1] => approval_date
+                )
+
+            [1] => Array
+                (
+                    [0] => form
+                    [1] => approver
+                )
+
+            [2] => Array
+                (
+                    [0] => infolist
+                    [1] => attachments
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => cost_center
+                )
+
+            [4] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [5] => Array
+                (
+                    [0] => table
+                    [1] => creator
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => department
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => notes
+                )
+
+            [8] => Array
+                (
+                    [0] => form
+                    [1] => pr_number
+                )
+
+            [9] => Array
+                (
+                    [0] => infolist
+                    [1] => purchase_items
+                )
+
+            [10] => Array
+                (
+                    [0] => infolist
+                    [1] => item_product
+                )
+
+            [11] => Array
+                (
+                    [0] => infolist
+                    [1] => item_quantity
+                )
+
+            [12] => Array
+                (
+                    [0] => infolist
+                    [1] => item_unit
+                )
+
+            [13] => Array
+                (
+                    [0] => infolist
+                    [1] => item_estimated_cost
+                )
+
+            [14] => Array
+                (
+                    [0] => infolist
+                    [1] => item_status
+                )
+
+            [15] => Array
+                (
+                    [0] => infolist
+                    [1] => item_notes
+                )
+
+            [16] => Array
+                (
+                    [0] => form
+                    [1] => rejection_reason
+                )
+
+            [17] => Array
+                (
+                    [0] => form
+                    [1] => requester
+                )
+
+            [18] => Array
+                (
+                    [0] => form
+                    [1] => required_by_date
+                )
+
+            [19] => Array
+                (
+                    [0] => form
+                    [1] => status
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => total_estimated_cost
+                )
+
+            [21] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [22] => Array
+                (
+                    [0] => table
+                    [1] => updater
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => urgency_level
+                )
+
+            [24] => Array
+                (
+                    [0] => filters
+                    [1] => created_from
+                )
+
+            [25] => Array
+                (
+                    [0] => filters
+                    [1] => created_until
+                )
+
+            [26] => Array
+                (
+                    [0] => filters
+                    [1] => department
+                )
+
+            [27] => Array
+                (
+                    [0] => filters
+                    [1] => requester
+                )
+
+            [28] => Array
+                (
+                    [0] => filters
+                    [1] => status
+                )
+
+            [29] => Array
+                (
+                    [0] => table
+                    [1] => urgency_level
+                )
+
+            [30] => Array
+                (
+                    [0] => general
+                    [1] => urgency
+                    [2] => low
+                )
+
+            [31] => Array
+                (
+                    [0] => general
+                    [1] => urgency
+                    [2] => medium
+                )
+
+            [32] => Array
+                (
+                    [0] => general
+                    [1] => urgency
+                    [2] => high
+                )
+
+            [33] => Array
+                (
+                    [0] => table
+                    [1] => department
+                )
+
+            [34] => Array
+                (
+                    [0] => table
+                    [1] => id
+                )
+
+            [35] => Array
+                (
+                    [0] => table
+                    [1] => pr_number
+                )
+
+            [36] => Array
+                (
+                    [0] => table
+                    [1] => pi_count
+                )
+
+            [37] => Array
+                (
+                    [0] => table
+                    [1] => requester
+                )
+
+            [38] => Array
+                (
+                    [0] => table
+                    [1] => required_by_date
+                )
+
+            [39] => Array
+                (
+                    [0] => table
+                    [1] => status
+                )
+
+            [40] => Array
+                (
+                    [0] => table
+                    [1] => total_estimated_cost
+                )
+
+            [41] => Array
+                (
+                    [0] => form
+                    [1] => validation_department_required
+                )
+
+            [42] => Array
+                (
+                    [0] => form
+                    [1] => estimated_cost
+                )
+
+            [43] => Array
+                (
+                    [0] => form
+                    [1] => helper_estimated_cost
+                )
+
+            [44] => Array
+                (
+                    [0] => form
+                    [1] => validation_estimated_cost_required
+                )
+
+            [45] => Array
+                (
+                    [0] => form
+                    [1] => validation_estimated_cost_numeric
+                )
+
+            [46] => Array
+                (
+                    [0] => form
+                    [1] => validation_estimated_cost_min
+                )
+
+            [47] => Array
+                (
+                    [0] => form
+                    [1] => validation_item_notes_max
+                )
+
+            [48] => Array
+                (
+                    [0] => form
+                    [1] => item_notes
+                )
+
+            [49] => Array
+                (
+                    [0] => form
+                    [1] => add_notes
+                )
+
+            [50] => Array
+                (
+                    [0] => form
+                    [1] => product
+                )
+
+            [51] => Array
+                (
+                    [0] => form
+                    [1] => validation_product_required
+                )
+
+            [52] => Array
+                (
+                    [0] => form
+                    [1] => quantity
+                )
+
+            [53] => Array
+                (
+                    [0] => form
+                    [1] => helper_quantity
+                )
+
+            [54] => Array
+                (
+                    [0] => form
+                    [1] => validation_quantity_required
+                )
+
+            [55] => Array
+                (
+                    [0] => form
+                    [1] => validation_quantity_numeric
+                )
+
+            [56] => Array
+                (
+                    [0] => form
+                    [1] => validation_quantity_min
+                )
+
+            [57] => Array
+                (
+                    [0] => form
+                    [1] => validation_status_required
+                )
+
+            [58] => Array
+                (
+                    [0] => form
+                    [1] => validation_max
+                )
+
+            [59] => Array
+                (
+                    [0] => form
+                    [1] => validation_required
+                )
+
+            [60] => Array
+                (
+                    [0] => form
+                    [1] => validation_unique
+                )
+
+            [61] => Array
+                (
+                    [0] => form
+                    [1] => validation_max_string
+                )
+
+            [62] => Array
+                (
+                    [0] => form
+                    [1] => helper_required_by_date
+                )
+
+            [63] => Array
+                (
+                    [0] => form
+                    [1] => validation_required_by_date_required
+                )
+
+            [64] => Array
+                (
+                    [0] => form
+                    [1] => validation_required_by_date_after
+                )
+
+            [65] => Array
+                (
+                    [0] => general
+                    [1] => urgency
+                )
+
+            [66] => Array
+                (
+                    [0] => form
+                    [1] => validation_urgency_required
+                )
+
+            [67] => Array
+                (
+                    [0] => form
+                    [1] => helper_urgency_level
+                )
+
+            [68] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [69] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [70] => Array
+                (
+                    [0] => form
+                    [1] => tab_general
+                )
+
+            [71] => Array
+                (
+                    [0] => form
+                    [1] => request_details
+                )
+
+            [72] => Array
+                (
+                    [0] => form
+                    [1] => items
+                )
+
+            [73] => Array
+                (
+                    [0] => form
+                    [1] => purchase_items
+                )
+
+            [74] => Array
+                (
+                    [0] => form
+                    [1] => add_purchase_item
+                )
+
+            [75] => Array
+                (
+                    [0] => form
+                    [1] => status_and_notes
+                )
+
+            [76] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_general
+                )
+
+            [77] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_items
+                )
+
+            [78] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_documents
+                )
+
+        )
+
+    [resources/general/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => relevant_module
+                    [1] => table
+                    [2] => related_to
+                )
+
+            [1] => Array
+                (
+                    [0] => attachments
+                    [1] => attachments
+                )
+
+            [2] => Array
+                (
+                    [0] => relevant_module
+                    [1] => form
+                    [2] => purchase_orders
+                )
+
+            [3] => Array
+                (
+                    [0] => relevant_module
+                    [1] => form
+                    [2] => purchase_requests
+                )
+
+            [4] => Array
+                (
+                    [0] => relevant_module
+                    [1] => form
+                    [2] => registered_orders
+                )
+
+            [5] => Array
+                (
+                    [0] => relevant_module
+                    [1] => form
+                    [2] => related_to
+                )
+
+            [6] => Array
+                (
+                    [0] => relevant_module
+                    [1] => form
+                    [2] => purchase_requests_related
+                )
+
+            [7] => Array
+                (
+                    [0] => relevant_module
+                    [1] => form
+                    [2] => registered_orders_related
+                )
+
+            [8] => Array
+                (
+                    [0] => relevant_module
+                    [1] => form
+                    [2] => purchase_orders_related
+                )
+
+            [9] => Array
+                (
+                    [0] => relevant_module
+                    [1] => form
+                    [2] => proforma_invoices
+                )
+
+            [10] => Array
+                (
+                    [0] => relevant_module
+                    [1] => form
+                    [2] => proforma_invoices_related
+                )
+
+            [11] => Array
+                (
+                    [0] => relevant_module
+                    [1] => table
+                    [2] => proforma_invoices
+                )
+
+            [12] => Array
+                (
+                    [0] => relevant_module
+                    [1] => table
+                    [2] => registered_orders
+                )
+
+            [13] => Array
+                (
+                    [0] => relevant_module
+                    [1] => table
+                    [2] => purchase_requests
+                )
+
+            [14] => Array
+                (
+                    [0] => bulk
+                    [1] => activate
+                    [2] => label
+                )
+
+            [15] => Array
+                (
+                    [0] => bulk
+                    [1] => activate
+                    [2] => notification
+                )
+
+            [16] => Array
+                (
+                    [0] => bulk
+                    [1] => deactivate
+                    [2] => label
+                )
+
+            [17] => Array
+                (
+                    [0] => bulk
+                    [1] => deactivate
+                    [2] => notification
+                )
+
+            [18] => Array
+                (
+                    [0] => attachments
+                    [1] => validation
+                    [2] => invalid_filename_chars_hint
+                )
+
+            [19] => Array
+                (
+                    [0] => attachments
+                    [1] => validation
+                    [2] => invalid_filename_chars
+                )
+
+            [20] => Array
+                (
+                    [0] => attachments
+                    [1] => validation
+                    [2] => file_not_available_hint
+                )
+
+            [21] => Array
+                (
+                    [0] => attachments
+                    [1] => validation
+                    [2] => file_not_available
+                )
+
+            [22] => Array
+                (
+                    [0] => attachments
+                    [1] => validation
+                    [2] => attachments_size
+                )
+
+            [23] => Array
+                (
+                    [0] => attachments
+                    [1] => validation
+                    [2] => attachments_type
+                )
+
+            [24] => Array
+                (
+                    [0] => attachments
+                    [1] => validation
+                    [2] => metadata_unreadable_hint
+                )
+
+            [25] => Array
+                (
+                    [0] => attachments
+                    [1] => validation
+                    [2] => metadata_unreadable
+                )
+
+            [26] => Array
+                (
+                    [0] => attachments
+                    [1] => validation
+                    [2] => processing_failed
+                )
+
+        )
+
+    [resources/correspondence/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => form
+                    [1] => is_internal
+                )
+
+            [1] => Array
+                (
+                    [0] => form
+                    [1] => is_private
+                )
+
+            [2] => Array
+                (
+                    [0] => form
+                    [1] => body
+                )
+
+            [3] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [4] => Array
+                (
+                    [0] => table
+                    [1] => creator
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => priority
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => recipients
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => status
+                )
+
+            [8] => Array
+                (
+                    [0] => form
+                    [1] => subject
+                )
+
+            [9] => Array
+                (
+                    [0] => form
+                    [1] => type
+                )
+
+            [10] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [11] => Array
+                (
+                    [0] => table
+                    [1] => updater
+                )
+
+            [12] => Array
+                (
+                    [0] => filters
+                    [1] => created_from
+                )
+
+            [13] => Array
+                (
+                    [0] => filters
+                    [1] => created_until
+                )
+
+            [14] => Array
+                (
+                    [0] => filters
+                    [1] => creator
+                )
+
+            [15] => Array
+                (
+                    [0] => filters
+                    [1] => my_mentions
+                )
+
+            [16] => Array
+                (
+                    [0] => filters
+                    [1] => priority
+                )
+
+            [17] => Array
+                (
+                    [0] => filters
+                    [1] => status
+                )
+
+            [18] => Array
+                (
+                    [0] => filters
+                    [1] => type
+                )
+
+            [19] => Array
+                (
+                    [0] => table
+                    [1] => visibility
+                )
+
+            [20] => Array
+                (
+                    [0] => table
+                    [1] => priority
+                )
+
+            [21] => Array
+                (
+                    [0] => table
+                    [1] => recipients
+                )
+
+            [22] => Array
+                (
+                    [0] => table
+                    [1] => status
+                )
+
+            [23] => Array
+                (
+                    [0] => table
+                    [1] => subject
+                )
+
+            [24] => Array
+                (
+                    [0] => table
+                    [1] => type
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => validation_required
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => helper_internal
+                )
+
+            [27] => Array
+                (
+                    [0] => form
+                    [1] => helper_private
+                )
+
+            [28] => Array
+                (
+                    [0] => form
+                    [1] => parent
+                )
+
+            [29] => Array
+                (
+                    [0] => form
+                    [1] => helper_priority
+                )
+
+            [30] => Array
+                (
+                    [0] => form
+                    [1] => recipients_cc
+                )
+
+            [31] => Array
+                (
+                    [0] => form
+                    [1] => recipients_to
+                )
+
+            [32] => Array
+                (
+                    [0] => form
+                    [1] => helper_subject
+                )
+
+            [33] => Array
+                (
+                    [0] => form
+                    [1] => validation_subject_max
+                )
+
+            [34] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [35] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [36] => Array
+                (
+                    [0] => general
+                    [1] => create_new
+                )
+
+            [37] => Array
+                (
+                    [0] => table
+                    [1] => thread
+                )
+
+            [38] => Array
+                (
+                    [0] => form
+                    [1] => section_main
+                )
+
+            [39] => Array
+                (
+                    [0] => form
+                    [1] => section_settings
+                )
+
+            [40] => Array
+                (
+                    [0] => form
+                    [1] => section_recipients
+                )
+
+            [41] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_general
+                )
+
+        )
+
+    [resources/shipment/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [1] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [2] => Array
+                (
+                    [0] => general
+                    [1] => add_record
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => carrier
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => status
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => shipment_status
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => docs_options
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => attachments
+                )
+
+            [8] => Array
+                (
+                    [0] => form
+                    [1] => bl_number
+                )
+
+            [9] => Array
+                (
+                    [0] => form
+                    [1] => booking_no
+                )
+
+            [10] => Array
+                (
+                    [0] => form
+                    [1] => container_no
+                )
+
+            [11] => Array
+                (
+                    [0] => form
+                    [1] => container_status
+                )
+
+            [12] => Array
+                (
+                    [0] => form
+                    [1] => container_type
+                )
+
+            [13] => Array
+                (
+                    [0] => form
+                    [1] => contract_no
+                )
+
+            [14] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [15] => Array
+                (
+                    [0] => table
+                    [1] => created_by
+                )
+
+            [16] => Array
+                (
+                    [0] => form
+                    [1] => customs_quantity
+                )
+
+            [17] => Array
+                (
+                    [0] => form
+                    [1] => doc_status
+                )
+
+            [18] => Array
+                (
+                    [0] => form
+                    [1] => docs
+                )
+
+            [19] => Array
+                (
+                    [0] => form
+                    [1] => doc_name
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => eta
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => etd
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => exit_date
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => notes
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => operation_status
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => part
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => registered_order
+                )
+
+            [27] => Array
+                (
+                    [0] => form
+                    [1] => remittance_amount
+                )
+
+            [28] => Array
+                (
+                    [0] => form
+                    [1] => shipment_no
+                )
+
+            [29] => Array
+                (
+                    [0] => form
+                    [1] => shipped_quantity
+                )
+
+            [30] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [31] => Array
+                (
+                    [0] => table
+                    [1] => updated_by
+                )
+
+            [32] => Array
+                (
+                    [0] => form
+                    [1] => warehouse_date
+                )
+
+            [33] => Array
+                (
+                    [0] => filters
+                    [1] => created_from
+                )
+
+            [34] => Array
+                (
+                    [0] => filters
+                    [1] => created_until
+                )
+
+            [35] => Array
+                (
+                    [0] => filters
+                    [1] => eta_from
+                )
+
+            [36] => Array
+                (
+                    [0] => filters
+                    [1] => eta_until
+                )
+
+            [37] => Array
+                (
+                    [0] => filters
+                    [1] => warehouse_from
+                )
+
+            [38] => Array
+                (
+                    [0] => filters
+                    [1] => warehouse_until
+                )
+
+            [39] => Array
+                (
+                    [0] => table
+                    [1] => bl_number
+                )
+
+            [40] => Array
+                (
+                    [0] => table
+                    [1] => carrier
+                )
+
+            [41] => Array
+                (
+                    [0] => table
+                    [1] => id
+                )
+
+            [42] => Array
+                (
+                    [0] => table
+                    [1] => part
+                )
+
+            [43] => Array
+                (
+                    [0] => table
+                    [1] => registered_order
+                )
+
+            [44] => Array
+                (
+                    [0] => table
+                    [1] => shipment_no
+                )
+
+            [45] => Array
+                (
+                    [0] => table
+                    [1] => status
+                )
+
+            [46] => Array
+                (
+                    [0] => table
+                    [1] => tracking_status
+                )
+
+            [47] => Array
+                (
+                    [0] => form
+                    [1] => validation
+                    [2] => max
+                )
+
+            [48] => Array
+                (
+                    [0] => form
+                    [1] => validation
+                    [2] => required
+                )
+
+            [49] => Array
+                (
+                    [0] => form
+                    [1] => container_types_with_opt
+                )
+
+            [50] => Array
+                (
+                    [0] => form
+                    [1] => validation
+                    [2] => numeric
+                )
+
+            [51] => Array
+                (
+                    [0] => form
+                    [1] => validation
+                    [2] => min_numeric_zero
+                )
+
+            [52] => Array
+                (
+                    [0] => form
+                    [1] => validation
+                    [2] => english_only
+                )
+
+            [53] => Array
+                (
+                    [0] => form
+                    [1] => add_doc
+                )
+
+            [54] => Array
+                (
+                    [0] => form
+                    [1] => helper_part
+                )
+
+            [55] => Array
+                (
+                    [0] => form
+                    [1] => helper_remittance_amount
+                )
+
+            [56] => Array
+                (
+                    [0] => form
+                    [1] => validation
+                    [2] => unique
+                )
+
+            [57] => Array
+                (
+                    [0] => form
+                    [1] => docs_options
+                    [2] => track
+                )
+
+            [58] => Array
+                (
+                    [0] => form
+                    [1] => smart_tracer_hint
+                )
+
+            [59] => Array
+                (
+                    [0] => form
+                    [1] => helper_status
+                )
+
+            [60] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => general
+                )
+
+            [61] => Array
+                (
+                    [0] => form
+                    [1] => section_general
+                )
+
+            [62] => Array
+                (
+                    [0] => form
+                    [1] => section_docs_notes
+                )
+
+            [63] => Array
+                (
+                    [0] => form
+                    [1] => tabs
+                    [2] => logistics
+                )
+
+            [64] => Array
+                (
+                    [0] => form
+                    [1] => section_dates
+                )
+
+            [65] => Array
+                (
+                    [0] => form
+                    [1] => section_logistics
+                )
+
+            [66] => Array
+                (
+                    [0] => form
+                    [1] => section_amounts
+                )
+
+            [67] => Array
+                (
+                    [0] => form
+                    [1] => section_status
+                )
+
+            [68] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_general
+                )
+
+            [69] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_logistics
+                )
+
+            [70] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_docs
+                )
+
+            [71] => Array
+                (
+                    [0] => infolist
+                    [1] => tab_documents
+                )
+
+        )
+
+    [resources/role/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [1] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [2] => Array
+                (
+                    [0] => grouping
+                    [1] => base_name
+                )
+
+            [3] => Array
+                (
+                    [0] => infolist
+                    [1] => name
+                )
+
+            [4] => Array
+                (
+                    [0] => infolist
+                    [1] => grade
+                )
+
+            [5] => Array
+                (
+                    [0] => infolist
+                    [1] => permissions
+                )
+
+            [6] => Array
+                (
+                    [0] => infolist
+                    [1] => created_at
+                )
+
+            [7] => Array
+                (
+                    [0] => infolist
+                    [1] => updated_at
+                )
+
+            [8] => Array
+                (
+                    [0] => filters
+                    [1] => name
+                )
+
+            [9] => Array
+                (
+                    [0] => filters
+                    [1] => grade
+                )
+
+            [10] => Array
+                (
+                    [0] => table
+                    [1] => name
+                )
+
+            [11] => Array
+                (
+                    [0] => table
+                    [1] => permissions_count
+                )
+
+            [12] => Array
+                (
+                    [0] => table
+                    [1] => users_count
+                )
+
+            [13] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [14] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [15] => Array
+                (
+                    [0] => form
+                    [1] => grade
+                )
+
+            [16] => Array
+                (
+                    [0] => form
+                    [1] => helper_grade
+                )
+
+            [17] => Array
+                (
+                    [0] => form
+                    [1] => validation_grade_required
+                )
+
+            [18] => Array
+                (
+                    [0] => form
+                    [1] => modules
+                )
+
+            [19] => Array
+                (
+                    [0] => form
+                    [1] => helper_modules
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => permissions
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => name
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => helper_name
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_required
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_unique
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_regex
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_max
+                )
+
+            [27] => Array
+                (
+                    [0] => form
+                    [1] => select_all
+                )
+
+        )
+
+    [resources/entityAttribute/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [1] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [2] => Array
+                (
+                    [0] => table
+                    [1] => entity_type
+                )
+
+            [3] => Array
+                (
+                    [0] => table
+                    [1] => entity_id
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => key
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => value
+                )
+
+            [6] => Array
+                (
+                    [0] => table
+                    [1] => created_by
+                )
+
+            [7] => Array
+                (
+                    [0] => table
+                    [1] => updated_by
+                )
+
+            [8] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [9] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [10] => Array
+                (
+                    [0] => filters
+                    [1] => entity_type
+                )
+
+            [11] => Array
+                (
+                    [0] => table
+                    [1] => key
+                )
+
+            [12] => Array
+                (
+                    [0] => table
+                    [1] => value
+                )
+
+            [13] => Array
+                (
+                    [0] => form
+                    [1] => add_attribute_action
+                )
+
+        )
+
+    [resources/currency/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [1] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [2] => Array
+                (
+                    [0] => form
+                    [1] => creator
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => description
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => english_name
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => is_active
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => name
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => updater
+                )
+
+            [8] => Array
+                (
+                    [0] => table
+                    [1] => creator
+                )
+
+            [9] => Array
+                (
+                    [0] => table
+                    [1] => updater
+                )
+
+            [10] => Array
+                (
+                    [0] => table
+                    [1] => is_active
+                )
+
+            [11] => Array
+                (
+                    [0] => table
+                    [1] => only_active
+                )
+
+            [12] => Array
+                (
+                    [0] => table
+                    [1] => only_inactive
+                )
+
+            [13] => Array
+                (
+                    [0] => table
+                    [1] => name
+                )
+
+            [14] => Array
+                (
+                    [0] => table
+                    [1] => english_name
+                )
+
+            [15] => Array
+                (
+                    [0] => table
+                    [1] => description
+                )
+
+            [16] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [17] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [18] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name
+                )
+
+            [19] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_required
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_unique
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => helper_english_name
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => helper_is_active
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => validation_name
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_required
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_unique
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => helper_name
+                )
+
+        )
+
+    [resources/notificationSetting/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [1] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [2] => Array
+                (
+                    [0] => table
+                    [1] => actions
+                )
+
+            [3] => Array
+                (
+                    [0] => table
+                    [1] => tables
+                )
+
+            [4] => Array
+                (
+                    [0] => infolist
+                    [1] => actions
+                )
+
+            [5] => Array
+                (
+                    [0] => infolist
+                    [1] => column_values
+                )
+
+            [6] => Array
+                (
+                    [0] => infolist
+                    [1] => columns
+                )
+
+            [7] => Array
+                (
+                    [0] => infolist
+                    [1] => created_at
+                )
+
+            [8] => Array
+                (
+                    [0] => infolist
+                    [1] => created_by
+                )
+
+            [9] => Array
+                (
+                    [0] => infolist
+                    [1] => is_active
+                )
+
+            [10] => Array
+                (
+                    [0] => infolist
+                    [1] => notes
+                )
+
+            [11] => Array
+                (
+                    [0] => infolist
+                    [1] => notification_type
+                )
+
+            [12] => Array
+                (
+                    [0] => infolist
+                    [1] => tables
+                )
+
+            [13] => Array
+                (
+                    [0] => infolist
+                    [1] => updated_at
+                )
+
+            [14] => Array
+                (
+                    [0] => infolist
+                    [1] => updated_by
+                )
+
+            [15] => Array
+                (
+                    [0] => infolist
+                    [1] => users
+                )
+
+            [16] => Array
+                (
+                    [0] => filters
+                    [1] => actions
+                )
+
+            [17] => Array
+                (
+                    [0] => filters
+                    [1] => creator
+                )
+
+            [18] => Array
+                (
+                    [0] => filters
+                    [1] => is_active
+                )
+
+            [19] => Array
+                (
+                    [0] => filters
+                    [1] => active
+                )
+
+            [20] => Array
+                (
+                    [0] => filters
+                    [1] => inactive
+                )
+
+            [21] => Array
+                (
+                    [0] => filters
+                    [1] => notification_type
+                )
+
+            [22] => Array
+                (
+                    [0] => filters
+                    [1] => tables
+                )
+
+            [23] => Array
+                (
+                    [0] => filters
+                    [1] => updater
+                )
+
+            [24] => Array
+                (
+                    [0] => table
+                    [1] => column_values
+                )
+
+            [25] => Array
+                (
+                    [0] => table
+                    [1] => columns
+                )
+
+            [26] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [27] => Array
+                (
+                    [0] => table
+                    [1] => created_by
+                )
+
+            [28] => Array
+                (
+                    [0] => table
+                    [1] => is_active
+                )
+
+            [29] => Array
+                (
+                    [0] => table
+                    [1] => notification_type
+                )
+
+            [30] => Array
+                (
+                    [0] => table
+                    [1] => users
+                )
+
+            [31] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [32] => Array
+                (
+                    [0] => table
+                    [1] => updated_by
+                )
+
+            [33] => Array
+                (
+                    [0] => form
+                    [1] => actions
+                )
+
+            [34] => Array
+                (
+                    [0] => form
+                    [1] => helper_actions
+                )
+
+            [35] => Array
+                (
+                    [0] => form
+                    [1] => columns
+                )
+
+            [36] => Array
+                (
+                    [0] => form
+                    [1] => helper_columns
+                )
+
+            [37] => Array
+                (
+                    [0] => form
+                    [1] => column_values
+                )
+
+            [38] => Array
+                (
+                    [0] => form
+                    [1] => helper_column_values
+                )
+
+            [39] => Array
+                (
+                    [0] => form
+                    [1] => description
+                )
+
+            [40] => Array
+                (
+                    [0] => form
+                    [1] => is_active
+                )
+
+            [41] => Array
+                (
+                    [0] => form
+                    [1] => notes
+                )
+
+            [42] => Array
+                (
+                    [0] => form
+                    [1] => validation_notes_max
+                )
+
+            [43] => Array
+                (
+                    [0] => form
+                    [1] => helper_notes
+                )
+
+            [44] => Array
+                (
+                    [0] => form
+                    [1] => notification_type
+                )
+
+            [45] => Array
+                (
+                    [0] => form
+                    [1] => tables
+                )
+
+            [46] => Array
+                (
+                    [0] => form
+                    [1] => tables_description
+                )
+
+            [47] => Array
+                (
+                    [0] => form
+                    [1] => users
+                )
+
+        )
+
+    [resources/bank/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [1] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [2] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => creator
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => description
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => english_name
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => is_active
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => name
+                )
+
+            [8] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [9] => Array
+                (
+                    [0] => form
+                    [1] => updater
+                )
+
+            [10] => Array
+                (
+                    [0] => table
+                    [1] => creator
+                )
+
+            [11] => Array
+                (
+                    [0] => table
+                    [1] => updater
+                )
+
+            [12] => Array
+                (
+                    [0] => table
+                    [1] => is_active
+                )
+
+            [13] => Array
+                (
+                    [0] => table
+                    [1] => only_active
+                )
+
+            [14] => Array
+                (
+                    [0] => table
+                    [1] => only_inactive
+                )
+
+            [15] => Array
+                (
+                    [0] => table
+                    [1] => name
+                )
+
+            [16] => Array
+                (
+                    [0] => table
+                    [1] => english_name
+                )
+
+            [17] => Array
+                (
+                    [0] => table
+                    [1] => description
+                )
+
+            [18] => Array
+                (
+                    [0] => form
+                    [1] => validation_name
+                )
+
+            [19] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_required
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_unique
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => helper_name
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_required
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_unique
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => helper_english_name
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => helper_is_active
+                )
+
+        )
+
+    [resources/user/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [1] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [2] => Array
+                (
+                    [0] => form
+                    [1] => company
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => department
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => email
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => ip
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => image
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => last_log_in
+                )
+
+            [8] => Array
+                (
+                    [0] => form
+                    [1] => last_log_out
+                )
+
+            [9] => Array
+                (
+                    [0] => form
+                    [1] => name
+                )
+
+            [10] => Array
+                (
+                    [0] => form
+                    [1] => phone
+                )
+
+            [11] => Array
+                (
+                    [0] => form
+                    [1] => position
+                )
+
+            [12] => Array
+                (
+                    [0] => form
+                    [1] => role
+                )
+
+            [13] => Array
+                (
+                    [0] => form
+                    [1] => status
+                )
+
+            [14] => Array
+                (
+                    [0] => table
+                    [1] => company
+                )
+
+            [15] => Array
+                (
+                    [0] => table
+                    [1] => department
+                )
+
+            [16] => Array
+                (
+                    [0] => table
+                    [1] => position
+                )
+
+            [17] => Array
+                (
+                    [0] => table
+                    [1] => role
+                )
+
+            [18] => Array
+                (
+                    [0] => table
+                    [1] => status
+                )
+
+            [19] => Array
+                (
+                    [0] => table
+                    [1] => name
+                )
+
+            [20] => Array
+                (
+                    [0] => table
+                    [1] => phone
+                )
+
+            [21] => Array
+                (
+                    [0] => table
+                    [1] => email
+                )
+
+            [22] => Array
+                (
+                    [0] => table
+                    [1] => image
+                )
+
+            [23] => Array
+                (
+                    [0] => table
+                    [1] => ip
+                )
+
+            [24] => Array
+                (
+                    [0] => table
+                    [1] => last_log_in
+                )
+
+            [25] => Array
+                (
+                    [0] => table
+                    [1] => last_log_out
+                )
+
+            [26] => Array
+                (
+                    [0] => table
+                    [1] => deleted_at
+                )
+
+            [27] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [28] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [29] => Array
+                (
+                    [0] => form
+                    [1] => validation_company_max
+                )
+
+            [30] => Array
+                (
+                    [0] => form
+                    [1] => helper_department
+                )
+
+            [31] => Array
+                (
+                    [0] => form
+                    [1] => validation_email_email
+                )
+
+            [32] => Array
+                (
+                    [0] => form
+                    [1] => validation_email_required
+                )
+
+            [33] => Array
+                (
+                    [0] => form
+                    [1] => validation_email_unique
+                )
+
+            [34] => Array
+                (
+                    [0] => form
+                    [1] => validation_email_max
+                )
+
+            [35] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_required
+                )
+
+            [36] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_max
+                )
+
+            [37] => Array
+                (
+                    [0] => form
+                    [1] => password
+                )
+
+            [38] => Array
+                (
+                    [0] => form
+                    [1] => password_copy
+                )
+
+            [39] => Array
+                (
+                    [0] => form
+                    [1] => helper_password
+                )
+
+            [40] => Array
+                (
+                    [0] => form
+                    [1] => validation_password_required
+                )
+
+            [41] => Array
+                (
+                    [0] => form
+                    [1] => validation_password_min
+                )
+
+            [42] => Array
+                (
+                    [0] => form
+                    [1] => validation_password_max
+                )
+
+            [43] => Array
+                (
+                    [0] => form
+                    [1] => password_confirmation
+                )
+
+            [44] => Array
+                (
+                    [0] => form
+                    [1] => helper_password_confirmation
+                )
+
+            [45] => Array
+                (
+                    [0] => form
+                    [1] => validation_password_confirmation_required
+                )
+
+            [46] => Array
+                (
+                    [0] => form
+                    [1] => validation_password_confirmation_min
+                )
+
+            [47] => Array
+                (
+                    [0] => form
+                    [1] => validation_password_confirmation_same
+                )
+
+            [48] => Array
+                (
+                    [0] => form
+                    [1] => validation_password_confirmation_max
+                )
+
+            [49] => Array
+                (
+                    [0] => form
+                    [1] => validation_phone_required
+                )
+
+            [50] => Array
+                (
+                    [0] => form
+                    [1] => validation_phone_unique
+                )
+
+            [51] => Array
+                (
+                    [0] => form
+                    [1] => helper_position
+                )
+
+            [52] => Array
+                (
+                    [0] => form
+                    [1] => helper_roles
+                )
+
+            [53] => Array
+                (
+                    [0] => form
+                    [1] => validation_status_required
+                )
+
+            [54] => Array
+                (
+                    [0] => form
+                    [1] => helper_status
+                )
+
+            [55] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => agent
+                )
+
+            [56] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => accountant
+                )
+
+            [57] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => manager
+                )
+
+            [58] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => partner
+                )
+
+            [59] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => admin
+                )
+
+            [60] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => active
+                )
+
+            [61] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => inactive
+                )
+
+            [62] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => pending
+                )
+
+            [63] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => jnr
+                )
+
+            [64] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => mdr
+                )
+
+            [65] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => snr
+                )
+
+        )
+
+    [resources/status/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [1] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [2] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => creator
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => english_name
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => english_type
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => name
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => type
+                )
+
+            [8] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [9] => Array
+                (
+                    [0] => form
+                    [1] => updater
+                )
+
+            [10] => Array
+                (
+                    [0] => table
+                    [1] => creator
+                )
+
+            [11] => Array
+                (
+                    [0] => table
+                    [1] => updater
+                )
+
+            [12] => Array
+                (
+                    [0] => table
+                    [1] => type
+                )
+
+            [13] => Array
+                (
+                    [0] => table
+                    [1] => english_type
+                )
+
+            [14] => Array
+                (
+                    [0] => table
+                    [1] => name
+                )
+
+            [15] => Array
+                (
+                    [0] => table
+                    [1] => english_name
+                )
+
+            [16] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name
+                )
+
+            [17] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_required
+                )
+
+            [18] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_unique
+                )
+
+            [19] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_max
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => english_custom
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_type_required
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => helper_english_type
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => custom
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_type_custom_required
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => validation_name
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => helper_name
+                )
+
+            [27] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_required
+                )
+
+            [28] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_unique
+                )
+
+            [29] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_max
+                )
+
+            [30] => Array
+                (
+                    [0] => form
+                    [1] => validation_type_required
+                )
+
+            [31] => Array
+                (
+                    [0] => form
+                    [1] => helper_type
+                )
+
+            [32] => Array
+                (
+                    [0] => form
+                    [1] => validation_type_custom_required
+                )
+
+        )
+
+    [resources/company/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => form
+                    [1] => basic_information
+                )
+
+            [1] => Array
+                (
+                    [0] => form
+                    [1] => company_classification
+                )
+
+            [2] => Array
+                (
+                    [0] => form
+                    [1] => classification_description
+                )
+
+            [3] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [4] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [5] => Array
+                (
+                    [0] => table
+                    [1] => company_types
+                )
+
+            [6] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => creator
+                )
+
+            [8] => Array
+                (
+                    [0] => form
+                    [1] => description
+                )
+
+            [9] => Array
+                (
+                    [0] => form
+                    [1] => english_name
+                )
+
+            [10] => Array
+                (
+                    [0] => form
+                    [1] => is_active
+                )
+
+            [11] => Array
+                (
+                    [0] => form
+                    [1] => name
+                )
+
+            [12] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [13] => Array
+                (
+                    [0] => form
+                    [1] => updater
+                )
+
+            [14] => Array
+                (
+                    [0] => table
+                    [1] => is_active
+                )
+
+            [15] => Array
+                (
+                    [0] => table
+                    [1] => only_active
+                )
+
+            [16] => Array
+                (
+                    [0] => table
+                    [1] => only_inactive
+                )
+
+            [17] => Array
+                (
+                    [0] => filters
+                    [1] => company_types
+                )
+
+            [18] => Array
+                (
+                    [0] => filters
+                    [1] => select_types
+                )
+
+            [19] => Array
+                (
+                    [0] => filters
+                    [1] => all_types
+                )
+
+            [20] => Array
+                (
+                    [0] => table
+                    [1] => creator
+                )
+
+            [21] => Array
+                (
+                    [0] => table
+                    [1] => updater
+                )
+
+            [22] => Array
+                (
+                    [0] => table
+                    [1] => name
+                )
+
+            [23] => Array
+                (
+                    [0] => table
+                    [1] => english_name
+                )
+
+            [24] => Array
+                (
+                    [0] => table
+                    [1] => description
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => company_types
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => company_types_description
+                )
+
+            [27] => Array
+                (
+                    [0] => form
+                    [1] => helper_description
+                )
+
+            [28] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name
+                )
+
+            [29] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_required
+                )
+
+            [30] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_max
+                )
+
+            [31] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_unique
+                )
+
+            [32] => Array
+                (
+                    [0] => form
+                    [1] => helper_english_name
+                )
+
+            [33] => Array
+                (
+                    [0] => form
+                    [1] => helper_is_active
+                )
+
+            [34] => Array
+                (
+                    [0] => form
+                    [1] => validation_name
+                )
+
+            [35] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_required
+                )
+
+            [36] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_max
+                )
+
+            [37] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_unique
+                )
+
+            [38] => Array
+                (
+                    [0] => form
+                    [1] => helper_name
+                )
+
+        )
+
+    [resources/product/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => form
+                    [1] => action_check
+                )
+
+            [1] => Array
+                (
+                    [0] => form
+                    [1] => action_create
+                )
+
+            [2] => Array
+                (
+                    [0] => form
+                    [1] => choose_action
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => tab1
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => category
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => attributes
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => tab2
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => specifications_section_title
+                )
+
+            [8] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [9] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [10] => Array
+                (
+                    [0] => table
+                    [1] => attributes
+                )
+
+            [11] => Array
+                (
+                    [0] => attributes_manager
+                )
+
+            [12] => Array
+                (
+                    [0] => form
+                    [1] => code
+                )
+
+            [13] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [14] => Array
+                (
+                    [0] => form
+                    [1] => creator
+                )
+
+            [15] => Array
+                (
+                    [0] => form
+                    [1] => description
+                )
+
+            [16] => Array
+                (
+                    [0] => form
+                    [1] => english_name
+                )
+
+            [17] => Array
+                (
+                    [0] => form
+                    [1] => extra
+                )
+
+            [18] => Array
+                (
+                    [0] => form
+                    [1] => hs_code
+                )
+
+            [19] => Array
+                (
+                    [0] => form
+                    [1] => import_duty
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => import_licenses
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => in_stock
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => is_active
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => manufacturer
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => name
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => packing_type
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => slug
+                )
+
+            [27] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [28] => Array
+                (
+                    [0] => form
+                    [1] => updater
+                )
+
+            [29] => Array
+                (
+                    [0] => form
+                    [1] => tax_id
+                )
+
+            [30] => Array
+                (
+                    [0] => form
+                    [1] => vat_exempt
+                )
+
+            [31] => Array
+                (
+                    [0] => filters
+                    [1] => category
+                )
+
+            [32] => Array
+                (
+                    [0] => filters
+                    [1] => category_placeholder
+                )
+
+            [33] => Array
+                (
+                    [0] => table
+                    [1] => in_stock
+                )
+
+            [34] => Array
+                (
+                    [0] => table
+                    [1] => in_stock_true
+                )
+
+            [35] => Array
+                (
+                    [0] => table
+                    [1] => in_stock_false
+                )
+
+            [36] => Array
+                (
+                    [0] => table
+                    [1] => creator
+                )
+
+            [37] => Array
+                (
+                    [0] => table
+                    [1] => updater
+                )
+
+            [38] => Array
+                (
+                    [0] => table
+                    [1] => is_active
+                )
+
+            [39] => Array
+                (
+                    [0] => table
+                    [1] => only_active
+                )
+
+            [40] => Array
+                (
+                    [0] => table
+                    [1] => only_inactive
+                )
+
+            [41] => Array
+                (
+                    [0] => table
+                    [1] => roll_sheet_type
+                )
+
+            [42] => Array
+                (
+                    [0] => table
+                    [1] => name
+                )
+
+            [43] => Array
+                (
+                    [0] => table
+                    [1] => english_name
+                )
+
+            [44] => Array
+                (
+                    [0] => table
+                    [1] => code
+                )
+
+            [45] => Array
+                (
+                    [0] => table
+                    [1] => category
+                )
+
+            [46] => Array
+                (
+                    [0] => table
+                    [1] => no_category
+                )
+
+            [47] => Array
+                (
+                    [0] => form
+                    [1] => validation_required
+                )
+
+            [48] => Array
+                (
+                    [0] => form
+                    [1] => validation_code_required
+                )
+
+            [49] => Array
+                (
+                    [0] => form
+                    [1] => check_result
+                )
+
+            [50] => Array
+                (
+                    [0] => form
+                    [1] => classify_by_name
+                )
+
+            [51] => Array
+                (
+                    [0] => form
+                    [1] => helper_classify_by_name
+                )
+
+            [52] => Array
+                (
+                    [0] => form
+                    [1] => validation_code_placeholder
+                )
+
+            [53] => Array
+                (
+                    [0] => form
+                    [1] => helper_code
+                )
+
+            [54] => Array
+                (
+                    [0] => form
+                    [1] => validation_code_unique
+                )
+
+            [55] => Array
+                (
+                    [0] => form
+                    [1] => validation_code_max
+                )
+
+            [56] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_placeholder
+                )
+
+            [57] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_unique
+                )
+
+            [58] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_required
+                )
+
+            [59] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_max
+                )
+
+            [60] => Array
+                (
+                    [0] => form
+                    [1] => helper_english_name
+                )
+
+            [61] => Array
+                (
+                    [0] => form
+                    [1] => key_label
+                )
+
+            [62] => Array
+                (
+                    [0] => form
+                    [1] => value_label
+                )
+
+            [63] => Array
+                (
+                    [0] => form
+                    [1] => add_spec_button
+                )
+
+            [64] => Array
+                (
+                    [0] => form
+                    [1] => helper_hs_code
+                )
+
+            [65] => Array
+                (
+                    [0] => form
+                    [1] => helper_import_duty
+                )
+
+            [66] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_placeholder
+                )
+
+            [67] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_unique
+                )
+
+            [68] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_required
+                )
+
+            [69] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_max
+                )
+
+            [70] => Array
+                (
+                    [0] => form
+                    [1] => helper_name
+                )
+
+            [71] => Array
+                (
+                    [0] => form
+                    [1] => packing_type_placeholder
+                )
+
+        )
+
+    [resources/category/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => table
+                    [1] => active
+                )
+
+            [1] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [2] => Array
+                (
+                    [0] => form
+                    [1] => creator
+                )
+
+            [3] => Array
+                (
+                    [0] => form
+                    [1] => description
+                )
+
+            [4] => Array
+                (
+                    [0] => form
+                    [1] => english_name
+                )
+
+            [5] => Array
+                (
+                    [0] => form
+                    [1] => level
+                )
+
+            [6] => Array
+                (
+                    [0] => form
+                    [1] => name
+                )
+
+            [7] => Array
+                (
+                    [0] => form
+                    [1] => parent
+                )
+
+            [8] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [9] => Array
+                (
+                    [0] => form
+                    [1] => updater
+                )
+
+            [10] => Array
+                (
+                    [0] => filters
+                    [1] => level
+                )
+
+            [11] => Array
+                (
+                    [0] => filters
+                    [1] => level_placeholder
+                )
+
+            [12] => Array
+                (
+                    [0] => table
+                    [1] => inactive
+                )
+
+            [13] => Array
+                (
+                    [0] => table
+                    [1] => creator
+                )
+
+            [14] => Array
+                (
+                    [0] => table
+                    [1] => updater
+                )
+
+            [15] => Array
+                (
+                    [0] => table
+                    [1] => name
+                )
+
+            [16] => Array
+                (
+                    [0] => table
+                    [1] => english_name
+                )
+
+            [17] => Array
+                (
+                    [0] => table
+                    [1] => level
+                )
+
+            [18] => Array
+                (
+                    [0] => table
+                    [1] => parent
+                )
+
+            [19] => Array
+                (
+                    [0] => form
+                    [1] => active
+                )
+
+            [20] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name
+                )
+
+            [21] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_required
+                )
+
+            [22] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_max
+                )
+
+            [23] => Array
+                (
+                    [0] => form
+                    [1] => validation_english_name_unique
+                )
+
+            [24] => Array
+                (
+                    [0] => form
+                    [1] => helper_english_name
+                )
+
+            [25] => Array
+                (
+                    [0] => form
+                    [1] => level_helper
+                )
+
+            [26] => Array
+                (
+                    [0] => form
+                    [1] => validation_level
+                )
+
+            [27] => Array
+                (
+                    [0] => form
+                    [1] => validation_level_required
+                )
+
+            [28] => Array
+                (
+                    [0] => form
+                    [1] => validation_level_numeric
+                )
+
+            [29] => Array
+                (
+                    [0] => form
+                    [1] => validation_name
+                )
+
+            [30] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_required
+                )
+
+            [31] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_max
+                )
+
+            [32] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_unique
+                )
+
+            [33] => Array
+                (
+                    [0] => form
+                    [1] => helper_name
+                )
+
+            [34] => Array
+                (
+                    [0] => form
+                    [1] => helper_parent
+                )
+
+            [35] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => base_level
+                )
+
+            [36] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => sub_level
+                )
+
+            [37] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => line
+                )
+
+            [38] => Array
+                (
+                    [0] => general
+                    [1] => options
+                    [2] => model
+                )
+
+            [39] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [40] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+        )
+
+    [resources/permission/strings.php] => Array
+        (
+            [0] => Array
+                (
+                    [0] => infolist
+                    [1] => name
+                )
+
+            [1] => Array
+                (
+                    [0] => infolist
+                    [1] => roles
+                )
+
+            [2] => Array
+                (
+                    [0] => infolist
+                    [1] => created_at
+                )
+
+            [3] => Array
+                (
+                    [0] => infolist
+                    [1] => updated_at
+                )
+
+            [4] => Array
+                (
+                    [0] => filters
+                    [1] => module
+                )
+
+            [5] => Array
+                (
+                    [0] => table
+                    [1] => name
+                )
+
+            [6] => Array
+                (
+                    [0] => table
+                    [1] => roles_count
+                )
+
+            [7] => Array
+                (
+                    [0] => table
+                    [1] => users_count
+                )
+
+            [8] => Array
+                (
+                    [0] => table
+                    [1] => created_at
+                )
+
+            [9] => Array
+                (
+                    [0] => table
+                    [1] => updated_at
+                )
+
+            [10] => Array
+                (
+                    [0] => form
+                    [1] => name
+                )
+
+            [11] => Array
+                (
+                    [0] => form
+                    [1] => helper_name
+                )
+
+            [12] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_required
+                )
+
+            [13] => Array
+                (
+                    [0] => form
+                    [1] => validation_name_unique
+                )
+
+            [14] => Array
+                (
+                    [0] => form
+                    [1] => roles
+                )
+
+            [15] => Array
+                (
+                    [0] => form
+                    [1] => helper_roles
+                )
+
+            [16] => Array
+                (
+                    [0] => form
+                    [1] => users
+                )
+
+            [17] => Array
+                (
+                    [0] => form
+                    [1] => helper_users
+                )
+
+            [18] => Array
+                (
+                    [0] => general
+                    [1] => model_label
+                )
+
+            [19] => Array
+                (
+                    [0] => general
+                    [1] => plural_model_label
+                )
+
+            [20] => Array
+                (
+                    [0] => grouping
+                    [1] => module
+                )
+
+        )
+
+)

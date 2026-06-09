@@ -1,0 +1,22 @@
+{
+  "resources/proformaInvoice/strings.php": {
+    "form.item_english_description": { "en": "English description", "fr": "Description en anglais", "fa": "توضیحات انگلیسی" },
+    "form.shipment_info": { "en": "Shipment info", "fr": "Informations d\\'expédition", "fa": "اطلاعات حمل" }
+  },
+  "resources/bankProfile/strings.php": {
+    "form.summary_final_eur": { "en": "Final amount (EUR)", "fr": "Montant final (EUR)", "fa": "مبلغ نهایی (یورو)" },
+    "form.summary_total_eur": { "en": "Total amount (EUR)", "fr": "Montant total (EUR)", "fa": "مبلغ کل (یورو)" },
+    "form.summary_total_usd": { "en": "Total amount (USD)", "fr": "Montant total (USD)", "fa": "مبلغ کل (دلار)" }
+  },
+  "resources/shipment/strings.php": {
+    "filters.warehouse_from": { "en": "Warehouse From", "fr": "Entrepôt (De)", "fa": "از انبار" },
+    "filters.warehouse_until": { "en": "Warehouse Until", "fr": "Entrepôt (Jusqu\\'à)", "fa": "تا انبار" }
+  },
+  "resources/currency/strings.php": {
+    "form.helper_english_name": { "en": "English name of the currency", "fr": "Nom de la devise en anglais", "fa": "نام انگلیسی ارز" },
+    "form.helper_name": { "en": "Name of the currency", "fr": "Nom de la devise", "fa": "نام ارز" }
+  },
+  "resources/product/strings.php": {
+    "table.no_category": { "en": "No category", "fr": "Sans catégorie", "fa": "بدون دسته‌بندی" }
+  }
+}

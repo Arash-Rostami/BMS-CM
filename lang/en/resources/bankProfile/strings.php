@@ -37,7 +37,6 @@ return [
         'section_dates' => 'Key Dates',
         'section_notes' => 'Notes',
         'section_summary' => '⚡Computed Summary',
-
         'bp_number' => 'Bank Profile Number',
         'status' => 'Status',
         'registered_order' => 'Registered Order',
@@ -79,7 +78,6 @@ return [
             'conversion_rate' => 'Conversion rate — automatically calculated between requested and purchased currencies.',
             'eur_equivalent_rate' => 'EUR equivalent rate — the rate expressed in euros, calculated automatically; no manual entry needed.',
         ],
-
         'summary_commission_amount' => 'Commission Amount',
         'summary_commission_equivalent' => 'Commission Equivalent',
         'summary_final_equivalent' => 'Final Equivalent',
@@ -87,19 +85,21 @@ return [
         'summary_total_rial' => 'Total (Rial, Net)',
         'summary_total_purchased' => 'Total Purchased Remittance',
         'summary_total_requested' => 'Total Requested Remittance',
-
         'validation_required' => 'This field is required.',
         'validation_numeric' => 'This field must be a number.',
         'validation_min_numeric_zero' => 'This field cannot be negative.',
         'validation_date_after_or_equal' => 'This date must be on or after :date.',
         'validation_unique' => 'This value already exists.',
         'validation_max_length' => 'Please keep this to :max characters or fewer.',
-
-        'helper_commission_input_mode' => '⚡ Smart Entry: Enter the rate, and the amount calculates automatically—or enter the amount to derive the rate.',        'helper_commission_amount_purchased' => 'Enter the exact commission fee. The percentage is derived automatically and applied to calculations.',
+        'helper_commission_input_mode' => '⚡ Smart Entry: Enter the rate, and the amount calculates automatically—or enter the amount to derive the rate.',
+        'helper_commission_amount_purchased' => 'Enter the exact commission fee. The percentage is derived automatically and applied to calculations.',
         'helper_commission_rate' => 'Enter the percentage only (e.g. 1.5, not 1.5%) — it is added on top of the exchange rate to compute the final rate.',
         'helper_delivery_date' => 'Delivery cannot be earlier than the purchase date, so set the purchase date first.',
         'helper_requested_amount' => 'This drives every calculation below, including the remaining commitment — double-check it before saving.',
-            'helper_documents_amount' => 'The total document valuation.',
+        'helper_documents_amount' => 'The total document valuation.',
+        'summary_final_eur' => 'Final amount (EUR)',
+        'summary_total_eur' => 'Total amount (EUR)',
+        'summary_total_usd' => 'Total amount (USD)',
     ],
     'table' => [
         'id' => 'ID',
