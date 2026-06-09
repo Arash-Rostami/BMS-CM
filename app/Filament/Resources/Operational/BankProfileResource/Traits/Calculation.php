@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Operational\BankProfileResource\Traits;
 
+use Carbon\Carbon;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 
@@ -13,8 +14,8 @@ trait Calculation
 
         if ($mode === 'amount') {
             $purchased = (float)$get('purchased_equivalent');
-            $amount    = (float)$get('commission_amount_purchased');
-            $backRate  = $purchased > 0 ? round($amount / $purchased * 100, 5) : 0;
+            $amount = (float)$get('commission_amount_purchased');
+            $backRate = $purchased > 0 ? round($amount / $purchased * 100, 5) : 0;
             $set('commission_rate', number_format($backRate, 5, '.', ''));
         } else {
             $computedAmount = (float)$get('purchased_equivalent') * ((float)$get('commission_rate') / 100);
@@ -84,7 +85,7 @@ trait Calculation
 
         if (($get('commission_input_mode') ?? 'rate') === 'amount') {
             $purchased = (float)$get('purchased_equivalent');
-            $amount    = (float)$get('commission_amount_purchased');
+            $amount = (float)$get('commission_amount_purchased');
             $commissionFraction = $purchased > 0 ? ($amount / $purchased) : 0;
             return $exchangeRate * (1 + $commissionFraction);
         }
@@ -126,10 +127,10 @@ trait Calculation
     {
         $creation = $get('creation_date');
         if (!$creation) return null;
-        $start = \Carbon\Carbon::parse($creation);
-        $end   = ($allocation = $get('allocation_date'))
-            ? \Carbon\Carbon::parse($allocation)
+        $start = Carbon::parse($creation);
+        $end = ($allocation = $get('allocation_date'))
+            ? Carbon::parse($allocation)
             : now()->startOfDay();
-        return (int) abs($start->diffInDays($end));
+        return (int)abs($start->diffInDays($end));
     }
 }

@@ -73,6 +73,7 @@ return [
         'validation_date' => 'Veuillez entrer une date valide.',
         'validation_contract_no_max' => 'Le numéro de contrat ne doit pas dépasser 255 caractères.',
         'validation_declaration_no_max' => 'Le numéro de déclaration ne doit pas dépasser 255 caractères.',
+            'helper_clearance_type' => 'Sélectionnez le type de processus de dédouanement.',
     ],
     'table' => [
         'declaration_no' => 'N° Déclaration',

@@ -63,6 +63,7 @@ return [
 
 
         'remittance_amount' => 'Montant Remise',
+        'helper_remittance_amount' => 'Calculé automatiquement : somme du total des remises achetées pour tous les profils bancaires de cette commande.',
         'customs_quantity' => 'Qté restante en douane',
         'shipped_quantity' => 'Qté Expédiée',
 
@@ -103,6 +104,7 @@ return [
             'min_numeric_zero' => 'Cette valeur ne peut pas être négative.',
             'max' => 'Veuillez limiter cette valeur à 255 caractères ou moins.',
         ],
+            'helper_status' => 'Statut logistique global de l\'expédition.',
     ],
     'table' => [
         'id' => 'ID',

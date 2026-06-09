@@ -17,6 +17,8 @@ return [
         'validation_name_regex' => 'The name may contain only English letters and underscores, with no spaces or numbers.',
         'validation_grade_required' => 'Please select a level for this role.',
         'validation_name_max' => 'The role name may not be longer than 255 characters.',
+            'helper_grade' => 'Select the seniority level to prefix the role automatically.',
+            'helper_modules' => 'Select modules to quickly assign bulk permissions.',
     ],
     'table' => [
         'name' => 'Name',

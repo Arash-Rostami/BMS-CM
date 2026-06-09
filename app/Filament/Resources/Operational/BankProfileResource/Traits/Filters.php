@@ -58,6 +58,26 @@ trait Filters
             ->preload();
     }
 
+    public static function getPaymentDueDateFilter(): Filter
+    {
+        return Filter::make('payment_due_date')
+            ->schema([
+                DatePicker::make('payment_due_from')
+                    ->label(__('resources/bankProfile/strings.filters.payment_due_from'))
+                    ->native(false)
+                    ->adaptive(),
+                DatePicker::make('payment_due_until')
+                    ->label(__('resources/bankProfile/strings.filters.payment_due_until'))
+                    ->native(false)
+                    ->adaptive(),
+            ])
+            ->query(function (Builder $query, array $data): Builder {
+                return $query
+                    ->when($data['payment_due_from'], fn(Builder $query, $date): Builder => $query->whereDate('payment_due_date', '>=', $date))
+                    ->when($data['payment_due_until'], fn(Builder $query, $date): Builder => $query->whereDate('payment_due_date', '<=', $date));
+            });
+    }
+
     public static function getRegisteredOrderFilter(): SelectFilter
     {
         return SelectFilter::make('registered_order_id')

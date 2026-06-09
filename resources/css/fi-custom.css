@@ -183,7 +183,6 @@ body {
 }
 
 
-
 .dark .fi-topbar-close-collapse-sidebar-btn,
 .dark .fi-topbar-open-collapse-sidebar-btn,
 .dark .fi-sidebar-group-collapse-btn {
@@ -605,6 +604,98 @@ body:has(.fi-modal-open) :is(nav.fi-topbar, .fi-sidebar-nav, aside.fi-sidebar.fi
     z-index: -1;
 }
 
+
+.fi-sc-text {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    line-height: 1.6;
+    color: #374151;
+    margin-top: 0.6rem;
+    padding-right: 0.8rem;
+    position: relative;
+    opacity: 0.9;
+    transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: all 0.3s var(--md-motion);
+    cursor: help;
+}
+
+.fi-sc-text::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 15%;
+    height: 70%;
+    width: 2px;
+    background-image: var(--gradient-accent);
+    border-radius: 4px;
+    transition: all 0.3s var(--md-motion);
+}
+
+.dark .fi-sc-text {
+    color: var(--google-third-light);
+    opacity: 0.75;
+}
+
+.dark .fi-sc-text::before {
+    background-image: var(--gradient-brand);
+}
+
+.fi-sc-text:hover {
+    opacity: 1;
+    padding-right: 1.1rem;
+    color: #111827;
+}
+
+.dark .fi-sc-text:hover {
+    color: var(--google-first-light);
+}
+
+.fi-sc-text:hover::before {
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background-image: var(--gradient-secondary);
+}
+
+.dark .fi-sc-text:hover::before {
+    background-image: var(--gradient-google-light);
+}
+
+.fi-user-menu-button {
+    border-radius: 0.75rem !important;
+    min-height: 44px !important;
+    transition: all 250ms !important;
+}
+
+.fi-user-menu-trigger {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 35px !important;
+    height: 35px !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+}
+
+
+.fi-user-menu > .fi-dropdown-trigger,
+.fi-user-menu > .fi-dropdown-trigger > .fi-user-menu-trigger,
+.fi-user-menu .fi-avatar.fi-user-avatar {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: transparent !important;
+}
+
+.fi-circular, .fi-user-avatar {
+    border-radius: 0.5rem !important;
+    border: none !important;
+}
+
+
 .fi-simple-main {
     position: absolute;
     padding: 2rem;
@@ -888,94 +979,4 @@ body:has(.fi-modal-open) :is(nav.fi-topbar, .fi-sidebar-nav, aside.fi-sidebar.fi
     100% {
         transform: translateY(300%);
     }
-}
-
-.fi-sc-text {
-    display: block;
-    font-size: 0.7rem;
-    font-weight: 500;
-    line-height: 1.6;
-    color: #374151;
-    margin-top: 0.6rem;
-    padding-right: 0.8rem;
-    position: relative;
-    opacity: 0.9;
-    transform: translateZ(0);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    transition: all 0.3s var(--md-motion);
-    cursor: help;
-}
-
-.fi-sc-text::before {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 15%;
-    height: 70%;
-    width: 2px;
-    background-image: var(--gradient-accent);
-    border-radius: 4px;
-    transition: all 0.3s var(--md-motion);
-}
-
-.dark .fi-sc-text {
-    color: var(--google-third-light);
-    opacity: 0.75;
-}
-
-.dark .fi-sc-text::before {
-    background-image: var(--gradient-brand);
-}
-
-.fi-sc-text:hover {
-    opacity: 1;
-    padding-right: 1.1rem;
-    color: #111827;
-}
-
-.dark .fi-sc-text:hover {
-    color: var(--google-first-light);
-}
-
-.fi-sc-text:hover::before {
-    top: 0;
-    height: 100%;
-    width: 3px;
-    background-image: var(--gradient-secondary);
-}
-
-.dark .fi-sc-text:hover::before {
-    background-image: var(--gradient-google-light);
-}
-
-.fi-user-menu-button {
-    border-radius: 0.75rem !important;
-    min-height: 44px !important;
-    transition: all 250ms !important;
-}
-
-.fi-user-menu-trigger {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 35px !important;
-    height: 35px !important;
-    border-radius: 10px !important;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-}
-
-
-.fi-user-menu > .fi-dropdown-trigger,
-.fi-user-menu > .fi-dropdown-trigger > .fi-user-menu-trigger,
-.fi-user-menu .fi-avatar.fi-user-avatar {
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    background: transparent !important;
-}
-
-.fi-circular, .fi-user-avatar{
-    border-radius: 0.75rem !important;
-    border: none!important;
 }

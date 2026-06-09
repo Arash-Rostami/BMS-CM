@@ -40,6 +40,8 @@ return [
             'line'       => '❸ Ligne',
             'model'      => '❹ Modèle',
         ],
+            'helper_name' => 'Saisissez un nom de catégorie clair et descriptif.',
+            'helper_english_name' => 'Saisissez l\'équivalent anglais pour le tri et les URL.',
     ],
     'table' => [
         'name'           => 'Nom (Persan)',

@@ -44,6 +44,24 @@ trait Infolist
             ->placeholder('-');
     }
 
+    public static function viewCommitmentPaymentDate(): TextEntry
+    {
+        return TextEntry::make('commitment_payment_date')
+            ->label(__('resources/bankProfile/strings.form.commitment_payment_date'))
+            ->jalaliDate()
+            ->icon('heroicon-m-calendar-days')
+            ->placeholder('-');
+    }
+
+    public static function viewPaymentDueDate(): TextEntry
+    {
+        return TextEntry::make('payment_due_date')
+            ->label(__('resources/bankProfile/strings.form.payment_due_date'))
+            ->jalaliDate()
+            ->icon('heroicon-m-clock')
+            ->placeholder('-');
+    }
+
     public static function viewBpNumber(): TextEntry
     {
         return TextEntry::make('bp_number')

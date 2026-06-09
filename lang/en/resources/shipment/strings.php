@@ -62,6 +62,7 @@ return [
         'container_types' => ['20ft Standard' => '20ft Standard', '40ft Standard' => '40ft Standard', '40ft High Cube' => '40ft High Cube', '20ft Refrigerated' => '20ft Refrigerated', '40ft Refrigerated' => '40ft Refrigerated', '20ft Open Top' => '20ft Open Top', '40ft Open Top' => '40ft Open Top', '20ft Flat Rack' => '20ft Flat Rack', '40ft Flat Rack' => '40ft Flat Rack', 'LCL' => 'LCL', 'Bulk' => 'Bulk',],
 
         'remittance_amount' => 'Remittance Amount',
+        'helper_remittance_amount' => 'Auto-calculated: sum of total purchased remittance across all Bank Profiles for this order.',
         'customs_quantity' => 'Remaining Qty in customs',
         'shipped_quantity' => 'Shipped Qty',
 
@@ -73,7 +74,7 @@ return [
         'doc_status' => 'Doc Status',
 
         'smart_tracer' => 'Smart Document Tracer',
-        'smart_tracer_hint' => 'When enabled, the checklist is automatically updated from the attached files; when disabled, it is completely manual.',        'docs' => 'Documents Checklist',
+        'smart_tracer_hint' => 'If enabled, the system automatically checks off items based on your uploaded attachments.',        'docs' => 'Documents Checklist',
         'doc_name' => 'Document Name',
         'doc_name_placeholder' => 'e.g. Inspection Certificate',
         'doc_received' => 'Received',
@@ -101,6 +102,7 @@ return [
             'min_numeric_zero' => 'This value cannot be negative.',
             'max' => 'Please keep this to 255 characters or fewer.',
         ],
+            'helper_status' => 'Overall logistical status of the shipment.',
     ],
     'table' => [
         'id' => 'ID',

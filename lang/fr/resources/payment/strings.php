@@ -60,6 +60,7 @@ return [
         'validation_max_length' => 'Veuillez limiter cette valeur à 255 caractères ou moins.',
         'helper_iban' => 'Vérifiez bien l\'IBAN avant d\'enregistrer ; un seul chiffre erroné peut envoyer les fonds vers le mauvais compte.',
         'helper_targetable' => 'Indiquez d\'abord l\'objet de ce paiement ; cela active les champs devise, statut et date et alimente les totaux calculés.',
+        'helper_status' => 'Statut actuel du paiement dans le pipeline.',
     ],
     'table' => [
         'id' => 'ID',

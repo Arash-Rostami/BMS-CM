@@ -73,11 +73,12 @@ return [
         'validation_min_numeric_zero' => 'This field cannot be negative.',
 
         // Helper Text
-        'helper_po_number' => 'This number is generated automatically and locked, so you never have to assign one yourself.',
+        'helper_po_number' => 'This number is auto-generated and locked to maintain system integrity.',
         'helper_expected_delivery_date' => 'Pick a date on or after the order date, as the supplier counts the lead time from there.',
         'helper_validity_date' => 'This is the last day the agreed prices and terms stay valid before they may need renegotiating.',
-        'helper_unit_price' => 'Each price you enter here instantly recalculates the order total below.',
+        'helper_unit_price' => 'Entering the unit price instantly updates the line total automatically.',
 
+            'helper_status' => 'Tracks the lifecycle of the PO from draft to fulfilled.',
     ],
     'table' => [
         'po_number' => 'PO Number',

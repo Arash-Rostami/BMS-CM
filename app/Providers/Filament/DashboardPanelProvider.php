@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\CustomLogin;
 use App\Filament\Widgets\AccountWidget;
 use App\Http\Middleware\EnsureUserIsActive;
 use Filament\Enums\GlobalSearchPosition;
@@ -51,7 +52,7 @@ class DashboardPanelProvider extends PanelProvider
                     ->label(fn() => __('resources/dashboard/strings.navigation_group.base'))
                     ->collapsed(),
             ])
-            ->login()
+            ->login(CustomLogin::class)
             ->userMenu()
             ->colors([
                 'danger' => Color::Rose,
@@ -102,7 +103,6 @@ class DashboardPanelProvider extends PanelProvider
             ->brandLogo(Vite::asset('resources/img/logos/favicon.png'))
             ->brandLogoHeight('7rem')
             ->sidebarCollapsibleOnDesktop()
-            ->login()
             ->default()
             ->authMiddleware([Authenticate::class, EnsureUserIsActive::class])
             ->defaultThemeMode(ThemeMode::Dark);

@@ -30,9 +30,10 @@ trait Form
             ->label(__('resources/permission/strings.form.roles'))
             ->multiple()
             ->relationship('roles', 'name')
-            ->getOptionLabelFromRecordUsing(fn (Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
+            ->getOptionLabelFromRecordUsing(fn(Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
             ->preload()
-            ->searchable();
+            ->searchable()
+            ->helperText(__('resources/permission/strings.form.helper_roles'));
     }
 
     public static function getUsers(): Select
@@ -42,6 +43,7 @@ trait Form
             ->multiple()
             ->relationship('users', 'name')
             ->preload()
-            ->searchable();
+            ->searchable()
+            ->helperText(__('resources/permission/strings.form.helper_users'));
     }
 }

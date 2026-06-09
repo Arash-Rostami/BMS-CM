@@ -114,12 +114,12 @@ return [
         'validation_seller_company_exists' => 'Ce fournisseur n\'est plus disponible ; choisissez une société dans la liste actuelle.',
         'validation_seller_company_different' => 'Le fournisseur et l\'acheteur doivent être deux sociétés différentes.',
         'validation_validity_date_after' => 'La date de validité doit être égale ou postérieure à la date d\'émission de la proforma.',
-        'helper_invoice_no' => 'Conservez le numéro généré automatiquement sauf si vous devez le faire correspondre à un document externe ; il doit rester unique.',
+        'helper_invoice_no' => 'Ne modifiez le numéro généré automatiquement que si vous devez le faire correspondre à un document externe (il doit rester unique).',
         'helper_invoice_date' => 'Cette date détermine la validité et l\'ancienneté, et ne peut pas être fixée dans le futur.',
         'helper_validity_date' => 'Indiquez la durée de validité de l\'offre ; elle doit être égale ou postérieure à la date d\'émission.',
         'helper_buyer_company' => 'L\'acheteur ne peut pas être la même société que le fournisseur.',
         'helper_main_currency' => 'C\'est la devise dans laquelle tous les montants sont calculés ; elle doit différer de la devise secondaire.',
-        'helper_discount' => 'Un montant fixe déduit du total, et non un pourcentage.',
+        'helper_discount' => 'Saisissez la remise sous forme d\'un montant fixe, pas d\'un pourcentage.',
         'helper_quantity' => 'Les décimales sont autorisées, mais la quantité doit être d\'au moins 0,01.',
         'helper_gross_weight' => 'Le poids brut inclut l\'emballage et doit être au moins égal au poids net.',
         'validation' => [
@@ -140,6 +140,7 @@ return [
             'attachments_size' => 'Le fichier :attribute ne doit pas dépasser :max kilo-octets.',
             'max_string' => 'Le champ :attribute ne peut pas contenir plus de :max caractères.',
         ],
+            'helper_delivery_terms' => 'Sélectionnez la règle Incoterms régissant cette expédition.',
     ],
     'table' => [
         'id' => 'ID',

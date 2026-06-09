@@ -77,8 +77,6 @@ class CustomResource extends Resource
                                                 static::getClearanceDateField(),
                                                 static::getDocSubmissionDateField(),
                                                 static::getTenPercentExitDateField(),
-                                                static::getPaymentDueDateField(),
-                                                static::getCommitmentPaymentDateField(),
                                                 static::getRialReturnDateField(),
                                             ])->columns(3),
                                     ])->columnSpan(['lg' => 2]),
@@ -241,8 +239,6 @@ class CustomResource extends Resource
                                             static::viewTenPercentExitDate(),
                                         ])->extraAttributes(['style' => 'margin-top: 1.5rem;']),
                                         Grid::make(3)->schema([
-                                            static::viewPaymentDueDate(),
-                                            static::viewCommitmentPaymentDate(),
                                             static::viewRialReturnDate(),
                                         ])->extraAttributes(['style' => 'margin-top: 1.5rem;']),
                                     ]),

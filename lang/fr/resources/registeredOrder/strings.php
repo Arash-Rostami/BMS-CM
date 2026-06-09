@@ -100,6 +100,7 @@ return [
         'helper_unit_price' => 'Prix par unité, le total de la ligne est calculé automatiquement à partir de celui-ci.',
         'helper_source_type' => 'Ce choix détermine les documents source à lier et préremplit les lignes de commande, choisissez-le donc avant d\'ajouter des produits.',
         'helper_validity_date' => 'Définissez cette date égale ou postérieure à la date de commande pour indiquer la durée de validité de la commande.',
+            'helper_status' => 'Statut actuel de l\'enregistrement gouvernemental.',
     ],
     'table' => [
         'related_to' => 'Lié aux',

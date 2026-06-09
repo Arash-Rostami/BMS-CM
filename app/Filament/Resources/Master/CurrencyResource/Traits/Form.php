@@ -8,21 +8,13 @@ use Filament\Forms\Components\Toggle;
 
 trait Form
 {
-    public static function getName(): TextInput
+    public static function getDescription(): Textarea
     {
-        return TextInput::make('name')
-            ->label(__('resources/currency/strings.form.name'))
-            ->required()
-            ->maxLength(255)
-            ->rule('regex:/^[\x{0600}-\x{06FF}\s\p{P}\d\*]+$/u')
-            ->unique(column: 'name', ignoreRecord: true)
-            ->placeholder(__('resources/currency/strings.form.validation_name'))
-            ->validationMessages([
-                'required' => __('resources/currency/strings.form.validation_name_required'),
-                'regex' => __('resources/currency/strings.form.validation_name'),
-                'unique' => __('resources/currency/strings.form.validation_name_unique')
-            ])
-            ->validationAttribute(__('resources/currency/strings.form.name'));
+        return Textarea::make('description')
+            ->label(__('resources/currency/strings.form.description'))
+            ->maxLength(65535)
+            ->columnSpanFull()
+            ->nullable();
     }
 
     public static function getEnglishName(): TextInput
@@ -39,16 +31,8 @@ trait Form
                 'regex' => __('resources/currency/strings.form.validation_english_name'),
                 'unique' => __('resources/currency/strings.form.validation_english_name_unique')
             ])
-            ->validationAttribute(__('resources/currency/strings.form.english_name'));
-    }
-
-    public static function getDescription(): Textarea
-    {
-        return Textarea::make('description')
-            ->label(__('resources/currency/strings.form.description'))
-            ->maxLength(65535)
-            ->columnSpanFull()
-            ->nullable();
+            ->validationAttribute(__('resources/currency/strings.form.english_name'))
+            ->helperText(__('resources/currency/strings.form.helper_english_name'));
     }
 
     public static function getIsActive(): Toggle
@@ -62,5 +46,23 @@ trait Form
             ->onColor('success')
             ->offColor('danger')
             ->helperText(__('resources/currency/strings.form.helper_is_active'));
+    }
+
+    public static function getName(): TextInput
+    {
+        return TextInput::make('name')
+            ->label(__('resources/currency/strings.form.name'))
+            ->required()
+            ->maxLength(255)
+            ->rule('regex:/^[\x{0600}-\x{06FF}\s\p{P}\d\*]+$/u')
+            ->unique(column: 'name', ignoreRecord: true)
+            ->placeholder(__('resources/currency/strings.form.validation_name'))
+            ->validationMessages([
+                'required' => __('resources/currency/strings.form.validation_name_required'),
+                'regex' => __('resources/currency/strings.form.validation_name'),
+                'unique' => __('resources/currency/strings.form.validation_name_unique')
+            ])
+            ->validationAttribute(__('resources/currency/strings.form.name'))
+            ->helperText(__('resources/currency/strings.form.helper_name'));
     }
 }

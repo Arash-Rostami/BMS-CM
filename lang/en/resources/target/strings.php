@@ -30,6 +30,7 @@ return [
         'validation_numeric' => 'The given input must be a number.',
         'validation_date' => 'Please enter a valid date.',
         'validation_end_in_after_start_from' => 'The end date must be after the start date.',
+            'helper_amount' => 'Set the financial goal to be achieved.',
     ],
     'table' => [
         'targetable' => 'Related To',

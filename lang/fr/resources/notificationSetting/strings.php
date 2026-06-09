@@ -37,6 +37,9 @@ return [
         'validation_notes_max' => 'Veuillez limiter vos notes à 500 caractères maximum.',
 
         'helper_notes' => 'Utilisez cet espace pour un contexte rapide, mais gardez-le sous 500 caractères.',
+            'helper_actions' => 'Sélectionnez les actions de base de données qui déclenchent cette notification.',
+            'helper_columns' => 'Déclencher la notification uniquement lorsque ces colonnes spécifiques changent.',
+            'helper_column_values' => 'Déclencher la notification uniquement lorsque les colonnes changent pour ces valeurs spécifiques.',
     ],
 
     'table' => [
