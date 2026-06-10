@@ -40,40 +40,33 @@ return [
         'section_status' => 'Aperçu du Statut',
         'section_financial' => 'Engagements Financiers',
         'section_notes' => 'Notes & Pièces Jointes',
-
         'custom_no' => 'N° de Douane',
         'registered_order' => 'Commande Enregistrée',
         'shipment' => 'Expédition',
         'contract_no' => 'N° de Contrat',
         'declaration_no' => 'N° de Déclaration',
         'clearance_type' => 'Type de Dédouanement',
-
         'clearance_date' => 'Date de Dédouanement',
         'doc_submission_date' => 'Date de Soumission des Documents',
         'ten_percent_exit_date' => 'Date de Sortie 10%',
         'payment_due_date' => 'Date d\'Échéance de Paiement',
         'commitment_payment_date' => 'Date de Paiement de l\'Engagement',
         'rial_return_date' => 'Date de Retour Rial',
-
         'commitment_balance' => 'Solde d\'Engagement',
-
         'clearance_status' => 'Statut de Dédouanement',
         'bank_guarantee_status' => 'Statut Garantie Bancaire',
         'commitment_status' => 'Statut d\'Engagement',
-
         'notes' => 'Notes',
         'attachments' => 'Pièces Jointes',
-
         'helper_custom_no' => 'Ce numéro est généré automatiquement et ne peut pas être modifié.',
         'helper_shipment' => 'Le choix d\'une expédition remplit automatiquement sa commande enregistrée et son numéro de contrat.',
-
         'validation_required' => 'Ce champ est requis.',
         'validation_unique' => 'Cette valeur existe déjà.',
         'validation_numeric' => 'Ce champ doit être un nombre.',
         'validation_date' => 'Veuillez entrer une date valide.',
         'validation_contract_no_max' => 'Le numéro de contrat ne doit pas dépasser 255 caractères.',
         'validation_declaration_no_max' => 'Le numéro de déclaration ne doit pas dépasser 255 caractères.',
-            'helper_clearance_type' => 'Sélectionnez le type de processus de dédouanement.',
+        'helper_clearance_type' => 'Sélectionnez le type de processus de dédouanement.',
     ],
     'table' => [
         'declaration_no' => 'N° Déclaration',

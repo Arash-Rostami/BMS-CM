@@ -26,13 +26,10 @@ return [
         ],
     ],
     'form' => [
-        // Section Titles
         'tab_general' => 'عمومی',
         'section_order_details' => 'جزئیات سفارش',
         'section_items' => 'کالاهای سفارش',
         'section_shipping_notes' => 'حمل و نقل و یادداشت‌ها',
-
-        // Fields
         'po_number' => 'شماره سفارش خرید',
         'seller' => 'تأمین کننده (فروشنده)',
         'buyer' => 'خریدار',
@@ -47,7 +44,7 @@ return [
         'shipping_address' => 'آدرس حمل',
         'packing_details' => 'جزئیات بسته‌بندی',
         'notes' => 'یادداشت‌ها',
-        'add_notes' =>  'توضیحات ',
+        'add_notes' => 'توضیحات ',
         'item_description' => 'توضیحات ',
         'product' => 'محصول',
         'quantity' => 'مقدار',
@@ -58,8 +55,6 @@ return [
         'add_item_action' => 'افزودن کالا',
         'attachments' => 'پیوست‌ها',
         'purchase_requests' => 'درخواست خرید مرتبط',
-
-        // Validation
         'validation_required' => 'این فیلد الزامی است.',
         'validation_unique' => 'این مقدار باید منحصر به فرد باشد.',
         'validation_max_string' => 'این فیلد نباید بیشتر از :max کاراکتر باشد.',
@@ -69,13 +64,13 @@ return [
         'validation_numeric' => 'این فیلد باید یک عدد باشد.',
         'validation_min_numeric' => 'این فیلد باید حداقل :min باشد.',
         'validation_min_numeric_zero' => 'این فیلد نمی‌تواند منفی باشد.',
-
-        // Helper Text
         'helper_po_number' => 'این شماره به‌طور خودکار ایجاد شده و برای حفظ یکپارچگی سیستم قفل است.',
         'helper_expected_delivery_date' => 'تاریخی بعد از ثبت سفارش انتخاب کنید؛ این زمان مبنای برنامه‌ریزی تأمین‌کننده خواهد بود.',
         'helper_validity_date' => 'پایان مهلت اعتبار این سفارش را مشخص می‌کند؛ پس از این تاریخ، توافقات ممکن است نیاز به بازنگری داشته باشند.',
         'helper_unit_price' => 'با وارد کردن قیمت واحد، سیستم بلافاصله جمع کل را برای شما محاسبه و بروزرسانی می‌کند.',
-            'helper_status' => 'چرخهٔ عمر سفارش خرید از پیش‌نویس تا تکمیل را رهگیری می‌کند.',
+        'helper_status' => 'چرخهٔ عمر سفارش خرید از پیش‌نویس تا تکمیل را رهگیری می‌کند.',
+        'validation_attachments_type' => 'Validation Attachments Type',
+        'validation_attachments_size' => 'Validation Attachments Size',
     ],
     'table' => [
         'po_number' => 'شماره سفارش',
@@ -90,7 +85,6 @@ return [
         'updated_at' => 'تاریخ بروزرسانی',
         'purchase_requests' => 'درخواست خرید مرتبط',
     ],
-    // Add these 'filters' and 'infolist' sections
     'filters' => [
         'seller' => 'فروشنده',
         'supplier' => 'تأمین‌کننده',

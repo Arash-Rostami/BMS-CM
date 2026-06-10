@@ -18,7 +18,6 @@ return [
         'section_logistics' => 'Logistics Data',
         'section_status' => 'Status Overview',
         'section_amounts' => 'Financials & Quantities',
-
         'shipment_no' => 'Shipment No.',
         'registered_order' => 'Registered Order',
         'contract_no' => 'Contract No.',
@@ -26,12 +25,10 @@ return [
         'part' => 'Part No',
         'helper_part' => 'A single order can ship in several parts — the next free part number is suggested for you, and only numbers not yet shipped can be chosen.',
         'case_number' => 'Case Number',
-
         'warehouse_date' => 'Warehouse Receipt Date',
         'exit_date' => 'Exit Date',
         'eta' => 'ETA',
         'etd' => 'ETD',
-
         'bl_number' => 'B/L Number',
         'booking_no' => 'Booking Number',
         'container_no' => 'Container No.',
@@ -58,23 +55,62 @@ return [
                 'LCL' => 'LCL',
                 'Bulk' => 'Bulk',
             ],
+            'استاندارد' => [
+                '20ft Standard' => '20ft Standard',
+                '40ft Standard' => '40ft Standard',
+                '40ft High Cube' => '40ft High Cube',
+            ],
+            'یخچالی' => [
+                '20ft Refrigerated' => '20ft Refrigerated',
+                '40ft Refrigerated' => '40ft Refrigerated',
+            ],
+            'روباز' => [
+                '20ft Open Top' => '20ft Open Top',
+                '40ft Open Top' => '40ft Open Top',
+            ],
+            'فلت رک' => [
+                '20ft Flat Rack' => '20ft Flat Rack',
+                '40ft Flat Rack' => '40ft Flat Rack',
+            ],
+            'سایر' => [
+                'LCL' => 'LCL',
+                'Bulk' => 'Bulk',
+            ],
+            'Frigorifique' => [
+                '20ft Refrigerated' => '20ft Refrigerated',
+                '40ft Refrigerated' => '40ft Refrigerated',
+            ],
+            'Autres' => [
+                'LCL' => 'LCL',
+                'Bulk' => 'Bulk',
+            ],
         ],
-        'container_types' => ['20ft Standard' => '20ft Standard', '40ft Standard' => '40ft Standard', '40ft High Cube' => '40ft High Cube', '20ft Refrigerated' => '20ft Refrigerated', '40ft Refrigerated' => '40ft Refrigerated', '20ft Open Top' => '20ft Open Top', '40ft Open Top' => '40ft Open Top', '20ft Flat Rack' => '20ft Flat Rack', '40ft Flat Rack' => '40ft Flat Rack', 'LCL' => 'LCL', 'Bulk' => 'Bulk',],
-
+        'container_types' => [
+            '20ft Standard' => '20ft Standard',
+            '40ft Standard' => '40ft Standard',
+            '40ft High Cube' => '40ft High Cube',
+            '20ft Refrigerated' => '20ft Refrigerated',
+            '40ft Refrigerated' => '40ft Refrigerated',
+            '20ft Open Top' => '20ft Open Top',
+            '40ft Open Top' => '40ft Open Top',
+            '20ft Flat Rack' => '20ft Flat Rack',
+            '40ft Flat Rack' => '40ft Flat Rack',
+            'LCL' => 'LCL',
+            'Bulk' => 'Bulk',
+        ],
         'remittance_amount' => 'Remittance Amount',
         'helper_remittance_amount' => 'Auto-calculated: sum of total purchased remittance across all Bank Profiles for this order.',
         'customs_quantity' => 'Remaining Qty in customs',
         'shipped_quantity' => 'Shipped Qty',
-
         'status' => 'Main Status',
         'shipment_status' => 'Tracking Status',
         'operation_status' => 'Operation Status',
         'container_status' => 'Container Status',
         'guarantee_status' => 'Guarantee Status',
         'doc_status' => 'Doc Status',
-
         'smart_tracer' => 'Smart Document Tracer',
-        'smart_tracer_hint' => 'If enabled, the system automatically checks off items based on your uploaded attachments.',        'docs' => 'Documents Checklist',
+        'smart_tracer_hint' => 'If enabled, the system automatically checks off items based on your uploaded attachments.',
+        'docs' => 'Documents Checklist',
         'doc_name' => 'Document Name',
         'doc_name_placeholder' => 'e.g. Inspection Certificate',
         'doc_received' => 'Received',
@@ -92,7 +128,6 @@ return [
         ],
         'attachments' => 'Attachments',
         'notes' => 'Internal Notes',
-
         'validation' => [
             'required' => 'This field is required.',
             'unique' => 'This value must be unique.',
@@ -102,7 +137,7 @@ return [
             'min_numeric_zero' => 'This value cannot be negative.',
             'max' => 'Please keep this to 255 characters or fewer.',
         ],
-            'helper_status' => 'Overall logistical status of the shipment.',
+        'helper_status' => 'Overall logistical status of the shipment.',
     ],
     'table' => [
         'id' => 'ID',
@@ -127,11 +162,13 @@ return [
         'created_until' => 'Created Until',
         'eta_from' => 'ETA From',
         'eta_until' => 'ETA Until',
+        'warehouse_from' => 'Warehouse From',
+        'warehouse_until' => 'Warehouse Until',
     ],
     'infolist' => [
-        'tab_general'   => 'General Information',
+        'tab_general' => 'General Information',
         'tab_logistics' => 'Logistics',
-        'tab_docs'      => 'Master Data',
+        'tab_docs' => 'Master Data',
         'tab_documents' => 'Attachments',
     ],
 ];

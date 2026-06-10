@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'بانک',
@@ -21,8 +20,8 @@ return [
         'validation_english_name_required' => 'لطفاً نام انگلیسی را وارد کنید.',
         'validation_english_name' => 'فقط حروف انگلیسی مجاز هستند.',
         'validation_english_name_unique' => 'این نام انگلیسی قبلاً ثبت شده است.',
-            'helper_name' => 'نام رسمی بانک را وارد کنید.',
-            'helper_english_name' => 'نام انگلیسی رسمی را برای سوابق بین‌المللی وارد کنید.',
+        'helper_name' => 'نام رسمی بانک را وارد کنید.',
+        'helper_english_name' => 'نام انگلیسی رسمی را برای سوابق بین‌المللی وارد کنید.',
     ],
     'table' => [
         'name' => 'نام (فارسی)',

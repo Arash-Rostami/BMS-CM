@@ -7,18 +7,15 @@ return [
         'navigation_group' => 'Notifications',
         'add_record' => '˙⋆✮ Créer un nouveau paramètre de notification',
     ],
-
     'form' => [
         'tabs' => [
             'general' => 'Informations générales',
             'filters' => 'Filtres & Colonnes',
             'notifications' => 'Paramètres de notification',
         ],
-
         'section_general' => 'Détails de la notification',
         'section_filters' => 'Sélection de la table et des colonnes',
         'section_notifications' => 'Préférences de notification',
-
         'tables' => 'Sélectionnez les tables à surveiller',
         'columns' => 'Sélectionnez les colonnes à suivre',
         'column_values' => 'Sélectionnez les valeurs des colonnes',
@@ -28,20 +25,16 @@ return [
         'is_active' => 'Actif',
         'notes' => 'Notes supplémentaires',
         'actions' => 'Actions',
-
         'tables_description' => '⚡ Basé sur les tables, les colonnes et les valeurs qui changent.',
-
         'validation_required' => 'Ce champ est obligatoire.',
         'validation_numeric' => 'Ce champ doit être un nombre.',
         'validation_date' => 'Veuillez entrer une date valide.',
         'validation_notes_max' => 'Veuillez limiter vos notes à 500 caractères maximum.',
-
         'helper_notes' => 'Utilisez cet espace pour un contexte rapide, mais gardez-le sous 500 caractères.',
-            'helper_actions' => 'Sélectionnez les actions de base de données qui déclenchent cette notification.',
-            'helper_columns' => 'Déclencher la notification uniquement lorsque ces colonnes spécifiques changent.',
-            'helper_column_values' => 'Déclencher la notification uniquement lorsque les colonnes changent pour ces valeurs spécifiques.',
+        'helper_actions' => 'Sélectionnez les actions de base de données qui déclenchent cette notification.',
+        'helper_columns' => 'Déclencher la notification uniquement lorsque ces colonnes spécifiques changent.',
+        'helper_column_values' => 'Déclencher la notification uniquement lorsque les colonnes changent pour ces valeurs spécifiques.',
     ],
-
     'table' => [
         'tables' => 'Table',
         'columns' => 'Colonnes',
@@ -55,7 +48,6 @@ return [
         'created_at' => 'Créé le',
         'updated_at' => 'Mis à jour le',
     ],
-
     'filters' => [
         'actions' => 'Actions',
         'tables' => 'Tables',
@@ -70,7 +62,6 @@ return [
         'created_from' => 'Créé Depuis',
         'created_until' => 'Créé Jusqu\'à',
     ],
-
     'infolist' => [
         'tab_general' => 'Informations générales',
         'tab_filters' => 'Filtres & Colonnes',

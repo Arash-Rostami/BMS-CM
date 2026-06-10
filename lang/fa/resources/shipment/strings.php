@@ -18,7 +18,6 @@ return [
         'section_logistics' => 'داده‌های لجستیک',
         'section_status' => 'وضعیت‌ها',
         'section_amounts' => 'مبالغ و مقادیر',
-
         'shipment_no' => 'شماره محموله',
         'registered_order' => 'ثبت سفارش',
         'contract_no' => 'شماره قرارداد',
@@ -26,12 +25,10 @@ return [
         'part' => 'پارت',
         'helper_part' => 'یک سفارش می‌تواند در چند پارت ارسال شود — شمارهٔ پارت بعدیِ آزاد به‌صورت خودکار پیشنهاد می‌شود و تنها شماره‌هایی که هنوز ارسال نشده‌اند قابل انتخاب‌اند.',
         'case_number' => 'شماره پرونده',
-
         'warehouse_date' => 'تاریخ قبض انبار',
         'exit_date' => 'تاریخ خروج',
         'eta' => 'تاریخ ورود (ETA)',
         'etd' => 'تاریخ حرکت (ETD)',
-
         'bl_number' => 'شماره بارنامه',
         'booking_no' => 'شماره بوکینگ',
         'container_no' => 'تعداد کانتینر',
@@ -58,23 +55,60 @@ return [
                 'LCL' => 'خرده‌بار (LCL)',
                 'Bulk' => 'فله',
             ],
+            'Standard' => [
+                '20ft Standard' => '20ft Standard',
+                '40ft Standard' => '40ft Standard',
+                '40ft High Cube' => '40ft High Cube',
+            ],
+            'Refrigerated' => [
+                '20ft Refrigerated' => '20ft Refrigerated',
+                '40ft Refrigerated' => '40ft Refrigerated',
+            ],
+            'Open Top' => [
+                '20ft Open Top' => '20ft Open Top',
+                '40ft Open Top' => '40ft Open Top',
+            ],
+            'Flat Rack' => [
+                '20ft Flat Rack' => '20ft Flat Rack',
+                '40ft Flat Rack' => '40ft Flat Rack',
+            ],
+            'Other' => [
+                'LCL' => 'LCL',
+                'Bulk' => 'Bulk',
+            ],
+            'Frigorifique' => [
+                '20ft Refrigerated' => '20ft Refrigerated',
+                '40ft Refrigerated' => '40ft Refrigerated',
+            ],
+            'Autres' => [
+                'LCL' => 'LCL',
+                'Bulk' => 'Bulk',
+            ],
         ],
-        'container_types' => ['20ft Standard' => '۲۰ فوت استاندارد', '40ft Standard' => '۴۰ فوت استاندارد', '40ft High Cube' => '۴۰ فوت‌های کیوب', '20ft Refrigerated' => '۲۰ فوت یخچالی', '40ft Refrigerated' => '۴۰ فوت یخچالی', '20ft Open Top' => '۲۰ فوت روباز', '40ft Open Top' => '۴۰ فوت روباز', '20ft Flat Rack' => '۲۰ فوت فلت رک', '40ft Flat Rack' => '۴۰ فوت فلت رک', 'LCL' => 'خرده‌بار (LCL)', 'Bulk' => 'فله',],
-
-
+        'container_types' => [
+            '20ft Standard' => '۲۰ فوت استاندارد',
+            '40ft Standard' => '۴۰ فوت استاندارد',
+            '40ft High Cube' => '۴۰ فوت‌های کیوب',
+            '20ft Refrigerated' => '۲۰ فوت یخچالی',
+            '40ft Refrigerated' => '۴۰ فوت یخچالی',
+            '20ft Open Top' => '۲۰ فوت روباز',
+            '40ft Open Top' => '۴۰ فوت روباز',
+            '20ft Flat Rack' => '۲۰ فوت فلت رک',
+            '40ft Flat Rack' => '۴۰ فوت فلت رک',
+            'LCL' => 'خرده‌بار (LCL)',
+            'Bulk' => 'فله',
+        ],
         'remittance_amount' => 'مبلغ حواله',
         'helper_remittance_amount' => 'محاسبه‌شده خودکار: مجموع کل حواله خریداری‌شده از تمام پروفایل‌های بانکی این سفارش.',
         'customs_quantity' => 'مقدار باقیمانده در گمرک',
         'shipped_quantity' => 'مقدار حمل‌شده',
-
         'status' => 'وضعیت کلی',
         'shipment_status' => 'وضعیت حمل ',
         'operation_status' => 'وضعیت عملیات',
         'container_status' => 'وضعیت کانتینر',
         'guarantee_status' => 'وضعیت ضمانت',
         'doc_status' => 'وضعیت اسناد',
-
-        'smart_tracer'      => 'ردیاب هوشمند اسناد',
+        'smart_tracer' => 'ردیاب هوشمند اسناد',
         'smart_tracer_hint' => 'وقتی این گزینه فعال باشد، چک‌لیست اسناد بر اساس فایل‌های پیوست به‌طور خودکار بررسی و آپدیت می‌شود.',
         'docs' => 'چک‌لیست اسناد',
         'doc_name' => 'نام سند',
@@ -94,7 +128,6 @@ return [
         ],
         'attachments' => 'پیوست‌ها',
         'notes' => 'یادداشت‌ها',
-
         'validation' => [
             'required' => 'این فیلد الزامی است.',
             'unique' => 'این مقدار قبلاً ثبت شده است.',
@@ -104,7 +137,7 @@ return [
             'min_numeric_zero' => 'این مقدار نمی‌تواند منفی باشد.',
             'max' => 'لطفاً این مقدار را در ۲۵۵ نویسه یا کمتر نگه دارید.',
         ],
-            'helper_status' => 'وضعیت کلی لاجستیک و حمل این محموله.',
+        'helper_status' => 'وضعیت کلی لاجستیک و حمل این محموله.',
     ],
     'table' => [
         'id' => 'شناسه',
@@ -129,11 +162,13 @@ return [
         'created_until' => 'ایجاد تا تاریخ',
         'eta_from' => 'تاریخ ورود از',
         'eta_until' => 'تاریخ ورود تا',
+        'warehouse_from' => 'Warehouse From',
+        'warehouse_until' => 'Warehouse Until',
     ],
     'infolist' => [
         'tab_general' => 'اطلاعات عمومی',
         'tab_logistics' => 'لجستیک',
         'tab_docs' => 'اسناد',
         'tab_documents' => 'پیوستها',
-    ]
+    ],
 ];

@@ -7,18 +7,15 @@ return [
         'navigation_group' => 'Notifications',
         'add_record' => '˙⋆✮ Create New Notification Setting',
     ],
-
     'form' => [
         'tabs' => [
             'general' => 'General Info',
             'filters' => 'Filters & Columns',
             'notifications' => 'Notification Settings',
         ],
-
         'section_general' => 'Notification Details',
         'section_filters' => 'Table & Column Selection',
         'section_notifications' => 'Notification Preferences',
-
         'tables' => 'Select Tables to Monitor',
         'columns' => 'Select Columns to Track',
         'column_values' => 'Select Column Values',
@@ -28,20 +25,16 @@ return [
         'is_active' => 'Is Active',
         'notes' => 'Additional Notes',
         'actions' => 'Actions',
-
         'tables_description' => '⚡ Select one or more resources. The available columns and values will update dynamically based on your choice.',
-
         'validation_required' => 'This field is required.',
         'validation_numeric' => 'This field must be a number.',
         'validation_date' => 'Please enter a valid date.',
         'validation_notes_max' => 'Please keep your notes to 500 characters or fewer.',
-
         'helper_notes' => 'Use this space for quick context, but keep it under 500 characters.',
-            'helper_actions' => 'Select which database actions trigger this notification.',
-            'helper_columns' => 'Trigger notification only when these specific columns change.',
-            'helper_column_values' => 'Trigger notification only when columns change to these specific values.',
+        'helper_actions' => 'Select which database actions trigger this notification.',
+        'helper_columns' => 'Trigger notification only when these specific columns change.',
+        'helper_column_values' => 'Trigger notification only when columns change to these specific values.',
     ],
-
     'table' => [
         'tables' => 'Table',
         'columns' => 'Columns',
@@ -55,7 +48,6 @@ return [
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
     ],
-
     'filters' => [
         'actions' => 'Actions',
         'tables' => 'Tables',
@@ -70,7 +62,6 @@ return [
         'created_from' => 'Created From',
         'created_until' => 'Created Until',
     ],
-
     'infolist' => [
         'tab_general' => 'General Info',
         'tab_filters' => 'Filters & Columns',

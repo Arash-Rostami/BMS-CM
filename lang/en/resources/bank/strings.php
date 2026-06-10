@@ -20,8 +20,8 @@ return [
         'validation_english_name_required' => 'Please enter the English name.',
         'validation_english_name' => 'Only English characters are allowed.',
         'validation_english_name_unique' => 'The English name already exists.',
-            'helper_name' => 'Enter the official bank name.',
-            'helper_english_name' => 'Enter the official English name for international records.',
+        'helper_name' => 'Enter the official bank name.',
+        'helper_english_name' => 'Enter the official English name for international records.',
     ],
     'table' => [
         'name' => 'Name (Persian)',

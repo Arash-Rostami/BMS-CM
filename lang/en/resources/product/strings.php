@@ -42,7 +42,6 @@ return [
         'helper_code' => 'Choose a code carefully, as it must be unique and is used to look this product up everywhere.',
         'helper_classify_by_name' => 'Turning this on lets you name the product yourself in both Persian and English instead of auto-naming it.',
         'helper_english_name' => 'This name builds the URL-friendly slug, so editing it later can change links that already point to this product.',
-        // 'Specifications' section and its fields
         'tab2' => 'Specifications',
         'specifications' => 'Specifications',
         'specifications_section_title' => 'Specifications',
@@ -83,9 +82,9 @@ return [
         'extra' => 'Extra Specs (Key → Value)',
         'key_label' => 'Key',
         'value_label' => 'Value',
-            'helper_name' => 'The local name of the product.',
-            'helper_hs_code' => 'Harmonized System code for customs and duties.',
-            'helper_import_duty' => 'Applicable percentage or amount for import duty.',
+        'helper_name' => 'The local name of the product.',
+        'helper_hs_code' => 'Harmonized System code for customs and duties.',
+        'helper_import_duty' => 'Applicable percentage or amount for import duty.',
     ],
     'table' => [
         'name' => 'Name (Persian)',
@@ -105,6 +104,12 @@ return [
         'created_at' => 'Date Created',
         'updated_at' => 'Last Updated',
         'deleted_at' => 'Date Deleted',
+        'no_category' => 'No Category',
+        'choose_action' => 'Choose Action',
+        'action_check' => 'Action Check',
+        'action_create' => 'Action Create',
+        'section_check' => 'Section Check',
+        'section_create' => 'Section Create',
     ],
     'filters' => [
         'category' => 'Category',

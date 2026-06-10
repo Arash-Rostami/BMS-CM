@@ -42,7 +42,6 @@ return [
         'helper_code' => 'Choisissez un code avec soin, car il doit être unique et sert à retrouver ce produit partout.',
         'helper_classify_by_name' => 'Activer cette option vous permet de nommer vous-même le produit en persan et en anglais au lieu d\'un nommage automatique.',
         'helper_english_name' => 'Ce nom génère le slug compatible avec l\'URL, donc le modifier plus tard peut changer les liens qui pointent déjà vers ce produit.',
-        // 'Specifications' section and its fields
         'tab2' => 'Spécifications',
         'specifications' => 'Spécifications',
         'specifications_section_title' => 'Spécifications',
@@ -83,9 +82,9 @@ return [
         'extra' => 'Spécifications supplémentaires (Clé → Valeur)',
         'key_label' => 'Clé',
         'value_label' => 'Valeur',
-            'helper_name' => 'Le nom local du produit.',
-            'helper_hs_code' => 'Code du Système Harmonisé (SH) pour les douanes.',
-            'helper_import_duty' => 'Pourcentage ou montant applicable pour les droits d\'importation.',
+        'helper_name' => 'Le nom local du produit.',
+        'helper_hs_code' => 'Code du Système Harmonisé (SH) pour les douanes.',
+        'helper_import_duty' => 'Pourcentage ou montant applicable pour les droits d\'importation.',
     ],
     'table' => [
         'choose_action' => 'Voulez-vous vérifier ou créer un produit ?',
@@ -110,6 +109,7 @@ return [
         'created_at' => 'Date de création',
         'updated_at' => 'Dernière mise à jour',
         'deleted_at' => 'Date de suppression',
+        'no_category' => 'No Category',
     ],
     'filters' => [
         'category' => 'Catégorie',

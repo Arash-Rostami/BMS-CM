@@ -29,8 +29,8 @@ return [
         'validation_english_type_required' => 'Please choose an English type, or pick New to create one.',
         'validation_english_type_custom_required' => 'Please type the new English type you want to create.',
         'helper_name' => 'The name only needs to be unique within its selected type, so the same name can be reused under a different type.',
-            'helper_type' => 'Select the model/entity this status applies to.',
-            'helper_english_type' => 'Select the English type mapping.',
+        'helper_type' => 'Select the model/entity this status applies to.',
+        'helper_english_type' => 'Select the English type mapping.',
     ],
     'table' => [
         'type' => 'Type',

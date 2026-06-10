@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'Banque',
@@ -21,8 +20,8 @@ return [
         'validation_english_name_required' => 'Veuillez saisir le nom en anglais.',
         'validation_english_name' => 'Seuls les caractères anglais sont autorisés.',
         'validation_english_name_unique' => 'Ce nom anglais existe déjà.',
-            'helper_name' => 'Saisissez le nom officiel de la banque.',
-            'helper_english_name' => 'Saisissez le nom anglais officiel pour les registres internationaux.',
+        'helper_name' => 'Saisissez le nom officiel de la banque.',
+        'helper_english_name' => 'Saisissez le nom anglais officiel pour les registres internationaux.',
     ],
     'table' => [
         'name' => 'Nom (Persan)',

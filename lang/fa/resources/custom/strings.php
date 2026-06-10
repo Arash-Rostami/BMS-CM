@@ -40,40 +40,33 @@ return [
         'section_status' => 'بررسی وضعیت‌ها',
         'section_financial' => 'اطلاعات مالی و تعهدات',
         'section_notes' => 'یادداشت‌ها و پیوست‌ها',
-
         'custom_no' => 'شماره امور گمرکی و ترخیص',
         'registered_order' => 'ثبت سفارش',
         'shipment' => 'محموله',
         'contract_no' => 'شماره قرارداد',
         'declaration_no' => 'شماره اظهارنامه (کوتاژ)',
         'clearance_type' => 'نوع ترخیص',
-
         'clearance_date' => 'تاریخ ترخیص',
         'doc_submission_date' => 'تاریخ تحویل اسناد',
         'ten_percent_exit_date' => 'تاریخ خروج ۱۰٪',
         'payment_due_date' => 'تاریخ سررسید پرداخت',
         'commitment_payment_date' => 'تاریخ پرداخت تعهد',
         'rial_return_date' => 'تاریخ بازگشت ریال',
-
         'commitment_balance' => 'مانده تعهد',
-
         'clearance_status' => 'وضعیت ترخیص',
         'bank_guarantee_status' => 'وضعیت ضمانت بانکی',
         'commitment_status' => 'وضعیت تعهد',
-
         'notes' => 'یادداشت‌ها',
         'attachments' => 'پیوست‌ها',
-
         'helper_custom_no' => 'این شماره برای رهگیری گمرکی به‌طور خودکار ایجاد شده و قفل است.',
         'helper_shipment' => 'با انتخاب محموله، ثبت سفارش و شماره قرارداد آن به‌طور خودکار برای شما تکمیل می‌شود.',
-
         'validation_required' => 'این فیلد الزامی است.',
         'validation_unique' => 'این مقدار تکراری است.',
         'validation_numeric' => 'این فیلد باید عدد باشد.',
         'validation_date' => 'لطفاً یک تاریخ معتبر وارد کنید.',
         'validation_contract_no_max' => 'شماره قرارداد نباید بیش از ۲۵۵ نویسه باشد.',
         'validation_declaration_no_max' => 'شماره اظهارنامه نباید بیش از ۲۵۵ نویسه باشد.',
-            'helper_clearance_type' => 'نوع فرآیند ترخیص گمرکی را انتخاب کنید.',
+        'helper_clearance_type' => 'نوع فرآیند ترخیص گمرکی را انتخاب کنید.',
     ],
     'table' => [
         'declaration_no' => 'شماره کوتاژ',

@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'Registered Order',
@@ -78,9 +77,6 @@ return [
         'attachments' => 'Attachments',
         'add_item' => 'Add Item',
         'official_registration_no' => 'Official Registration Number',
-
-
-
         'validation_required' => 'Please fill in the :attribute to continue.',
         'validation_unique' => 'This :attribute is already in use, please enter a different one.',
         'validation_max_string' => 'The :attribute is too long, please keep it under :max characters.',
@@ -90,7 +86,6 @@ return [
         'validation_numeric' => 'The :attribute must be a number, please remove any letters or symbols.',
         'validation_min_numeric' => 'The :attribute must be at least :min, please enter a higher value.',
         'validation_min_numeric_zero' => 'The :attribute cannot be negative, please enter zero or more.',
-
         'helper_ro_number' => 'This number is auto-generated and locked to prevent duplicates.',
         'helper_seller' => 'The seller must differ from the buyer, pick the supplying party here.',
         'helper_expected_delivery_date' => 'Must fall on or after the order date, set it once the order date is fixed.',
@@ -98,7 +93,9 @@ return [
         'helper_unit_price' => 'Price per single unit, the line total is calculated automatically from this.',
         'helper_source_type' => 'Selecting a source type automatically populates the order items. Please set this before manually adding products.',
         'helper_validity_date' => 'Set this on or after the order date to mark how long the order stays valid.',
-            'helper_status' => 'Current governmental registration status.',
+        'helper_status' => 'Current governmental registration status.',
+        'validation_attachments_type' => 'Validation Attachments Type',
+        'validation_attachments_size' => 'Validation Attachments Size',
     ],
     'table' => [
         'related_to' => 'Related to',

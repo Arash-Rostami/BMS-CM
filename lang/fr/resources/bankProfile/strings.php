@@ -37,7 +37,6 @@ return [
         'section_dates' => 'Dates clés',
         'section_notes' => 'Notes',
         'section_summary' => '⚡Résumé calculé',
-
         'bp_number' => 'Numéro de profil bancaire',
         'status' => 'Statut',
         'registered_order' => 'Commande enregistrée',
@@ -79,7 +78,6 @@ return [
             'conversion_rate' => 'Taux de conversion — calculé automatiquement entre les devises demandée et achetée.',
             'eur_equivalent_rate' => 'Taux équivalent EUR — le taux exprimé en euros, calculé automatiquement; aucune saisie manuelle requise.',
         ],
-
         'summary_commission_amount' => 'Montant de la commission',
         'summary_commission_equivalent' => 'Équivalent de la commission',
         'summary_final_equivalent' => 'Équivalent final',
@@ -87,19 +85,21 @@ return [
         'summary_total_rial' => 'Total (Rial, net)',
         'summary_total_purchased' => 'Total des remises achetées',
         'summary_total_requested' => 'Total des remises demandées',
-
         'validation_required' => 'Ce champ est requis.',
         'validation_numeric' => 'Ce champ doit être un nombre.',
         'validation_min_numeric_zero' => 'Ce champ ne peut pas être négatif.',
         'validation_date_after_or_equal' => 'Cette date doit être égale ou postérieure au :date.',
         'validation_unique' => 'Cette valeur existe déjà.',
         'validation_max_length' => 'Veuillez limiter ce champ à :max caractères ou moins.',
-
-        'helper_commission_input_mode' => '⚡ Intelligent : Saisissez le taux ou le pourcentage, le montant sera calculé. Saisissez la commission, le taux sera calculé.',        'helper_commission_amount_purchased' => 'Saisissez les frais de commission exacts facturés par la banque. Le pourcentage équivalent est calculé automatiquement et appliqué à tous les calculs.',
+        'helper_commission_input_mode' => '⚡ Intelligent : Saisissez le taux ou le pourcentage, le montant sera calculé. Saisissez la commission, le taux sera calculé.',
+        'helper_commission_amount_purchased' => 'Saisissez les frais de commission exacts facturés par la banque. Le pourcentage équivalent est calculé automatiquement et appliqué à tous les calculs.',
         'helper_commission_rate' => 'Saisissez uniquement le pourcentage (par ex. 1,5, et non 1,5 %) — il s\'ajoute au taux de change pour calculer le taux final.',
         'helper_delivery_date' => 'La livraison ne peut pas être antérieure à la date d\'achat, alors renseignez d\'abord la date d\'achat.',
         'helper_requested_amount' => 'Ce montant alimente tous les calculs ci-dessous, y compris l\'engagement restant — vérifiez-le bien avant d\'enregistrer.',
-            'helper_documents_amount' => 'La valorisation totale des documents.',
+        'helper_documents_amount' => 'La valorisation totale des documents.',
+        'summary_final_eur' => 'Summary Final Eur',
+        'summary_total_eur' => 'Summary Total Eur',
+        'summary_total_usd' => 'Summary Total Usd',
     ],
     'table' => [
         'id' => 'ID',

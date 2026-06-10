@@ -39,7 +39,7 @@ return [
             'purchase_orders' => 'Related Purchase Orders',
             'proforma_invoices' => 'Related Proforma Invoices',
             'registered_orders' => 'Related Registered Orders',
-        ]
+        ],
     ],
     'attachments' => [
         'attachments' => 'Attachments',
