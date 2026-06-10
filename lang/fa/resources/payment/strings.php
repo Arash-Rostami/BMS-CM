@@ -72,6 +72,9 @@ return [
         'total_amount' => 'مبلغ کل',
         'created_by' => 'ایجاد شده توسط',
         'created_at' => 'تاریخ ایجاد',
+        'creator' => 'ایجادکننده',
+        'updater' => 'به‌روزرسان',
+        'updated_at' => 'به‌روزرسانی شده در',
     ],
     'filters' => [
         'payor' => 'پرداخت کننده',

@@ -137,6 +137,8 @@ return [
             'min_numeric' => 'The :attribute must be at least :min.',
             'gte_net_weight' => 'Gross weight must be greater than or equal to net weight.',
             'max_string' => 'The :attribute may not be greater than :max characters.',
+            'attachments_type' => 'The :attribute file type is not allowed.',
+            'attachments_size' => 'The :attribute file must not exceed :max kilobytes.',
         ],
             'helper_delivery_terms' => 'Select the Incoterms rule governing this shipment.',
     ],

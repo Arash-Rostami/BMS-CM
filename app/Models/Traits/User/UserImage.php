@@ -13,6 +13,6 @@ trait UserImage
 
         $baseRole = Str::before($roleName, '_');
 
-        return Vite::asset(sprintf('%s%s.svg', 'resources/img/avatars/', strtolower($baseRole)));
+        return Vite::asset(sprintf('%s%s.png', 'resources/img/avatars/', strtolower($baseRole)));
     }
 }

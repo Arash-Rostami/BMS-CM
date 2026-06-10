@@ -13,6 +13,7 @@ use App\Filament\Resources\Operational\ShipmentResource\RelationManagers\Registe
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Filters as ShipmentFilters;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Form as ShipmentForm;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Infolist as ShipmentInfolist;
+use App\Filament\Resources\Operational\ShipmentResource\Traits\InvoiceForm as ShipmentInvoiceForm;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Table as ShipmentTable;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
@@ -44,7 +45,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ShipmentResource extends Resource
 {
-    use ShipmentForm, ShipmentTable, ShipmentFilters, ShipmentInfolist, HasResourcePermissions, HasExtraAttributesManagement;
+    use ShipmentForm, ShipmentTable, ShipmentFilters, ShipmentInfolist, ShipmentInvoiceForm, HasResourcePermissions, HasExtraAttributesManagement;
 
     protected static ?string $model = Shipment::class;
 
@@ -133,6 +134,7 @@ class ShipmentResource extends Resource
                                             ])->columns(1),
                                     ])->columnSpan(['lg' => 1]),
                             ])->columns(3),
+                        static::getInvoiceFormTab(),
                         static::getExtraAttributesFormTab(),
                     ])
                     ->columnSpanFull(),

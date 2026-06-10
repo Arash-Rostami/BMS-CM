@@ -82,6 +82,8 @@ return [
         'creator' => 'Créateur',
         'created_from' => 'Créé du',
         'created_until' => 'Créé jusqu\'au',
+        'updater' => 'Modificateur',
+        'updated_at' => 'Mis à jour le',
     ],
     'groups' => [
         'payor'            => 'Payeur',

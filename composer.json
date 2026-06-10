@@ -12,6 +12,7 @@
         "php": "^8.2",
         "ext-pdo": "*",
         "ext-pdo_mysql": "*",
+        "ext-soap": "*",
         "bezhansalleh/filament-language-switch": "4.0",
         "filament/filament": "^4.0",
         "laravel/framework": "^12.31",
@@ -20,9 +21,9 @@
         "livewire/livewire": "^3.6",
         "mokhosh/filament-jalali": "^5.0",
         "morilog/jalali": "^3.4",
+        "mpdf/mpdf": "^8.3",
         "spatie/laravel-permission": "^6.24",
-        "ysfkaya/filament-phone-input": "^4.0",
-      "ext-soap": "*"
+        "ysfkaya/filament-phone-input": "^4.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.5",
