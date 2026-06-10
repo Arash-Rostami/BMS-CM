@@ -26,7 +26,6 @@ return [
         'section_main' => 'Contenu du Message',
         'section_settings' => 'Paramètres et Visibilité',
         'section_recipients' => 'Audience et Mentions',
-
         'subject' => 'Sujet',
         'body' => 'Corps du message',
         'type' => 'Type',
@@ -35,19 +34,16 @@ return [
         'is_internal' => 'Note Interne',
         'is_private' => 'Privé (Restreint)',
         'parent' => 'Répondre à',
-
         'recipients' => 'Destinataires',
         'recipients_to' => 'À (Action Requise)',
         'recipients_cc' => 'CC (Pour Information)',
-
         'helper_internal' => 'Visible uniquement par le personnel interne.',
         'helper_private' => 'Visible UNIQUEMENT par vous et les destinataires sélectionnés.',
         'helper_subject' => 'Restez court et descriptif pour que les destinataires repèrent le message d\'un coup d\'œil.',
-
         'validation_required' => 'Le champ :attribute est requis.',
         'validation_unique' => 'Cette valeur existe déjà.',
         'validation_subject_max' => 'Le sujet ne doit pas dépasser 255 caractères.',
-            'helper_priority' => 'Définissez l\'urgence de ce message. Une priorité élevée alerte les destinataires.',
+        'helper_priority' => 'Définissez l\'urgence de ce message. Une priorité élevée alerte les destinataires.',
     ],
     'table' => [
         'subject' => 'Sujet',
@@ -79,5 +75,5 @@ return [
     ],
     'export' => [
         'filename' => 'export-correspondance',
-    ]
+    ],
 ];

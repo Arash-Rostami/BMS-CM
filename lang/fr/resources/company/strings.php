@@ -46,7 +46,6 @@ return [
         'updated_at' => 'Dernière mise à jour',
         'deleted_at' => 'Date de suppression',
     ],
-
     'filters' => [
         'company_types' => 'Types d\'entreprise',
         'select_types' => 'Sélectionner les types',

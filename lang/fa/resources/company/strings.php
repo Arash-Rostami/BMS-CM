@@ -46,7 +46,6 @@ return [
         'updated_at' => 'آخرین به‌روزرسانی',
         'deleted_at' => 'تاریخ حذف',
     ],
-
     'filters' => [
         'company_types' => 'انواع شرکت',
         'select_types' => 'انتخاب انواع',

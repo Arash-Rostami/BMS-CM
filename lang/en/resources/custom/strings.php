@@ -40,40 +40,33 @@ return [
         'section_status' => 'Status Overview',
         'section_financial' => 'Financial Commitments',
         'section_notes' => 'Notes & Attachments',
-
         'custom_no' => 'Customs No.',
         'registered_order' => 'Registered Order',
         'shipment' => 'Shipment',
         'contract_no' => 'Contract No.',
         'declaration_no' => 'Declaration No. (Kotazh)',
         'clearance_type' => 'Clearance Type',
-
         'clearance_date' => 'Clearance Date',
         'doc_submission_date' => 'Doc Submission Date',
         'ten_percent_exit_date' => '10% Exit Date',
         'payment_due_date' => 'Payment Due Date',
         'commitment_payment_date' => 'Commitment Payment Date',
         'rial_return_date' => 'Rial Return Date',
-
         'commitment_balance' => 'Commitment Balance',
-
         'clearance_status' => 'Clearance Status',
         'bank_guarantee_status' => 'Bank Guarantee Status',
         'commitment_status' => 'Commitment Status',
-
         'notes' => 'Notes',
         'attachments' => 'Attachments',
-
         'helper_custom_no' => 'This customs number is auto-generated and locked for tracking purposes.',
         'helper_shipment' => 'Choosing a shipment auto-fills its registered order and contract number for you.',
-
         'validation_required' => 'This field is required.',
         'validation_unique' => 'This value already exists.',
         'validation_numeric' => 'This field must be a number.',
         'validation_date' => 'Please enter a valid date.',
         'validation_contract_no_max' => 'The contract number must not exceed 255 characters.',
         'validation_declaration_no_max' => 'The declaration number must not exceed 255 characters.',
-            'helper_clearance_type' => 'Select the type of customs clearance process.',
+        'helper_clearance_type' => 'Select the type of customs clearance process.',
     ],
     'table' => [
         'declaration_no' => 'Declaration No.',

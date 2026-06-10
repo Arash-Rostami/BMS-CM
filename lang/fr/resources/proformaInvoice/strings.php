@@ -140,7 +140,9 @@ return [
             'attachments_size' => 'Le fichier :attribute ne doit pas dépasser :max kilo-octets.',
             'max_string' => 'Le champ :attribute ne peut pas contenir plus de :max caractères.',
         ],
-            'helper_delivery_terms' => 'Sélectionnez la règle Incoterms régissant cette expédition.',
+        'helper_delivery_terms' => 'Sélectionnez la règle Incoterms régissant cette expédition.',
+        'item_english_description' => 'Item English Description',
+        'shipment_info' => 'Shipment Info',
     ],
     'table' => [
         'id' => 'ID',

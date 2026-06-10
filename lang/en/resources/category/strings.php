@@ -29,7 +29,7 @@ return [
         'validation_english_name_required' => 'Please enter the English name for this category.',
         'validation_english_name_max' => 'The English name may not exceed 255 characters.',
         'validation_english_name_unique' => 'This English name already exists.',
-        'level_helper' => "0 = Base Category ┆ 1 = Sub-category ┆ 2 = Line ┆ 3 = Model ┆ 4+ = Additional levels",
+        'level_helper' => '0 = Base Category ┆ 1 = Sub-category ┆ 2 = Line ┆ 3 = Model ┆ 4+ = Additional levels',
         'validation_level' => 'Level must be a number.',
         'validation_level_required' => 'Please set the level for this category.',
         'validation_level_numeric' => 'The level must be a number.',
@@ -40,8 +40,8 @@ return [
             'line' => '❸ Line',
             'model' => '❹ Model',
         ],
-            'helper_name' => 'Enter a clear, descriptive category name.',
-            'helper_english_name' => 'Enter the English equivalent for sorting and URL slugs.',
+        'helper_name' => 'Enter a clear, descriptive category name.',
+        'helper_english_name' => 'Enter the English equivalent for sorting and URL slugs.',
     ],
     'table' => [
         'name' => 'Name (Persian)',
@@ -61,6 +61,6 @@ return [
         'level' => 'Category Level',
         'level_placeholder' => 'Select level…',
         'ancestors' => 'Higher-level categories',
-        'descendants' => 'Lower-level categories'
+        'descendants' => 'Lower-level categories',
     ],
 ];

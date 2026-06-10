@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'navigation_group' => [
         'base' => '【#】 Master Data',

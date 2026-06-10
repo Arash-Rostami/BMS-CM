@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'Company',
@@ -47,7 +46,6 @@ return [
         'updated_at' => 'Last Updated',
         'deleted_at' => 'Date Deleted',
     ],
-
     'filters' => [
         'company_types' => 'Company Types',
         'select_types' => 'Select Types',

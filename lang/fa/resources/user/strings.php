@@ -4,7 +4,7 @@ return [
     'general' => [
         'model_label' => 'کاربر',
         'plural_model_label' => 'کاربرها',
-        "navigation_group" => "اطلاعات پایه",
+        'navigation_group' => 'اطلاعات پایه',
         'options' => [
             'active' => 'فعال',
             'inactive' => 'غیرفعال',
@@ -56,10 +56,10 @@ return [
         'validation_password_max' => 'رمز عبور نمی‌تواند بیش از ۲۵۵ نویسه باشد.',
         'validation_password_confirmation_max' => 'تایید رمز عبور نمی‌تواند بیش از ۲۵۵ نویسه باشد.',
         'validation_company_max' => 'نام شرکت نمی‌تواند بیش از ۲۵۵ نویسه باشد.',
-            'helper_department' => 'کاربر را برای مسیریابی و تأییدیه‌ها به یک دپارتمان اختصاص دهید.',
-            'helper_position' => 'سمت یا نقش سازمانی را انتخاب کنید.',
-            'helper_status' => 'کاربران فعال می‌توانند وارد سیستم شوند؛ کاربران تعلیق‌شده این دسترسی را ندارند.',
-            'helper_roles' => 'با اختصاص نقش‌ها، دسترسی‌های خاص سیستم را به کاربر اعطا کنید.',
+        'helper_department' => 'کاربر را برای مسیریابی و تأییدیه‌ها به یک دپارتمان اختصاص دهید.',
+        'helper_position' => 'سمت یا نقش سازمانی را انتخاب کنید.',
+        'helper_status' => 'کاربران فعال می‌توانند وارد سیستم شوند؛ کاربران تعلیق‌شده این دسترسی را ندارند.',
+        'helper_roles' => 'با اختصاص نقش‌ها، دسترسی‌های خاص سیستم را به کاربر اعطا کنید.',
     ],
     'table' => [
         'id' => 'شناسه',
@@ -78,5 +78,13 @@ return [
         'created_at' => 'تاریخ ایجاد',
         'updated_at' => 'آخرین به‌روزرسانی',
         'deleted_at' => 'تاریخ حذف',
-    ]
+    ],
+    'filter' => [
+        'department' => 'Department',
+        'role' => 'Role',
+        'status' => 'Status',
+        'position' => 'Position',
+        'company' => 'Company',
+        'trashed' => 'Trashed',
+    ],
 ];
