@@ -59,9 +59,6 @@ return [
         'gross_weight' => 'Gross Weight',
         'add_item_action' => 'Add Product',
         'attachments' => 'Attachments',
-
-
-        // Validation
         'validation_required' => 'This field is required.',
         'validation_unique' => 'This value must be unique.',
         'validation_max_string' => 'This field must not exceed :max characters.',
@@ -71,14 +68,13 @@ return [
         'validation_numeric' => 'This field must be a number.',
         'validation_min_numeric' => 'This field must be at least :min.',
         'validation_min_numeric_zero' => 'This field cannot be negative.',
-
-        // Helper Text
         'helper_po_number' => 'This number is auto-generated and locked to maintain system integrity.',
         'helper_expected_delivery_date' => 'Pick a date on or after the order date, as the supplier counts the lead time from there.',
         'helper_validity_date' => 'This is the last day the agreed prices and terms stay valid before they may need renegotiating.',
         'helper_unit_price' => 'Entering the unit price instantly updates the line total automatically.',
-
-            'helper_status' => 'Tracks the lifecycle of the PO from draft to fulfilled.',
+        'attachments_type' => 'The :attribute file type is not allowed.',
+        'attachments_size' => 'The :attribute file must not exceed :max kilobytes.',
+        'helper_status' => 'Tracks the lifecycle of the PO from draft to fulfilled.',
     ],
     'table' => [
         'po_number' => 'PO Number',

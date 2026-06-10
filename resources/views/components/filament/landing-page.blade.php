@@ -19,6 +19,7 @@
     ];
 @endphp
 
+
 @push('headCSS')
     @vite('resources/css/landing-page.css')
 @endpush

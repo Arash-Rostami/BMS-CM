@@ -56,10 +56,10 @@ return [
         'validation_password_max' => 'The password may not be longer than 255 characters.',
         'validation_password_confirmation_max' => 'The password confirmation may not be longer than 255 characters.',
         'validation_company_max' => 'The company name may not be longer than 255 characters.',
-            'helper_department' => 'Assign the user to a department for routing and approvals.',
-            'helper_position' => 'Select the organizational role/position.',
-            'helper_status' => 'Active users can log in; suspended users cannot.',
-            'helper_roles' => 'Grant specific system permissions by assigning roles.',
+        'helper_department' => 'Assign the user to a department for routing and approvals.',
+        'helper_position' => 'Select the organizational role/position.',
+        'helper_status' => 'Active users can log in; suspended users cannot.',
+        'helper_roles' => 'Grant specific system permissions by assigning roles.',
     ],
     'table' => [
         'id' => 'ID',
@@ -78,5 +78,13 @@ return [
         'created_at' => 'Date Created',
         'updated_at' => 'Last Updated',
         'deleted_at' => 'Date Deleted'
+    ],
+    'filter' => [
+        'department' => 'Department',
+        'role' => 'Role',
+        'status' => 'Status',
+        'position' => 'Position',
+        'company' => 'Company',
+        'trashed' => 'Deleted Records',
     ]
 ];

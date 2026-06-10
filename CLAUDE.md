@@ -261,6 +261,7 @@ SmartCacheManager::invalidate('PurchaseOrder');
 | `CodeGenerator` | Auto-generates sequential codes (`PR-250612`, `PO-250612-2`, etc.). URL-segment-based routing to model/prefix map. |
 | `DashboardStats` | Counts all 8 operational models; user-scoped 120s cache |
 | `FileUploadManager` | `storeTemporary()` → `processTemporaryFiles()` pipeline for attachments; moves temp files to permanent location, persists Attachment records |
+| `InvoicePdfService` | mPDF commercial invoice PDF — Persian uses IranYekan + RTL, others use DejaVu + LTR. `generate(array $invoice, string $locale)` → `Mpdf`; `download()` → `Response`. fontDir merged with `resource_path('fonts')`. |
 | `NotificationEvaluator` | Evaluates notification rules against records |
 | `PermissionLabeler` | Human-readable labels for Spatie permission strings |
 | `PersianCalendar` | Persian calendar utilities |
@@ -302,6 +303,14 @@ Registered in `AppServiceProvider::boot()`:
 Spotlight search across all 8 operational models. For each model hit, returns:
 - `title`, `subtitle` (record number), `progress` (% of non-null fields), `is_binary`, `icon`, `color`
 - `breadcrumb` object: `{proforma, order, logistics}` — each `upcoming | active | completed` for the pipeline status bar
+
+### `InvoiceController` (`/shipments/{shipment}/invoice/pdf`)
+
+Auth-guarded. Reads `commercial_invoice` EntityAttribute from the Shipment, delegates to `InvoicePdfService::download()`. Returns 404 if no saved invoice exists.
+
+Route name: `shipments.invoice.pdf` (defined in `routes/web.php`, middleware `auth`).
+
+---
 
 ### `WorkspaceController` (`/workspace/records/{resource}?q=`)
 
@@ -420,6 +429,8 @@ resources/video/*  → public/video/
 
 **`.fi-simple-layout`** (login page) — gradient background + webp image overlay (`video/2.webp` light, `video/1.webp` dark) with mask-image fade + grain noise texture (SVG data URI with `grain-drift` animation)  
 **`.fi-simple-main`** (login card) — absolute positioned, `border-radius: 16px`, elevation-2 → elevation-3 on hover
+
+> ⚠️ **Login CSS is load-bearing.** `resources/video/1.webp` and `2.webp` are static/animated WebP images used as CSS `background-image` on the `::before` pseudo-element — they are **not** HTML `<video>` elements. The CSS path `url("../../video/2.webp")` resolves correctly after Vite build (output in `public/build/assets/`, two `../` hops reach `public/video/`). Do **not** restructure `.fi-simple-layout` or `.fi-simple-main` without restoring this pseudo-element. After any `fi-custom.css` edit: `npm run build` + hard-refresh (`Ctrl+Shift+R`).
 
 **Custom scrollbar** — 8px wide, `--custom-third` thumb, SVG arrow buttons, `--google-fourth-light` hover
 
@@ -714,6 +725,7 @@ These rules apply to **every file** in this project. Non-negotiable.
 - `.glass` is the glassmorphism utility — do not re-implement it inline.
 - Never duplicate utility classes that already exist in `landing-page.css` or `fi-custom.css`.
 - `will-change: transform/opacity` on animated elements that use GPU-accelerated properties only.
+- **Never restructure `.fi-simple-layout` / `.fi-simple-main`** — these are Filament's auth wrappers. The login background effect lives in `::before` pseudo-elements, not in the blade view.
 
 ### JavaScript / Alpine.js
 
@@ -733,6 +745,19 @@ These rules apply to **every file** in this project. Non-negotiable.
 ---
 
 ## Latest Changes
+
+### 2026-06-10
+
+- **`app/Filament/Resources/Operational/ShipmentResource/Traits/InvoiceForm.php`** — New trait. Provides `getInvoiceFormTab()` (full commercial invoice form tab, all fields `->dehydrated(false)`) and `persistInvoiceToEav(Get $get, $record)` (upserts `commercial_invoice` JSON into EntityAttribute). Tab layout: 3-column, left group = parties/items, right group = shipment details/totals/remarks. Footer actions: **Save Invoice** + **Download PDF** (opens `shipments.invoice.pdf` route).
+- **`app/Services/InvoicePdfService.php`** — New service. mPDF wrapper; Persian locale → IranYekan font + RTL; others → DejaVu + LTR. `generate(array, locale)` → `Mpdf`; `download()` → `Response`.
+- **`resources/views/pdf/commercial-invoice.blade.php`** — New table-based mPDF HTML template. Sections: header, parties, info-bar, items, totals, terms, remarks. `$isRtl` drives `dir`, font-family, text-align.
+- **`app/Http/Controllers/InvoiceController.php`** — New controller. Reads `commercial_invoice` EAV from Shipment, delegates to `InvoicePdfService::download()`.
+- **`routes/web.php`** — Added `GET /shipments/{shipment}/invoice/pdf` → `InvoiceController@shipmentPdf`, middleware `auth`, name `shipments.invoice.pdf`.
+- **`app/Filament/Resources/ShipmentResource.php`** — Added `InvoiceForm` trait; `getInvoiceFormTab()` inserted between Logistics tab and Extra Attributes tab.
+- **`app/Filament/Resources/Operational/ShipmentResource/Pages/EditShipment.php`** — Extended `mutateFormDataBeforeFill`: loads `commercial_invoice` EAV into `_inv_*` keys on page open; falls back to `bl_number`/`etd`/`eta` from Shipment if no saved invoice.
+- **`lang/en|fa|fr/resources/shipment/strings.php`** — Added complete `invoice` array (tab label, all field labels, transport/incoterms options, action labels, notifications).
+- **mPDF virtual-tab pattern** — All EAV-backed form tabs use `->dehydrated(false)` on every field so nothing touches the Eloquent model. Save is explicit via `Section::footerActions()`. Hydration lives in `mutateFormDataBeforeFill`.
+- **CLAUDE.md** — Added `InvoicePdfService` to Services table; added `InvoiceController` to HTTP Controllers; added login CSS architecture warning to design system and coding philosophy.
 
 ### 2026-06-09
 
