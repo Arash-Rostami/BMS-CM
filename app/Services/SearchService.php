@@ -38,7 +38,7 @@ class SearchService
     {
         return [
             'results' => [],
-            'breadcrumb' => array_fill_keys(self::OPERATIONAL_STAGES, 'upcoming'),
+            'breadcrumb' => $this->buildBreadcrumb([]),
             'by_user' => null,
         ];
     }
@@ -93,10 +93,15 @@ class SearchService
         }
         $breadcrumb = [];
 
+        $registry = $this->registry();
+
         foreach (self::OPERATIONAL_STAGES as $i => $stage) {
-            $breadcrumb[$stage] = $has($stage)
-                ? 'completed'
-                : ($i < $lastFoundIndex ? 'missing' : 'upcoming');
+            $breadcrumb[$stage] = [
+                'state' => $has($stage)
+                    ? 'completed'
+                    : ($i < $lastFoundIndex ? 'missing' : 'upcoming'),
+                'label' => $registry[$stage]['label'] ?? $stage,
+            ];
         }
 
         return $breadcrumb;
