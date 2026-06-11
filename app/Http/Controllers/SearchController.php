@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
+use App\Services\SearchExtractorService;
 use Illuminate\Http\Request;
 
 class SearchController extends Controller
@@ -79,6 +80,7 @@ class SearchController extends Controller
 
             'purchaseRequest' => [
                 'model'    => PurchaseRequest::class,
+                'resource' => \App\Filament\Resources\PurchaseRequestResource::class,
                 'icon'     => 'shopping-cart',
                 'color'    => 'blue',
                 'theme'    => 'from-blue-500 to-blue-600',
@@ -89,18 +91,12 @@ class SearchController extends Controller
                 'with'     => ['status', 'requester', 'department', 'costCenter'],
                 'progress' => ['pr_number', 'status_id', 'requester_id', 'required_by_date', 'urgency_level', 'department_id', 'cost_center_id'],
                 'title'    => fn($r) => $r->pr_number ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/purchaseRequest/strings.form.status'),           fn($r) => $r->status?->localized_name],
-                    [__('resources/purchaseRequest/strings.form.requester'),        fn($r) => $r->requester?->name],
-                    [__('resources/purchaseRequest/strings.form.required_by_date'), fn($r) => self::d($r->required_by_date)],
-                    [__('resources/purchaseRequest/strings.form.urgency_level'),    fn($r) => $r->urgency_level],
-                    [__('resources/purchaseRequest/strings.form.department'),       fn($r) => $r->department?->localized_name],
-                    [__('resources/purchaseRequest/strings.form.rejection_reason'), fn($r) => $r->rejection_reason],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'proformaInvoice' => [
                 'model'    => ProformaInvoice::class,
+                'resource' => \App\Filament\Resources\ProformaInvoiceResource::class,
                 'icon'     => 'document-text',
                 'color'    => 'indigo',
                 'theme'    => 'from-indigo-500 to-indigo-600',
@@ -111,18 +107,12 @@ class SearchController extends Controller
                 'with'     => ['sellerCompany', 'buyerCompany', 'mainCurrency'],
                 'progress' => ['invoice_no', 'contract_no', 'seller_id', 'buyer_id', 'invoice_date', 'validity_date', 'main_currency_id'],
                 'title'    => fn($r) => $r->invoice_no ?? $r->contract_no ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/proformaInvoice/strings.form.invoice_no'),     fn($r) => $r->invoice_no],
-                    [__('resources/proformaInvoice/strings.form.seller_company'), fn($r) => $r->sellerCompany?->localized_name],
-                    [__('resources/proformaInvoice/strings.form.buyer_company'),  fn($r) => $r->buyerCompany?->localized_name],
-                    [__('resources/proformaInvoice/strings.form.contract_no'),    fn($r) => $r->contract_no],
-                    [__('resources/proformaInvoice/strings.form.invoice_date'),   fn($r) => self::d($r->invoice_date)],
-                    [__('resources/proformaInvoice/strings.form.validity_date'),  fn($r) => self::d($r->validity_date)],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'registeredOrder' => [
                 'model'    => RegisteredOrder::class,
+                'resource' => \App\Filament\Resources\RegisteredOrderResource::class,
                 'icon'     => 'document-check',
                 'color'    => 'green',
                 'theme'    => 'from-green-500 to-green-600',
@@ -133,19 +123,12 @@ class SearchController extends Controller
                 'with'     => ['sellerCompanyExclusive', 'buyerCompany', 'status', 'currency'],
                 'progress' => ['ro_number', 'contract_no', 'seller_id', 'buyer_id', 'status_id', 'order_date'],
                 'title'    => fn($r) => $r->ro_number ?? $r->contract_no ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/registeredOrder/strings.form.seller'),             fn($r) => $r->sellerCompanyExclusive?->localized_name],
-                    [__('resources/registeredOrder/strings.form.buyer'),              fn($r) => $r->buyerCompany?->localized_name],
-                    [__('resources/registeredOrder/strings.form.status'),             fn($r) => $r->status?->localized_name],
-                    [__('resources/registeredOrder/strings.form.contract_number'),    fn($r) => $r->contract_no],
-                    [__('resources/registeredOrder/strings.form.order_date'),         fn($r) => self::d($r->order_date)],
-                    [__('resources/registeredOrder/strings.form.insurance_number'),   fn($r) => $r->insurance_number],
-                    [__('resources/registeredOrder/strings.form.insurance_provider'), fn($r) => $r->insurance_provider],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'bankProfile' => [
                 'model'    => BankProfile::class,
+                'resource' => \App\Filament\Resources\BankProfileResource::class,
                 'icon'     => 'building-office',
                 'color'    => 'emerald',
                 'theme'    => 'from-emerald-500 to-emerald-600',
@@ -156,17 +139,12 @@ class SearchController extends Controller
                 'with'     => ['bank', 'company', 'status'],
                 'progress' => ['bp_number', 'bank_id', 'company_id', 'status_id', 'order_number', 'payment_due_date'],
                 'title'    => fn($r) => $r->bp_number ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/bankProfile/strings.form.bank'),             fn($r) => $r->bank?->localized_name],
-                    [__('resources/bankProfile/strings.form.company'),          fn($r) => $r->company?->localized_name],
-                    [__('resources/bankProfile/strings.form.status'),           fn($r) => $r->status?->localized_name],
-                    [__('resources/bankProfile/strings.form.order_number'),     fn($r) => $r->order_number],
-                    [__('resources/bankProfile/strings.form.payment_due_date'), fn($r) => self::d($r->payment_due_date)],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'purchaseOrder' => [
                 'model'    => PurchaseOrder::class,
+                'resource' => \App\Filament\Resources\PurchaseOrderResource::class,
                 'icon'     => 'shopping-bag',
                 'color'    => 'amber',
                 'theme'    => 'from-amber-500 to-amber-600',
@@ -177,17 +155,12 @@ class SearchController extends Controller
                 'with'     => ['sellerCompanyExclusive', 'buyerCompany', 'currency', 'status'],
                 'progress' => ['po_number', 'seller_id', 'buyer_id', 'currency_id', 'status_id', 'order_date'],
                 'title'    => fn($r) => $r->po_number ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/purchaseOrder/strings.form.seller'),     fn($r) => $r->sellerCompanyExclusive?->localized_name],
-                    [__('resources/purchaseOrder/strings.form.buyer'),      fn($r) => $r->buyerCompany?->localized_name],
-                    [__('resources/purchaseOrder/strings.form.currency'),   fn($r) => $r->currency?->localized_name],
-                    [__('resources/purchaseOrder/strings.form.status'),     fn($r) => $r->status?->localized_name],
-                    [__('resources/purchaseOrder/strings.form.order_date'), fn($r) => self::d($r->order_date)],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'payment' => [
                 'model'    => Payment::class,
+                'resource' => \App\Filament\Resources\PaymentResource::class,
                 'icon'     => 'banknotes',
                 'color'    => 'orange',
                 'theme'    => 'from-orange-500 to-orange-600',
@@ -198,20 +171,12 @@ class SearchController extends Controller
                 'with'     => ['payor', 'payee', 'status'],
                 'progress' => ['payment_no', 'payor_id', 'payee_id', 'status_id', 'payment_date', 'beneficiary_name', 'account_no'],
                 'title'    => fn($r) => $r->payment_no ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/payment/strings.form.payor'),            fn($r) => $r->payor?->localized_name],
-                    [__('resources/payment/strings.form.payee'),            fn($r) => $r->payee?->localized_name],
-                    [__('resources/payment/strings.form.status'),           fn($r) => $r->status?->localized_name],
-                    [__('resources/payment/strings.form.payment_date'),     fn($r) => self::d($r->payment_date)],
-                    [__('resources/payment/strings.form.beneficiary_name'), fn($r) => $r->beneficiary_name],
-                    [__('resources/payment/strings.form.account_no'),       fn($r) => $r->account_no],
-                    [__('resources/payment/strings.form.swift'),            fn($r) => $r->swift],
-                    [__('resources/payment/strings.form.iban'),             fn($r) => $r->iban],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'shipment' => [
                 'model'    => Shipment::class,
+                'resource' => \App\Filament\Resources\ShipmentResource::class,
                 'icon'     => 'truck',
                 'color'    => 'purple',
                 'theme'    => 'from-purple-500 to-purple-600',
@@ -222,17 +187,12 @@ class SearchController extends Controller
                 'with'     => ['carrier', 'status', 'registeredOrder'],
                 'progress' => ['shipment_no', 'bl_number', 'company_id', 'status_id', 'contract_no', 'booking_no'],
                 'title'    => fn($r) => $r->shipment_no ?? $r->bl_number ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/shipment/strings.form.bl_number'),   fn($r) => $r->bl_number],
-                    [__('resources/shipment/strings.form.booking_no'),  fn($r) => $r->booking_no],
-                    [__('resources/shipment/strings.form.carrier'),     fn($r) => $r->carrier?->localized_name],
-                    [__('resources/shipment/strings.form.status'),      fn($r) => $r->status?->localized_name],
-                    [__('resources/shipment/strings.form.contract_no'), fn($r) => $r->contract_no],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'custom' => [
                 'model'    => Custom::class,
+                'resource' => \App\Filament\Resources\CustomResource::class,
                 'icon'     => 'clipboard-document-check',
                 'color'    => 'violet',
                 'theme'    => 'from-violet-500 to-violet-600',
@@ -243,19 +203,14 @@ class SearchController extends Controller
                 'with'     => ['clearanceStatus', 'shipment'],
                 'progress' => ['declaration_no', 'custom_no', 'contract_no', 'clearance_status_id', 'shipment_id'],
                 'title'    => fn($r) => $r->declaration_no ?? $r->custom_no ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/custom/strings.form.contract_no'),      fn($r) => $r->contract_no],
-                    [__('resources/custom/strings.form.shipment'),         fn($r) => $r->shipment?->shipment_no],
-                    [__('resources/custom/strings.form.clearance_status'), fn($r) => $r->clearanceStatus?->localized_name],
-                    [__('resources/custom/strings.form.declaration_no'),   fn($r) => $r->declaration_no],
-                    [__('resources/custom/strings.form.custom_no'),        fn($r) => $r->custom_no],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             // ── Master Data ───────────────────────────────────────────────────
 
             'company' => [
                 'model'    => Company::class,
+                'resource' => \App\Filament\Resources\CompanyResource::class,
                 'icon'     => 'building-office-2',
                 'color'    => 'sky',
                 'theme'    => 'from-sky-500 to-sky-600',
@@ -266,15 +221,12 @@ class SearchController extends Controller
                 'with'     => [],
                 'progress' => [],
                 'title'    => fn($r) => $r->localized_name ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/company/strings.form.english_name'), fn($r) => $r->english_name],
-                    [__('resources/company/strings.form.name'),         fn($r) => $r->name],
-                    [__('resources/company/strings.form.description'),  fn($r) => $r->description],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'bank' => [
                 'model'    => Bank::class,
+                'resource' => \App\Filament\Resources\BankResource::class,
                 'icon'     => 'building-library',
                 'color'    => 'teal',
                 'theme'    => 'from-teal-500 to-teal-600',
@@ -285,15 +237,12 @@ class SearchController extends Controller
                 'with'     => [],
                 'progress' => [],
                 'title'    => fn($r) => $r->localized_name ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/bank/strings.form.english_name'), fn($r) => $r->english_name],
-                    [__('resources/bank/strings.form.name'),         fn($r) => $r->name],
-                    [__('resources/bank/strings.form.description'),  fn($r) => $r->description],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'currency' => [
                 'model'    => Currency::class,
+                'resource' => \App\Filament\Resources\CurrencyResource::class,
                 'icon'     => 'currency-dollar',
                 'color'    => 'lime',
                 'theme'    => 'from-lime-500 to-lime-600',
@@ -304,15 +253,12 @@ class SearchController extends Controller
                 'with'     => [],
                 'progress' => [],
                 'title'    => fn($r) => $r->localized_name ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/currency/strings.form.english_name'), fn($r) => $r->english_name],
-                    [__('resources/currency/strings.form.name'),         fn($r) => $r->name],
-                    [__('resources/currency/strings.form.description'),  fn($r) => $r->description],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'product' => [
                 'model'    => Product::class,
+                'resource' => \App\Filament\Resources\ProductResource::class,
                 'icon'     => 'cube',
                 'color'    => 'rose',
                 'theme'    => 'from-rose-500 to-rose-600',
@@ -323,16 +269,12 @@ class SearchController extends Controller
                 'with'     => ['category'],
                 'progress' => [],
                 'title'    => fn($r) => $r->localized_name ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/product/strings.form.english_name'), fn($r) => $r->english_name],
-                    [__('resources/product/strings.form.name'),         fn($r) => $r->name],
-                    [__('resources/product/strings.form.code'),         fn($r) => $r->code],
-                    [__('resources/product/strings.form.category'),     fn($r) => $r->category?->localized_name],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'category' => [
                 'model'    => Category::class,
+                'resource' => \App\Filament\Resources\CategoryResource::class,
                 'icon'     => 'tag',
                 'color'    => 'fuchsia',
                 'theme'    => 'from-fuchsia-500 to-fuchsia-600',
@@ -343,15 +285,12 @@ class SearchController extends Controller
                 'with'     => ['parent'],
                 'progress' => [],
                 'title'    => fn($r) => $r->localized_name ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/category/strings.form.english_name'), fn($r) => $r->english_name],
-                    [__('resources/category/strings.form.name'),         fn($r) => $r->name],
-                    [__('resources/category/strings.form.parent'),       fn($r) => $r->parent?->localized_name],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
             'status' => [
                 'model'    => Status::class,
+                'resource' => \App\Filament\Resources\StatusResource::class,
                 'icon'     => 'check-badge',
                 'color'    => 'cyan',
                 'theme'    => 'from-cyan-500 to-cyan-600',
@@ -362,11 +301,7 @@ class SearchController extends Controller
                 'with'     => [],
                 'progress' => [],
                 'title'    => fn($r) => $r->localized_name ?? ('#' . $r->id),
-                'details'  => [
-                    [__('resources/status/strings.form.english_name'), fn($r) => $r->english_name],
-                    [__('resources/status/strings.form.name'),         fn($r) => $r->name],
-                    [__('resources/status/strings.form.english_type'), fn($r) => $r->english_type],
-                ],
+                'details'  => [], // Details generated dynamically via SearchExtractorService
             ],
 
         ];
@@ -376,11 +311,19 @@ class SearchController extends Controller
 
     private function buildResult(string $key, array $cfg, Model $record): array
     {
+        $extractor = new SearchExtractorService();
+        $resourceClass = $cfg['resource'] ?? null;
+
         $details = [];
-        foreach ($cfg['details'] as [$label, $fn]) {
-            $value = $fn($record);
-            if (! is_null($value) && $value !== '') {
-                $details[] = ['label' => $label, 'value' => (string) $value];
+        if ($resourceClass && class_exists($resourceClass)) {
+            $details = $extractor->extractDetails($record, $resourceClass);
+        } else if (isset($cfg['details'])) {
+            // Fallback for resources without a filament resource or hardcoded details
+            foreach ($cfg['details'] as [$label, $fn]) {
+                $value = $fn($record);
+                if (! is_null($value) && $value !== '') {
+                    $details[] = ['label' => $label, 'value' => (string) $value];
+                }
             }
         }
 
