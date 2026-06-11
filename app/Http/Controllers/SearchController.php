@@ -96,6 +96,7 @@ class SearchController extends Controller
                     [__('resources/purchaseRequest/strings.form.urgency_level'),    fn($r) => $r->urgency_level],
                     [__('resources/purchaseRequest/strings.form.department'),       fn($r) => $r->department?->localized_name],
                     [__('resources/purchaseRequest/strings.form.rejection_reason'), fn($r) => $r->rejection_reason],
+                    [__('resources/purchaseRequest/strings.form.total_estimated_cost'), fn($r) => $r->total_estimated_cost],
                 ],
             ],
 
@@ -118,6 +119,9 @@ class SearchController extends Controller
                     [__('resources/proformaInvoice/strings.form.contract_no'),    fn($r) => $r->contract_no],
                     [__('resources/proformaInvoice/strings.form.invoice_date'),   fn($r) => self::d($r->invoice_date)],
                     [__('resources/proformaInvoice/strings.form.validity_date'),  fn($r) => self::d($r->validity_date)],
+                    [__('resources/proformaInvoice/strings.form.total_amount'),   fn($r) => $r->total_amount],
+                    [__('resources/proformaInvoice/strings.form.delivery_terms'), fn($r) => $r->delivery_terms],
+                    [__('resources/proformaInvoice/strings.form.main_currency'),  fn($r) => $r->mainCurrency?->localized_name],
                 ],
             ],
 
@@ -141,6 +145,9 @@ class SearchController extends Controller
                     [__('resources/registeredOrder/strings.form.order_date'),         fn($r) => self::d($r->order_date)],
                     [__('resources/registeredOrder/strings.form.insurance_number'),   fn($r) => $r->insurance_number],
                     [__('resources/registeredOrder/strings.form.insurance_provider'), fn($r) => $r->insurance_provider],
+                    [__('resources/registeredOrder/strings.form.expected_delivery_date'), fn($r) => self::d($r->expected_delivery_date)],
+                    [__('resources/registeredOrder/strings.form.total_amount'),       fn($r) => $r->total_amount],
+                    [__('resources/registeredOrder/strings.form.currency'),           fn($r) => $r->currency?->localized_name],
                 ],
             ],
 
@@ -153,7 +160,7 @@ class SearchController extends Controller
                 'url'      => fn($r) => route('filament.dashboard.resources.bank-profiles.edit', ['record' => $r->id]),
                 'label'    => __('resources/bankProfile/strings.general.model_label'),
                 'search'   => ['bp_number', 'order_number'],
-                'with'     => ['bank', 'company', 'status'],
+                'with'     => ['bank', 'company', 'status', 'requestedCurrency'],
                 'progress' => ['bp_number', 'bank_id', 'company_id', 'status_id', 'order_number', 'payment_due_date'],
                 'title'    => fn($r) => $r->bp_number ?? ('#' . $r->id),
                 'details'  => [
@@ -162,6 +169,9 @@ class SearchController extends Controller
                     [__('resources/bankProfile/strings.form.status'),           fn($r) => $r->status?->localized_name],
                     [__('resources/bankProfile/strings.form.order_number'),     fn($r) => $r->order_number],
                     [__('resources/bankProfile/strings.form.payment_due_date'), fn($r) => self::d($r->payment_due_date)],
+                    [__('resources/bankProfile/strings.form.requested_amount'), fn($r) => $r->requested_amount],
+                    [__('resources/bankProfile/strings.form.purchased_equivalent'), fn($r) => $r->purchased_equivalent],
+                    [__('resources/bankProfile/strings.form.requested_currency'), fn($r) => $r->requestedCurrency?->localized_name],
                 ],
             ],
 
@@ -183,6 +193,8 @@ class SearchController extends Controller
                     [__('resources/purchaseOrder/strings.form.currency'),   fn($r) => $r->currency?->localized_name],
                     [__('resources/purchaseOrder/strings.form.status'),     fn($r) => $r->status?->localized_name],
                     [__('resources/purchaseOrder/strings.form.order_date'), fn($r) => self::d($r->order_date)],
+                    [__('resources/purchaseOrder/strings.form.expected_delivery_date'), fn($r) => self::d($r->expected_delivery_date)],
+                    [__('resources/purchaseOrder/strings.form.total_amount'), fn($r) => $r->total_amount],
                 ],
             ],
 
@@ -207,6 +219,7 @@ class SearchController extends Controller
                     [__('resources/payment/strings.form.account_no'),       fn($r) => $r->account_no],
                     [__('resources/payment/strings.form.swift'),            fn($r) => $r->swift],
                     [__('resources/payment/strings.form.iban'),             fn($r) => $r->iban],
+                    [__('resources/payment/strings.form.payable_amount'),   fn($r) => $r->payable_amount],
                 ],
             ],
 
@@ -228,6 +241,9 @@ class SearchController extends Controller
                     [__('resources/shipment/strings.form.carrier'),     fn($r) => $r->carrier?->localized_name],
                     [__('resources/shipment/strings.form.status'),      fn($r) => $r->status?->localized_name],
                     [__('resources/shipment/strings.form.contract_no'), fn($r) => $r->contract_no],
+                    [__('resources/shipment/strings.form.container_no'), fn($r) => $r->container_no],
+                    [__('resources/shipment/strings.form.eta'),         fn($r) => self::d($r->eta)],
+                    [__('resources/shipment/strings.form.etd'),         fn($r) => self::d($r->etd)],
                 ],
             ],
 
@@ -249,6 +265,8 @@ class SearchController extends Controller
                     [__('resources/custom/strings.form.clearance_status'), fn($r) => $r->clearanceStatus?->localized_name],
                     [__('resources/custom/strings.form.declaration_no'),   fn($r) => $r->declaration_no],
                     [__('resources/custom/strings.form.custom_no'),        fn($r) => $r->custom_no],
+                    [__('resources/custom/strings.form.clearance_type'),   fn($r) => $r->clearance_type],
+                    [__('resources/custom/strings.form.clearance_date'),   fn($r) => self::d($r->clearance_date)],
                 ],
             ],
 
@@ -415,18 +433,34 @@ class SearchController extends Controller
     {
         $has = fn(string $k) => in_array($k, $found);
 
-        $proforma  = $has('proformaInvoice') ? 'completed' : ($has('purchaseRequest') ? 'active' : 'upcoming');
-        $order     = $has('registeredOrder') ? 'completed' : ($has('bankProfile')     ? 'active' : 'upcoming');
-        $logistics = $has('shipment')        ? 'completed' : ($has('custom')          ? 'active' : 'upcoming');
+        $breadcrumb = [];
 
-        if ($proforma === 'completed' && $order === 'upcoming')    $order     = 'active';
-        if ($order === 'completed'    && $logistics === 'upcoming') $logistics = 'active';
+        $operationalStages = ['purchaseRequest', 'proformaInvoice', 'purchaseOrder', 'registeredOrder', 'bankProfile', 'payment', 'shipment', 'custom'];
+        $foundIndex = -1;
+        foreach ($operationalStages as $i => $stage) {
+            if ($has($stage)) $foundIndex = $i;
+        }
 
-        return compact('proforma', 'order', 'logistics');
+        foreach ($operationalStages as $i => $stage) {
+            if ($has($stage)) $breadcrumb[$stage] = 'completed';
+            elseif ($i < $foundIndex) $breadcrumb[$stage] = 'missing';
+            else $breadcrumb[$stage] = 'upcoming';
+        }
+
+        return $breadcrumb;
     }
 
     private function emptyBreadcrumb(): array
     {
-        return ['proforma' => 'upcoming', 'order' => 'upcoming', 'logistics' => 'upcoming'];
+        return [
+            'purchaseRequest' => 'upcoming',
+            'proformaInvoice' => 'upcoming',
+            'purchaseOrder' => 'upcoming',
+            'registeredOrder' => 'upcoming',
+            'bankProfile' => 'upcoming',
+            'payment' => 'upcoming',
+            'shipment' => 'upcoming',
+            'custom' => 'upcoming'
+        ];
     }
 }
