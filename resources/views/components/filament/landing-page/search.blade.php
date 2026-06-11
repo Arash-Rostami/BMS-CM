@@ -248,7 +248,7 @@
             </div>
         </div>
 
-        <a :href="selectedResult?.url"
+        <a :href="selectedResult?.url" target="_blank"
            class="flex items-center justify-center gap-2 w-full glass border border-indigo-500/30 dark:border-indigo-500/30 rounded-xl px-4 py-3 text-indigo-600 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-white hover:border-indigo-400 dark:hover:border-indigo-400 transition-all text-sm font-semibold group">
             <x-heroicon-o-pencil-square class="w-4 h-4 group-hover:scale-110 transition-transform"/>
             {{ __('dashboard/strings.search_edit_record') ?? 'Open & Edit Record' }}

@@ -6,14 +6,14 @@ export default function search() {
         selectedResult: null,
         byUser: null,
         breadcrumb: {
-            purchaseRequest: 'upcoming',
-            proformaInvoice: 'upcoming',
-            purchaseOrder: 'upcoming',
-            registeredOrder: 'upcoming',
-            bankProfile: 'upcoming',
-            payment: 'upcoming',
-            shipment: 'upcoming',
-            custom: 'upcoming'
+            purchaseRequest: { state: 'upcoming', label: 'Purchase Request' },
+            proformaInvoice: { state: 'upcoming', label: 'Proforma Invoice' },
+            purchaseOrder: { state: 'upcoming', label: 'Purchase Order' },
+            registeredOrder: { state: 'upcoming', label: 'Registered Order' },
+            bankProfile: { state: 'upcoming', label: 'Bank Profile' },
+            payment: { state: 'upcoming', label: 'Payment' },
+            shipment: { state: 'upcoming', label: 'Shipment' },
+            custom: { state: 'upcoming', label: 'Custom' }
         },
         C: 2 * Math.PI * 16,
         Cl: 2 * Math.PI * 22,
@@ -53,8 +53,8 @@ export default function search() {
             const keys = Object.keys(this.breadcrumb);
             return keys.map((key, index) => ({
                 key,
-                state: this.breadcrumb[key],
-                label: key.replace(/([A-Z])/g, ' $1').trim(),
+                state: this.breadcrumb[key].state,
+                label: this.breadcrumb[key].label,
                 isLast: index === keys.length - 1
             }));
         }

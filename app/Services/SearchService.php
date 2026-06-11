@@ -23,22 +23,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class SearchService
 {
-    private const OPERATIONAL_STAGES = [
-        'purchaseRequest',
-        'proformaInvoice',
-        'purchaseOrder',
-        'registeredOrder',
-        'bankProfile',
-        'payment',
-        'shipment',
-        'custom',
-    ];
 
     public function emptyResponse(): array
     {
         return [
             'results' => [],
-            'breadcrumb' => array_fill_keys(self::OPERATIONAL_STAGES, 'upcoming'),
+            'breadcrumb' => $this->buildBreadcrumb([]),
             'by_user' => null,
         ];
     }
@@ -85,18 +75,24 @@ class SearchService
         $has = fn(string $k) => in_array($k, $found);
 
         $lastFoundIndex = -1;
+        $stages = ['purchaseRequest', 'proformaInvoice', 'purchaseOrder', 'registeredOrder', 'bankProfile', 'payment', 'shipment', 'custom'];
 
-        foreach (self::OPERATIONAL_STAGES as $i => $stage) {
+        foreach ($stages as $i => $stage) {
             if ($has($stage)) {
                 $lastFoundIndex = $i;
             }
         }
         $breadcrumb = [];
 
-        foreach (self::OPERATIONAL_STAGES as $i => $stage) {
-            $breadcrumb[$stage] = $has($stage)
-                ? 'completed'
-                : ($i < $lastFoundIndex ? 'missing' : 'upcoming');
+        $registry = $this->registry();
+
+        foreach ($stages as $i => $stage) {
+            $breadcrumb[$stage] = [
+                'state' => $has($stage)
+                    ? 'completed'
+                    : ($i < $lastFoundIndex ? 'missing' : 'upcoming'),
+                'label' => $registry[$stage]['label'] ?? $stage,
+            ];
         }
 
         return $breadcrumb;
