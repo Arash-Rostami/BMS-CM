@@ -1,7 +1,8 @@
 import Alpine from 'alpinejs';
 import landingPage from './landing-page-alpine.js';
 import triWidget from './tri-widget-alpine.js';
-import workspace from './workspace.js';
+import search from './search-alpine.js';
+import workspace from './workspace-alpine.js';
 
 window.Alpine = window.Alpine || Alpine;
 
@@ -9,6 +10,7 @@ document.addEventListener('alpine:init', () => {
     if (document.querySelector('[x-data="landingPage()"]')) Alpine.data('landingPage', landingPage);
     if (document.querySelector('[x-data="triWidget()"]')) Alpine.data('triWidget', triWidget);
 
+    Alpine.data('search', search);
     Alpine.data('workspace', workspace);
 });
 

@@ -3,7 +3,7 @@
 
 return [
     'navigation_group' => [
-        'base' => '【#】 Master Data',
+        'base' => '【#】 Master Data Management',
         'operational_first' => '【1】 Purchase Requests Management',
         'operational_second' => '【2】 Order Registration Files',
         'operational_third' => '【3】 Files Financial Management',
