@@ -5,7 +5,7 @@
          results: [],
          selectedResult: null,
          byUser: null,
-         breadcrumb: { proforma: 'upcoming', order: 'upcoming', logistics: 'upcoming' },
+         breadcrumb: { purchaseRequest: 'upcoming', proformaInvoice: 'upcoming', purchaseOrder: 'upcoming', registeredOrder: 'upcoming', bankProfile: 'upcoming', payment: 'upcoming', shipment: 'upcoming', custom: 'upcoming' },
          C:  2 * Math.PI * 16,
          Cl: 2 * Math.PI * 22,
 
@@ -54,31 +54,20 @@
     </div>
 
     {{-- Pipeline breadcrumb --}}
-    <div class="flex items-center gap-2 mb-4 text-sm bg-slate-900/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/5"
+    <div class="flex flex-wrap items-center gap-2 mb-4 text-sm bg-slate-900/50 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/5"
          x-show="searchQuery.length >= 2">
-        <div class="flex items-center gap-1"
-             :class="breadcrumb.proforma === 'completed' ? 'text-emerald-400' : (breadcrumb.proforma === 'active' ? 'text-amber-500 animate-pulse' : 'text-slate-500')">
-            <x-heroicon-o-check-circle class="w-4 h-4" x-show="breadcrumb.proforma === 'completed'"/>
-            <div class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]" x-show="breadcrumb.proforma === 'active'"></div>
-            <div class="w-3.5 h-3.5 rounded-full border border-slate-500" x-show="breadcrumb.proforma === 'upcoming'"></div>
-            <span class="font-medium">{{ __('dashboard/strings.search_proforma') ?? 'Proforma' }}</span>
-        </div>
-        <div class="w-6 h-[1px] bg-slate-600"></div>
-        <div class="flex items-center gap-1"
-             :class="breadcrumb.order === 'completed' ? 'text-emerald-400' : (breadcrumb.order === 'active' ? 'text-amber-500 animate-pulse' : 'text-slate-500')">
-            <x-heroicon-o-check-circle class="w-4 h-4" x-show="breadcrumb.order === 'completed'"/>
-            <div class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]" x-show="breadcrumb.order === 'active'"></div>
-            <div class="w-3.5 h-3.5 rounded-full border border-slate-500" x-show="breadcrumb.order === 'upcoming'"></div>
-            <span class="font-medium">{{ __('dashboard/strings.search_order') ?? 'Order' }}</span>
-        </div>
-        <div class="w-6 h-[1px] bg-slate-600"></div>
-        <div class="flex items-center gap-1"
-             :class="breadcrumb.logistics === 'completed' ? 'text-emerald-400' : (breadcrumb.logistics === 'active' ? 'text-amber-500 animate-pulse' : 'text-slate-500')">
-            <x-heroicon-o-check-circle class="w-4 h-4" x-show="breadcrumb.logistics === 'completed'"/>
-            <div class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]" x-show="breadcrumb.logistics === 'active'"></div>
-            <div class="w-3.5 h-3.5 rounded-full border border-slate-500" x-show="breadcrumb.logistics === 'upcoming'"></div>
-            <span>{{ __('dashboard/strings.search_logistics') ?? 'Logistics' }}</span>
-        </div>
+        <template x-for="(state, stage) in breadcrumb" :key="stage">
+            <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1"
+                     :class="state === 'completed' ? 'text-emerald-400' : (state === 'missing' ? 'text-rose-500' : 'text-slate-500')">
+                    <x-heroicon-o-check-circle class="w-3.5 h-3.5" x-show="state === 'completed'"/>
+                    <x-heroicon-o-exclamation-circle class="w-3.5 h-3.5" x-show="state === 'missing'"/>
+                    <div class="w-2.5 h-2.5 rounded-full border border-slate-500" x-show="state === 'upcoming'"></div>
+                    <span class="font-medium text-[10px] uppercase tracking-wide" x-text="stage.replace(/([A-Z])/g, ' $1').trim()"></span>
+                </div>
+                <div class="w-2 h-[1px] bg-slate-600" x-show="stage !== 'custom'"></div>
+            </div>
+        </template>
     </div>
 
     {{-- Skeleton loading --}}
