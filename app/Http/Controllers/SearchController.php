@@ -22,6 +22,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Services\SearchExtractorService;
 
 class SearchController extends Controller
 {
@@ -376,11 +377,38 @@ class SearchController extends Controller
 
     private function buildResult(string $key, array $cfg, Model $record): array
     {
-        $details = [];
-        foreach ($cfg['details'] as [$label, $fn]) {
-            $value = $fn($record);
-            if (! is_null($value) && $value !== '') {
-                $details[] = ['label' => $label, 'value' => (string) $value];
+        $extractor = new SearchExtractorService();
+
+        // Find corresponding Filament resource class based on the model if possible
+        // The registry array could contain it, or we deduce it
+        $modelClass = get_class($record);
+        $resourceClass = str_replace('App\\Models\\', 'App\\Filament\\Resources\\', $modelClass) . 'Resource';
+
+        // If not found, check the registry or sub-namespaces (Operational, Master, etc)
+        if (!class_exists($resourceClass)) {
+            $baseName = class_basename($modelClass);
+            $possiblePaths = [
+                "App\Filament\Resources\Operational\{$baseName}Resource",
+                "App\Filament\Resources\Master\{$baseName}Resource",
+                "App\Filament\Resources\General\{$baseName}Resource",
+            ];
+            foreach ($possiblePaths as $path) {
+                if (class_exists($path)) {
+                    $resourceClass = $path;
+                    break;
+                }
+            }
+        }
+
+        $details = $extractor->extractDetails($resourceClass, $record);
+
+        // Fallback to old cfg if no details found via Infolist (e.g. User, Role models that might not have an infolist matching)
+        if (empty($details) && isset($cfg['details'])) {
+            foreach ($cfg['details'] as [$label, $fn]) {
+                $value = $fn($record);
+                if (! is_null($value) && $value !== '') {
+                    $details[] = ['label' => $label, 'value' => (string) $value];
+                }
             }
         }
 
@@ -395,9 +423,9 @@ class SearchController extends Controller
             'icon'     => $cfg['icon'],
             'color'    => $cfg['color'],
             'theme'    => $cfg['theme'],
-            'progress' => $total > 0 ? (int) round(($filled / $total) * 100) : 0,
+            'progress' => $total > 0 ? (int) round((($filled / $total) * 100)) : 0,
             'url'      => ($cfg['url'])($record),
-            'details'  => $details,
+            'details'  => array_slice($details, 0, 8), // Limit to 8 for UI balance
         ];
     }
 

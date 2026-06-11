@@ -44,17 +44,17 @@
                x-ref="searchInput"
                x-model="searchQuery"
                @input.debounce.500ms="performSearch"
-               class="w-full glass border border-white/10 rounded-2xl {{ $isRtl ? 'pr-14 pl-36' : 'pl-14 pr-36' }} py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 shadow-2xl text-sm transition-all duration-200"
+               class="w-full glass border border-slate-200 dark:border-white/10 rounded-2xl {{ $isRtl ? 'pr-14 pl-36' : 'pl-14 pr-36' }} py-4 text-slate-800 dark:text-white placeholder-slate-500 dark:placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 shadow-2xl text-sm transition-all duration-200"
                placeholder="{{ __('dashboard/strings.search_spotlight') ?? 'Search records (Cmd/Ctrl+K)…' }}">
         <div class="absolute inset-y-0 {{ $isRtl ? 'left-4' : 'right-4' }} flex items-center pointer-events-none gap-1.5">
-            <kbd class="hidden sm:inline-flex items-center gap-1 border border-white/10 bg-white/5 rounded-lg px-2 py-1 text-[11px] text-slate-500 font-mono">
+            <kbd class="hidden sm:inline-flex items-center gap-1 border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 rounded-lg px-2 py-1 text-[11px] text-slate-500 font-mono">
                 <span class="text-[10px]">⌘</span>K
             </kbd>
         </div>
     </div>
 
     {{-- Pipeline breadcrumb --}}
-    <div class="flex items-center gap-2 mb-4 text-sm bg-slate-900/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/5"
+    <div class="flex items-center gap-2 mb-4 text-sm bg-white/80 dark:bg-slate-900/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-slate-200 dark:border-white/5"
          x-show="searchQuery.length >= 2">
         <div class="flex items-center gap-1"
              :class="breadcrumb.proforma === 'completed' ? 'text-emerald-400' : (breadcrumb.proforma === 'active' ? 'text-amber-500 animate-pulse' : 'text-slate-500')">
@@ -84,11 +84,11 @@
     {{-- Skeleton loading --}}
     <div x-show="isSearching" class="grid grid-cols-2 gap-4 w-full max-w-3xl">
         <template x-for="i in 2" :key="i">
-            <div class="glass border border-white/10 rounded-2xl p-4 bg-slate-900/70 backdrop-blur-md relative overflow-hidden h-24">
-                <div class="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+            <div class="glass border border-slate-200 dark:border-white/10 rounded-2xl p-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md relative overflow-hidden h-24">
+                <div class="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-slate-200/50 dark:via-white/5 to-transparent"></div>
                 <div class="flex flex-col justify-center h-full gap-3">
-                    <div class="h-4 bg-slate-700/50 rounded w-1/2"></div>
-                    <div class="h-3 bg-slate-700/50 rounded w-1/3"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700/50 rounded w-1/2"></div>
+                    <div class="h-3 bg-slate-200 dark:bg-slate-700/50 rounded w-1/3"></div>
                 </div>
             </div>
         </template>
@@ -97,7 +97,7 @@
     {{-- By-user banner --}}
     <div x-show="byUser !== null && selectedResult === null && results.length > 0"
          x-cloak
-         class="mb-3 w-full max-w-3xl glass border border-indigo-500/30 rounded-xl px-4 py-2 text-sm text-indigo-300 flex items-center gap-2">
+         class="mb-3 w-full max-w-3xl glass border border-indigo-500/30 dark:border-indigo-500/30 rounded-xl px-4 py-2 text-sm text-indigo-600 dark:text-indigo-300 flex items-center gap-2">
         <x-heroicon-o-user-circle class="w-4 h-4 flex-shrink-0 text-indigo-400"/>
         <span>{{ __('dashboard/strings.search_by_user') ?? 'Records by' }}&#32;<strong x-text="byUser?.name"></strong></span>
     </div>
@@ -127,7 +127,7 @@
                  @click="selectedResult = result">
                 <div class="flex justify-between items-center h-full gap-2">
                     <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold flex items-center gap-2">
+                        <h4 class="text-slate-800 dark:text-white font-semibold flex items-center gap-2">
                             <span class="flex-shrink-0"
                                   :class="{
                                       'text-blue-400':    result.color === 'blue',
@@ -164,13 +164,13 @@
                             </span>
                             <span x-text="result.title" class="truncate"></span>
                         </h4>
-                        <p class="text-slate-400 text-xs mt-1 truncate" x-text="result.subtitle"></p>
+                        <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 truncate" x-text="result.subtitle"></p>
                     </div>
 
                     <template x-if="result.progress > 0">
                         <div class="relative w-10 h-10 flex items-center justify-center flex-shrink-0">
                             <svg class="w-10 h-10 transform -rotate-90">
-                                <circle cx="20" cy="20" r="16" stroke="rgba(255,255,255,0.1)" stroke-width="3" fill="none"/>
+                                <circle cx="20" cy="20" r="16" stroke="currentColor" class="text-slate-200 dark:text-white/10" stroke-width="3" fill="none"/>
                                 <circle cx="20" cy="20" r="16" stroke="currentColor"
                                         :class="{
                                             'text-blue-500':    result.color === 'blue',
@@ -187,11 +187,11 @@
                                         :stroke-dashoffset="getOffset(result.progress)"
                                         class="transition-all duration-1000"/>
                             </svg>
-                            <span class="absolute text-[10px] text-white font-bold" x-text="result.progress + '%'"></span>
+                            <span class="absolute text-[10px] text-slate-800 dark:text-white font-bold" x-text="result.progress + '%'"></span>
                         </div>
                     </template>
                     <template x-if="result.progress === 0">
-                        <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center flex-shrink-0">
                             <x-heroicon-o-bookmark class="w-3.5 h-3.5 text-slate-500"/>
                         </div>
                     </template>
@@ -206,15 +206,15 @@
         {{-- Back + module chip --}}
         <div class="flex items-center gap-3 mb-4">
             <button @click="selectedResult = null"
-                    class="glass border border-white/10 rounded-xl px-3 py-2 text-slate-400 hover:text-white text-xs flex items-center gap-1.5 transition-all hover:border-white/20">
+                    class="glass border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs flex items-center gap-1.5 transition-all hover:border-slate-300 dark:hover:border-white/20">
                 <x-heroicon-o-chevron-left class="w-3.5 h-3.5 {{ $isRtl ? 'rotate-180' : '' }}"/>
                 {{ __('dashboard/strings.search_back') ?? 'Back' }}
             </button>
-            <span class="text-xs text-slate-500 font-medium uppercase tracking-wider" x-text="selectedResult?.subtitle"></span>
+            <span class="text-xs text-slate-600 dark:text-slate-500 font-medium uppercase tracking-wider" x-text="selectedResult?.subtitle"></span>
         </div>
 
         {{-- Record header card --}}
-        <div class="glass border border-white/10 rounded-2xl p-5 mb-3">
+        <div class="glass border border-slate-200 dark:border-white/10 rounded-2xl p-5 mb-3 bg-white/60 dark:bg-transparent">
             <div class="flex items-center justify-between mb-4 gap-4">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center text-white shadow-lg flex-shrink-0"
@@ -236,15 +236,15 @@
                         <template x-if="selectedResult?.icon === 'user-circle'"><x-heroicon-o-user-circle class="w-6 h-6"/></template>
                     </div>
                     <div class="min-w-0">
-                        <h3 class="text-white font-bold text-lg leading-tight" x-text="selectedResult?.title"></h3>
-                        <p class="text-slate-400 text-xs mt-0.5" x-text="selectedResult?.subtitle"></p>
+                        <h3 class="text-slate-800 dark:text-white font-bold text-lg leading-tight" x-text="selectedResult?.title"></h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5" x-text="selectedResult?.subtitle"></p>
                     </div>
                 </div>
 
                 <template x-if="(selectedResult?.progress || 0) > 0">
                     <div class="relative w-14 h-14 flex items-center justify-center flex-shrink-0">
                         <svg class="w-14 h-14 transform -rotate-90">
-                            <circle cx="28" cy="28" r="22" stroke="rgba(255,255,255,0.08)" stroke-width="3" fill="none"/>
+                            <circle cx="28" cy="28" r="22" stroke="currentColor" class="text-slate-200 dark:text-white/10" stroke-width="3" fill="none"/>
                             <circle cx="28" cy="28" r="22" stroke="currentColor"
                                     :class="{
                                         'text-blue-500':    selectedResult?.color === 'blue',
@@ -268,18 +268,18 @@
                                     :stroke-dashoffset="getOffsetL(selectedResult?.progress || 0)"
                                     class="transition-all duration-1000"/>
                         </svg>
-                        <span class="absolute text-[11px] text-white font-bold" x-text="(selectedResult?.progress || 0) + '%'"></span>
+                        <span class="absolute text-[11px] text-slate-800 dark:text-white font-bold" x-text="(selectedResult?.progress || 0) + '%'"></span>
                     </div>
                 </template>
             </div>
 
             {{-- Details grid --}}
             <div x-show="(selectedResult?.details?.length || 0) > 0"
-                 class="grid grid-cols-2 gap-2 border-t border-white/5 pt-4">
+                 class="grid grid-cols-2 gap-2 border-t border-slate-200 dark:border-white/5 pt-4">
                 <template x-for="d in (selectedResult?.details || [])" :key="d.label">
-                    <div class="bg-white/[0.04] hover:bg-white/[0.07] rounded-xl px-3 py-2 transition-colors">
-                        <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-0.5" x-text="d.label"></p>
-                        <p class="text-sm text-slate-200 font-medium truncate" x-text="d.value"></p>
+                    <div class="bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-white/[0.07] rounded-xl px-3 py-2 transition-colors">
+                        <p class="text-[10px] text-slate-500 dark:text-slate-500 uppercase tracking-wider font-semibold mb-0.5" x-text="d.label"></p>
+                        <p class="text-sm text-slate-700 dark:text-slate-200 font-medium truncate" x-text="d.value"></p>
                     </div>
                 </template>
             </div>
@@ -287,7 +287,7 @@
 
         {{-- Edit action --}}
         <a :href="selectedResult?.url"
-           class="flex items-center justify-center gap-2 w-full glass border border-indigo-500/30 rounded-xl px-4 py-3 text-indigo-300 hover:text-white hover:border-indigo-400 transition-all text-sm font-semibold group">
+           class="flex items-center justify-center gap-2 w-full glass border border-indigo-500/30 dark:border-indigo-500/30 rounded-xl px-4 py-3 text-indigo-600 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-white hover:border-indigo-400 dark:hover:border-indigo-400 transition-all text-sm font-semibold group">
             <x-heroicon-o-pencil-square class="w-4 h-4 group-hover:scale-110 transition-transform"/>
             {{ __('dashboard/strings.search_edit_record') ?? 'Open &amp; Edit Record' }}
             <x-heroicon-o-arrow-top-right-on-square class="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity {{ $isRtl ? 'rotate-90' : '' }}"/>
@@ -296,12 +296,12 @@
 
     {{-- Empty state --}}
     <div x-show="!isSearching && searchQuery.length >= 2 && results.length === 0"
-         class="text-slate-400 text-sm mt-8">
-        {{ __('dashboard/strings.search_no_results') ?? 'No related resources found for' }} "<span x-text="searchQuery" class="text-white"></span>"
+         class="text-slate-600 dark:text-slate-400 text-sm mt-8">
+        {{ __('dashboard/strings.search_no_results') ?? 'No related resources found for' }} "<span x-text="searchQuery" class="text-slate-800 dark:text-white"></span>"
     </div>
 
     <div x-show="searchQuery.length < 2 && searchQuery.length > 0"
-         class="text-slate-500 text-sm mt-8">
+         class="text-slate-600 dark:text-slate-500 text-sm mt-8">
         {{ __('dashboard/strings.search_min_chars') ?? 'Type at least 2 characters to search…' }}
     </div>
 </div>
