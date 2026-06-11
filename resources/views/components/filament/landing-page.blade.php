@@ -59,7 +59,7 @@
                      x-transition:leave-start="opacity-100"
                      x-transition:leave-end="opacity-0"
                      x-cloak>
-                    @include('components.filament.landing-page.custom-workspace')
+                    @include('components.filament.landing-page.workspace')
                 </div>
 
                 <div x-show="activeTab === 'workflow'"
@@ -83,7 +83,7 @@
                      x-transition:leave-end="opacity-0"
                      x-cloak
                      class="min-h-[calc(100vh-12rem)] flex flex-col">
-                    @include('components.filament.landing-page.search-tab')
+                    @include('components.filament.landing-page.search')
                 </div>
 
             </div>
