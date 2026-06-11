@@ -44,17 +44,17 @@
                x-ref="searchInput"
                x-model="searchQuery"
                @input.debounce.500ms="performSearch"
-               class="w-full glass border border-white/10 rounded-2xl {{ $isRtl ? 'pr-14 pl-36' : 'pl-14 pr-36' }} py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 shadow-2xl text-sm transition-all duration-200"
+               class="w-full glass border rounded-2xl {{ $isRtl ? 'pr-14 pl-36' : 'pl-14 pr-36' }} py-4 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 shadow-2xl text-sm transition-all duration-200" :class="darkMode ? 'border-slate-200 dark:border-white/10 text-white' : 'border-slate-300 text-slate-800 bg-white'"
                placeholder="{{ __('dashboard/strings.search_spotlight') ?? 'Search records (Cmd/Ctrl+K)…' }}">
         <div class="absolute inset-y-0 {{ $isRtl ? 'left-4' : 'right-4' }} flex items-center pointer-events-none gap-1.5">
-            <kbd class="hidden sm:inline-flex items-center gap-1 border border-white/10 bg-white/5 rounded-lg px-2 py-1 text-[11px] text-slate-500 font-mono">
+            <kbd class="hidden sm:inline-flex items-center gap-1 border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 rounded-lg px-2 py-1 text-[11px] text-slate-500 font-mono">
                 <span class="text-[10px]">⌘</span>K
             </kbd>
         </div>
     </div>
 
     {{-- Pipeline breadcrumb --}}
-    <div class="flex items-center gap-2 mb-4 text-sm bg-slate-900/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/5"
+    <div class="flex items-center gap-2 mb-4 text-sm backdrop-blur-md px-4 py-1.5 rounded-full border" :class="darkMode ? 'bg-slate-900/50 border-white/5' : 'bg-slate-100 border-slate-200'"
          x-show="searchQuery.length >= 2">
         <div class="flex items-center gap-1"
              :class="breadcrumb.proforma === 'completed' ? 'text-emerald-400' : (breadcrumb.proforma === 'active' ? 'text-amber-500 animate-pulse' : 'text-slate-500')">
@@ -84,11 +84,11 @@
     {{-- Skeleton loading --}}
     <div x-show="isSearching" class="grid grid-cols-2 gap-4 w-full max-w-3xl">
         <template x-for="i in 2" :key="i">
-            <div class="glass border border-white/10 rounded-2xl p-4 bg-slate-900/70 backdrop-blur-md relative overflow-hidden h-24">
+            <div class="glass border rounded-2xl p-4 backdrop-blur-md" :class="darkMode ? 'border-slate-200 dark:border-white/10 bg-slate-900/70' : 'border-slate-200 bg-white/70'" class="relative overflow-hidden h-24">
                 <div class="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
                 <div class="flex flex-col justify-center h-full gap-3">
-                    <div class="h-4 bg-slate-700/50 rounded w-1/2"></div>
-                    <div class="h-3 bg-slate-700/50 rounded w-1/3"></div>
+                    <div class="h-4 rounded" :class="darkMode ? 'bg-slate-700/50' : 'bg-slate-200'" class="w-1/2"></div>
+                    <div class="h-3 rounded" :class="darkMode ? 'bg-slate-700/50' : 'bg-slate-200'" class="w-1/3"></div>
                 </div>
             </div>
         </template>
@@ -106,7 +106,7 @@
     <div x-show="!isSearching && results.length > 0 && selectedResult === null"
          class="grid grid-cols-2 gap-4 w-full max-w-3xl">
         <template x-for="(result, idx) in results" :key="idx">
-            <div class="glass border rounded-2xl p-4 bg-slate-900/70 backdrop-blur-md transition-all hover:scale-[1.02] hover:brightness-110 cursor-pointer"
+            <div class="glass border rounded-2xl p-4 backdrop-blur-md transition-all hover:scale-[1.02] hover:brightness-110 cursor-pointer" :class="darkMode ? 'bg-slate-900/70' : 'bg-white/70'"
                  :class="{
                      'border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.25)]':    result.color === 'blue',
                      'border-indigo-500/50 shadow-[0_0_20px_rgba(79,70,229,0.3)]':   result.color === 'indigo',
@@ -127,7 +127,7 @@
                  @click="selectedResult = result">
                 <div class="flex justify-between items-center h-full gap-2">
                     <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold flex items-center gap-2">
+                        <h4 class="font-semibold flex items-center gap-2" :class="darkMode ? 'text-white' : 'text-slate-800'">
                             <span class="flex-shrink-0"
                                   :class="{
                                       'text-blue-400':    result.color === 'blue',
@@ -191,7 +191,7 @@
                         </div>
                     </template>
                     <template x-if="result.progress === 0">
-                        <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0" :class="darkMode ? 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10' : 'bg-slate-100 border-slate-200'">
                             <x-heroicon-o-bookmark class="w-3.5 h-3.5 text-slate-500"/>
                         </div>
                     </template>
@@ -206,7 +206,7 @@
         {{-- Back + module chip --}}
         <div class="flex items-center gap-3 mb-4">
             <button @click="selectedResult = null"
-                    class="glass border border-white/10 rounded-xl px-3 py-2 text-slate-400 hover:text-white text-xs flex items-center gap-1.5 transition-all hover:border-white/20">
+                    class="glass border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-slate-400 hover:text-slate-800 dark:hover:text-white text-xs flex items-center gap-1.5 transition-all hover:border-white/20">
                 <x-heroicon-o-chevron-left class="w-3.5 h-3.5 {{ $isRtl ? 'rotate-180' : '' }}"/>
                 {{ __('dashboard/strings.search_back') ?? 'Back' }}
             </button>
@@ -214,7 +214,7 @@
         </div>
 
         {{-- Record header card --}}
-        <div class="glass border border-white/10 rounded-2xl p-5 mb-3">
+        <div class="glass border rounded-2xl p-5 mb-3" :class="darkMode ? 'border-slate-200 dark:border-white/10 bg-slate-900/40' : 'border-slate-200 bg-white'">
             <div class="flex items-center justify-between mb-4 gap-4">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center text-white shadow-lg flex-shrink-0"
@@ -236,7 +236,7 @@
                         <template x-if="selectedResult?.icon === 'user-circle'"><x-heroicon-o-user-circle class="w-6 h-6"/></template>
                     </div>
                     <div class="min-w-0">
-                        <h3 class="text-white font-bold text-lg leading-tight" x-text="selectedResult?.title"></h3>
+                        <h3 class="font-bold text-lg leading-tight" :class="darkMode ? 'text-white' : 'text-slate-800'" x-text="selectedResult?.title"></h3>
                         <p class="text-slate-400 text-xs mt-0.5" x-text="selectedResult?.subtitle"></p>
                     </div>
                 </div>
@@ -268,18 +268,18 @@
                                     :stroke-dashoffset="getOffsetL(selectedResult?.progress || 0)"
                                     class="transition-all duration-1000"/>
                         </svg>
-                        <span class="absolute text-[11px] text-white font-bold" x-text="(selectedResult?.progress || 0) + '%'"></span>
+                        <span class="absolute text-[11px] font-bold" :class="darkMode ? 'text-white' : 'text-slate-800'" x-text="(selectedResult?.progress || 0) + '%'"></span>
                     </div>
                 </template>
             </div>
 
             {{-- Details grid --}}
             <div x-show="(selectedResult?.details?.length || 0) > 0"
-                 class="grid grid-cols-2 gap-2 border-t border-white/5 pt-4">
+                 class="grid grid-cols-2 gap-2 border-t pt-4" :class="darkMode ? 'border-white/5' : 'border-slate-200'">
                 <template x-for="d in (selectedResult?.details || [])" :key="d.label">
-                    <div class="bg-white/[0.04] hover:bg-white/[0.07] rounded-xl px-3 py-2 transition-colors">
+                    <div class="rounded-xl px-3 py-2 transition-colors" :class="darkMode ? 'bg-white/[0.04] hover:bg-white/[0.07]' : 'bg-slate-50 hover:bg-slate-100'">
                         <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-0.5" x-text="d.label"></p>
-                        <p class="text-sm text-slate-200 font-medium truncate" x-text="d.value"></p>
+                        <p class="text-sm font-medium truncate" :class="darkMode ? 'text-slate-200' : 'text-slate-800'" x-text="d.value"></p>
                     </div>
                 </template>
             </div>
@@ -287,7 +287,7 @@
 
         {{-- Edit action --}}
         <a :href="selectedResult?.url"
-           class="flex items-center justify-center gap-2 w-full glass border border-indigo-500/30 rounded-xl px-4 py-3 text-indigo-300 hover:text-white hover:border-indigo-400 transition-all text-sm font-semibold group">
+           class="flex items-center justify-center gap-2 w-full glass border border-indigo-500/30 rounded-xl px-4 py-3 text-indigo-300 hover:text-slate-800 dark:hover:text-white hover:border-indigo-400 transition-all text-sm font-semibold group">
             <x-heroicon-o-pencil-square class="w-4 h-4 group-hover:scale-110 transition-transform"/>
             {{ __('dashboard/strings.search_edit_record') ?? 'Open &amp; Edit Record' }}
             <x-heroicon-o-arrow-top-right-on-square class="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity {{ $isRtl ? 'rotate-90' : '' }}"/>
@@ -297,7 +297,7 @@
     {{-- Empty state --}}
     <div x-show="!isSearching && searchQuery.length >= 2 && results.length === 0"
          class="text-slate-400 text-sm mt-8">
-        {{ __('dashboard/strings.search_no_results') ?? 'No related resources found for' }} "<span x-text="searchQuery" class="text-white"></span>"
+        {{ __('dashboard/strings.search_no_results') ?? 'No related resources found for' }} "<span x-text="searchQuery" class="" :class="darkMode ? 'text-white' : 'text-slate-800'"></span>"
     </div>
 
     <div x-show="searchQuery.length < 2 && searchQuery.length > 0"
