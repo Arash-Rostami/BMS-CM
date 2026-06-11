@@ -92,6 +92,12 @@ class NotificationSettingResource extends Resource
         return ['settings->tables', 'settings->actions', 'settings->columns'];
     }
 
+    public static function getGlobalSearchResultUrl(Model $record): ?string
+    {
+        $tables = $record->getTables();
+        return static::getUrl('index', ['search' => !empty($tables) ? $tables[0] : '']);
+    }
+
     public static function getModelLabel(): string
     {
         return __('resources/notificationSetting/strings.general.model_label');

@@ -157,15 +157,21 @@ class BankProfileResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        $date = toYmdDate($record);
-        $bp = $record->bp_number ?? $record->id ?? '—';
+        return '🏦 ' . ($record->bp_number ?? $record->id ?? '—');
+    }
 
-        return "🏦 {$bp} (📆 {$date})";
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/bankProfile/strings.form.bank')    => $record->bank?->localized_name ?? '—',
+            __('resources/bankProfile/strings.form.company') => $record->company?->localized_name ?? '—',
+            __('resources/bankProfile/strings.form.status')  => $record->status?->localized_name ?? '—',
+        ];
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['bp_number'];
+        return ['bp_number', 'order_number'];
     }
 
     public static function getModelLabel(): string

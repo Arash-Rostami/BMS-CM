@@ -744,6 +744,7 @@ body:has(.fi-modal-open) :is(nav.fi-topbar, .fi-sidebar-nav, aside.fi-sidebar.fi
     }
 }
 
+
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;

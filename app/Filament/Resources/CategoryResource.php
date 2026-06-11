@@ -80,6 +80,11 @@ class CategoryResource extends Resource
         return ['name', 'english_name'];
     }
 
+    public static function getGlobalSearchResultUrl(Model $record): ?string
+    {
+        return static::getUrl('index', ['search' => $record->english_name ?? $record->name ?? '']);
+    }
+
     public static function getModelLabel(): string
     {
         return __('resources/category/strings.general.model_label');

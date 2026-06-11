@@ -94,6 +94,11 @@ class UserResource extends Resource
         return ['name'];
     }
 
+    public static function getGlobalSearchResultUrl(Model $record): ?string
+    {
+        return static::getUrl('index', ['search' => $record->name ?? '']);
+    }
+
     public static function getModelLabel(): string
     {
         return __('resources/user/strings.general.model_label');

@@ -195,15 +195,26 @@ class RegisteredOrderResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        $date = toYmdDate($record);
-        $ro = $record->ro_number ?? $record->contract_no ?? '—';
+        return '📋 ' . ($record->ro_number ?? $record->contract_no ?? '—');
+    }
 
-        return "📝 {$ro} (📆 {$date})";
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/registeredOrder/strings.form.seller') => $record->sellerCompanyExclusive?->localized_name ?? '—',
+            __('resources/registeredOrder/strings.form.status') => $record->status?->localized_name ?? '—',
+            __('resources/registeredOrder/strings.form.order_date') => $record->order_date?->format('Y-m-d') ?? '—',
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['sellerCompanyExclusive']);
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['ro_number', 'contract_no', 'official_registration_no'];
+        return ['ro_number', 'contract_no', 'official_registration_no', 'insurance_number', 'insurance_provider'];
     }
 
     public static function getModelLabel(): string

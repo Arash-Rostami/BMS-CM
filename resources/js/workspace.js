@@ -21,6 +21,10 @@ export default function workspace(config = {}) {
         recordError: false,
         recordReqId: 0,
 
+        // inline rename
+        editingKey: null,
+        editingLabel: '',
+
         init() {
             const {modules, records} = this.readStorage();
             const valid = new Set(this.modules.map(m => m.id));
@@ -146,6 +150,12 @@ export default function workspace(config = {}) {
         removeRecord(key) {
             this.recordPins = this.recordPins.filter(p => p.key !== key);
             this.persist();
+        },
+        renameRecord(key, newLabel) {
+            const trimmed = (newLabel || '').trim();
+            const pin = this.recordPins.find(p => p.key === key);
+            if (pin && trimmed) { pin.label = trimmed; this.persist(); }
+            this.editingKey = null;
         },
 
         initials(value) {
