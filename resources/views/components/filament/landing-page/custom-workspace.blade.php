@@ -49,13 +49,15 @@
     $panelHeadTone  = "darkMode ? 'border-white/10 bg-white/[0.03]' : 'border-slate-100 bg-gradient-to-r from-indigo-50/80 to-transparent'";
     $listShell      = 'mt-1.5 rounded-lg border overflow-hidden';
     $listTone       = "darkMode ? 'border-white/10 bg-slate-900/40' : 'border-slate-200 bg-slate-50/60'";
-    $tileShell      = 'flex items-center gap-3 rounded-lg border p-3 pr-10 transition-colors';
+    $tileShell      = 'flex items-center gap-3 rounded-lg border p-3 pr-16 transition-colors';
     $tileTone       = "darkMode ? 'border-white/10 bg-slate-800/40 hover:bg-slate-800/70' : 'border-slate-200 bg-white hover:bg-slate-50'";
     $chipBase       = 'group inline-flex items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-xs font-semibold transition-colors !cursor-pointer';
     $chipTone       = "darkMode ? 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'";
     $labelTone      = "darkMode ? 'text-slate-500' : 'text-slate-400'";
     $removeBtn      = 'absolute top-1/2 -translate-y-1/2 right-2 w-6 h-6 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-colors !cursor-pointer';
     $removeTone     = "darkMode ? 'text-slate-400 hover:bg-rose-500/20 hover:text-rose-300' : 'text-slate-400 hover:bg-rose-50 hover:text-rose-500'";
+    $renameBtn      = 'absolute top-1/2 -translate-y-1/2 right-9 w-6 h-6 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-colors !cursor-pointer';
+    $renameTone     = "darkMode ? 'text-slate-400 hover:bg-indigo-500/20 hover:text-indigo-300' : 'text-slate-400 hover:bg-indigo-50 hover:text-indigo-500'";
     /* ---- new helpers ---- */
     $sectionLabel   = 'text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5';
     $ctaBtn         = 'inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-colors !cursor-pointer';
@@ -235,20 +237,39 @@
                                 <template x-for="p in recordPins" :key="p.key">
                                     <div class="relative group">
                                         <a :href="p.url" target="_blank" rel="noopener noreferrer"
+                                           @click="editingKey === p.key && $event.preventDefault()"
                                            class="{{ $tileShell }}" :class="{{ $tileTone }}">
                                             <span class="w-9 h-9 rounded-md flex items-center justify-center text-white bg-gradient-to-br shadow-sm flex-shrink-0"
                                                   :class="p.theme">
                                                 <span class="w-4 h-4" x-html="p.icon"></span>
                                             </span>
                                             <span class="flex-1 min-w-0">
-                                                <span class="block font-bold text-sm truncate"
-                                                      :class="darkMode ? 'text-slate-100' : 'text-slate-800'"
-                                                      x-text="p.label"></span>
+                                                <template x-if="editingKey !== p.key">
+                                                    <span class="block font-bold text-sm truncate"
+                                                          :class="darkMode ? 'text-slate-100' : 'text-slate-800'"
+                                                          x-text="p.label"></span>
+                                                </template>
+                                                <template x-if="editingKey === p.key">
+                                                    <input type="text" x-model="editingLabel"
+                                                           class="block w-full font-bold text-sm bg-transparent border-b focus:outline-none"
+                                                           :class="darkMode ? 'text-slate-100 border-indigo-400' : 'text-slate-800 border-indigo-500'"
+                                                           @click.stop @mousedown.stop
+                                                           @keydown.enter.stop="renameRecord(p.key, editingLabel)"
+                                                           @keydown.escape.stop="editingKey = null"
+                                                           @blur="renameRecord(p.key, editingLabel)"
+                                                           x-init="$nextTick(() => $el.focus())">
+                                                </template>
                                                 <span x-show="p.subtitle" class="block text-xs truncate mt-0.5"
                                                       :class="darkMode ? 'text-slate-400' : 'text-slate-500'"
                                                       x-text="p.subtitle"></span>
                                             </span>
                                         </a>
+                                        <button type="button"
+                                                @click.stop="editingKey = p.key; editingLabel = p.label"
+                                                class="{{ $renameBtn }}" :class="{{ $renameTone }}"
+                                                title="Rename">
+                                            <x-heroicon-o-pencil class="w-3.5 h-3.5"/>
+                                        </button>
                                         <button type="button" @click="removeRecord(p.key)"
                                                 class="{{ $removeBtn }}" :class="{{ $removeTone }}"
                                                 title="{{ __('dashboard/strings.record_pin.added') }}">

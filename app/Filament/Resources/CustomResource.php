@@ -135,10 +135,16 @@ class CustomResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        $date = toYmdDate($record);
-        $decl = $record->declaration_no ?? '—';
+        return '🛃 ' . ($record->declaration_no ?? $record->custom_no ?? '—');
+    }
 
-        return "🛃 {$decl} (📆 {$date})";
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/custom/strings.form.contract_no')       => $record->contract_no ?? '—',
+            __('resources/custom/strings.form.shipment')          => $record->shipment?->shipment_no ?? '—',
+            __('resources/custom/strings.form.clearance_status')  => $record->clearanceStatus?->localized_name ?? '—',
+        ];
     }
 
     public static function getGloballySearchableAttributes(): array

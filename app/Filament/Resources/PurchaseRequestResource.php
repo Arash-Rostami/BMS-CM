@@ -164,15 +164,26 @@ class PurchaseRequestResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        $date = toYmdDate($record);
-        $pr = $record->pr_number ?? '—';
+        return '🛒 ' . ($record->pr_number ?? '—');
+    }
 
-        return "🛒 {$pr} (📆 {$date})";
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/purchaseRequest/strings.form.status')           => $record->status?->localized_name ?? '—',
+            __('resources/purchaseRequest/strings.form.requester')        => $record->requester?->name ?? '—',
+            __('resources/purchaseRequest/strings.form.required_by_date') => $record->required_by_date?->format('Y-m-d') ?? '—',
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['status', 'requester']);
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['pr_number'];
+        return ['pr_number', 'rejection_reason'];
     }
 
 

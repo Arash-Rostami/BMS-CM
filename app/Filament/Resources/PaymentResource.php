@@ -177,14 +177,21 @@ class PaymentResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        $date = toYmdDate($record);
-        $payNo = $record->payment_no ?? $record->id ?? '—';
-        return "💳 {$payNo} (📆 {$date})";
+        return '💳 ' . ($record->payment_no ?? $record->id ?? '—');
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/payment/strings.form.payor')        => $record->payor?->localized_name ?? '—',
+            __('resources/payment/strings.form.payee')        => $record->payee?->localized_name ?? '—',
+            __('resources/payment/strings.form.payment_date') => $record->payment_date?->format('Y-m-d') ?? '—',
+        ];
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['payment_no'];
+        return ['payment_no', 'beneficiary_name', 'account_no', 'swift', 'iban'];
     }
 
     public static function getModelLabel(): string

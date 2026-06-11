@@ -173,10 +173,21 @@ class PurchaseOrderResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        $date = toYmdDate($record);
-        $po = $record->po_number ?? '—';
+        return '🛍️ ' . ($record->po_number ?? '—');
+    }
 
-        return "🛍️ {$po} (📆 {$date})";
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/purchaseOrder/strings.form.seller')     => $record->sellerCompanyExclusive?->localized_name ?? '—',
+            __('resources/purchaseOrder/strings.form.status')     => $record->status?->localized_name ?? '—',
+            __('resources/purchaseOrder/strings.form.order_date') => $record->order_date?->format('Y-m-d') ?? '—',
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['sellerCompanyExclusive']);
     }
 
     public static function getGloballySearchableAttributes(): array

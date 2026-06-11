@@ -164,10 +164,16 @@ class ShipmentResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        $date = toYmdDate($record);
-        $shipment = $record->shipment_no ?? $record->bl_number ?? '—';
+        return '🚢 ' . ($record->shipment_no ?? $record->bl_number ?? '—');
+    }
 
-        return "🚢 {$shipment} (📆 {$date})";
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/shipment/strings.form.bl_number') => $record->bl_number ?? '—',
+            __('resources/shipment/strings.form.carrier')   => $record->carrier?->localized_name ?? '—',
+            __('resources/shipment/strings.form.status')    => $record->status?->localized_name ?? '—',
+        ];
     }
 
     public static function getGloballySearchableAttributes(): array

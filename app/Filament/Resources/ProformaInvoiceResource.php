@@ -178,18 +178,26 @@ class ProformaInvoiceResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        $date = toYmdDate($record);
-        $invoice = $record->invoice_no ?? $record->contract_no ?? '—';
+        return '📝 ' . ($record->invoice_no ?? $record->contract_no ?? '—');
+    }
 
-        return "📝 {$invoice} (📆 {$date})";
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/proformaInvoice/strings.form.seller_company') => $record->sellerCompany?->localized_name ?? '—',
+            __('resources/proformaInvoice/strings.form.buyer_company')  => $record->buyerCompany?->localized_name ?? '—',
+            __('resources/proformaInvoice/strings.form.invoice_date')   => $record->invoice_date?->format('Y-m-d') ?? '—',
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['sellerCompany']);
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return [
-            'invoice_no',
-            'contract_no',
-        ];
+        return ['invoice_no', 'contract_no'];
     }
 
     public static function getModelLabel(): string

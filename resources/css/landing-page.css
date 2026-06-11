@@ -630,7 +630,7 @@ input[type="range"]::-moz-range-thumb {
 .light .ldr-track { width: 200px; height: 1px; background: rgba(0, 0, 0, .08); position: relative; }
 .light .ldr-fill { position: absolute; inset: 0; transform-origin: left center; transform: scaleX(0); background: linear-gradient(90deg, rgba(79, 70, 229, .15), #4f46e5); animation: lFill 2s cubic-bezier(.4, 0, .2, 1) .85s forwards; will-change: transform; }
 .light .ldr-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 5px; height: 5px; border-radius: 50%; background: #4f46e5; box-shadow: 0 0 10px 3px rgba(79, 70, 229, .6); }
-.light .ldr-status { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace; font-size: .42rem; letter-spacing: .26em; color: rgba(0, 0, 0, .2); text-transform: uppercase; }
+.light .ldr-status { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace; font-size: .42rem; letter-spacing: .26em; color: rgba(0, 0, 0, .2); text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: .45em; margin-top: 7px; }
 
 .dark .loader-overlay { background: #18181b; }
 .dark .loader-overlay::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 55% at 50% 50%, rgba(0, 180, 255, .05) 0%, transparent 65%); pointer-events: none; }
@@ -649,7 +649,23 @@ input[type="range"]::-moz-range-thumb {
 .dark .ldr-track { width: 200px; height: 1px; background: rgba(255, 255, 255, .07); position: relative; }
 .dark .ldr-fill { position: absolute; inset: 0; transform-origin: left center; transform: scaleX(0); background: linear-gradient(90deg, rgba(0, 212, 255, .15), #00d4ff); animation: lFill 2s cubic-bezier(.4, 0, .2, 1) .85s forwards; will-change: transform; }
 .dark .ldr-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 5px; height: 5px; border-radius: 50%; background: #00d4ff; box-shadow: 0 0 10px 3px rgba(0, 212, 255, .75); }
-.dark .ldr-status { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace; font-size: .42rem; letter-spacing: .26em; color: rgba(255, 255, 255, .16); text-transform: uppercase; }
+.dark .ldr-status { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace; font-size: .42rem; letter-spacing: .26em; color: rgba(255, 255, 255, .16); text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: .45em; margin-top: 7px; }
+
+.ldr-body { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.ldr-progress { display: flex; flex-direction: column; align-items: center; }
+
+.light .ldr-slogan-hard { position: relative; display: inline-block; opacity: .45; }
+.light .ldr-slogan-hard::after { content: ''; position: absolute; left: 0; top: 50%; width: 100%; height: 1.5px; background: rgba(239, 68, 68, .5); transform: translateY(-50%) rotate(8deg); pointer-events: none; }
+.light .ldr-slogan-smart { color: rgba(245, 158, 11, .65); }
+.dark .ldr-slogan-hard { position: relative; display: inline-block; opacity: .35; }
+.dark .ldr-slogan-hard::after { content: ''; position: absolute; left: 0; top: 50%; width: 100%; height: 1.5px; background: rgba(239, 68, 68, .6); transform: translateY(-50%) rotate(8deg); pointer-events: none; }
+.dark .ldr-slogan-smart { color: rgba(245, 158, 11, .78); }
+
+.light .ldr-cm { display: inline-block; font-size: clamp(.5rem, 1.4vw, .85rem); font-weight: 900; color: rgba(79, 70, 229, .28); vertical-align: top; margin-top: clamp(.35rem, 1vw, .6rem); margin-left: .06em; letter-spacing: .03em; animation: lIn .65s cubic-bezier(.23, 1, .32, 1) both; animation-delay: calc(.28s + 3 * .07s) !important; will-change: transform, opacity, filter; }
+.dark .ldr-cm { display: inline-block; font-size: clamp(.5rem, 1.4vw, .85rem); font-weight: 900; color: rgba(0, 212, 255, .28); vertical-align: top; margin-top: clamp(.35rem, 1vw, .6rem); margin-left: .06em; letter-spacing: .03em; animation: lIn .65s cubic-bezier(.23, 1, .32, 1) both; animation-delay: calc(.28s + 3 * .07s); will-change: transform, opacity, filter; }
+
+.light .ldr-status-icon { width: 1em; height: 1em; flex-shrink: 0; color: rgba(79, 70, 229, .4); }
+.dark .ldr-status-icon { width: 1em; height: 1em; flex-shrink: 0; color: rgba(0, 212, 255, .35); }
 
 @media (prefers-reduced-motion: reduce) {
     .ldr-scan, .ldr-glow { animation: none !important; }
