@@ -147,6 +147,11 @@ class CustomResource extends Resource
         ];
     }
 
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['shipment', 'clearanceStatus']);
+    }
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['declaration_no', 'shipment_no', 'contract_no', 'custom_no'];

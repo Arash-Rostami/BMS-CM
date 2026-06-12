@@ -176,6 +176,11 @@ class ShipmentResource extends Resource
         ];
     }
 
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['carrier', 'status']);
+    }
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['shipment_no', 'bl_number', 'booking_no', 'container_no'];

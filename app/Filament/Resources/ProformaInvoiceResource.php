@@ -192,7 +192,7 @@ class ProformaInvoiceResource extends Resource
 
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['sellerCompany']);
+        return parent::getGlobalSearchEloquentQuery()->with(['sellerCompany', 'buyerCompany']);
     }
 
     public static function getGloballySearchableAttributes(): array
