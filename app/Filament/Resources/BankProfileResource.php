@@ -169,6 +169,11 @@ class BankProfileResource extends Resource
         ];
     }
 
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['bank', 'company', 'status']);
+    }
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['bp_number', 'order_number'];

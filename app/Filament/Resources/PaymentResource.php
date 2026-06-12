@@ -189,6 +189,11 @@ class PaymentResource extends Resource
         ];
     }
 
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['payor', 'payee']);
+    }
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['payment_no', 'beneficiary_name', 'account_no', 'swift', 'iban'];
