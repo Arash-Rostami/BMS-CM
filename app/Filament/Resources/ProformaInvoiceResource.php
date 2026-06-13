@@ -27,7 +27,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -176,23 +175,24 @@ class ProformaInvoiceResource extends Resource
             ]);
     }
 
-    public static function getGlobalSearchResultTitle(Model $record): string
+    public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return '📝 ' . ($record->invoice_no ?? $record->contract_no ?? '—');
+        return parent::getGlobalSearchEloquentQuery()
+            ->with(['sellerCompany']);
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
             __('resources/proformaInvoice/strings.form.seller_company') => $record->sellerCompany?->localized_name ?? '—',
-            __('resources/proformaInvoice/strings.form.buyer_company')  => $record->buyerCompany?->localized_name ?? '—',
-            __('resources/proformaInvoice/strings.form.invoice_date')   => $record->invoice_date?->format('Y-m-d') ?? '—',
+            __('resources/proformaInvoice/strings.form.buyer_company') => $record->buyerCompany?->localized_name ?? '—',
+            __('resources/proformaInvoice/strings.form.invoice_date') => $record->invoice_date?->format('Y-m-d') ?? '—',
         ];
     }
 
-    public static function getGlobalSearchEloquentQuery(): Builder
+    public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['sellerCompany']);
+        return '📝 ' . ($record->invoice_no ?? $record->contract_no ?? '—');
     }
 
     public static function getGloballySearchableAttributes(): array

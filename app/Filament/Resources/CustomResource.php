@@ -133,18 +133,24 @@ class CustomResource extends Resource
             ]);
     }
 
-    public static function getGlobalSearchResultTitle(Model $record): string
+    public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return '🛃 ' . ($record->declaration_no ?? $record->custom_no ?? '—');
+        return parent::getGlobalSearchEloquentQuery()
+            ->with(['shipment', 'clearanceStatus']);
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            __('resources/custom/strings.form.contract_no')       => $record->contract_no ?? '—',
-            __('resources/custom/strings.form.shipment')          => $record->shipment?->shipment_no ?? '—',
-            __('resources/custom/strings.form.clearance_status')  => $record->clearanceStatus?->localized_name ?? '—',
+            __('resources/custom/strings.form.contract_no') => $record->contract_no ?? '—',
+            __('resources/custom/strings.form.shipment') => $record->shipment?->shipment_no ?? '—',
+            __('resources/custom/strings.form.clearance_status') => $record->clearanceStatus?->localized_name ?? '—',
         ];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return '🛃 ' . ($record->declaration_no ?? $record->custom_no ?? '—');
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -169,15 +175,6 @@ class CustomResource extends Resource
         return $count > 0 ? (string)$count : null;
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            CorrespondenceRelationManager::class,
-            RegisteredOrderRelationManager::class,
-            ShipmentRelationManager::class
-        ];
-    }
-
     public static function getNavigationBadgeColor(): ?string
     {
         return 'info';
@@ -200,6 +197,15 @@ class CustomResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return __('resources/custom/strings.general.plural_model_label');
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            CorrespondenceRelationManager::class,
+            RegisteredOrderRelationManager::class,
+            ShipmentRelationManager::class
+        ];
     }
 
     public static function infolist(Schema $schema): Schema

@@ -8,6 +8,7 @@ use App\Filament\Resources\Master\PermissionResource\Traits\Form as PermissionFo
 use App\Filament\Resources\Master\PermissionResource\Traits\Infolist as PermissionInfolist;
 use App\Filament\Resources\Master\PermissionResource\Traits\Table as PermissionTable;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Models\Permission;
 use App\Services\PermissionLabeler;
 use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
@@ -21,7 +22,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
-use App\Models\Permission;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
@@ -50,14 +50,14 @@ class PermissionResource extends Resource
             ]);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->withCount(['roles', 'users']);
+    }
+
     public static function getModelLabel(): string
     {
         return __('resources/permission/strings.general.model_label');
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return __('resources/dashboard/strings.navigation_group.base');
     }
 
     public static function getNavigationBadge(): ?string
@@ -70,6 +70,11 @@ class PermissionResource extends Resource
         );
 
         return $count > 0 ? (string)$count : null;
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('resources/dashboard/strings.navigation_group.base');
     }
 
     public static function getPages(): array
@@ -136,10 +141,5 @@ class PermissionResource extends Resource
             ->recordUrl(null)
             ->reorderableColumns()
             ->defaultSort('id', 'desc');
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()->withCount(['roles', 'users']);
     }
 }

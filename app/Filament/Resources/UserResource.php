@@ -18,7 +18,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -89,14 +88,14 @@ class UserResource extends Resource
         return "👨🏻‍💻 {$name} (📆 {$date})";
     }
 
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['name'];
-    }
-
     public static function getGlobalSearchResultUrl(Model $record): ?string
     {
         return static::getUrl('index', ['search' => $record->name ?? '']);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name'];
     }
 
     public static function getModelLabel(): string
@@ -198,19 +197,11 @@ class UserResource extends Resource
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),
-//                    Tables\Actions\Action::make('showModal')
-//                        ->label('Show Modal')
-//                        ->icon('heroicon-o-information-circle')
-//                        ->action(function ( $action, $record) {
-//                            session()->flash('user', $record->name);
-//                            return redirect()->to(route('filament.dashboard.resources.users.index'));
-//                        }),
                 ])
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(UserExporter::class)

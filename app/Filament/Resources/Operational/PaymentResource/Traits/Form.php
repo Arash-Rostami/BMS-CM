@@ -58,7 +58,7 @@ trait Form
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
-                    ->label('')
+                    ->hiddenLabel()
                     ->tooltip(__('resources/payment/strings.form.tooltips.bank_charges'))
             )
             ->hint(fn(Get $get) => is_numeric($get('bank_charges')) ? delimiter($get('bank_charges')) : $get('bank_charges'))
@@ -131,7 +131,7 @@ trait Form
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
-                    ->label('')
+                    ->hiddenLabel()
                     ->tooltip(__('resources/payment/strings.form.tooltips.exchange_rate'))
             )
             ->hint(fn(Get $get) => is_numeric($get('exchange_rate')) ? delimiter($get('exchange_rate')) : $get('exchange_rate'))
@@ -168,7 +168,7 @@ trait Form
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
-                    ->label('')
+                    ->hiddenLabel()
                     ->tooltip(__('resources/payment/strings.form.tooltips.payable_amount'))
             )
             ->minValue(0)
@@ -327,7 +327,7 @@ trait Form
             ])
             ->searchable()
             ->required()
-            ->reactive()
+            ->live()
             ->live(onBlur: true)
             ->columnSpanFull();
     }
@@ -347,7 +347,7 @@ trait Form
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
-                    ->label('')
+                    ->hiddenLabel()
                     ->tooltip(__('resources/payment/strings.form.tooltips.total_amount'))
             )
             ->hint(fn(Get $get) => is_numeric($get('total_amount')) ? delimiter($get('total_amount')) : $get('total_amount'))

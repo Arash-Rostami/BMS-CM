@@ -18,7 +18,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -58,8 +57,11 @@ class ProductResource extends Resource
                         'create' => __('resources/product/strings.form.action_create'),
                     ])
                     ->required()
-                    ->reactive()
+                    ->live()
                     ->visibleOn('create')
+                    ->validationMessages([
+                        'required' => __('resources/product/strings.form.validation_action_required'),
+                    ])
                     ->label(__('resources/product/strings.form.choose_action')),
                 //checking code
                 Group::make([
@@ -105,7 +107,7 @@ class ProductResource extends Resource
                                 Section::make(__('resources/product/strings.form.specifications_section_title'))
                                     ->schema([
                                         Repeater::make('specifications')
-                                            ->label('')
+                                            ->hiddenLabel()
                                             ->relationship('specifications')
                                             ->maxItems(1)
                                             ->deletable()
@@ -152,14 +154,14 @@ class ProductResource extends Resource
         return "📦   {$name} (📆 {$date})";
     }
 
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['name', 'english_name'];
-    }
-
     public static function getGlobalSearchResultUrl(Model $record): ?string
     {
         return static::getUrl('index', ['search' => $record->english_name ?? $record->name ?? '']);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'english_name'];
     }
 
     public static function getModelLabel(): string
@@ -292,7 +294,6 @@ class ProductResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()->exporter(ProductExporter::class),
                 ])

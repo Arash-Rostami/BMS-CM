@@ -20,6 +20,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/permission/strings.form.validation_name_required'),
                 'unique' => __('resources/permission/strings.form.validation_name_unique'),
+                'max' => __('resources/permission/strings.form.validation_name_max'),
             ])
             ->validationAttribute(__('resources/permission/strings.form.name'));
     }

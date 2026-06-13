@@ -11,9 +11,10 @@ return [
         'users' => 'Utilisateurs',
         'helper_name' => 'Utilisez un identifiant stable et descriptif, car les rôles et les politiques sont comparés à ce nom exact.',
         'validation_name_required' => 'Veuillez saisir le nom de l\'autorisation.',
+        'validation_name_max' => 'Le nom de l\'autorisation ne peut pas dépasser 255 caractères.',
         'validation_name_unique' => 'Ce nom d\'autorisation existe déjà.',
-            'helper_roles' => 'Attribuez cette autorisation à des rôles spécifiques.',
-            'helper_users' => 'Attribuez directement cette autorisation à des utilisateurs spécifiques.',
+        'helper_roles' => 'Attribuez cette autorisation à des rôles spécifiques.',
+        'helper_users' => 'Attribuez directement cette autorisation à des utilisateurs spécifiques.',
     ],
     'table' => [
         'name' => 'Nom',
