@@ -18,7 +18,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -58,7 +57,10 @@ class ProductResource extends Resource
                         'create' => __('resources/product/strings.form.action_create'),
                     ])
                     ->required()
-                    ->reactive()
+                    ->validationMessages([
+                        'required' => __('resources/product/strings.form.validation_action_required'),
+                    ])
+                    ->live()
                     ->visibleOn('create')
                     ->label(__('resources/product/strings.form.choose_action')),
                 //checking code
@@ -105,7 +107,7 @@ class ProductResource extends Resource
                                 Section::make(__('resources/product/strings.form.specifications_section_title'))
                                     ->schema([
                                         Repeater::make('specifications')
-                                            ->label('')
+                                            ->hiddenLabel()
                                             ->relationship('specifications')
                                             ->maxItems(1)
                                             ->deletable()
@@ -292,7 +294,6 @@ class ProductResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()->exporter(ProductExporter::class),
                 ])

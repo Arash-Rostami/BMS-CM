@@ -61,6 +61,7 @@ trait Form
                 'required' => __('resources/category/strings.form.validation_level_required'),
                 'numeric' => __('resources/category/strings.form.validation_level_numeric'),
                 'integer' => __('resources/category/strings.form.validation_level'),
+                'unique' => __('resources/category/strings.form.validation_level_unique'),
             ])
             ->validationAttribute(__('resources/category/strings.form.level'))
             ->required();

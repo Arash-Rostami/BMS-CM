@@ -67,7 +67,7 @@ trait Form
             ->onColor('success')
             ->onIcon('heroicon-m-check')
             ->offIcon('heroicon-m-x-mark')
-            ->reactive()
+            ->live()
             ->dehydrated(false)
             ->default(false)
             ->afterStateHydrated(function (Toggle $component) {

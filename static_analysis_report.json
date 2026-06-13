@@ -10,67 +10,30 @@
     },
     {
         "resource": "app/Filament/Resources/CategoryResource.php",
-        "critical_issues": [
-            {
-                "severity": "CRITICAL",
-                "line": null,
-                "issue": "Missing validationMessages on 'level' field",
-                "fix": "Add ->validationMessages([...]) for unique"
-            },
-            {
-                "severity": "CRITICAL",
-                "line": null,
-                "issue": "ForceDeleteBulkAction is present. Master Data should not have force delete.",
-                "fix": "Remove ForceDeleteBulkAction"
-            }
-        ],
-        "missing_validation_messages": [
-            {
-                "field": "level",
-                "rules": [
-                    "unique"
-                ],
-                "required_messages": [
-                    "unique"
-                ]
-            }
-        ],
+        "critical_issues": [],
+        "missing_validation_messages": [],
         "deprecated_patterns": [],
         "non_functioning_parts": [],
-        "score": 7,
-        "recommendation": "REVIEW_MANUALLY"
+        "score": 10,
+        "recommendation": "OK"
     },
     {
         "resource": "app/Filament/Resources/CompanyResource.php",
-        "critical_issues": [
-            {
-                "severity": "CRITICAL",
-                "line": null,
-                "issue": "ForceDeleteBulkAction is present. Master Data should not have force delete.",
-                "fix": "Remove ForceDeleteBulkAction"
-            }
-        ],
+        "critical_issues": [],
         "missing_validation_messages": [],
         "deprecated_patterns": [],
         "non_functioning_parts": [],
-        "score": 9,
-        "recommendation": "REVIEW_MANUALLY"
+        "score": 10,
+        "recommendation": "OK"
     },
     {
         "resource": "app/Filament/Resources/CurrencyResource.php",
-        "critical_issues": [
-            {
-                "severity": "CRITICAL",
-                "line": null,
-                "issue": "ForceDeleteBulkAction is present. Master Data should not have force delete.",
-                "fix": "Remove ForceDeleteBulkAction"
-            }
-        ],
+        "critical_issues": [],
         "missing_validation_messages": [],
         "deprecated_patterns": [],
         "non_functioning_parts": [],
-        "score": 9,
-        "recommendation": "REVIEW_MANUALLY"
+        "score": 10,
+        "recommendation": "OK"
     },
     {
         "resource": "app/Filament/Resources/EntityAttributeResource.php",
@@ -83,41 +46,12 @@
     },
     {
         "resource": "app/Filament/Resources/NotificationSettingResource.php",
-        "critical_issues": [
-            {
-                "severity": "CRITICAL",
-                "line": null,
-                "issue": "Missing validationMessages on 'tables' field",
-                "fix": "Add ->validationMessages([...]) for unique"
-            },
-            {
-                "severity": "CRITICAL",
-                "line": null,
-                "issue": "ForceDeleteAction is present. Master Data should not have force delete.",
-                "fix": "Remove ForceDeleteAction"
-            },
-            {
-                "severity": "CRITICAL",
-                "line": null,
-                "issue": "ForceDeleteBulkAction is present. Master Data should not have force delete.",
-                "fix": "Remove ForceDeleteBulkAction"
-            }
-        ],
-        "missing_validation_messages": [
-            {
-                "field": "tables",
-                "rules": [
-                    "unique"
-                ],
-                "required_messages": [
-                    "unique"
-                ]
-            }
-        ],
+        "critical_issues": [],
+        "missing_validation_messages": [],
         "deprecated_patterns": [],
         "non_functioning_parts": [],
-        "score": 6,
-        "recommendation": "REVIEW_MANUALLY"
+        "score": 10,
+        "recommendation": "OK"
     },
     {
         "resource": "app/Filament/Resources/PermissionResource.php",
@@ -130,51 +64,12 @@
     },
     {
         "resource": "app/Filament/Resources/ProductResource.php",
-        "critical_issues": [
-            {
-                "severity": "CRITICAL",
-                "line": null,
-                "issue": "Missing validationMessages on 'action' field",
-                "fix": "Add ->validationMessages([...]) for required"
-            },
-            {
-                "severity": "CRITICAL",
-                "line": null,
-                "issue": "ForceDeleteBulkAction is present. Master Data should not have force delete.",
-                "fix": "Remove ForceDeleteBulkAction"
-            }
-        ],
-        "missing_validation_messages": [
-            {
-                "field": "action",
-                "rules": [
-                    "required"
-                ],
-                "required_messages": [
-                    "required"
-                ]
-            }
-        ],
-        "deprecated_patterns": [
-            {
-                "line": null,
-                "deprecated": "->reactive(",
-                "fix": "->live("
-            },
-            {
-                "line": null,
-                "deprecated": "->label('')",
-                "fix": "->hiddenLabel()"
-            },
-            {
-                "line": null,
-                "deprecated": "->size(",
-                "fix": "->imageSize("
-            }
-        ],
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
         "non_functioning_parts": [],
-        "score": 4,
-        "recommendation": "REVIEW_MANUALLY"
+        "score": 10,
+        "recommendation": "OK"
     },
     {
         "resource": "app/Filament/Resources/RoleResource.php",
@@ -187,40 +82,20 @@
     },
     {
         "resource": "app/Filament/Resources/StatusResource.php",
-        "critical_issues": [
-            {
-                "severity": "CRITICAL",
-                "line": null,
-                "issue": "ForceDeleteBulkAction is present. Master Data should not have force delete.",
-                "fix": "Remove ForceDeleteBulkAction"
-            }
-        ],
-        "missing_validation_messages": [],
-        "deprecated_patterns": [
-            {
-                "line": null,
-                "deprecated": "->reactive(",
-                "fix": "->live("
-            }
-        ],
-        "non_functioning_parts": [],
-        "score": 8,
-        "recommendation": "REVIEW_MANUALLY"
-    },
-    {
-        "resource": "app/Filament/Resources/UserResource.php",
-        "critical_issues": [
-            {
-                "severity": "CRITICAL",
-                "line": null,
-                "issue": "ForceDeleteBulkAction is present. Master Data should not have force delete.",
-                "fix": "Remove ForceDeleteBulkAction"
-            }
-        ],
+        "critical_issues": [],
         "missing_validation_messages": [],
         "deprecated_patterns": [],
         "non_functioning_parts": [],
-        "score": 9,
-        "recommendation": "REVIEW_MANUALLY"
+        "score": 10,
+        "recommendation": "OK"
+    },
+    {
+        "resource": "app/Filament/Resources/UserResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
     }
 ]

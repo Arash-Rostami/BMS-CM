@@ -13,8 +13,6 @@ use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -190,8 +188,7 @@ class NotificationSettingResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    ForceDeleteAction::make(),
-                ])
+                    ])
             ])
             ->groups([
                 Group::make('settings->actions')
@@ -205,8 +202,7 @@ class NotificationSettingResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ForceDeleteBulkAction::make(),
-                ]),
+                    ]),
             ])
             ->striped()
             ->reorderableColumns()
