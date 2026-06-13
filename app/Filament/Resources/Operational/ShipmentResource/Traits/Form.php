@@ -25,7 +25,7 @@ trait Form
             ->label(__('resources/shipment/strings.form.bl_number'))
             ->maxLength(255)
             ->validationMessages([
-                'max' => __('resources/shipment/strings.form.validation.max'),
+                'max' => __('resources/shipment/strings.form.validation_max'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.bl_number'));
     }
@@ -36,7 +36,7 @@ trait Form
             ->label(__('resources/shipment/strings.form.booking_no'))
             ->maxLength(255)
             ->validationMessages([
-                'max' => __('resources/shipment/strings.form.validation.max'),
+                'max' => __('resources/shipment/strings.form.validation_max'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.booking_no'));
     }
@@ -53,7 +53,7 @@ trait Form
             ->preload()
             ->required()
             ->validationMessages([
-                'required' => __('resources/shipment/strings.form.validation.required'),
+                'required' => __('resources/shipment/strings.form.validation_required'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.carrier'));
     }
@@ -93,7 +93,7 @@ trait Form
             ->label(__('resources/shipment/strings.form.contract_no'))
             ->maxLength(255)
             ->validationMessages([
-                'max' => __('resources/shipment/strings.form.validation.max'),
+                'max' => __('resources/shipment/strings.form.validation_max'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.contract_no'));
     }
@@ -107,8 +107,8 @@ trait Form
             ->live()
             ->step(0.01)
             ->validationMessages([
-                'numeric' => __('resources/shipment/strings.form.validation.numeric'),
-                'min' => __('resources/shipment/strings.form.validation.min_numeric_zero'),
+                'numeric' => __('resources/shipment/strings.form.validation_numeric'),
+                'min' => __('resources/shipment/strings.form.validation_min_numeric_zero'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.customs_quantity'))
             ->hint(fn($get) => delimiter($get('customs_quantity')));
@@ -151,7 +151,7 @@ trait Form
                         function () use ($options) {
                             return function (string $attribute, $value, \Closure $fail) use ($options) {
                                 if (in_array($value, $options, true) || in_array($value, array_keys($options), true)) return;
-                                if (!preg_match('/^[a-zA-Z0-9\s\(\)\-_]+$/u', $value)) $fail(__('resources/shipment/strings.form.validation.english_only'));
+                                if (!preg_match('/^[a-zA-Z0-9\s\(\)\-_]+$/u', $value)) $fail(__('resources/shipment/strings.form.validation_english_only'));
                             };
                         },
                     ]),
@@ -248,7 +248,7 @@ trait Form
             ->searchable()
             ->helperText(__('resources/shipment/strings.form.helper_part'))
             ->validationMessages([
-                'required' => __('resources/shipment/strings.form.validation.required'),
+                'required' => __('resources/shipment/strings.form.validation_required'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.part'));
     }
@@ -274,7 +274,7 @@ trait Form
                 $set('remittance_amount', $total > 0 ? round((float) $total, 2) : null);
             })
             ->validationMessages([
-                'required' => __('resources/shipment/strings.form.validation.required'),
+                'required' => __('resources/shipment/strings.form.validation_required'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.registered_order'));
     }
@@ -298,8 +298,8 @@ trait Form
             ->unique(ignoreRecord: true)
             ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('shipment_no') : null)
             ->validationMessages([
-                'required' => __('resources/shipment/strings.form.validation.required'),
-                'unique' => __('resources/shipment/strings.form.validation.unique'),
+                'required' => __('resources/shipment/strings.form.validation_required'),
+                'unique' => __('resources/shipment/strings.form.validation_unique'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.shipment_no'));
     }
@@ -326,8 +326,8 @@ trait Form
             ->step(0.01)
             ->live()
             ->validationMessages([
-                'numeric' => __('resources/shipment/strings.form.validation.numeric'),
-                'min' => __('resources/shipment/strings.form.validation.min_numeric_zero'),
+                'numeric' => __('resources/shipment/strings.form.validation_numeric'),
+                'min' => __('resources/shipment/strings.form.validation_min_numeric_zero'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.shipped_quantity'))
             ->hint(fn($get) => delimiter($get('shipped_quantity')));
@@ -362,7 +362,7 @@ trait Form
             ->preload()
             ->required()
             ->validationMessages([
-                'required' => __('resources/shipment/strings.form.validation.required'),
+                'required' => __('resources/shipment/strings.form.validation_required'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.status'))
             ->helperText(__('resources/shipment/strings.form.helper_status'));

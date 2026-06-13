@@ -95,15 +95,13 @@ return [
         'attachments' => 'Pièces Jointes',
         'notes' => 'Notes Internes',
 
-        'validation' => [
-            'required' => 'Ce champ est obligatoire.',
-            'unique' => 'Cette valeur doit être unique.',
-            'unique_part' => 'Cette partie a déjà été enregistrée pour cette commande et ce contrat.',
-            'english_only' => 'Seuls les lettres anglaises, chiffres, parenthèses et tirets sont autorisés.',
-            'numeric' => 'Veuillez saisir un nombre valide ici.',
-            'min_numeric_zero' => 'Cette valeur ne peut pas être négative.',
-            'max' => 'Veuillez limiter cette valeur à 255 caractères ou moins.',
-        ],
+                    'validation_required' => 'Ce champ est obligatoire.',
+            'validation_unique' => 'Cette valeur doit être unique.',
+            'validation_unique_part' => 'Cette partie a déjà été enregistrée pour cette commande et ce contrat.',
+            'validation_english_only' => 'Seuls les lettres anglaises, chiffres, parenthèses et tirets sont autorisés.',
+            'validation_numeric' => 'Veuillez saisir un nombre valide ici.',
+            'validation_min_numeric_zero' => 'Cette valeur ne peut pas être négative.',
+            'validation_max' => 'Veuillez limiter cette valeur à 255 caractères ou moins.',
             'helper_status' => 'Statut logistique global de l\'expédition.',
     ],
     'table' => [
