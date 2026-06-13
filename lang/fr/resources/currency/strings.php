@@ -17,9 +17,11 @@ return [
         'updater' => 'Dernière mise à jour par',
         'validation_name_required' => 'Veuillez saisir le nom en persan.',
         'validation_name' => 'Seuls les caractères persans sont autorisés.',
+        'validation_name_max' => 'Le nom persan ne peut pas dépasser 255 caractères.',
         'validation_name_unique' => 'Ce nom existe déjà.',
         'validation_english_name_required' => 'Veuillez saisir le nom en anglais.',
         'validation_english_name' => 'Seuls les caractères anglais sont autorisés.',
+        'validation_english_name_max' => 'Le nom anglais ne peut pas dépasser 255 caractères.',
         'validation_english_name_unique' => 'Ce nom anglais existe déjà.',
     ],
     'table' => [
