@@ -83,7 +83,7 @@ trait Form
         return Textarea::make('notes')
             ->hiddenLabel()
             ->maxLength(255)
-            ->reactive()
+            ->live()
             ->extraAttributes(fn(Get $get) => ['style' => !$get('show_notes') ? 'display: none;' : ''])
             ->columnSpan('full')
             ->rules(['max:500'])
@@ -101,7 +101,7 @@ trait Form
             ->offIcon('heroicon-s-x-circle')
             ->onColor('success')
             ->offColor('danger')
-            ->reactive()
+            ->live()
             ->afterStateHydrated(fn(Set $set, Get $get) => $set('show_notes', filled($get('notes'))))
             ->afterStateUpdated(fn(?bool $state, Set $set) => !$state ? $set('notes', null) : null);
     }

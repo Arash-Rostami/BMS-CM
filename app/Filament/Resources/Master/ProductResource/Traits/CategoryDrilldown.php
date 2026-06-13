@@ -42,11 +42,11 @@ trait CategoryDrilldown
             Hidden::make('chain_complete')
                 ->default(false)
                 ->dehydrated(false)
-                ->reactive(),
+                ->live(),
 
             Hidden::make('category_path')
                 ->dehydrated(false)
-                ->reactive()
+                ->live()
                 ->afterStateHydrated(function ($component, $state, $set) use ($maxLevel) {
                     $record = $component->getRecord();
                     if (!$record?->category_id) {
@@ -100,7 +100,7 @@ trait CategoryDrilldown
                 $level === 0
                 || ! empty($options[$get("categories." . ($level - 1))] ?? [])
             )
-            ->reactive()
+            ->live()
             ->afterStateUpdated(function ($state, $set) use ($options, $level, $maxLevel) {
                 // Clear any deeper selections when this level changes
                 for ($i = $level + 1; $i < $maxLevel; $i++) {
