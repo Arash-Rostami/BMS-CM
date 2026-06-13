@@ -152,11 +152,13 @@ class CorrespondenceRelationManager extends RelationManager
      */
     protected function syncRecipientsByNames(Model $record, array $toNames, array $ccNames): void
     {
-        // Convert Names to IDs
-        $toIds = User::whereIn('name', $toNames)->pluck('id')->toArray();
-        $ccIds = User::whereIn('name', $ccNames)->pluck('id')->toArray();
+        if (empty($toNames) && empty($ccNames)) {
+            self::syncRecipients($record, [], []);
+            return;
+        }
 
-        // Use your existing trait logic which expects IDs
-        self::syncRecipients($record, $toIds, $ccIds);
+        $toIds = empty($toNames) ? [] : User::whereIn('name', $toNames)->pluck('id')->toArray();
+
+        self::syncRecipients($record, $toIds, $ccNames);
     }
 }
