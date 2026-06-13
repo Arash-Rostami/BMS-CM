@@ -2,18 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Operational\TargetResource\Enums\Status;
 use App\Filament\Resources\Operational\TargetResource\Exports\TargetExporter;
 use App\Filament\Resources\Operational\TargetResource\Pages\ManageTargets;
@@ -23,15 +11,21 @@ use App\Filament\Resources\Operational\TargetResource\Traits\Infolist as TargetI
 use App\Filament\Resources\Operational\TargetResource\Traits\Table as TargetTable;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Target;
-use App\Services\SmartCacheManager;
-use Filament\Forms;
-use Filament\Infolists\Components;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TargetResource extends Resource
@@ -40,7 +34,7 @@ class TargetResource extends Resource
 
     protected static ?string $model = Target::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cube';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cube';
 
     protected static ?int $navigationSort = 7;
 
@@ -171,7 +165,6 @@ class TargetResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(TargetExporter::class),

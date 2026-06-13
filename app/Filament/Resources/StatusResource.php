@@ -16,7 +16,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -77,14 +76,14 @@ class StatusResource extends Resource
         return "🏷️   {$name} (📆 {$date})";
     }
 
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['name', 'english_name'];
-    }
-
     public static function getGlobalSearchResultUrl(Model $record): ?string
     {
         return static::getUrl('index', ['search' => $record->english_name ?? $record->name ?? '']);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'english_name'];
     }
 
     public static function getModelLabel(): string
@@ -164,7 +163,6 @@ class StatusResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(StatusExporter::class)

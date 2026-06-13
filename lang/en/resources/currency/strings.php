@@ -17,9 +17,11 @@ return [
         'updater' => 'Last Updated By',
         'validation_name_required' => 'Please enter the Persian name.',
         'validation_name' => 'Only Persian characters are allowed.',
+        'validation_name_max' => 'The Persian name may not exceed 255 characters.',
         'validation_name_unique' => 'The name already exists.',
         'validation_english_name_required' => 'Please enter the English name.',
         'validation_english_name' => 'Only English characters are allowed.',
+        'validation_english_name_max' => 'The English name may not exceed 255 characters.',
         'validation_english_name_unique' => 'The English name already exists.'
     ],
     'table' => [

@@ -12,9 +12,9 @@ use App\Models\User;
 use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -87,15 +87,15 @@ class NotificationSettingResource extends Resource
         return "🔔 {$tables} · {$actions}";
     }
 
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['settings->tables', 'settings->actions', 'settings->columns'];
-    }
-
     public static function getGlobalSearchResultUrl(Model $record): ?string
     {
         $tables = $record->getTables();
         return static::getUrl('index', ['search' => !empty($tables) ? $tables[0] : '']);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['settings->tables', 'settings->actions', 'settings->columns'];
     }
 
     public static function getModelLabel(): string
@@ -190,7 +190,7 @@ class NotificationSettingResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    ForceDeleteAction::make(),
+                    DeleteAction::make(),
                 ])
             ])
             ->groups([
@@ -205,7 +205,7 @@ class NotificationSettingResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ForceDeleteBulkAction::make(),
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->striped()

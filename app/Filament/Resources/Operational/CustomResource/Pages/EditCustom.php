@@ -18,7 +18,6 @@ class EditCustom extends EditRecord
         return [
             ViewAction::make(),
             DeleteAction::make(),
-            ForceDeleteAction::make(),
             RestoreAction::make(),
         ];
     }

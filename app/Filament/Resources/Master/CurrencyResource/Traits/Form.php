@@ -29,7 +29,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/currency/strings.form.validation_english_name_required'),
                 'regex' => __('resources/currency/strings.form.validation_english_name'),
-                'unique' => __('resources/currency/strings.form.validation_english_name_unique')
+                'unique' => __('resources/currency/strings.form.validation_english_name_unique'),
+                'max' => __('resources/currency/strings.form.validation_english_name_max')
             ])
             ->validationAttribute(__('resources/currency/strings.form.english_name'))
             ->helperText(__('resources/currency/strings.form.helper_english_name'));
@@ -60,7 +61,9 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/currency/strings.form.validation_name_required'),
                 'regex' => __('resources/currency/strings.form.validation_name'),
-                'unique' => __('resources/currency/strings.form.validation_name_unique')
+                'unique' => __('resources/currency/strings.form.validation_name_unique'),
+                'max' => __('resources/currency/strings.form.validation_name_max')
+
             ])
             ->validationAttribute(__('resources/currency/strings.form.name'))
             ->helperText(__('resources/currency/strings.form.helper_name'));

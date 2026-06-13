@@ -84,7 +84,7 @@ trait Form
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
-                    ->label('')
+                    ->hiddenLabel()
                     ->tooltip(__('resources/bankProfile/strings.form.tooltips.commission_amount_purchased'))
             )
             ->hint(fn(Get $get) => is_numeric($get('commission_amount_purchased')) ? delimiter($get('commission_amount_purchased')) : $get('commission_amount_purchased'))
@@ -130,7 +130,7 @@ trait Form
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
-                    ->label('')
+                    ->hiddenLabel()
                     ->tooltip(__('resources/bankProfile/strings.form.tooltips.commission_rate'))
             )
             ->hint(fn(Get $get) => is_numeric($get('commission_rate')) ? delimiter($get('commission_rate')) : $get('commission_rate'))
@@ -163,7 +163,7 @@ trait Form
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
-                    ->label('')
+                    ->hiddenLabel()
                     ->tooltip(__('resources/bankProfile/strings.form.tooltips.conversion_rate'))
             )
             ->validationAttribute(__('resources/bankProfile/strings.form.conversion_rate'));
@@ -243,7 +243,7 @@ trait Form
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
-                    ->label('')
+                    ->hiddenLabel()
                     ->tooltip(__('resources/bankProfile/strings.form.tooltips.eur_equivalent_rate'))
             )
             ->validationAttribute(__('resources/bankProfile/strings.form.eur_equivalent_rate'));
@@ -264,7 +264,7 @@ trait Form
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
-                    ->label('')
+                    ->hiddenLabel()
                     ->tooltip(__('resources/bankProfile/strings.form.tooltips.exchange_rate'))
             )
             ->hint(fn(Get $get) => is_numeric($get('exchange_rate')) ? delimiter($get('exchange_rate')) : $get('exchange_rate'))

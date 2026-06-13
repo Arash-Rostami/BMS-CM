@@ -209,7 +209,8 @@ class RegisteredOrderResource extends Resource
 
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['sellerCompanyExclusive']);
+        return parent::getGlobalSearchEloquentQuery()
+            ->with(['sellerCompanyExclusive', 'status']);
     }
 
     public static function getGloballySearchableAttributes(): array

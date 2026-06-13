@@ -155,18 +155,24 @@ class BankProfileResource extends Resource
             ]);
     }
 
-    public static function getGlobalSearchResultTitle(Model $record): string
+    public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return '🏦 ' . ($record->bp_number ?? $record->id ?? '—');
+        return parent::getGlobalSearchEloquentQuery()
+            ->with(['bank', 'company', 'status']);
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            __('resources/bankProfile/strings.form.bank')    => $record->bank?->localized_name ?? '—',
+            __('resources/bankProfile/strings.form.bank') => $record->bank?->localized_name ?? '—',
             __('resources/bankProfile/strings.form.company') => $record->company?->localized_name ?? '—',
-            __('resources/bankProfile/strings.form.status')  => $record->status?->localized_name ?? '—',
+            __('resources/bankProfile/strings.form.status') => $record->status?->localized_name ?? '—',
         ];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return '🏦 ' . ($record->bp_number ?? $record->id ?? '—');
     }
 
     public static function getGloballySearchableAttributes(): array

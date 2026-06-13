@@ -20,7 +20,6 @@ class EditBankProfile extends EditRecord
             ViewAction::make(),
             ManageCustomAttributesAction::make(),
             DeleteAction::make(),
-            ForceDeleteAction::make(),
             RestoreAction::make(),
         ];
     }

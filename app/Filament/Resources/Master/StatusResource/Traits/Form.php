@@ -55,7 +55,7 @@ trait Form
                     ->pluck('english_type', 'english_type')
                     ->toArray() + ['write' => __('resources/status/strings.form.english_custom')]
             )
-            ->reactive()
+            ->live()
             ->afterStateUpdated(function (Set $set, $state) {
                 if ($state === 'write') {
                     $set('custom_type', true);
@@ -120,7 +120,7 @@ trait Form
                     ->pluck('type', 'type')
                     ->toArray() + ['write' => __('resources/status/strings.form.custom')]
             )
-            ->reactive()
+            ->live()
             ->afterStateUpdated(function (Set $set, $state) {
                 if ($state === 'write') {
                     $set('custom_type', true);

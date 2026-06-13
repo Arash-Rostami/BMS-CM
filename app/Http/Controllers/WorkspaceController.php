@@ -18,6 +18,8 @@ class WorkspaceController extends Controller
         $config = config("workspace.resources.{$resource}");
 
         abort_unless(is_array($config) && isset($config['model'], $config['route']), 404);
+        abort_unless(auth()->user()->can('viewAny', $config['model']), 403);
+
 
         /** @var Model $model */
         $model = new $config['model'];

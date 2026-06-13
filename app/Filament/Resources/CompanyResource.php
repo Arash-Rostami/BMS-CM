@@ -11,14 +11,12 @@ use App\Filament\Resources\Master\CompanyResource\Traits\Table as CompanyTable;
 use App\Filament\Traits\HandleActivation;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Company;
-use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -84,14 +82,14 @@ class CompanyResource extends Resource
         return "🏢    {$name} (📆 {$date})";
     }
 
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['name', 'english_name'];
-    }
-
     public static function getGlobalSearchResultUrl(Model $record): ?string
     {
         return static::getUrl('index', ['search' => $record->english_name ?? $record->name ?? '']);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'english_name'];
     }
 
     public static function getModelLabel(): string
@@ -171,7 +169,6 @@ class CompanyResource extends Resource
                     static::getActivateBulkAction(),
                     static::getDeactivateBulkAction(),
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(CompanyExporter::class)

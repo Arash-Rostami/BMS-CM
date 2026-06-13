@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\Master\CategoryResource\Exports\CategoryExporter;
 use App\Filament\Resources\Master\CategoryResource\Pages\ManageCategories;
-use App\Filament\Resources\Master\CategoryResource\RelationManagers;
 use App\Filament\Resources\Master\CategoryResource\Traits\Filters as CategoryFilters;
 use App\Filament\Resources\Master\CategoryResource\Traits\Form as CategoryForm;
 use App\Filament\Resources\Master\CategoryResource\Traits\Infolist as CategoryInfolist;
@@ -18,7 +17,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -75,14 +73,14 @@ class CategoryResource extends Resource
         return "📁   {$name} (📆 {$date})";
     }
 
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['name', 'english_name'];
-    }
-
     public static function getGlobalSearchResultUrl(Model $record): ?string
     {
         return static::getUrl('index', ['search' => $record->english_name ?? $record->name ?? '']);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'english_name'];
     }
 
     public static function getModelLabel(): string
@@ -168,7 +166,6 @@ class CategoryResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()->exporter(CategoryExporter::class)
                 ])

@@ -171,23 +171,24 @@ class PurchaseOrderResource extends Resource
             ]);
     }
 
-    public static function getGlobalSearchResultTitle(Model $record): string
+    public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return '🛍️ ' . ($record->po_number ?? '—');
+        return parent::getGlobalSearchEloquentQuery()
+            ->with(['sellerCompanyExclusive', 'status']);
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            __('resources/purchaseOrder/strings.form.seller')     => $record->sellerCompanyExclusive?->localized_name ?? '—',
-            __('resources/purchaseOrder/strings.form.status')     => $record->status?->localized_name ?? '—',
+            __('resources/purchaseOrder/strings.form.seller') => $record->sellerCompanyExclusive?->localized_name ?? '—',
+            __('resources/purchaseOrder/strings.form.status') => $record->status?->localized_name ?? '—',
             __('resources/purchaseOrder/strings.form.order_date') => $record->order_date?->format('Y-m-d') ?? '—',
         ];
     }
 
-    public static function getGlobalSearchEloquentQuery(): Builder
+    public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['sellerCompanyExclusive']);
+        return '🛍️ ' . ($record->po_number ?? '—');
     }
 
     public static function getGloballySearchableAttributes(): array
