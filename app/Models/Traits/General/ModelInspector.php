@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Models\Traits\General;
 
 use DB;
@@ -11,13 +10,15 @@ use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionMethod;
 use Schema;
+use Throwable;
 
 trait ModelInspector
 {
-
     public static function getAvailableColumns(string $modelClass): array
     {
-        if (!class_exists($modelClass)) return [];
+        if (!class_exists($modelClass)) {
+            return [];
+        }
 
         return array_map(
             fn($column) => ucfirst(str_replace('_', ' ', $column)),
@@ -34,7 +35,9 @@ trait ModelInspector
         foreach ($models as $modelFile) {
             $modelClass = 'App\\Models\\' . Str::studly(pathinfo($modelFile, PATHINFO_FILENAME));
 
-            if (!class_exists($modelClass)) continue;
+            if (!class_exists($modelClass)) {
+                continue;
+            }
 
             if (defined("$modelClass::SCANNABLE_TABLE")) {
                 $tables[$modelClass::SCANNABLE_TABLE] = ucfirst(Str::snake(class_basename($modelClass), ' '));
@@ -59,7 +62,9 @@ trait ModelInspector
 
         foreach ($availableTables as $table => $label) {
             $modelClass = self::resolveModelClass($table);
-            if (!class_exists($modelClass)) continue;
+            if (!class_exists($modelClass)) {
+                continue;
+            }
 
             $model = new $modelClass();
             $relations = self::guessRelationships($model);
@@ -67,7 +72,9 @@ trait ModelInspector
             $tableColumns = Schema::getColumnListing($table);
             $selectedColumns = array_intersect($columns, $tableColumns);
 
-            if (empty($selectedColumns)) continue;
+            if (empty($selectedColumns)) {
+                continue;
+            }
 
             $rows = DB::table($table)
                 ->select($selectedColumns)
@@ -81,22 +88,36 @@ trait ModelInspector
 
             foreach ($selectedColumns as $column) {
                 $bestRelation = self::findBestRelationForColumn($column, $relations);
-
                 $groupLabel = Str::headline($table) . ' → ' . Str::headline($bestRelation ?? $column);
+
+                $hasRelation = $bestRelation && method_exists($model, $bestRelation);
+                $relatedMap = [];
+
+                if ($hasRelation) {
+                    $relatedModel = $model->{$bestRelation}()->getRelated();
+                    $displayColumn = $relatedModel->english_name ?? $relatedModel->name ?? 'name';
+                    $keyName = $relatedModel->getKeyName();
+
+                    $rawValues = $rows->pluck($column)->filter()->unique()->values()->toArray();
+
+                    if (!empty($rawValues)) {
+                        $relatedMap = $relatedModel->whereIn($keyName, $rawValues)
+                            ->pluck($displayColumn, $keyName)
+                            ->toArray();
+                    }
+                }
 
                 foreach ($rows as $row) {
                     $rawValue = $row->{$column} ?? null;
-                    if ($rawValue === null) continue;
-
-                    if ($bestRelation && method_exists($model, $bestRelation)) {
-                        $relatedModel = $model->{$bestRelation}()->getRelated();
-                        $displayColumn = $relatedModel->english_name ?? $relatedModel->name ?? 'name';
-                        $value = $relatedModel->where($relatedModel->getKeyName(), $rawValue)->value($displayColumn);
-                    } else {
-                        $value = $rawValue;
+                    if ($rawValue === null) {
+                        continue;
                     }
 
-                    if ($value !== null) $values[$groupLabel][$rawValue] = (string)$value;
+                    $value = $hasRelation ? ($relatedMap[$rawValue] ?? $rawValue) : $rawValue;
+
+                    if ($value !== null) {
+                        $values[$groupLabel][$rawValue] = (string)$value;
+                    }
                 }
             }
         }
@@ -110,7 +131,9 @@ trait ModelInspector
 
         foreach ($selectedTables as $table) {
             $tableColumns = Schema::getColumnListing($table);
-            if (empty($tableColumns)) continue;
+            if (empty($tableColumns)) {
+                continue;
+            }
 
             $groupLabel = Str::headline($table);
             foreach ($tableColumns as $column) {
@@ -128,7 +151,9 @@ trait ModelInspector
 
     private static function findBestRelationForColumn(string $column, array $relations): ?string
     {
-        if (!str_ends_with($column, '_id')) return null;
+        if (!str_ends_with($column, '_id')) {
+            return null;
+        }
 
         $best = null;
         $score = 0;
@@ -149,18 +174,20 @@ trait ModelInspector
         $reflection = new ReflectionClass($model);
 
         foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-
             if (
                 $method->class !== get_class($model) ||
                 $method->getNumberOfParameters() !== 0 ||
                 in_array($method->name, ['boot', 'booted', 'initializeTraits'])
-            ) continue;
-
+            ) {
+                continue;
+            }
 
             try {
                 $result = $method->invoke($model);
-                if ($result instanceof Relation) $relationships[] = $method->name;
-            } catch (\Throwable $e) {
+                if ($result instanceof Relation) {
+                    $relationships[] = $method->name;
+                }
+            } catch (Throwable $e) {
                 continue;
             }
         }
