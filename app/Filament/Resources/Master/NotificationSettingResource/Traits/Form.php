@@ -116,6 +116,10 @@ trait Form
             ->columnSpanFull()
             ->searchable()
             ->nullable()
+            ->unique(ignoreRecord: true)
+            ->validationMessages([
+                'unique' => __('resources/notificationSetting/strings.form.validation_tables_unique'),
+            ])
             ->helperText(__('resources/notificationSetting/strings.form.tables_description'));
     }
 

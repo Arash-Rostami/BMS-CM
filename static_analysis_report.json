@@ -1,0 +1,101 @@
+[
+    {
+        "resource": "app/Filament/Resources/BankResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
+    },
+    {
+        "resource": "app/Filament/Resources/CategoryResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
+    },
+    {
+        "resource": "app/Filament/Resources/CompanyResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
+    },
+    {
+        "resource": "app/Filament/Resources/CurrencyResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
+    },
+    {
+        "resource": "app/Filament/Resources/EntityAttributeResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
+    },
+    {
+        "resource": "app/Filament/Resources/NotificationSettingResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
+    },
+    {
+        "resource": "app/Filament/Resources/PermissionResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
+    },
+    {
+        "resource": "app/Filament/Resources/ProductResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
+    },
+    {
+        "resource": "app/Filament/Resources/RoleResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
+    },
+    {
+        "resource": "app/Filament/Resources/StatusResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
+    },
+    {
+        "resource": "app/Filament/Resources/UserResource.php",
+        "critical_issues": [],
+        "missing_validation_messages": [],
+        "deprecated_patterns": [],
+        "non_functioning_parts": [],
+        "score": 10,
+        "recommendation": "OK"
+    }
+]
