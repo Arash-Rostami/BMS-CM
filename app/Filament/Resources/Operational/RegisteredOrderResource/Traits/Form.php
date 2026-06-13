@@ -145,7 +145,7 @@ trait Form
         return Textarea::make('description')
             ->hiddenLabel()
             ->maxLength(65535)
-            ->reactive()
+            ->live()
             ->extraAttributes(fn(Get $get) => ['style' => !$get('show_notes') ? 'display: none;' : ''])
             ->columnSpanFull()
             ->rules(['nullable', 'string', 'max:65535'])
@@ -164,7 +164,7 @@ trait Form
             ->onColor('success')
             ->offColor('danger')
             ->columnSpanFull()
-            ->reactive()
+            ->live()
             ->afterStateHydrated(fn(Set $set, Get $get) => $set('show_notes', filled($get('description'))))
             ->afterStateUpdated(fn(?bool $state, Set $set) => !$state ? $set('description', null) : null);
     }

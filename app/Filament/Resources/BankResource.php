@@ -167,6 +167,7 @@ class BankResource extends Resource
             ])
             ->striped()
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc')
+            ->defaultPaginationPageOption(25);
     }
 }

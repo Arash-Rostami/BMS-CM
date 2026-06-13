@@ -147,6 +147,7 @@ class RoleResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc')
+            ->defaultPaginationPageOption(25);
     }
 }
