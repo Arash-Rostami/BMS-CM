@@ -374,6 +374,7 @@ trait Form
             ->minValue(0)
             ->columnSpan(4)
             ->live(onBlur: true)
+            ->tooltip(fn (Get $get) => is_numeric($get('entrance_fee')) ? number_format($get('entrance_fee'), 2) : '')
             ->validationMessages(['numeric', 'min'])
             ->validationAttribute(__('resources/registeredOrder/strings.form.entrance_fee'));
     }
@@ -388,6 +389,7 @@ trait Form
             ->minValue(0)
             ->columnSpan(4)
             ->live(onBlur: true)
+            ->tooltip(fn (Get $get) => is_numeric($get('extra_cost')) ? number_format($get('extra_cost'), 2) : '')
             ->validationMessages(['numeric', 'min'])
             ->validationAttribute(__('resources/registeredOrder/strings.form.extra_cost'));
     }
@@ -401,6 +403,7 @@ trait Form
             ->hint(fn(Get $get) => delimiter($get('gross_weight')))
             ->minValue(0)
             ->columnSpan(4)
+            ->tooltip(fn (Get $get) => is_numeric($get('gross_weight')) ? number_format($get('gross_weight'), 2) : '')
             ->validationMessages([
                 'numeric' => __('resources/registeredOrder/strings.form.validation_numeric'),
                 'min' => __('resources/registeredOrder/strings.form.validation_min_numeric_zero'),
@@ -428,6 +431,7 @@ trait Form
             ->hint(fn(Get $get) => delimiter($get('net_weight')))
             ->columnSpan(4)
             ->minValue(0)
+            ->tooltip(fn (Get $get) => is_numeric($get('net_weight')) ? number_format($get('net_weight'), 2) : '')
             ->validationMessages([
                 'numeric' => __('resources/registeredOrder/strings.form.validation_numeric'),
                 'min' => __('resources/registeredOrder/strings.form.validation_min_numeric_zero'),
@@ -461,6 +465,7 @@ trait Form
             ->minValue(0.01)
             ->live(onBlur: true)
             ->columnSpan(3)
+            ->tooltip(fn (Get $get) => is_numeric($get('quantity')) ? number_format($get('quantity'), 2) : '')
             ->afterStateUpdated(function (Get $get, Set $set) { static::updateItemLineTotal($get, $set); })
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
@@ -480,6 +485,7 @@ trait Form
             ->minValue(0)
             ->columnSpan(4)
             ->live(onBlur: true)
+            ->tooltip(fn (Get $get) => is_numeric($get('shipping_cost')) ? number_format($get('shipping_cost'), 2) : '')
             ->validationMessages(['numeric', 'min'])
             ->validationAttribute(__('resources/registeredOrder/strings.form.shipping_cost'));
     }
@@ -507,6 +513,7 @@ trait Form
             ->columnSpan(3)
             ->minValue(0)
             ->live(onBlur: true)
+            ->tooltip(fn (Get $get) => is_numeric($get('unit_price')) ? number_format($get('unit_price'), 2) : '')
             ->afterStateUpdated(fn(Get $get, Set $set) => static::updateItemLineTotal($get, $set))
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
