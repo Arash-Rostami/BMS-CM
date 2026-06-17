@@ -1,0 +1,39 @@
+{
+  "file": "app/Filament/Pages/LandingPage.php",
+  "critical_issues": [
+    {
+      "area": "search",
+      "issue": "Workspace search endpoint exposes records without authorization checks",
+      "why_it_breaks": "WorkspaceController::records queries and returns records to any authenticated user without verifying view permissions via policies or checking if the record belongs to the user.",
+      "fix": "Apply policy authorization checks or user-specific query scoping before returning results."
+    },
+    {
+      "area": "search",
+      "issue": "Global Spotlight search exposes unauthorized records",
+      "why_it_breaks": "SearchService::search executes database queries without filtering based on the current user's permissions. This allows users to find and view sensitive records they are not authorized to see.",
+      "fix": "Filter SearchService query results by applying the appropriate authorization scopes or verifying user access permissions."
+    },
+    {
+      "area": "shortcuts",
+      "issue": "Hardcoded resource routes without policy checks",
+      "why_it_breaks": "SearchService and workflow blade components link directly to edit/index routes (e.g., `route('filament.dashboard.resources.shipments.edit')`) without checking if the user actually has `edit` or `viewAny` permissions, leading to 403 errors.",
+      "fix": "Use Filament's `Resource::getUrl()` and verify authorization state before rendering the links."
+    }
+  ],
+  "non_functioning_parts": [
+    {
+      "component": "Workspace record picker",
+      "problem": "Search returns records without authorization scope"
+    },
+    {
+      "component": "Spotlight Search box",
+      "problem": "Search returns records without authorization scope"
+    },
+    {
+      "component": "redirect button",
+      "problem": "Redirects to resource pages without checking if the user has access"
+    }
+  ],
+  "score": 1,
+  "decision": "BLOCK"
+}
