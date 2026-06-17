@@ -122,6 +122,7 @@ return [
         'helper_discount' => 'A flat amount subtracted from the total, not a percentage.',
         'helper_quantity' => 'Decimals are allowed, but the quantity must be at least 0.01.',
         'helper_gross_weight' => 'Gross weight includes packaging and should be at least the net weight.',
+        'validation_max_string' => 'The field may not be greater than :max characters.',
         'validation' => [
             'required' => 'The :attribute field is required.',
             'unique' => 'The :attribute has already been taken.',

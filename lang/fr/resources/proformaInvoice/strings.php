@@ -122,6 +122,7 @@ return [
         'helper_discount' => 'Saisissez la remise sous forme d\'un montant fixe, pas d\'un pourcentage.',
         'helper_quantity' => 'Les décimales sont autorisées, mais la quantité doit être d\'au moins 0,01.',
         'helper_gross_weight' => 'Le poids brut inclut l\'emballage et doit être au moins égal au poids net.',
+        'validation_max_string' => 'Ce champ ne doit pas dépasser :max caractères.',
         'validation' => [
             'required' => 'Le champ :attribute est obligatoire.',
             'unique' => 'L\':attribute a déjà été pris.',

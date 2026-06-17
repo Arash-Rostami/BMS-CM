@@ -175,7 +175,7 @@ trait Form
             ->columnSpan('full')
             ->rules(['nullable', 'string', 'max:65535'])
             ->validationMessages([
-                'max' => __('resources/proformaInvoice/strings.form.validation.max_string'),
+                'max' => __('resources/proformaInvoice/strings.form.validation_max_string'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.item_description'));
     }

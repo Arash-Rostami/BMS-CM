@@ -93,15 +93,13 @@ return [
         'attachments' => 'Attachments',
         'notes' => 'Internal Notes',
 
-        'validation' => [
-            'required' => 'This field is required.',
-            'unique' => 'This value must be unique.',
-            'unique_part' => 'This part has already been registered for this order and contract.',
-            'english_only' => 'Only English letters, numbers, parentheses, and dashes are allowed.',
-            'numeric' => 'Please enter a valid number here.',
-            'min_numeric_zero' => 'This value cannot be negative.',
-            'max' => 'Please keep this to 255 characters or fewer.',
-        ],
+                    'validation_required' => 'This field is required.',
+            'validation_unique' => 'This value must be unique.',
+            'validation_unique_part' => 'This part has already been registered for this order and contract.',
+            'validation_english_only' => 'Only English letters, numbers, parentheses, and dashes are allowed.',
+            'validation_numeric' => 'Please enter a valid number here.',
+            'validation_min_numeric_zero' => 'This value cannot be negative.',
+            'validation_max' => 'Please keep this to 255 characters or fewer.',
             'helper_status' => 'Overall logistical status of the shipment.',
     ],
     'table' => [
