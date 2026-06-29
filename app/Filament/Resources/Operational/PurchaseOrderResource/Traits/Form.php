@@ -150,6 +150,7 @@ trait Form
                 name: 'product',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
             )
+            ->getOptionLabelFromRecordUsing(fn(Model $record) => method_exists($record, 'getCustomizedLabelAttribute') ? $record->getCustomizedLabelAttribute() : ($record->slug ?? '-'))
             ->searchable(['name', 'english_name', 'code'])
             ->preload()
             ->required()
