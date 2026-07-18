@@ -154,7 +154,7 @@ function emitBlock(string $reason): void
 
 function commonPreamble(string $diff): string
 {
-    return "You are reviewing a code change in a Laravel 12 + Filament v5 + Livewire codebase. Project rules: NO code comments are allowed (flag any comment introduced). Focus on the DIFF; the full file is attached as context only, not for judging unrelated code. Dry-run trace the changed code in your reasoning to verify control flow, edge cases, and integration.\n\n" . $diff . "\n\nOutput STRICT JSON only: {\"verdict\":\"pass|fail\",\"issues\":[\"concrete problem\"],\"confidence\":0-100,\"dry_run_notes\":\"trace summary\"}. verdict=pass only if no real issue is present. confidence = your confidence this change is safe to ship (0-100); a clean correct change should score 93 or higher, score below 93 only when you can name a concrete concern.";
+    return "You are reviewing a code change in a Laravel 12 + Filament v4 + Livewire v3 codebase. Project rules: NO code comments are allowed (flag any comment introduced). Focus on the DIFF; the full file is attached as context only, not for judging unrelated code. Dry-run trace the changed code in your reasoning to verify control flow, edge cases, and integration.\n\n" . $diff . "\n\nOutput STRICT JSON only: {\"verdict\":\"pass|fail\",\"issues\":[\"concrete problem\"],\"confidence\":0-100,\"dry_run_notes\":\"trace summary\"}. verdict=pass only if no real issue is present. confidence = your confidence this change is safe to ship (0-100); a clean correct change should score 93 or higher, score below 93 only when you can name a concrete concern.";
 }
 
 function reviewerA(string $diff): string
@@ -164,7 +164,7 @@ function reviewerA(string $diff): string
 
 function reviewerB(string $diff): string
 {
-    return "Your review lens: performance (queries inside loops, missing eager loads causing N+1, unbounded queries on large tables, repeated container resolution), pattern-consistency (Action/Validator/Presenter/Service classes where the project mandates them), minimality, and absence of code comments. " . commonPreamble($diff);
+    return "Your review lens: performance (queries inside loops, missing eager loads causing N+1, unbounded queries on large tables, repeated container resolution), pattern-consistency (trait-based schema composition — Form/Table/Infolist/Filters traits composed on the root Resource; Service classes in app/Services; HasResourcePermissions and HasExtraAttributesManagement traits where the project mandates them; no app/Policies), minimality, and absence of code comments. " . commonPreamble($diff);
 }
 
 function ollamaReview(string $diff, string $file): void

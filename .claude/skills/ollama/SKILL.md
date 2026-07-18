@@ -46,12 +46,10 @@ You operate exclusively as Lead GLM-5.2 (Manager & System Architect). You own th
 
 ### Phase 2: UI/UX Guardrails (when appropriate — only if the work touches UI/UX)
 
-1. Route the approved blueprint to MiniMax-M3. The delegation prompt MUST first feed MiniMax-M3 the project's UI convention docs verbatim as mandatory reading, before it emits anything — but **domain-isolated** via an explicit allow-list: load only the layout files the blueprint actually touches. Admin-side work → include `adminStylesPattern.md`, exclude `userStylesPattern.md` (and vice versa); shared/cross-domain components → include both. Include `scriptPattern.md` / `assetPattern.md` / `viewPattern.md` only when the work has JS / asset / view surface. This kills token waste and prevents admin/user pattern bleed:
-   * `resources/css/adminStylesPattern.md` — admin-side CSS conventions
-   * `resources/css/userStylesPattern.md` — user-side CSS conventions
-   * `resources/js/scriptPattern.md` — JS / Alpine conventions
-   * `resources/assets/assetPattern.md` — asset registration & loading
-   * `resources/views/viewPattern.md` — Blade view conventions
+1. Route the approved blueprint to MiniMax-M3. The delegation prompt MUST first feed MiniMax-M3 the project's UI convention docs verbatim as mandatory reading, before it emits anything — but **domain-isolated** via an explicit allow-list: load only the pattern files the blueprint actually touches. Filament/CSS work → include `filamentPattern.md` and/or `stylesPattern.md`; JS/Alpine work → include `scriptPattern.md`. This kills token waste and prevents domain bleed:
+   * `app/Filament/filamentPattern.md` — Filament resource architecture (trait-based schema composition, two-tab forms, EAV, HasResourcePermissions)
+   * `resources/css/stylesPattern.md` — CSS conventions (token system, .fi-* morphing, load-bearing login CSS, flat enterprise landing system, loader, keyframes, Vite pipeline)
+   * `resources/js/scriptPattern.md` — JS / Alpine conventions (pure-function factories, lazy DOM-gated registration, localStorage keys, lazy Audio, custom events)
 2. MiniMax-M3 cross-references layout parameters against THESE project docs (not generic assumptions), so its output stays inside the existing design system.
 3. Output a clean, structured design constraint sheet before writing any application files. Skip this phase entirely if the work has no UI/UX surface.
 
@@ -83,7 +81,7 @@ Every fallback dispatch carries a standardized **Fallback Payload Envelope** so 
 
 For the OpenAI final-refiner (`gpt-5.5` or `gpt-5.4`, whichever the triage chose) specifically, "failure" includes rate-limit/429, auth/401 (missing or unset `$OPENAI_API_KEY`), network error, `model_not_found`, or an empty/unusable response. On **any** such failure, do NOT drop to a single-engine finalize — spawn **two `glm-5.2:cloud` subagents in parallel**, each carrying the Fallback Payload Envelope (assuming the OpenAI final-refiner persona) and assigned a distinct review lens (A: correctness/bugs/security/edge-cases; B: performance/N+1, pattern-consistency, minimality), to discuss and independently pressure-test the Nemotron-refined blueprint. **Each lens is independent**: if a lens's `glm-5.2:cloud` call fails, re-task ONLY that lens to `glm-5.1:cloud`; if that too fails, the Lead produces that lens's output in-harness. The Lead reconciles the two lens outputs (whatever engine each came from) into the definitive blueprint — so the 2-agent discussion survives per-lens failures and only collapses when the entire chain is exhausted on both lenses, at which point the Lead runs both lenses in-harness as two distinct passes. The planning loop therefore never stalls on OpenAI being unavailable and never degrades to a single-opinion refine while a 2-agent discussion is feasible. Do NOT retry-loop the same OpenAI call, and do NOT paste a key into chat or a file to "fix" an auth failure — re-set the env var and restart the session instead.
 
-Never stall on a single failing model. A role is considered failed on: connection error, timeout, model not pulled, invalid/empty response, or a response that is wrong-language/off-topic/unusable — treat unusable-success the same as a technical failure, do not salvage or re-prompt the original model. This fallback chain applies to every pipeline phase and to the post-tool review gate (`post_tool_review.php` implements the same `glm-5.2:cloud` → `glm-5.1:cloud` order for each reviewer slot). The post-tool gate additionally degrades to pass-through (no hard block) only if the entire fallback chain is exhausted.
+Never stall on a single failing model. A role is considered failed on: connection error, timeout, model not pulled, invalid/empty response, or a response that is wrong-language/off-topic/unusable — treat unusable-success the same as a technical failure, do not salvage or re-prompt the original model. This fallback chain applies to every pipeline phase and, on its Ollama path, to the post-tool review gate: `post_tool_review.php` (registered as a `PostToolUse` hook on `Edit|Write` in `.claude/settings.json`) reads `$ANTHROPIC_BASE_URL` and, only when it contains `11434`, runs two independent Ollama reviewers on `glm-5.2:cloud` — reviewer A (correctness, logic bugs, edge cases, security) and reviewer B (performance/N+1, pattern-consistency, minimality, absence of code comments) — each producing a round-1 verdict, then each re-evaluates in a round 2 after seeing the other's round-1 verdict. The gate passes only if both round-2 verdicts are `pass` and `min(confidence_a, confidence_b) >= 93` (`$THRESHOLD`); otherwise it blocks the tool call with `{"decision":"block","reason":"..."}`. Each reviewer slot independently retries `glm-5.2:cloud` once more, then falls back to `glm-5.1:cloud`, on failure; if either slot still returns nothing after its own fallback (in round 1 or round 2), the whole gate silently passes through (`exit(0)`, no block) rather than escalating to a Lead-in-harness step. When `$ANTHROPIC_BASE_URL` does NOT contain `11434` (i.e. the session is talking to the real Anthropic API), the gate instead makes one call to `claude-sonnet-4-6` with no Ollama fallback and no 93% threshold — it blocks only if that single call returns `verdict:"fail"`, and passes through silently on any infra failure.
 
 ### Phase 5: Confidence-Gated QA Validation & Delivery
 
@@ -98,11 +96,12 @@ Never stall on a single failing model. A role is considered failed on: connectio
 
 ### How to Initialize Your Multi-Agent Team
 
-Now, whenever you double-click your desktop launcher link (`claude-launcher.bat`), the engine will ingest this `CLAUDE.md` configuration file. 
+Now, whenever you start a Claude Code session in this repository, the 6 `SessionStart` hooks in `.claude/settings.json` fire automatically and load the skills + delegation + review + doc-sync policies — the multi-agent pipeline is ready with no manual step.
 
-To kickstart the pipeline on your first task, type this command inside your PowerShell 7.5.5 window:
+To kickstart the dev stack while you work, run:
 
-```powershell
-Initialize orchestration loop and map the current workspace directory files.
-
+```bash
+composer run dev
 ```
+
+This starts the Laravel server, queue listener, and Vite HMR concurrently (per `composer.json`).

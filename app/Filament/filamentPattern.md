@@ -79,7 +79,7 @@ Each trait exposes `static` helpers consumed by the root class. Method prefixes 
 
 The root `form()` / `table()` / `infolist()` methods just assemble these helpers into Tabs/columns — they do not define field internals.
 
-### 1.3 Two-tab uniform form structure (ALL 8 operational resources)
+### 1.3 Two-tab uniform form structure (the canonical 8 operational resources)
 
 ```php
 Tabs::make('PurchaseRequest')
@@ -123,19 +123,22 @@ Tabs::make('Details')->tabs([
 
 `tabBadge($label, $count, $color)` is the global helper (`app/Utils/helpers.php`) returning an `HtmlString` — label + inline `.tb-badge` span. Use it for any tab whose label must show a count.
 
-### 1.5 `HasResourcePermissions` — the entire access-control system
+### 1.5 `HasResourcePermissions` — the access-control system for Filament resources
 
-`App\Filament\Traits\HasResourcePermissions`. **No `app/Policies/` exist; this trait IS the access-control system.** Derives the permission prefix from the model basename via `Str::snake()`. Permission strings follow `{snake_singular_model}.{view|create|edit|delete}`.
+`App\Filament\Traits\HasResourcePermissions` is what every Filament resource relies on for its `can*` authorization checks. Derives the permission prefix from the model basename via `Str::snake()`. Permission strings follow `{snake_singular_model}.{view|create|edit|delete}`.
+
+Verified — actual trait body (`app/Filament/Traits/HasResourcePermissions.php`):
 
 ```php
 public static function getPermissionPrefix(): string
 private static function allows(string $action): bool
-// + canViewAny / canView / canCreate / canCreateAny / canEdit / canEditAny
-//   canDelete / canDeleteAny / canForceDelete / canForceDeleteAny
-//   canRestore (maps to 'edit') / canRestoreAny
+// + canViewAny / canView / canCreate / canEdit / canDelete / canDeleteAny
+//   canForceDelete / canForceDeleteAny / canRestore (maps to 'edit') / canRestoreAny
 ```
 
-`canRestore` maps to the `edit` permission; `canForceDelete` maps to `delete`. Every resource `use`s this trait — there is no opt-out.
+There is no `canCreateAny` or `canEditAny` on this trait — do not assume Filament's full `can*` surface is overridden; only the methods listed above exist. `canRestore` and `canRestoreAny` map to the `edit` permission; `canForceDelete` and `canForceDeleteAny` map to `delete`. Every resource `use`s this trait for its own CRUD gating — there is no opt-out.
+
+**Correction — `app/Policies/` is not actually empty.** `app/Policies/CorrespondencePolicy.php` exists, defining `view()` and `forceDelete()` for the `Correspondence` model. It is not registered in any service provider and nothing in the codebase calls `Gate::allows`, `->can(`, `@can`, or `authorize()` against it — it appears to be dead/unwired code (Laravel's policy auto-discovery convention would pick it up by name if something ever did call `$user->can('view', $correspondence)`, but no such call was found). `HasResourcePermissions` remains the trait every Filament resource actually relies on for its own `can*` checks; treat the "no Policies" claim below as "no Policies are wired into Filament resource authorization," not "the directory is empty." Flag for human review if `CorrespondencePolicy` should be deleted or genuinely wired up.
 
 ### 1.6 `HasExtraAttributesManagement` — the inline EAV Repeater
 
@@ -160,13 +163,13 @@ Repeater::make('extraAttributes')
     ->reorderableWithButtons()
 ```
 
-Both `key` and `value` use:
+Only the `value` field/entry needs it (`key` is always a plain string, so `TextInput::make('key')` has no `formatStateUsing`):
 
 ```php
 ->formatStateUsing(fn($state) => is_string($state) ? $state : json_encode($state, JSON_UNESCAPED_UNICODE))
 ```
 
-**This `formatStateUsing` is mandatory.** `EntityAttribute.value` is JSON-cast, so on read Eloquent returns arrays/scalars, not strings. Without it, `Textarea::make('value')` and `TextEntry::make('value')` try to render an array and throw.
+**This `formatStateUsing` on `value` is mandatory.** `EntityAttribute.value` is JSON-cast, so on read Eloquent returns arrays/scalars, not strings. Without it, `Textarea::make('value')` and `TextEntry::make('value')` try to render an array and throw.
 
 Operational resources use the **Tab** variant (`getExtraAttributesFormTab`); the `Section` variant exists only for back-compat and must not be used in new resources.
 
@@ -403,20 +406,260 @@ Labels in `lang/en/resources/dashboard/strings.php`. Pipeline order: Purchase Re
 
 ### 1.18 Operational vs Master split
 
-| | Operational (8) | Master |
+The `Operational/` folder holds **10** resources: the canonical 8 two-tab/EAV resources plus 2 variants.
+
+**Canonical 8 (two-tab form + EAV + totals):** PurchaseRequest, ProformaInvoice, RegisteredOrder, BankProfile, PurchaseOrder, Payment, Shipment, Custom.
+
+**Variants:**
+- **Correspondence** — full `List`/`Create`/`Edit` pages, `CorrespondenceExporter`, `Enums/Priority.php` + `Type.php`, but NO EAV tab, NO totals, NO RelationManagers.
+- **Target** — operational placement, but uses the master-style single `ManageTargets` page (no `List`/`Create`/`Edit`). Has a full editable `Traits/Form.php`, `Enums/Status.php`, `Exports/TargetExporter.php`, NO RelationManagers, NO totals, NO EAV tab. This is the documented exception to the Operational=multi-page / Master=single-page dichotomy.
+
+| | Operational — canonical 8 | Operational — variants (Correspondence, Target) | Master |
+|---|---|---|---|
+| Pages | List + Create + Edit + (View via modal) | Correspondence: List+Create+Edit; Target: single `ManageTargets` | single `ManageXxx` page |
+| Form | full editable form in Tabs (General + EAV) | editable form, NO EAV tab | full editable `form()`, no Tabs/EAV — used by the header `CreateAction` and by the row `EditAction` (which opens as a **modal**, since there is no dedicated edit route) |
+| Header actions | Create button | Correspondence: Create; Target: Create (`ManageTargets::getHeaderActions()` returns `[CreateAction::make()]`, same as Correspondence) | `CreateAction` in header for **10 of 11** Master resources — verified in `ManageBanks`, `ManageCategories`, `ManageCompanies`, `ManageCurrencies`, `ManageNotificationSettings`, `ManagePermissions`, `ManageProducts`, `ManageRoles`, `ManageStatuses`, `ManageUsers`. **`EntityAttributeResource` is the sole exception** — `ManageEntityAttributes::getHeaderActions()` returns `[]` and `EntityAttributeResource` has no `form()` method at all (genuinely view-only via infolist). Do not generalize "Master = no header actions" from that one case. |
+| Traits | `HasExtraAttributesManagement` + `Total{Name}Calculation` | neither EAV nor totals | `HandleActivation` (bulk activate/deactivate), no EAV, no totals |
+| RelationManagers | yes (see §1.20) | no | no |
+| Exporter | yes (see §1.23) | yes | varies |
+
+Master resources: Bank, Category, Company, Currency, EntityAttribute, NotificationSetting, Permission, Product, Role, Status, User.
+
+**Correction — Master ≠ "no form."** The blanket claim "Master resources: no form — view-only via infolist" (also stated in `CLAUDE.md`) does not hold for 10 of the 11 Master resources. Only `EntityAttributeResource` is truly form-less/view-only. Every other Master resource (verified: `BankResource`, `CategoryResource`, `ProductResource`, `UserResource`) defines a real `form(Schema $schema): Schema` method, wired to a header `CreateAction` and a row `EditAction`. What Master resources genuinely lack is dedicated `Create`/`Edit` **pages/routes** — creation and editing both happen through Filament's built-in modal, driven by the single `ManageXxx` page's `getHeaderActions()` / `recordActions()`. "No form" and "no create/edit routes" are different claims; only the latter is universally true of Master resources.
+
+### 1.19 Custom Filament Page base classes (`App\Filament\Pages\*`)
+
+Every List/Create/Edit/Manage page extends a project-local base, never Filament's directly. Each base adds a no-op `#[On('calendar-toggled')] calendarToggled()` listener so the `CalendarToggle` Livewire component refreshes pages without per-page wiring. `ManageRecords` additionally `use PrefillsTableSearch`.
+
+```php
+// app/Filament/Pages/EditRecord.php
+class EditRecord extends BaseEditRecord
+{
+    #[On('calendar-toggled')]
+    public function calendarToggled(): void {}
+}
+
+// app/Filament/Pages/ManageRecords.php
+class ManageRecords extends BaseManageRecords
+{
+    use PrefillsTableSearch;
+
+    #[On('calendar-toggled')]
+    public function calendarToggled(): void {}
+}
+```
+
+`PrefillsTableSearch::mount()` reads the `?search=` query param and seeds `$this->tableSearch`, so deep links open the table already filtered:
+
+```php
+// app/Filament/Traits/PrefillsTableSearch.php
+public function mount(): void
+{
+    parent::mount();
+    if ($term = request()->query('search')) {
+        $this->tableSearch = $term;
+    }
+}
+```
+
+Every operational page (`ListPurchaseRequests extends ListRecords`, `CreatePurchaseRequest extends CreateRecord`, `EditPurchaseRequest extends EditRecord`, `EditShipment extends EditRecord`) and every master page (`ManageBanks extends ManageRecords`, `ManageEntityAttributes extends ManageRecords`) goes through these bases. Extending Filament's base directly silently drops the calendar refresh and the search prefill.
+
+### 1.20 RelationManager conventions
+
+**25 RelationManagers** exist (not 14 — recounted directly from `app/Filament/Resources/**/RelationManagers/*RelationManager.php`), following one template. Verified against the actual `PurchaseRequestResource/RelationManagers/ProformaInvoicesRelationManager.php`:
+
+```php
+class ProformaInvoicesRelationManager extends RelationManager
+{
+    use ProformaInvoiceTable;      // aliased Table trait from the sibling resource
+    use ProformaInvoiceFilters;    // aliased Filters trait from the sibling resource
+
+    protected static string $relationship = 'proformaInvoices';
+
+    public function infolist(Schema $schema): Schema
+    {
+        return ProformaInvoiceResource::infolist($schema);
+    }
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->recordTitleAttribute('invoice_no')
+            ->columns([
+                static::showID(), static::showInvoiceNo(), static::showSellerCompany(),
+                static::showBuyerCompany(), static::showTotalAmount(), static::showInvoiceDate(),
+                static::showCreator(), static::showUpdater(), static::showCreationTime(), static::showUpdateTime(),
+            ])
+            ->filters([
+                static::getSellerCompanyFilter(), static::getBuyerCompanyFilter(), /* …more */
+            ])
+            ->filtersFormColumns(3)
+            ->headerActions([
+                Action::make('create')
+                    ->visible(fn(): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Authorized', 'Conditional']))
+                    ->url(fn(): string => ProformaInvoiceResource::getUrl('create', ['purchase_request_id' => $this->getOwnerRecord()->getKey()])),
+            ])
+            ->recordActions([
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make()->url(fn($record): string => ProformaInvoiceResource::getUrl('edit', ['record' => $record])),
+                    DetachAction::make(),
+                    DeleteAction::make(),
+                ]),
+            ])
+            ->toolbarActions([BulkActionGroup::make([
+                DeleteBulkAction::make(),
+                RestoreBulkAction::make(),
+                ExportBulkAction::make()->exporter(ProformaInvoiceExporter::class),
+            ])])
+            ->striped()
+            ->recordUrl(null)
+            ->defaultSort('proforma_invoices.id', 'desc');
+    }
+}
+```
+
+Rules:
+- `use` the related resource's `Table` and `Filters` traits (aliased) — reuse columns/filters verbatim; call the individual `show*()`/`get*Filter()` methods explicitly in `->columns([...])`/`->filters([...])`, do not redefine them inside the RM.
+- `infolist()` delegates to the sibling resource's `infolist()`.
+- The header create `Action` is gated by the OWNER record's status (`english_name` against an allowed list) — never unconditional.
+- Record actions go in an `ActionGroup`: `ViewAction`, `EditAction` with `->url()`, `DetachAction`, `DeleteAction`.
+- Toolbar: `BulkActionGroup` with `DeleteBulkAction`, `RestoreBulkAction`, `ExportBulkAction->exporter(XxxExporter::class)`.
+- Common tail: `->striped()->recordUrl(null)->defaultSort(...)`. `->searchDebounce('1000ms')->reorderableColumns()` appear on some RMs (verified in `PaymentResource/RelationManagers/PurchaseOrderRelationManager`, `ShipmentResource`'s and `CustomResource`'s RMs) but are **not universal** — `ProformaInvoicesRelationManager` above doesn't use them. Don't treat that pairing as mandatory; match the closest sibling RM instead.
+
+**Read-only variant** (`PaymentResource/RelationManagers/PurchaseOrderRelationManager`): set `protected bool $canAssociate/$canCreate/$canDelete/$canDissociate/$canEdit = false` and override `getRelationship()` to scope by `targetable_type === PurchaseOrder::class` for polymorphic targetables.
+
+### 1.21 Cross-resource prefill — `PrepareXxxFromYyy` & `UpdatesFromXxx`
+
+When the pipeline forks a child record from a parent via a `?{parent}_id=` query param, the child Create page `use`s one or more `PrepareXxxFromYyy` traits and overrides `afterFill()` to dispatch:
+
+```php
+// ProformaInvoiceResource/Pages/CreateProformaInvoice.php
+use PreparesProformaFromPurchaseRequest,
+    PreparesProformaFromRegisteredOrder,
+    PreparesProformaFromPurchaseOrder;
+
+public function afterFill(): void
+{
+    if (request()->has('purchase_request_id')) self::afterFillFromPurchaseRequest();
+    if (request()->has('registered_order_id'))    self::afterFillFromRegisteredOrder();
+    if (request()->has('purchase_order_id'))      self::afterFillFromPurchaseOrder();
+}
+```
+
+Each `Prepare{Child}From{Parent}::afterFillFrom{Parent}()` reads the parent model, generates the child's code via `CodeGenerator::generate('{code_column}')`, and `$this->form->fill([...])`s the new record's defaults. Verified in `PrepareShipmentFromRegisteredOrder`, `PrepareBankProfileFromRegisteredOrder`.
+
+The sibling `UpdatesFromXxx::populateFromXxx($state, Set $set)` aggregates items from selected parents into a child Repeater (uses `Set`, not `form->fill`): `UpdatesFromPurchaseRequests`, `UpdatesFromPurchaseOrders`, `UpdatesFromRegisteredOrders`, `UpdatesFromProformaInvoice`.
+
+A new pipeline child must replicate a `Prepare{Child}From{Parent}` trait plus the `afterFill()` dispatcher reading `?{parent}_id=`.
+
+### 1.22 Total/calculation traits
+
+A static `updateTotal(Get $get, Set $set): void` reads the `items` Repeater state via `$get`, computes totals, and `$set`s derived fields. Wired from a Repeater field's `->afterStateUpdated` / `->live()`:
+
+```php
+public static function updateTotal(Get $get, Set $set): void
+{
+    $items = collect($get('items') ?? []);
+    $set('total_quantity', $items->sum('qty'));
+    $set('total_amount', $items->sum(fn($i) => ($i['qty'] ?? 0) * ($i['price'] ?? 0)));
+}
+```
+
+Naming is inconsistent across resources — replicate the closest sibling:
+
+| Trait | Method | Sets |
 |---|---|---|
-| Resources | PurchaseRequest, ProformaInvoice, RegisteredOrder, BankProfile, PurchaseOrder, Payment, Shipment, Custom | Bank, Category, Company, Currency, EntityAttribute, NotificationSetting, Permission, Product, Role, Status, User |
-| Pages | List + Create + Edit + (View via modal) | single `ManageXxx` page |
-| Header actions | Create button | `getHeaderActions()` returns `[]` |
-| Form | full editable form in Tabs | no form — view-only via infolist |
-| Traits | `HasExtraAttributesManagement` + `TotalCalculation`/`TotalCostCalculation` | `HandleActivation` (bulk activate/deactivate), no EAV, no totals |
+| `TotalCostCalculation` (PurchaseRequest) | `updateTotalCost(Get, Set)` | `total_estimated_cost` |
+| `TotalCalculation` (PurchaseOrder, RegisteredOrder) | `updateTotal(Get, Set)` | `total_quantity` + `total_amount` |
+| `Calculation` (BankProfile) | `updateComputations(Get, Set)` + private `compute*` helpers; `commission_input_mode` toggles direction | derived banking fields |
+| `TotalAmountCalculation` / `ItemAmountCalculation` (ProformaInvoice) | per-line + total | line amounts + total |
+| `ItemCalculation` (RegisteredOrder) | per-line | line amounts |
+
+### 1.23 Exporter skeleton
+
+9 exporters follow one shape:
+
+```php
+class PurchaseRequestExporter extends Exporter
+{
+    use ExportDefaults;
+
+    protected static ?string $model = PurchaseRequest::class;
+
+    public static function getColumns(): array
+    {
+        return [
+            ExportColumn::make('id')->label('ID'),
+            ExportColumn::make('pr_number'),
+            ExportColumn::make('items')->state(fn($record) =>
+                $record->items->map(fn($i) => $i->product?->name)->implode(' | ')),
+        ];
+    }
+}
+```
+
+`ExportDefaults` provides `getCompletedNotificationBody`, `getFileName` (`{app}-{MODEL}-{His}`), and `getQuery()` (`parent::getQuery()->limit(1000)`). Array/relation columns use `->state(fn($record) => ...->implode(' | '))` for array-to-string export.
+
+**Gotcha:** `PurchaseRequestExporter` overrides `getFileName(Export)` with its own `"PurchaseRequests-{key}"` shape, conflicting with `ExportDefaults::getFileName`. Pick one shape per exporter — do not leave both active.
+
+### 1.24 Page mutator & lifecycle hooks
+
+Only `mutateFormDataBeforeFill` (InvoiceForm, §1.10) is covered above; the project uses a full set systematically:
+
+| Hook | Use |
+|---|---|
+| `mutateFormDataBeforeCreate` | set creator/department from `auth()->user()` (`CreatePurchaseRequest`) |
+| `mutateFormDataBeforeSave` | re-apply status mutation logic on edit (`EditPurchaseRequest`) |
+| `mutateFormDataBeforeFill` | hydrate EAV-backed fields (InvoiceForm), hydrate recipients (`EditCorrespondence`), hydrate `doc_tracking` from `docs` JSON (`HandlesDocumentChecklistForm`) |
+| `afterFill` | prefill from parent via query param (§1.21) |
+| `afterCreate` / `afterSave` | sync side relations: `DocChecklistMatcher::sync($record)` (`SyncsDocumentChecklist`), `saveRecipientsToRecord` (`EditCorrespondence`) |
+
+### 1.25 `DashboardPanelProvider` — panel config
+
+`app/Providers/Filament/DashboardPanelProvider.php`. Beyond `discoverResources`, it wires: `CustomLogin::class`; 5 navigation groups all `->collapsed()`; color palette (Rose/Blue/Slate/Emerald/Orange); `IranYekan` font for `fa` else `Roboto` via `LocalFontProvider` + Vite; `databaseNotifications()` with 30s polling; `maxContentWidth(Width::Full)`; `spa()`; globalSearch with `Ctrl+K`/`Cmd+K` keybindings; `sidebarCollapsibleOnDesktop()`; `authMiddleware` includes `EnsureUserIsActive::class`; `defaultThemeMode(ThemeMode::Dark)`; favicon + brandLogo via Vite. Touch panel-level config here, not in resources.
+
+### 1.26 Bootstrap — `AppServiceProvider`, Configurators, Macro provider, Observers
+
+`AppServiceProvider::boot()` is the single Filament wiring point, delegating to four `App\Configurators\*` classes:
+
+```php
+// app/Providers/AppServiceProvider.php
+public function boot(): void
+{
+    FilamentCustomLogin::configure($this->app);
+    LanguageSwitcher::configure();
+    FilamentAssets::register();
+    FilamentRenderHooks::configure();
+
+    Category::observe(CategoryObserver::class);
+    PurchaseRequest::observe(PurchaseRequestObserver::class);
+}
+```
+
+| Configurator | Job |
+|---|---|
+| `FilamentCustomLogin::configure($app)` | binds `LoginResponseContract` → `FilamentLoginResponse` (post-login redirect) |
+| `LanguageSwitcher::configure()` | `LanguageSwitch::configureUsing(...)`, render hook `GLOBAL_SEARCH_BEFORE`, locales `config('language-switch.locales', ['fa','en','fr'])`, flags are 3 explicit `Vite::asset(...)` entries (`flags/iran.svg`, `flags/usa.svg`, `flags/france.svg`), `flagsOnly()` |
+| `FilamentAssets::register()` | `FilamentAsset::register([Css::make('fi-custom-css', Vite::asset('resources/css/fi-custom.css'))])` |
+| `FilamentRenderHooks::configure()` | `FilamentView::registerRenderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn() => view('filament.partials.calendar-toggle'))` |
+
+The render-hook slot choice is intentional: switcher `GLOBAL_SEARCH_BEFORE`, calendar `GLOBAL_SEARCH_AFTER`. Each configurator is a final class with a single public static entry (`configure()` / `register()`); add a new one by creating a file and calling it from `AppServiceProvider::boot()` in this same block.
+
+`FilamentMacroServiceProvider::boot()` registers two Filament macros: `Field::macro('tooltip', ...)` (wraps `hintAction` with an info icon) and `DatePicker::macro('adaptive', ...)` (returns `$this->jalali()` when the session calendar is Jalali — the in-chain sibling of the `maybeJalali()` helper, used by `Filters.php` DatePickers).
+
+Observers — two registration paths, do not mix:
+1. **Manual** (`AppServiceProvider::boot()`): `Category::observe(CategoryObserver::class)`, `PurchaseRequest::observe(PurchaseRequestObserver::class)`. Use for side-effect observers (closure-table sync, status cascade).
+2. **Auto** (`NotificationServiceProvider::boot()`): scans `app/Models/` for classes with a `SCANNABLE_TABLE` const and attaches `NotificationDispatcher` (which delegates to `NotificationEvaluator`). 8 models auto-wired: `BankProfile`, `Custom`, `Payment`, `ProformaInvoice`, `PurchaseOrder`, `PurchaseRequest`, `RegisteredOrder`, `Shipment`. Use for notification-only observers — declaring `SCANNABLE_TABLE` is enough, no `AppServiceProvider` edit.
+
+A side-effect observer registered through the auto path will not run its side effects (it gets `NotificationDispatcher` instead); a notification-only observer registered manually is redundant. Match the path to the observer's job.
 
 ## 2. Developer Decision Matrix
 
 | When you need to… | Do this… | Why… |
 |---|---|---|
 | Add a new operational resource | Create `app/Filament/Resources/{Name}Resource.php` (namespace `App\Filament\Resources`) + `Operational/{Name}Resource/Traits/{Form,Table,Infolist,Filters,Total{Name}Calculation}.php` + `Pages/List{Name}.php`, `Create{Name}.php`, `Edit{Name}.php`. Root `use`s all traits + `HasResourcePermissions` + `HasExtraAttributesManagement`. | `discoverResources` only sees root-level classes; the `Operational/` subtree is imported, not auto-registered. |
-| Add a new master resource | Same root-class placement, but `Master/{Name}Resource/Traits/{Table,Infolist,Filters}.php` + single `Pages/Manage{Name}.php`. Root `use`s `HandleActivation` (not `HasExtraAttributesManagement`). `getHeaderActions()` returns `[]`. | Master resources have no create/edit routes and no EAV tab. |
+| Add a new master resource | Same root-class placement, but `Master/{Name}Resource/Traits/{Table,Infolist,Filters,Form}.php` + single `Pages/Manage{Name}.php`. Root `use`s `HandleActivation` (not `HasExtraAttributesManagement`). Header actions include `CreateAction::make()` (only `EntityAttributeResource` returns `[]`); edit happens via the row `EditAction` opening as a modal. | Master resources have no dedicated create/edit **routes/pages** (all CRUD happens through the single `ManageXxx` page's modals) and no EAV tab — but they do have a real `form()` unless the resource is truly view-only like `EntityAttributeResource`. |
 | Add a form field | Add `getXxxField()` to the resource's `Form` trait; call it from `form()`. Translate the label in all 3 locale files. | Field internals live in traits, not in the root `form()` method. |
 | Add a table column | Add `showXxx()` to `Table` trait; call from `table()`. | Same trait-driven composition. |
 | Add an infolist entry | Add `viewXxx()` to `Infolist` trait; call from `infolist()`. | Same trait-driven composition. |
@@ -427,7 +670,7 @@ Labels in `lang/en/resources/dashboard/strings.php`. Pipeline order: Purchase Re
 | Cache an expensive query | `SmartCacheManager::remember('{ModelName}', $filters, $minutes, fn() => …)`; bust with `SmartCacheManager::invalidate('{ModelName}')` in the relevant observer. | Model-keyed registry enables bulk invalidation + navigation cache clear. |
 | Add a navigation badge | Override `getNavigationBadge(): ?string` returning `null` when count is 0 (NOT `'0'`), 150-minute TTL, per-user `user_id` in filters. `getNavigationBadgeColor(): ?string` → `'info'`. | Empty badges must not render; per-user cache key reflects global count (intentional). |
 | Eager-load relations | Add `->with([...])` and `->withCount([...])` to `getEloquentQuery()` only. | Avoids N+1; keeps field/column defs free of query concerns. |
-| Gate an action | Rely on `HasResourcePermissions` — do not write a Policy. Permission string is `{snake_singular_model}.{action}`. | The trait IS the access-control system; Policies do not exist in this project. |
+| Gate an action | Rely on `HasResourcePermissions` — do not write a new Policy. Permission string is `{snake_singular_model}.{action}`. | The trait is what every Filament resource actually uses for its `can*` checks; the one existing Policy (`CorrespondencePolicy`) is unwired and should not be treated as precedent. |
 | Add a date picker | Wrap with `maybeJalali($component)` so `fa` users with Jalali session get the Jalali calendar. | Without it, fa users get Gregorian regardless of session. |
 | Cross-resource relation badge in a table | Use `TableComponents::show{Relation}()` — do not reinvent. | Shared component; toggleable, hidden by default, search-all wired. |
 | Cross-resource relation entry in infolist | Use `InfoComponents::view{Relation}()` — visible only when non-empty. | Shared component; avoids duplication across 8 resources. |
@@ -435,8 +678,8 @@ Labels in `lang/en/resources/dashboard/strings.php`. Pipeline order: Purchase Re
 
 ## 3. Absolute Anti-Patterns (Do Not Do This)
 
-- ❌ **Creating a Policy class.** `app/Policies/` does not exist. `HasResourcePermissions` is the entire access-control system. Writing a Policy silently shadows the trait.
-  - Why: Filament would resolve the Policy before the trait's `can*` methods, silently changing access semantics.
+- ❌ **Creating a Policy class for a Filament-managed model.** `HasResourcePermissions` is the access-control system Filament resources actually use. Note: `app/Policies/CorrespondencePolicy.php` already exists as an exception — it is unregistered and unreferenced anywhere (no `Gate::`, `->can(`, `@can`, or `authorize()` call was found against it), so it appears to be dead code rather than an active second system. Don't add to it without wiring it up deliberately, and don't assume `app/Policies/` is empty.
+  - Why: if a Policy for a Filament-resource model IS ever registered/auto-discovered, Filament would resolve it ahead of the trait's `can*` methods, silently changing access semantics.
 
 - ❌ **Setting a static `$navigationGroup` property on a resource.**
   - Why: it is dead code; `getNavigationGroup(): ?string` (the method) always wins. Set the method, returning the translated `__('resources/dashboard/strings.general.navigation_group')`.
@@ -489,6 +732,15 @@ Labels in `lang/en/resources/dashboard/strings.php`. Pipeline order: Purchase Re
 - ❌ **Re-inventing glassmorphism / 3D / shimmer utilities inline.**
   - Why: landing-page CSS owns these; duplicates rot. (Note: the enterprise redesign removed most of these from the landing page — do not reintroduce them there either.)
 
+- ❌ **Extending Filament's `ListRecords` / `CreateRecord` / `EditRecord` / `ManageRecords` directly.**
+  - Why: the project bases (`App\Filament\Pages\*`) add the `#[On('calendar-toggled')]` refresh and `PrefillsTableSearch` deep-link prefill. Extending Filament's base directly silently drops both.
+
+- ❌ **Declaring `mutateFormDataBeforeFill()` on a page that also `use`s a trait declaring it.**
+  - Why: PHP resolves the class method over the trait, so the trait's fill hydration is silently skipped. Verified hazard — `EditShipment` declares its own `mutateFormDataBeforeFill` for commercial-invoice hydration AND `use`s `HandlesDocumentChecklistForm` which also declares it, so the doc-checklist fill is skipped. Consolidate into ONE place.
+
+- ❌ **Overriding `getFileName()` on an exporter that `use`s `ExportDefaults` without dropping the trait's `getFileName`.**
+  - Why: both shapes collide. Pick one per exporter — either rely on `ExportDefaults::getFileName` (`{app}-{MODEL}-{His}`) or override cleanly and document why.
+
 ## 4. Naming conventions
 
 - **Resource root class**: `{Name}Resource` at `app/Filament/Resources/{Name}Resource.php`, `namespace App\Filament\Resources`.
@@ -503,6 +755,12 @@ Labels in `lang/en/resources/dashboard/strings.php`. Pipeline order: Purchase Re
 - **Locale keys**: `lang/{locale}/resources/{camelCaseResource}/strings.php` with top-level groups `general` / `form` / `table` / `filters` / `infolist`; tab labels prefixed `tab_`.
 - **EAV virtual-tab fields**: prefix with `_inv_` (InvoiceForm precedent); never collide with real Eloquent columns.
 - **Navigation group keys**: `operational_first` / `operational_second` / `operational_third` / `operational_fourth` / `base`.
+- **Page bases**: `App\Filament\Pages\{ListRecords, CreateRecord, EditRecord, ManageRecords}` — required parents for every resource page; never extend Filament's base directly.
+- **RelationManagers**: `app/Filament/Resources/{Operational,Master}/{Name}Resource/RelationManagers/{Related}RelationManager.php`, `extends RelationManager`, `protected static string $relationship`.
+- **Cross-resource prefill traits**: `Prepare{Child}From{Parent}` (Create-page `afterFill` dispatcher) and `UpdatesFrom{Parent}` (`populateFrom{Parent}($state, Set $set)` for Repeater aggregation), in the child resource's `Traits/`.
+- **Total/calculation traits**: `Total{Name}Calculation` (canonical), with `Calculation` / `ItemCalculation` / `TotalAmountCalculation` / `ItemAmountCalculation` as named siblings; method `updateTotal(Get, Set)` or `updateTotalCost` / `updateComputations`.
+- **Filament macros**: `Field::macro('tooltip', ...)`, `DatePicker::macro('adaptive', ...)` — registered in `FilamentMacroServiceProvider::boot()`.
+- **Configurators**: `app/Configurators/{FilamentCustomLogin, LanguageSwitcher, FilamentAssets, FilamentRenderHooks}.php` — each a final class with one static entry, wired from `AppServiceProvider::boot()`.
 
 ## 5. Design rules
 
@@ -511,7 +769,7 @@ Labels in `lang/en/resources/dashboard/strings.php`. Pipeline order: Purchase Re
 - All DB access via Eloquent. Raw `DB::` only when Eloquent cannot express it. Conditional query building uses `->when()` / `->unless()` — never `if ($x) $query->where(…)` outside query chains.
 - Eager-load in `getEloquentQuery()` only — never in field/column definitions.
 - Cache expensive queries via `SmartCacheManager`. Bust with `SmartCacheManager::invalidate({Model})` in the relevant observer.
-- Tabs over nested Sections for forms with 5+ fields. All 8 operational resources follow the two-tab pattern (General + Extra Attributes, with Shipment's Invoice tab as the sole sanctioned mid-tab).
+- Tabs over nested Sections for forms with 5+ fields. The canonical 8 operational resources follow the two-tab pattern (General + Extra Attributes, with Shipment's Invoice tab as the sole sanctioned mid-tab). Correspondence and Target are variants — see §1.18.
 - `->columnSpanFull()` on the `Tabs` container; `->columns(3)` on the `Tab`; the root Schema has no column setting.
 - `static::getExtraAttributesFormTab()` is always the last form tab; `static::getExtraAttributesInfolistTab()` is always the last infolist tab.
 - Translate every user-facing string. No hardcoded English in `form()` / `table()` / `infolist()`.
@@ -519,7 +777,7 @@ Labels in `lang/en/resources/dashboard/strings.php`. Pipeline order: Purchase Re
 - Every date picker passes through `maybeJalali($component)`.
 - `getNavigationBadge()` returns `null` when the count is 0 — never `'0'`.
 - `getNavigationGroup()` is a method returning the translated label, never a static `$navigationGroup` property.
-- Every resource `use`s `HasResourcePermissions`. There are no Policies.
+- Every resource `use`s `HasResourcePermissions` for its own authorization. `app/Policies/CorrespondencePolicy.php` exists but is unwired/unreferenced — treat it as legacy/dead code, not a parallel access-control system, unless you deliberately wire it up.
 - EAV-backed form tabs use the virtual-tab pattern: `->dehydrated(false)` on every field + explicit footer-action save + page-mutator hydration in `mutateFormDataBeforeFill`.
 - The `customAttributes()` / `extraAttributes()` double-declaration on `HasCustomAttributes` is intentional. Do not collapse with `->as()`.
 - `formatStateUsing` is mandatory on any `extraAttributes` Repeater value field and on any infolist `value` entry.

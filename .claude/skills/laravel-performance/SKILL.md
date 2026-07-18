@@ -1,23 +1,23 @@
 ---
 name: laravel-performance
-description: Laravel 12 / Filament v5 performance guide. Fills performance gaps this project's own docs do not cover — never duplicates or overrides them.
+description: Laravel 12 / Filament v4 performance guide. Fills performance gaps this project's own docs do not cover — never duplicates or overrides them.
 disable-model-invocation: false
 user-invocable: true
 ---
 
 # Role Definition
-Reference guide for performant Laravel 12 + Filament v5 code, scoped strictly to ground this project's own docs do not already cover.
+Reference guide for performant Laravel 12 + Filament v4 code, scoped strictly to ground this project's own docs do not already cover.
 
 ## Precedence (read first)
 This guide is supplementary only. On any conflict, these always win, in order:
 1. `.claude/skills/code-reviewer/SKILL.md` (the `php-lead` skill)
-2. This project's own docs: `app/Filament/filamentPattern.md`, `app/Livewire/livewirePattern.md`, any module-level `*.md`
+2. This project's own docs: `app/Filament/filamentPattern.md`, `resources/css/stylesPattern.md`, `resources/js/scriptPattern.md`, any module-level `*.md`
 3. Existing patterns already established elsewhere in the codebase
 
 Anything here that overlaps with those is dead weight and should be deleted from this file, not enforced. Only what genuinely fills a performance gap they do not address stays.
 
 ## North Star
-Minimality, creativity, performance — not abstraction for its own sake. Prefer the simplest, flattest, most direct code that solves the problem. Do not introduce interfaces, repositories, or wrapper classes beyond what the project's own docs already mandate (Action / Validator / Presenter / Form Object for Livewire; Schemas / Actions for Filament; the Service hierarchy for Search). Where those docs are silent, default to the most direct Eloquent/Laravel call rather than inventing new structure.
+Minimality, creativity, performance — not abstraction for its own sake. Prefer the simplest, flattest, most direct code that solves the problem. Do not introduce interfaces, repositories, or wrapper classes beyond what the project's own docs already mandate (trait-based schema composition — Form / Table / Infolist / Filters traits composed on the root Resource — for Filament; Service classes in app/Services; the CalendarToggle Livewire component). Where those docs are silent, default to the most direct Eloquent/Laravel call rather than inventing new structure.
 
 ## Implementation Standards
 
@@ -34,17 +34,17 @@ Minimality, creativity, performance — not abstraction for its own sake. Prefer
 * Verify eager-loading additions never bypass existing global scopes or the `scope()` method on `SearchResource` subclasses — performance work must never weaken authorization.
 
 ## Caching
-* Cache expensive or frequently repeated queries/computations with `Cache::remember()`.
-* Run `php artisan optimize` (config:cache, route:cache, view:cache) for production deploys.
+* This project already has a model-scoped caching abstraction — `SmartCacheManager` (`app/Services/SmartCacheManager.php`), documented in CLAUDE.md's Caching section. Use `SmartCacheManager::remember($model, $filters, $minutes, $callback)` / `::invalidate($model)` for any query keyed by a model; reach for raw `Cache::remember()` only for cross-model or non-model-keyed data it doesn't cover.
 * Invalidate caches explicitly on the writes that make them stale.
+* For production deploys use this project's documented rebuild sequence — `php artisan config:cache && php artisan route:cache && php artisan filament:cache-components` (see CLAUDE.md Commands) — not the generic `php artisan optimize`/`view:cache`, which Filament panels here don't use.
 
 ## Queues & Background Work
 * Offload slow operations (emails, exports, image/file processing, webhooks, notifications) to queued jobs.
 * Use job batching or chaining for multi-step async workflows instead of sequential synchronous calls.
 * Keep queue workers observable; prefer Horizon when on Redis.
 
-## Filament v5 Performance — the main gap this guide fills
-`filamentPattern.md` defines folder structure, not performance. Enforce these wherever Filament code is touched:
+## Filament v4 Performance — the main gap this guide fills
+`filamentPattern.md` defines trait-based schema composition and resource architecture, not performance. Enforce these wherever Filament code is touched:
 * Defer loading non-critical UI elements (tabs, badges, relation managers, widgets) instead of loading everything on page mount.
 * Lazy-load dashboard widgets; avoid aggressive polling unless data genuinely needs to be near-real-time.
 * Eager load relationships used inside table columns/badges via `->modifyQueryUsing(fn ($query) => $query->with([...]))` to kill per-row N+1.
