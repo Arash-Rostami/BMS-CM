@@ -41,8 +41,6 @@
          x-transition:enter-end="opacity-100"
          class="h-full w-full">
 
-        <canvas id="canvas-bg" class="fixed top-0 left-0 w-full h-full z-0 opacity-40"></canvas>
-
         @include('components.filament.landing-page.switchers')
         @include('components.filament.landing-page.widget')
 
@@ -90,8 +88,3 @@
         </div>
     </div>
 </div>
-
-@push('scripts')
-    <script src="/js/3d.min.js"></script>
-    @vite(['resources/js/landing-page.js'])
-@endpush

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class WorkspaceController extends Controller
 {
@@ -18,7 +19,9 @@ class WorkspaceController extends Controller
         $config = config("workspace.resources.{$resource}");
 
         abort_unless(is_array($config) && isset($config['model'], $config['route']), 404);
-        abort_unless(auth()->user()->can('viewAny', $config['model']), 403);
+
+        $permissionPrefix = Str::snake(class_basename($config['model']));
+        abort_unless(auth()->user()?->can($permissionPrefix . '.view') ?? false, 403);
 
 
         /** @var Model $model */
