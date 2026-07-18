@@ -82,7 +82,14 @@ Three near-universal conventions:
 - `General\Relationships` is imported unaliased; the per-domain `Relationships` is imported **`as ExclusiveRelationships`**. This aliasing is mandatory (§2).
 - The per-domain folder name matches the model class name 1:1 (`Traits\PurchaseRequest\` for `PurchaseRequest`).
 
-27 of 28 model classes use this kit (only `Permission` does not).
+This exact 3-part convention is **not** as universal as "27 of 28" — verified by grep across all 29 model files, only **16** models import a per-domain `Relationships` aliased against `General\Relationships` (15 as `ExclusiveRelationships`, plus `Payment.php` which drifts to the **singular** `ExclusiveRelationship` — a naming inconsistency, not a bug, but do not copy it). The remaining 13 fall into three groups:
+- **No trait kit at all** — `Permission`, `Role` (both extend Spatie base classes) and `CorrespondenceRecipient` (extends `Illuminate\Database\Eloquent\Relations\Pivot`).
+- **Single, unaliased `Relationships`** — `Department`, `User` use only their own per-domain `Relationships` (no `General\Relationships`, no `UserStamps`, no collision so no alias needed). `ProformaInvoiceItem`, `PurchaseOrderItem`, `PurchaseRequestItem`, `RegisteredOrderItem` are the same shape (own `Relationships` + `SoftDeletes` only — no audit-stamp traits at all, despite `PurchaseRequestItem`/child models still carrying `user_id`-style columns in some cases).
+- **General kit without a per-domain folder** — `Bank`, `Company`, `NotificationSetting`, `EntityAttribute` (§5) compose `General\Relationships` + `UserStamps` directly with no `Traits/{Model}/Relationships.php` to alias against (no `Traits/Bank/`, `Traits/Company/`, or matching `Relationships.php` under `Traits/NotificationSetting/` exists at all).
+
+(3 + 6 + 4 = 13, matching 29 total models − 16 aliased.)
+
+Treat the skeleton in this section as the pattern for **operational, EAV-backed resources** (the 8 models in CLAUDE.md's operational groups) — it is accurate for all 8 of those. It is not a claim about every model in `app/Models/`.
 
 ## 2. The aliasing rule (load-bearing)
 
@@ -104,7 +111,7 @@ All 12 verified:
 | `Relationships` | `creator(): BelongsTo` (User, `user_id`) + `updater(): BelongsTo` (User, `updated_by_id`) |
 | `UserStamps` | `bootUserStamps`: `creating` → `user_id = auth()->id()`; `updating` → `updated_by_id = auth()->id()` (both guarded by `auth()->check()`, updating also by `isDirty()`) |
 | `HasCustomAttributes` | EAV `morphMany` double-alias: `customAttributes()` + `extraAttributes()`, both `morphMany(EntityAttribute::class, 'entity')` (no `->as()`); `getCustomAttributesMap(): array` plucks `value,key`, JSON-encoding non-strings |
-| `Localization` | `getLocalizedNameAttribute(): string` → `$this->{$this->localeColumn()}`; `localeColumn()` → `'name'` when `fa`, else `'english_name'`. Also overrides `newQuery()` with a commented-out `->orderBy($this->localeColumn())` line preserved verbatim — do not delete that commented line |
+| `Localization` | `getLocalizedNameAttribute(): string` → `$this->{$this->localeColumn()} ?? ''` (empty-string fallback, not null); `localeColumn()` → `'name'` when `fa`, else `'english_name'`. Also overrides `newQuery()` with a commented-out `->orderBy($this->localeColumn())` line preserved verbatim — do not delete that commented line |
 | `HasScope` | `scopeActive($query)` → `where('is_active', true)` |
 | `SellerEntity` | three `belongsTo(Company::class, 'seller_id')` variants scoped by company type + `is_active=1`: `manufacturerCompanyExclusive()`, `sellerCompanyExclusive()`, `supplierCompanyExclusive()` |
 | `HasSlug` | `bootHasSlug`: `saving` → builds `slug` from `english_name` via `Str::slug` with a numeric collision suffix (skips when `english_name` empty or unchanged on existing rows) |
@@ -112,7 +119,7 @@ All 12 verified:
 | `HasLocalizedAttributes` | `getLocalizedAttribute(string)` resolves a column via the model's `$localizedAttributesMap[$base][$locale]` (fallback `en`, fallback to the base name); `__get` magic intercepts any `localized_*` key |
 | `HasProductCategoryFormatting` | `getTargetableFormatted(string $format = 'table'): string` formats a polymorphic `targetable` (Product uses `customized_label` + an emoji; Category uses the localized name) for table/export contexts |
 | `SearchTargetable` | `scopeSearchTargetable(Builder, string)` → `orWhereHasMorph('targetable', [Category::class, Product::class], …)` over `name`/`english_name` (+ `code` for Product) |
-| `ModelInspector` | static introspection helpers used by the notification/filter UI: `getAvailableColumns`, `getAvailableModels` (scans `app/Models` for `SCANNABLE_TABLE`), `getColumnValuesForSelectedColumns`, `getColumnsForSelectedTables`, plus private `resolveModelClass`/`findBestRelationForColumn`/`guessRelationships` |
+| `ModelInspector` | static introspection helpers used by the notification/filter UI: `getAvailableColumns`, `getAvailableModels` (scans `app/Models` for `SCANNABLE_TABLE`), `getColumnValuesForSelectedColumns`, `getColumnsForSelectedTables`, plus `protected static resolveModelClass` and `private static findBestRelationForColumn`/`guessRelationships` |
 
 `filamentPattern.md` §1.11 tables the first six; this doc is the complete inventory.
 
@@ -173,8 +180,9 @@ The `value` column is JSON-cast. On read, Eloquent returns arrays/scalars (not s
 
 `Status` is a shared polymorphic lookup (`type` / `english_type` + `name` / `english_name`). The `Status` model composes `Status\StatusFinder` + `Status\HasSearchableRelations` + the General kit — it has its own per-domain folder `Traits\Status\`.
 
+The resolver lives in `App\Models\Traits\Status\StatusFinder`:
+
 ```php
-// App\Models\Traits\Status\StatusFinder
 public static function findBy(string $type, ?string $name = null): static|Collection|null
 {
     $query = static::where('english_type', $type);
@@ -185,8 +193,9 @@ public static function findBy(string $type, ?string $name = null): static|Collec
 
 `TYPE_*` constants live on the OWNING models, never on `Status` — verified `PurchaseRequest::TYPE_PURCHASE_REQUEST = 'Purchase Request Status'`. The constant value is matched against `Status.english_type`. The owning model's `status()` relation is itself scoped by the constant:
 
+The owning model's scoped relation (verified in `PurchaseRequest\Relationships`):
+
 ```php
-// PurchaseRequest\Relationships
 public function status(): BelongsTo
 {
     return $this->belongsTo(Status::class)
@@ -237,7 +246,7 @@ Schema::create('purchase_requests', function (Blueprint $table) {
 
 Rules for every operational table:
 - `$table->id()` PK → a business identifier (`pr_number`, `po_number`, `bp_number`, `shipment_no`) as `->unique()`.
-- Foreign keys via `foreignId('x_id')->constrained('table')` with an explicit delete policy (`->cascadeOnDelete()` / `->nullOnDelete()`); nullable FKs use `->nullable()->constrained()` (status FK is always nullable).
+- Foreign keys via `foreignId('x_id')->constrained('table')`. **Correction:** an explicit delete policy is the exception, not the rule, on non-pivot tables — the `purchase_requests` example above has none (`requester_id`, `department_id`, `status_id`, `approver_id` all omit `->cascadeOnDelete()`/`->nullOnDelete()`), and a repo-wide grep shows 26 of 45 archived migrations declare no delete policy at all. `->cascadeOnDelete()` is the norm only on **pivot** FKs (§10); on regular operational FKs it's added ad hoc where the domain requires it. Nullable FKs use `->nullable()->constrained()` (status FK is always nullable).
 - Money: `decimal('...', 15, 2)`. Rates/percentages: `decimal('...', 15, 5)` (or `(5,5)`).
 - **`user_id` and `updated_by_id` are `unsignedBigInteger(...)->nullable()` with NO foreign-key constraint** — not `foreignId`. This is deliberate: it lets a `User` be deleted without cascading into every stamped record. Reproduce exactly; do not "fix" by adding `->constrained('users')`.
 - `timestamps()` + `softDeletes()` on every operational table.
@@ -247,7 +256,7 @@ Rules for every operational table:
 
 ## 10. Pivot conventions + known divergence
 
-Five pivot tables exist (`proforma_invoice_purchase_request`, `proforma_invoice_purchase_order`, `proforma_invoice_registered_order`, `registered_order_purchase_request`, `registered_order_purchase_order`, `purchase_order_purchase_request`). The convention is **not yet stable** — two shapes coexist:
+Six pivot tables exist (`proforma_invoice_purchase_request`, `proforma_invoice_purchase_order`, `proforma_invoice_registered_order`, `registered_order_purchase_request`, `registered_order_purchase_order`, `purchase_order_purchase_request`). The convention is **not yet stable** — two shapes coexist:
 
 **Shape A — composite primary key, no `id()`, no timestamps** (verified `purchase_order_purchase_request`):
 
@@ -330,7 +339,7 @@ Schema::create('registered_order_purchase_request', function (Blueprint $table) 
 - **Model root**: `{Name}` at `app/Models/{Name}.php`, `namespace App\Models`.
 - **General traits**: `app/Models/Traits/General/{TraitName}.php`, `namespace App\Models\Traits\General`, `trait {TraitName}`.
 - **Per-domain traits**: `app/Models/Traits/{Name}/{TraitName}.php`, `namespace App\Models\Traits\{Name}`.
-- **Per-domain `Relationships`**: always imported `as ExclusiveRelationships` at the model; the trait itself is named `Relationships`.
+- **Per-domain `Relationships`**: always imported `as ExclusiveRelationships` at the model; the trait itself is named `Relationships`. One real-world drift: `Payment.php` aliases it as the singular `ExclusiveRelationship` — a naming inconsistency in the current codebase, not a convention; new models should use the plural.
 - **Scopes**: `scopeSearchAll($query, string $term)` (per-domain `HasSearchableRelations`), `scopeActive($query)` (`HasScope`), `scopeSearchByName(Builder, string)` (`HasNameSearch`), `scopeSearchTargetable(Builder, string)` (`SearchTargetable`).
 - **Accessors**: `getFormattedNameAttribute` / `getFormattedNameWithoutDateAttribute` (`HasFormattedName`), `getLocalizedNameAttribute` (`Localization`), `getTargetableFormatted(string)` (`HasProductCategoryFormatting`).
 - **Boot methods**: `bootUserStamps` (`UserStamps`), `bootHasSlug` (`HasSlug`) — the only two.

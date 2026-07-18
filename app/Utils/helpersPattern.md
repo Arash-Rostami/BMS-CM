@@ -6,7 +6,7 @@ Verified against source on branch `feature/landing-page-enterprise-redesign` (20
 
 ## Core idea
 
-Seven pure functions, each one screen of logic, no classes, no state except a `static` color map. Two of them (`maybeJalali`, `getLocalizedName`) are the runtime enforcement of the project's locale contract: the app's locale is `fa` (Farsi/RTL), `en`, or `fr`; `fa` implies Jalali dates + the `name` column, every other locale implies Gregorian + the `english_name` column. The calendar-type gate is a **literal** that must stay byte-identical in two places — `maybeJalali()` here and `CalendarToggle::mount()` — or the toggle and the date pickers drift out of sync.
+Seven pure functions, each one screen of logic, no classes, no state except a `static` color map. Two of them (`maybeJalali`, `getLocalizedName`) are the runtime enforcement of the project's locale contract: the app's locale is `fa` (Farsi/RTL), `en`, or `fr`; `fa` implies Jalali dates + the `name` column, every other locale implies Gregorian + the `english_name` column. The calendar-type gate is a **literal** that must stay byte-identical in three places — `maybeJalali()` here, `CalendarToggle::mount()`, and `DatePicker::macro('adaptive')` in `FilamentMacroServiceProvider::boot()` — or the toggle, the date pickers, and the `->adaptive()` macro drift out of sync.
 
 ## Recommended structure
 
@@ -81,9 +81,9 @@ function delimiter($value, ?string $currency = null, int $decimals = 2): string
 Money + currency formatter. Rules:
 - `null`/`''` value → `'-'`.
 - No currency → `number_format` only (dot decimals, comma thousands, default 2 decimals).
-- A 1–4 letter alphabetic currency code (ISO 4217 shape: `USD`, `EUR`, `IRR`) → **appended uppercased after a space** (`1,234.50 USD`).
-- Anything else (a symbol or long label like `$`, `€`, `Rial`) → **prepended before a space** (`$ 1,234.50`).
-The branch decision is a regex on the currency string, so passing a symbol vs a code changes the side it renders on. This is the single money formatter for tables, infolists, and exports — do not call `number_format` directly elsewhere.
+- A 1–4 letter *purely alphabetic* string (ISO 4217 shape: `USD`, `EUR`, `IRR` — but also any other 1–4 letter word, e.g. `Rial`) → **appended uppercased after a space** (`1,234.50 USD`, `1,234.50 RIAL`).
+- Anything else (a non-letter symbol, or a 5+ letter label like `$`, `€`, `Toman`) → **prepended before a space** (`$ 1,234.50`).
+The branch decision is a regex (`/^[A-Za-z]{1,4}$/`) on the currency string's *length and character class*, not its ISO-4217 validity — so a short non-code word like `Rial` is treated as a code (appended, uppercased) while a longer word like `Toman` is treated as a label (prepended). No real call site in this codebase currently passes a `$currency` argument — every existing `delimiter()` call site passes only `$value` — so this branch is implemented but currently unexercised in practice. This is the single money formatter for tables, infolists, and exports — do not call `number_format` directly elsewhere.
 
 ### `maybeJalali`
 ```php
@@ -94,7 +94,17 @@ function maybeJalali($component)
         : $component;
 }
 ```
-The Jalali gate for Filament date components. Wraps any `DatePicker`/`DateTimePicker`: in Jalali mode it calls `->jalali(true)` (the `mokhosh/filament-jalali` integration), otherwise returns the component unchanged. The gate expression is the **load-bearing literal** — see §2. Usage in a resource: `->schema([maybeJalali(DatePicker::make('required_by_date'))])`. Never inline the `session(...)` check in a resource; always route through this helper so the contract stays in one place.
+The Jalali gate for Filament date components. Wraps any `DatePicker`/`DateTimePicker`: in Jalali mode it calls `->jalali(true)` (the `mokhosh/filament-jalali` integration), otherwise returns the component unchanged. The gate expression is the **load-bearing literal** — see §2. Real usage (`ShipmentResource/Traits/InvoiceForm.php`):
+```php
+maybeJalali(
+    DatePicker::make('_inv_invoice_date')
+        ->label(__('resources/shipment/strings.invoice.invoice_date'))
+        ->native(false)
+        ->adaptive()
+        ->dehydrated(false)
+),
+```
+Note it is commonly chained with `->adaptive()`, the sibling `DatePicker` macro registered in `FilamentMacroServiceProvider::boot()` (§2) — the two independently re-check the same `calendar_type` literal. Never inline the `session(...)` check in a resource; always route through this helper so the contract stays in one place.
 
 ### `tabBadge`
 ```php
@@ -121,16 +131,17 @@ The expression below is the project's single source of truth for "is the current
 session('calendar_type', app()->isLocale('fa') ? 'jalali' : 'gregorian') === 'jalali'
 ```
 
-It appears **byte-identically in exactly two places** and must stay identical in both:
-1. `app/Utils/helpers.php` → `maybeJalali()` (the read side — every Filament date picker).
+It appears **byte-identically in three places** and must stay identical in all of them:
+1. `app/Utils/helpers.php` → `maybeJalali()` (the read side — every Filament date picker wrapped with the helper).
 2. `app/Livewire/CalendarToggle.php` → `mount()` (the write side — the toggle's initial state).
+3. `app/Providers/FilamentMacroServiceProvider.php` → `DatePicker::macro('adaptive')` in `boot()` (the in-chain sibling read side — date pickers call `->adaptive()` instead of/alongside wrapping with `maybeJalali()`).
 
 Semantics:
 - The session key is `calendar_type`. Its value is the string `'jalali'` or `'gregorian'`.
 - When the session has no value, the **default is locale-driven**: `fa` → `'jalali'`, any other locale → `'gregorian'`. So a Persian user gets Jalali dates automatically until they toggle; an English/French user gets Gregorian until they toggle to Jalali.
 - `CalendarToggle::toggle()` flips the value, writes it back to the session, and dispatches the `calendar-toggled` Livewire event (consumed by Filament pages via `#[On('calendar-toggled')]` — see `scriptPattern.md` Custom Events).
 
-**Why byte-identical:** if the default expression in `maybeJalali()` ever drifts from the one in `CalendarToggle::mount()` (e.g. one says `isLocale('fa')` and the other checks a different locale), the toggle's initial checkbox state and the date pickers' actual calendar will disagree on first load. Changing the default rule is a two-file edit; changing the session key is a three-file edit (these two plus any reader). Never inline a different `session('calendar_type', …)` literal anywhere else — add a helper if a third site needs it.
+**Why byte-identical:** if the default expression in `maybeJalali()` ever drifts from the one in `CalendarToggle::mount()` or the `adaptive()` macro (e.g. one says `isLocale('fa')` and another checks a different locale), the toggle's initial checkbox state and the date pickers' actual calendar will disagree on first load. Changing the default rule is a three-file edit; changing the session key is a four-file edit (these three plus any reader). Never inline a further, fourth copy of the `session('calendar_type', …)` literal anywhere else — route through `maybeJalali()` or `->adaptive()`.
 
 ## 3. Locale & RTL conventions
 
@@ -181,7 +192,7 @@ The `files` array is what makes the seven functions globally available without `
 | Format money ± currency | `delimiter($value, $currency, $decimals)` | ISO codes append uppercased; symbols prepend. Single money formatter. |
 | Make a Filament date picker respect Jalali | `maybeJalali(DatePicker::make(...))` | Keeps the `calendar_type` literal in one place (§2). |
 | Add a count badge to a Tab/infolist header | `tabBadge($label, $count, $color)` | Only producer of `.tb-badge` markup; color map is fixed at 4. |
-| Change the default calendar rule | Edit the literal in `maybeJalali()` AND `CalendarToggle::mount()` identically | Drift between the two desyncs the toggle's initial state from the pickers (§2). |
+| Change the default calendar rule | Edit the literal in `maybeJalali()`, `CalendarToggle::mount()`, AND the `adaptive()` macro identically | Drift between the three desyncs the toggle's initial state from the pickers (§2). |
 | Add a fifth badge color | Add the key to `tabBadge()`'s `$colorClasses` AND add `.tb-{name}` to `fi-custom.css` | Helper and CSS must move together (§4). |
 | Add a new global helper | Append to `app/Utils/helpers.php` inside `if (!function_exists(...))`; `composer dump-autoload` | One helper file, autoloaded via `files` (§5). |
 | Branch on locale anywhere | Use `app()->getLocale() === 'fa'` (else covers `en`+`fr`) | The only locale gate in the project; never branch per-`en`/`fr`. |
@@ -191,8 +202,8 @@ The `files` array is what makes the seven functions globally available without `
 - ❌ **Inlining `session('calendar_type', ...)` in a resource or view.**
   - Why: it duplicates the load-bearing literal (§2). Always go through `maybeJalali()`; add a new helper if a third site needs the raw gate.
 
-- ❌ **Letting the `calendar_type` default differ between `maybeJalali()` and `CalendarToggle::mount()`.**
-  - Why: the toggle's initial state and the date pickers' calendar will disagree on first load. The two literals must stay byte-identical.
+- ❌ **Letting the `calendar_type` default differ between `maybeJalali()`, `CalendarToggle::mount()`, and the `adaptive()` macro.**
+  - Why: the toggle's initial state and the date pickers' calendar will disagree on first load. The three literals must stay byte-identical.
 
 - ❌ **Calling `number_format()` directly for a money column.**
   - Why: `delimiter()` is the single money formatter and owns the ISO-code-vs-symbol side rule. Bypassing it produces inconsistent currency placement.

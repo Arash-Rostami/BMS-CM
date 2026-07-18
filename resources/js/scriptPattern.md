@@ -120,7 +120,7 @@ export default function landingPage() {
 
 ## 4. `triWidget()` — `resources/js/tri-widget-alpine.js`
 
-Three tabs: Clock / Timer / Music. Key state (verbatim): `tab: 'clock'`, `clockString`, `dateString`, `shamsiDateString`, `timer: { running: false, seconds: 300 }`, `customMins`, `alarm: 'alarm.mp3'`, `alarmInterval`, `alarmAudioInstance`, `music: { tracks: [...3 pCloud...], idx: 0, audio: null, playing: false, position: 0, duration: 0, progress: 0, volume: 0.8 }`.
+Three tabs: Clock / Timer / Music. Key state (verbatim): `tab: 'clock'`, `clockString: ''`, `dateString: ''`, `shamsiDateString: ''`, `timer: { running: false, seconds: 300 }`, `customMins: null`, `alarm: 'alarm.mp3'`, `alarmInterval: null`, `alarmAudioInstance: null`, `music: { tracks: [...3 pCloud...], idx: 0, audio: null, playing: false, position: 0, duration: 0, progress: 0, volume: 0.8 }`.
 
 ### 4.1 Clock
 
@@ -175,14 +175,18 @@ Presets (`widget.blade.php:156-168`) call `setTimerPreset(seconds)` with these e
 
 ```js
 startAlarmLoop() {
+    this.stopAlarm();
     const a = new Audio('/audio/' + this.alarm);
     a.loop = true;
-    a.play().catch(() => {});
     this.alarmAudioInstance = a;
+    a.play().catch(() => {});
     this.alarmInterval = setInterval(() => this.stopAlarm(), 60000);
 }
 stopAlarm() {
-    clearInterval(this.alarmInterval);
+    if (this.alarmInterval) {
+        clearInterval(this.alarmInterval);
+        this.alarmInterval = null;
+    }
     if (this.alarmAudioInstance) {
         this.alarmAudioInstance.pause();
         this.alarmAudioInstance.currentTime = 0;
@@ -192,37 +196,40 @@ stopAlarm() {
 ```
 
 - Alarm `Audio` is **lazy** — created in `startAlarmLoop()`, NOT in `init()`.
-- Auto-stop uses `setInterval(() => stopAlarm(), 60000)`, **not** `setTimeout`. `stopAlarm()` calls `clearInterval(this.alarmInterval)`, so the interval fires exactly once. The pattern is subtle: a 60-second one-shot implemented via self-clearing interval. Keep it.
+- `startAlarmLoop()` calls `this.stopAlarm()` first, defensively tearing down any prior alarm/interval before starting a new one (relevant if the timer is reset/restarted while an alarm is still ringing).
+- Auto-stop uses `setInterval(() => stopAlarm(), 60000)`, **not** `setTimeout`. `stopAlarm()` guards with `if (this.alarmInterval)` before calling `clearInterval` and then nulls `alarmInterval`, so the interval fires exactly once and a stale handle is never re-cleared. The pattern is subtle: a 60-second one-shot implemented via self-clearing interval. Keep it.
 
 ### 4.4 Music (lazy Audio, reused across track changes)
 
 ```js
 loadCurrentTrack() {
     if (!this.music.audio) {
-        const audio = new Audio();
-        audio.preload = 'none';
-        audio.onloadedmetadata = () => { this.music.duration = Math.round(audio.duration); };
-        audio.ontimeupdate = () => {
-            this.music.position = audio.currentTime;
+        this.music.audio = new Audio();
+        this.music.audio.preload = 'none';
+        this.music.audio.volume = this.music.volume;
+        this.music.audio.onloadedmetadata = () => { this.music.duration = Math.round(this.music.audio.duration); };
+        this.music.audio.ontimeupdate = () => {
+            this.music.position = Math.round(this.music.audio.currentTime || 0);
             this.music.progress = (this.music.position / (this.music.duration || 1)) * 100;
         };
-        audio.onended = () => this.next();
-        this.music.audio = audio;
+        this.music.audio.onended = () => this.next();
     }
-    this.music.audio.src = this.currentTrack.src;
+    if (!this.music.audio.src || !this.music.audio.src.includes(this.currentTrack.src)) this.music.audio.src = this.currentTrack.src;
 }
 playPause() {
-    if (!this.music.audio.src.includes(this.currentTrack.src)) this.loadCurrentTrack();
+    if (!this.music.audio || !this.music.audio.src || !this.music.audio.src.includes(this.currentTrack.src)) this.loadCurrentTrack();
     /* play() or pause() */
 }
-next() { this.music.idx = (this.music.idx + 1) % this.music.tracks.length; /* swap src */ }
-prev() { this.music.idx = (this.music.idx - 1 + this.music.tracks.length) % this.music.tracks.length; }
-get currentTrack() { return this.music.tracks[this.music.idx]; }
+next() { this.music.idx = (this.music.idx + 1) % this.music.tracks.length; /* swap src, auto-play */ }
+prev() { this.music.idx = (this.music.idx - 1 + this.music.tracks.length) % this.music.tracks.length; /* swap src, auto-play */ }
+get currentTrack() { return this.music.tracks[this.music.idx] || { title: '', src: '' }; }
 ```
 
-- `Audio` is created **once**, on first `loadCurrentTrack()`. `next()`/`prev()` only swap `audio.src` — they do NOT recreate the instance.
-- `playPause()` re-`loadCurrentTrack()`s if `audio.src` doesn't include `currentTrack.src` (handles the case where the user switches track while paused).
-- Track artwork: `/img/widget/{pop,lofi,pomodoro}.png`. Three pCloud CDN tracks (Ambient Pop / LoFi / Pomodoro Focus).
+- `Audio` is created **once**, on first `loadCurrentTrack()`, with `volume` seeded from `this.music.volume` (0.8 default) at creation time. `next()`/`prev()` only swap `audio.src` (and call `.play()`) — they do NOT recreate the instance.
+- The final `src` assignment in `loadCurrentTrack()` is **guarded** (`!this.music.audio.src || !…includes(currentTrack.src)`), not unconditional — reassigning the same `src` value would restart/reload the currently-playing track.
+- `ontimeupdate` rounds `position` via `Math.round(currentTime || 0)`; it is not the raw float `currentTime`.
+- `playPause()` re-`loadCurrentTrack()`s if there's no audio yet or `audio.src` doesn't include `currentTrack.src` (handles the case where the user switches track while paused).
+- Track artwork: `/img/widget/{pop,lofi,pomodoro}.png`. Three pCloud CDN tracks — track `title` values are exactly `'Ambient Pop'`, `'LoFi'`, `'Pomodoro'` (not "Pomodoro Focus").
 - `init()` wires `this.$watch('tab', val => { if (val === 'music') this.loadCurrentTrack(); })` so the first `Audio` is created only when the user opens the Music tab.
 - **Correction:** there is **no** localStorage persistence of `music.idx` — the index survives only in-memory across tab switches (the component instance isn't destroyed while mounted). Do not add "remember last track" without changing this design.
 
@@ -256,19 +263,24 @@ Legacy migration: if the parsed value is an array (old format), `readStorage()` 
 
 ```js
 searchRecords() {
+    if (!this.pickerResource) { this.recordResults = []; return; }
     const reqId = ++this.recordReqId;
+    this.recordLoading = true;
+    this.recordError = false;
     const url = this.recordsUrl.replace('__RES__', this.pickerResource)
               + '?q=' + encodeURIComponent(this.recordQuery || '');
-    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
-        .then(r => r.json())
-        .then(data => { if (reqId === this.recordReqId) { /* mutate state */ } })
-        .catch(err => { if (reqId === this.recordReqId) { /* set error */ } })
-        .finally(() => { if (reqId === this.recordReqId) { this.isSearchingRecords = false; } });
+    fetch(url, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+        .then(r => (r.ok ? r.json() : Promise.reject(r)))
+        .then(json => { if (reqId === this.recordReqId) this.recordResults = json?.data ?? []; })
+        .catch(() => { if (reqId === this.recordReqId) { this.recordError = true; this.recordResults = []; } })
+        .finally(() => { if (reqId === this.recordReqId) this.recordLoading = false; });
 }
 ```
 
+**Correction:** the loading flag is `recordLoading`, NOT `isSearchingRecords` (that property doesn't exist anywhere in the file). The guard also bails early with `if (!this.pickerResource) return`, resets `recordError` before each attempt, sends an `Accept: application/json` header, and rejects on a non-OK HTTP status (`r.ok ? r.json() : Promise.reject(r)`) before parsing.
+
 - `recordReqId` is incremented **before** the fetch; every `.then` / `.catch` / `.finally` re-checks `reqId === this.recordReqId` before mutating state.
-- Any new call (including the escape-key clear at `workspace.blade.php:354`) invalidates in-flight responses by bumping `recordReqId`.
+- Any new call (including the escape-key clear at `workspace.blade.php:350`) invalidates in-flight responses by bumping `recordReqId`.
 
 ### 5.3 Helpers
 
@@ -278,22 +290,26 @@ decorateRecord(p) {
     return { ...p, icon: parent.icon || p.icon || '', theme: parent.theme || p.theme || 'from-slate-500 to-slate-600' };
 }
 initials(value) {
-    const parts = value.split(/[\s\-_/.]+/).filter(Boolean);
+    const text = (value || '').toString().trim();
+    if (!text) return '#';
+    const parts = text.split(/[\s\-_/.]+/).filter(Boolean);
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    const alnum = value.match(/[A-Za-z0-9]/g) || [];
-    if (alnum.length >= 2) return (alnum[0] + alnum[1]).toUpperCase();
-    return '#';
+    const alnum = text.replace(/[^a-zA-Z0-9]/g, '');
+    return (alnum.slice(0, 2) || '#').toUpperCase();
 }
 ```
 
-### 5.4 Fresh vs. returning accordion-open
+**Correction:** falsy/empty `value` (`null`, `undefined`, `''`, whitespace-only) short-circuits to `'#'` up front. In the fallback branch there is **no** `alnum.length >= 2` gate — `alnum.slice(0, 2)` is taken regardless of length, so a value with exactly **one** alphanumeric character (e.g. `"A"`) returns that single uppercased character, not `'#'`. Only a value with **zero** alphanumeric characters falls through to `'#'`.
+
+### 5.4 Closed-by-default accordion-open
 
 ```js
-this.modulesOpen = this.pinnedModuleIds.length > 0 || this.recordPins.length === 0;
-this.recordsOpen = this.recordPins.length   > 0 || this.recordPins.length === 0;
+// Closed by default; open only when there's something pinned to show.
+this.modulesOpen = this.pinnedModuleIds.length > 0;
+this.recordsOpen = this.recordPins.length > 0;
 ```
 
-Fresh user (no pins at all): both accordions open. Returning user: opens by which section has pins.
+Each accordion opens **only** if its own section has at least one pin — otherwise it stays closed, including for a fresh user with zero pins in either section. **Correction:** an earlier revision of this logic was `this.pinnedModuleIds.length > 0 || this.recordPins.length === 0` (and the `recordsOpen` mirror), which is a tautology — the right-hand `=== 0` branch is true whenever the left-hand branch is false, so the expression evaluated to `true` unconditionally and both accordions were *always* open regardless of pin state. That was fixed in this session; do not reintroduce the `|| … === 0` fallback.
 
 ### 5.5 `recordsUrl` placeholder contract
 
@@ -425,7 +441,7 @@ All three reads are wrapped in try/catch (quota / privacy-mode failures are swal
 
 ## Gotchas & load-bearing details
 
-- **Request-ID race guard invalidates in-flight responses.** Any new call to `workspace.searchRecords()` (including the escape-key clear at `workspace.blade.php:354`) bumps `recordReqId`, so every `.then` / `.catch` / `.finally` from the old request no-ops. Keep this contract — do not add a fire-and-forget fetch that bypasses the guard.
+- **Request-ID race guard invalidates in-flight responses.** Any new call to `workspace.searchRecords()` (including the escape-key clear at `workspace.blade.php:350`) bumps `recordReqId`, so every `.then` / `.catch` / `.finally` from the old request no-ops. Keep this contract — do not add a fire-and-forget fetch that bypasses the guard.
 - **Lazy Audio + self-clearing interval.** `startAlarmLoop()` uses `setInterval(() => stopAlarm(), 60000)` and `stopAlarm()` calls `clearInterval(this.alarmInterval)` — the interval fires exactly once. `stopAlarm()` also tears down `alarmAudioInstance` (`pause()` + `currentTime = 0` + null). Missing any of these steps leaks audio playback or a dangling interval.
 - **Music `Audio` is reused, not recreated.** `next()` / `prev()` only swap `audio.src`. `playPause()` re-calls `loadCurrentTrack()` only when `audio.src` doesn't include `currentTrack.src` (handles "user switched track while paused" without creating a new instance).
 - **`$nextTick` before `$dispatch('tab-search-focus')` is mandatory.** Producers set `activeTab = 'search'` first, then `$nextTick(() => $dispatch('tab-search-focus'))` so the search panel is mounted before the consumer calls `$refs.searchInput?.focus()`. The `?.` is defensive; the `$nextTick` is load-bearing.

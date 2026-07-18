@@ -40,7 +40,7 @@ Prices = USD per 1M tokens, **Standard tier** (Batch = 50% off; Flex = 50% off; 
 
 | Model | In | Out | Ctx | Note |
 |---|---|---|---|---|
-| gpt-5.3-codex | $1.75 | $14 | 400K | Most capable agentic coder (Feb 2026). Deprecated 5.2-codex. |
+| gpt-5.3-codex | $1.75 | $14 | 400K | Most capable agentic coder (Feb 2026). Deprecates → 5.2-codex. |
 | gpt-5.2-codex | $1.75 | $14 | 400K | Deprecated → 5.3-codex. |
 | gpt-5.1-codex | $1.25 | $10 | 400K | Cheapest codex. low/med/high/xhigh. |
 | gpt-5.1-codex-max / -mini | — | — | — | Max/min variants; price unconfirmed, near codex tier. |
