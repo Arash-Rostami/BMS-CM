@@ -456,11 +456,34 @@ trait Form
             ->validationAttribute(__('resources/registeredOrder/strings.form.net_weight'));
     }
 
+//    protected static function getItemProductIdField(): Select
+//    {
+//        return Select::make('product_id')
+//            ->label(__('resources/registeredOrder/strings.form.product'))
+//            ->relationship('product', app()->getLocale() === 'fa' ? 'name' : 'english_name')
+//            ->searchable(['name', 'english_name', 'code'])
+//            ->preload()
+//            ->required()
+//            ->distinct()
+//            ->columnSpan(9)
+//            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+//            ->validationMessages([
+//                'required' => __('resources/registeredOrder/strings.form.validation_required'),
+//            ])
+//            ->validationAttribute(__('resources/registeredOrder/strings.form.product'));
+//    }
+
     protected static function getItemProductIdField(): Select
     {
+        $titleAttribute = app()->getLocale() === 'fa' ? 'name' : 'english_name';
+
         return Select::make('product_id')
             ->label(__('resources/registeredOrder/strings.form.product'))
-            ->relationship('product', app()->getLocale() === 'fa' ? 'name' : 'english_name')
+            ->relationship(
+                name: 'product',
+                titleAttribute: $titleAttribute,
+                modifyQueryUsing: fn($query) => $query->whereNotNull($titleAttribute)
+            )
             ->searchable(['name', 'english_name', 'code'])
             ->preload()
             ->required()

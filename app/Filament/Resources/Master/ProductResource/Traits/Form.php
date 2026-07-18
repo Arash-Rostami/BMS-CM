@@ -5,12 +5,12 @@ namespace App\Filament\Resources\Master\ProductResource\Traits;
 
 use App\Models\Product;
 use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\Lang;
@@ -25,6 +25,7 @@ trait Form
             ->label(__('resources/product/strings.form.code'))
             ->required()
             ->live()
+            ->dehydrated(false)
             ->validationMessages([
                 'required' => __('resources/product/strings.form.validation_code_required'),
             ])
@@ -44,11 +45,12 @@ trait Form
             });
     }
 
-    public static function enquiryResponse(): Placeholder
+
+    public static function enquiryResponse(): TextEntry
     {
-        return Placeholder::make('check_result')
+        return TextEntry::make('check_result_view')
             ->label(__('resources/product/strings.form.check_result'))
-            ->content(fn(Get $get) => $get('check_result'))
+            ->state(fn(Get $get) => $get('check_result'))
             ->visible(fn(Get $get) => $get('action') === 'check' && $get('check_result') !== null);
     }
 
@@ -226,11 +228,11 @@ trait Form
             ->columnSpan(1);
     }
 
-    public static function getSlugField(): Placeholder
+    public static function getSlugField(): TextEntry
     {
-        return Placeholder::make('slug')
+        return TextEntry::make('slug')
             ->label(__('resources/product/strings.form.slug'))
-            ->content(fn(?Product $record): string => $record?->slug ?? 'N/A')
+            ->state(fn(?Product $record): string => $record?->slug ?? 'N/A')
             ->hidden(fn(?Product $record): bool => $record === null);
     }
 

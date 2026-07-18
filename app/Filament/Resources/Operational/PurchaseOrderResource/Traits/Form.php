@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Traits;
 
+
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\UpdatesFromProformaInvoice;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\UpdatesFromPurchaseRequests;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\UpdatesFromRegisteredOrders;
@@ -144,11 +145,14 @@ trait Form
 
     public static function getItemProductIdField(): Select
     {
+        $titleAttribute = app()->getLocale() === 'fa' ? 'name' : 'english_name';
+
         return Select::make('product_id')
             ->label(__('resources/purchaseOrder/strings.form.product'))
             ->relationship(
                 name: 'product',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
+                titleAttribute: $titleAttribute,
+                modifyQueryUsing: fn($query) => $query->whereNotNull($titleAttribute)
             )
             ->searchable(['name', 'english_name', 'code'])
             ->preload()
