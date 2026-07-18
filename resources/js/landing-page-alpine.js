@@ -24,10 +24,6 @@ export default function landingPage() {
             this.$watch('darkMode', val => {
                 set('theme', val ? 'dark' : 'light');
                 document.documentElement.classList.toggle('dark', val);
-                if (window.torusMaterial) {
-                    window.torusMaterial.opacity = val ? 0.1 : 0.3;
-                    window.ringMaterial.opacity  = val ? 0.2 : 0.1;
-                }
             });
 
             this.$watch('activeTab', val => set('lp_tab', val));

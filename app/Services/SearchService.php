@@ -23,6 +23,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class SearchService
 {
+    private const THEME = [
+        'blue' => 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20',
+        'green' => 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/20',
+        'yellow' => 'bg-yellow-50 dark:bg-yellow-500/10 text-yellow-800 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-500/20',
+        'red' => 'bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/20',
+        'slate' => 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10',
+    ];
 
     public function emptyResponse(): array
     {
@@ -118,7 +125,7 @@ class SearchService
             'subtitle' => $cfg['label'],
             'icon' => $cfg['icon'],
             'color' => $cfg['color'],
-            'theme' => "from-{$cfg['color']}-500 to-{$cfg['color']}-600",
+            'theme' => self::THEME[$cfg['color']],
             'progress' => $total > 0 ? (int)round(($filled / $total) * 100) : 0,
             'url' => ($cfg['url'])($record),
             'details' => $details,
@@ -166,7 +173,7 @@ class SearchService
             'proformaInvoice' => [
                 'model' => ProformaInvoice::class,
                 'icon' => 'document-text',
-                'color' => 'indigo',
+                'color' => 'blue',
                 'by_user' => true,
                 'url' => fn($r) => route('filament.dashboard.resources.proforma-invoices.edit', ['record' => $r->id]),
                 'label' => __('resources/proformaInvoice/strings.general.model_label'),
@@ -215,7 +222,7 @@ class SearchService
             'bankProfile' => [
                 'model' => BankProfile::class,
                 'icon' => 'building-office',
-                'color' => 'emerald',
+                'color' => 'green',
                 'by_user' => true,
                 'url' => fn($r) => route('filament.dashboard.resources.bank-profiles.edit', ['record' => $r->id]),
                 'label' => __('resources/bankProfile/strings.general.model_label'),
@@ -238,7 +245,7 @@ class SearchService
             'purchaseOrder' => [
                 'model' => PurchaseOrder::class,
                 'icon' => 'shopping-bag',
-                'color' => 'amber',
+                'color' => 'yellow',
                 'by_user' => true,
                 'url' => fn($r) => route('filament.dashboard.resources.purchase-orders.edit', ['record' => $r->id]),
                 'label' => __('resources/purchaseOrder/strings.general.model_label'),
@@ -260,7 +267,7 @@ class SearchService
             'payment' => [
                 'model' => Payment::class,
                 'icon' => 'banknotes',
-                'color' => 'orange',
+                'color' => 'yellow',
                 'by_user' => true,
                 'url' => fn($r) => route('filament.dashboard.resources.payments.edit', ['record' => $r->id]),
                 'label' => __('resources/payment/strings.general.model_label'),
@@ -284,7 +291,7 @@ class SearchService
             'shipment' => [
                 'model' => Shipment::class,
                 'icon' => 'truck',
-                'color' => 'purple',
+                'color' => 'red',
                 'by_user' => true,
                 'url' => fn($r) => route('filament.dashboard.resources.shipments.edit', ['record' => $r->id]),
                 'label' => __('resources/shipment/strings.general.model_label'),
@@ -307,7 +314,7 @@ class SearchService
             'custom' => [
                 'model' => Custom::class,
                 'icon' => 'clipboard-document-check',
-                'color' => 'violet',
+                'color' => 'red',
                 'by_user' => true,
                 'url' => fn($r) => route('filament.dashboard.resources.customs.edit', ['record' => $r->id]),
                 'label' => __('resources/custom/strings.general.model_label'),
@@ -331,7 +338,7 @@ class SearchService
             'company' => [
                 'model' => Company::class,
                 'icon' => 'building-office-2',
-                'color' => 'sky',
+                'color' => 'slate',
                 'by_user' => false,
                 'url' => fn($r) => route('filament.dashboard.resources.companies.index', ['search' => $r->english_name ?? $r->name]),
                 'label' => __('resources/company/strings.general.model_label'),
@@ -349,7 +356,7 @@ class SearchService
             'bank' => [
                 'model' => Bank::class,
                 'icon' => 'building-library',
-                'color' => 'teal',
+                'color' => 'slate',
                 'by_user' => false,
                 'url' => fn($r) => route('filament.dashboard.resources.banks.index', ['search' => $r->english_name ?? $r->name]),
                 'label' => __('resources/bank/strings.general.model_label'),
@@ -367,7 +374,7 @@ class SearchService
             'currency' => [
                 'model' => Currency::class,
                 'icon' => 'currency-dollar',
-                'color' => 'lime',
+                'color' => 'slate',
                 'by_user' => false,
                 'url' => fn($r) => route('filament.dashboard.resources.currencies.index', ['search' => $r->english_name ?? $r->name]),
                 'label' => __('resources/currency/strings.general.model_label'),
@@ -385,7 +392,7 @@ class SearchService
             'product' => [
                 'model' => Product::class,
                 'icon' => 'cube',
-                'color' => 'rose',
+                'color' => 'slate',
                 'by_user' => false,
                 'url' => fn($r) => route('filament.dashboard.resources.products.index', ['search' => $r->english_name ?? $r->name]),
                 'label' => __('resources/product/strings.general.model_label'),
@@ -404,7 +411,7 @@ class SearchService
             'category' => [
                 'model' => Category::class,
                 'icon' => 'tag',
-                'color' => 'fuchsia',
+                'color' => 'slate',
                 'by_user' => false,
                 'url' => fn($r) => route('filament.dashboard.resources.categories.index', ['search' => $r->english_name ?? $r->name]),
                 'label' => __('resources/category/strings.general.model_label'),
@@ -422,7 +429,7 @@ class SearchService
             'status' => [
                 'model' => Status::class,
                 'icon' => 'check-badge',
-                'color' => 'cyan',
+                'color' => 'slate',
                 'by_user' => false,
                 'url' => fn($r) => route('filament.dashboard.resources.statuses.index', ['search' => $r->english_name ?? $r->name]),
                 'label' => __('resources/status/strings.general.model_label'),

@@ -1,0 +1,7 @@
+<?php
+
+$text = <<<'TEXT'
+Bypass policy for this project: if the user message contains the phrase vanilla mode, matched case insensitively, and clearly used as an actual instruction rather than quoted, referenced, or appearing incidentally inside unrelated text or code, treat it as a standing instruction to drop all project specific policy behavior for the remainder of the conversation, meaning no proactive skill loading mindset, no model delegation policy, no documentation sync policy, no review action policy. Behave as a default Claude Code session with no project specific policy active. Resume normal project policy only when the user explicitly says resume project mode, matched case insensitively with the same instruction versus incidental distinction, or a new session starts. This bypass affects only how you, Claude, behave, it does not and cannot disable the PostToolUse reviewer hook itself, since that hook fires automatically on Edit and Write tool calls and has no visibility into chat content at all, so tell the user plainly if they ask for a file edit while in vanilla mode that the reviewer will still fire regardless of the phrase.
+TEXT;
+
+echo json_encode(['hookSpecificOutput' => ['hookEventName' => 'SessionStart', 'additionalContext' => $text]], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

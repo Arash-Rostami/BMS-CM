@@ -1,0 +1,59 @@
+{
+    "hooks": {
+        "SessionStart": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "statusMessage": "Loading read-skills-first policy…",
+                        "timeout": 30,
+                        "command": "php .claude/hooks/sessionstart_01_skills.php"
+                    },
+                    {
+                        "type": "command",
+                        "statusMessage": "Loading model delegation policy…",
+                        "timeout": 30,
+                        "command": "php .claude/hooks/sessionstart_02_delegation.php"
+                    },
+                    {
+                        "type": "command",
+                        "statusMessage": "Loading documentation-sync policy…",
+                        "timeout": 30,
+                        "command": "php .claude/hooks/sessionstart_03_docsync.php"
+                    },
+                    {
+                        "type": "command",
+                        "statusMessage": "Loading review-action policy…",
+                        "timeout": 30,
+                        "command": "php .claude/hooks/sessionstart_04_review_action.php"
+                    },
+                    {
+                        "type": "command",
+                        "statusMessage": "Loading bypass-phrase policy…",
+                        "timeout": 30,
+                        "command": "php .claude/hooks/sessionstart_05_bypass.php"
+                    },
+                    {
+                        "type": "command",
+                        "statusMessage": "Loading session self-introduction policy…",
+                        "timeout": 30,
+                        "command": "php .claude/hooks/sessionstart_06_selfintro.php"
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "Edit|Write",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "statusMessage": "Workflow-aware review (sonnet-4-6 / dual glm-5.2:cloud consensus at 93%)…",
+                        "timeout": 120,
+                        "command": "php .claude/hooks/post_tool_review.php"
+                    }
+                ]
+            }
+        ]
+    }
+}
