@@ -24,23 +24,36 @@ class FileUploadManager
 
             $finalPaths = [];
             $tempDir = 'temp/';
+            $attachmentsData = [];
+            $now = now();
+            $userId = auth()->id();
 
             foreach ($paths as $path) {
                 if (str_starts_with($path, $tempDir)) {
-                    list($newPath, $newName) = $this->makeNameAndPath($tempDir, $path, $record);
+                    [$newPath, $newName] = $this->makeNameAndPath($tempDir, $path, $record);
                     Storage::disk('public')->move($path, $newPath);
                     $finalPaths[] = $newPath;
 
-                    $record->attachments()->create([
+                    $attachmentsData[] = [
                         'name' => $newName,
                         'path' => $newPath,
                         'type' => Str::limit(Storage::disk('public')->mimeType($newPath), 255, ''),
                         'status_id' => $status->id,
-                        'user_id' => auth()->id(),
-                    ]);
+                        'user_id' => $userId,
+                        'attachable_type' => $record->getMorphClass(),
+                        'attachable_id' => $record->getKey(),
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
                 } else {
                     $finalPaths[] = $path;
                 }
+            }
+
+            if (!empty($attachmentsData)) {
+                // We chunk insert to avoid parameter limit issues if there are many files,
+                // but since these are uploads, it's rarely over limit. Still good practice.
+                $record->attachments()->insert($attachmentsData);
             }
 
             $this->syncAttachments($record, $finalPaths);
@@ -74,7 +87,9 @@ class FileUploadManager
         return $file->storeAs('temp', sprintf(
             '%s__%s-%s.%s',
             rawurlencode($original),
-            now()->timestamp, uniqid(), $file->getClientOriginalExtension()
+            now()->timestamp,
+            uniqid(),
+            $file->getClientOriginalExtension()
         ), 'public');
     }
 
