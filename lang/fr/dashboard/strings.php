@@ -23,21 +23,21 @@ return [
     'steps' => [
         'request_approval' => [
             'title' => 'Demande et approbation',
-            'description' => '❶ Début du pré-processus : créer une demande d\'achat ou enregistrer une facture pro forma',
+            'description' => 'Début du pré-processus : créer une demande d\'achat ou enregistrer une facture pro forma',
             'pending_requests' => 'Demandes d\'achat',
         ],
         'order_processing' => [
             'title' => 'Traitement des commandes',
-            'description' => '❷ Début du processus : enregistrer la commande et créer un profil bancaire',
+            'description' => 'Début du processus : enregistrer la commande et créer un profil bancaire',
             'active_orders' => 'Commandes actives',
         ],
         'procurement_payment' => [
             'title' => 'Approvisionnement et paiement',
-            'description' => '❸ Suite du processus : créer la commande d\'achat et traiter les paiements',
+            'description' => 'Suite du processus : créer la commande d\'achat et traiter les paiements',
         ],
         'logistics' => [
             'title' => 'Logistique et dédouanement',
-            'description' => '❹ Finalisation du processus : gérer les expéditions et le dédouanement',
+            'description' => 'Finalisation du processus : gérer les expéditions et le dédouanement',
         ],
     ],
     'view_requests' => 'Voir les demandes',
