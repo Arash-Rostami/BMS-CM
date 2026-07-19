@@ -9,7 +9,7 @@
          x-transition:leave="transition ease-in duration-100"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
-         class="absolute {{ $isRtl ? 'left-0' : 'right-0' }} mt-2 lp-surface rounded-lg overflow-hidden min-w-[320px] z-50">
+         class="absolute {{ $isRtl ? 'left-0' : 'right-0' }} mt-2 lp-float rounded-lg overflow-hidden min-w-[320px] z-50">
 
         <!-- Header -->
         <div class="flex items-center justify-between p-3.5 border-b lp-divider">

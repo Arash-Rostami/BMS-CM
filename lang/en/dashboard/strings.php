@@ -24,21 +24,21 @@ return [
     'steps' => [
         'request_approval' => [
             'title' => 'Request & Approval',
-            'description' => '❶ Start pre-process: create a purchase request or record a proforma invoice',
+            'description' => 'Start pre-process: create a purchase request or record a proforma invoice',
             'pending_requests' => 'Purchase requests',
         ],
         'order_processing' => [
             'title' => 'Order Processing',
-            'description' => '❷ Start process: register the order and create a bank profile',
+            'description' => 'Start process: register the order and create a bank profile',
             'active_orders' => 'Active orders',
         ],
         'procurement_payment' => [
             'title' => 'Procurement & Payment',
-            'description' => '❸ Continue process: create the purchase order and process payments',
+            'description' => 'Continue process: create the purchase order and process payments',
         ],
         'logistics' => [
             'title' => 'Logistics and customs clearance',
-            'description' => '❹ Complete process: manage shipments and customs clearance',
+            'description' => 'Complete process: manage shipments and customs clearance',
         ],
     ],
     'view_requests' => 'View Purchase Req.',

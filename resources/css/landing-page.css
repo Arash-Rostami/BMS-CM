@@ -125,6 +125,33 @@ a:focus-visible {
     box-shadow: var(--md-elevation-1-dark);
 }
 
+.lp-panel {
+    background-color: var(--custom-third-mid);
+}
+
+.dark .lp-panel {
+    background-color: var(--google-second-dark);
+}
+
+.lp-well {
+    background-color: var(--custom-neutral-light);
+}
+
+.dark .lp-well {
+    background-color: var(--google-first-dark);
+}
+
+.lp-float {
+    background-color: var(--custom-neutral);
+    box-shadow: var(--md-elevation-3);
+    border-radius: 12px;
+}
+
+.dark .lp-float {
+    background-color: var(--filament-dark-mid);
+    box-shadow: var(--md-elevation-3-dark);
+}
+
 @supports (padding-top: env(safe-area-inset-top)) {
     .fixed {
         padding-top: env(safe-area-inset-top);
