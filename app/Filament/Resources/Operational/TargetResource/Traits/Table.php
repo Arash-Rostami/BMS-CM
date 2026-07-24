@@ -2,28 +2,25 @@
 
 namespace App\Filament\Resources\Operational\TargetResource\Traits;
 
-
+use App\Filament\Resources\Operational\TargetResource\Enums\Status as TargetStatus;
 use App\Models\Target;
 use App\Services\PersianCalendar;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
-use App\Filament\Resources\Operational\TargetResource\Enums\Status as TargetStatus;
+use Filament\Tables\Columns\TextColumn;
 
 trait Table
 {
-
     public static function showTargetable(): TextColumn
     {
         return TextColumn::make('targetable')
             ->label(__('resources/target/strings.table.targetable'))
-            ->formatStateUsing(fn(Target $record) => $record->targetable_label)
+            ->formatStateUsing(fn (Target $record) => $record->targetable_label)
             ->sortable(['targetable_type', 'targetable_id'])
             ->searchable(
                 true,
-                fn($query, string $search) => $query->SearchTargetable($search),
+                fn ($query, string $search) => $query->SearchTargetable($search),
                 false);
     }
-
 
     public static function showYear(): TextColumn
     {
@@ -42,7 +39,7 @@ trait Table
         return TextColumn::make('start_from')
             ->label(__('resources/target/strings.table.start_from'))
             ->date()
-            ->when(app()->isLocale('fa'), fn($column) => $column->jalaliDate())
+            ->when(app()->isLocale('fa'), fn ($column) => $column->jalaliDate())
             ->toggleable(isToggledHiddenByDefault: true)
             ->sortable();
     }
@@ -52,7 +49,7 @@ trait Table
         return TextColumn::make('end_in')
             ->label(__('resources/target/strings.table.end_in'))
             ->date()
-            ->when(app()->isLocale('fa'), fn($column) => $column->jalaliDate())
+            ->when(app()->isLocale('fa'), fn ($column) => $column->jalaliDate())
             ->toggleable(isToggledHiddenByDefault: true)
             ->sortable();
     }
@@ -87,8 +84,8 @@ trait Table
     {
         return IconColumn::make('status')
             ->label(__('resources/target/strings.table.status'))
-            ->icon(fn(string $state): string => TargetStatus::tryFrom($state)?->getIcon() ?? '')
-            ->color(fn(string $state): string => TargetStatus::tryFrom($state)?->getColor() ?? '');
+            ->icon(fn (string $state): string => TargetStatus::tryFrom($state)?->getIcon() ?? '')
+            ->color(fn (string $state): string => TargetStatus::tryFrom($state)?->getColor() ?? '');
     }
 
     public static function showAchievedQuantity(): TextColumn
@@ -118,7 +115,6 @@ trait Table
             ->searchable()
             ->color('info');
     }
-
 
     public static function showCreator(): TextColumn
     {

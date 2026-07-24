@@ -14,7 +14,7 @@ trait PrepareRegisteredOrderFromPurchaseRequest
             $purchaseRequest = PurchaseRequest::with(['items.product.specifications'])->find($purchaseRequestId);
 
             if ($purchaseRequest) {
-                $items = $purchaseRequest->items->map(fn($item) => [
+                $items = $purchaseRequest->items->map(fn ($item) => [
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity ?? 0,
                     'unit' => $item->unit ?? null,

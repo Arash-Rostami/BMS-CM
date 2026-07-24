@@ -21,7 +21,7 @@ trait Form
                 'required' => __('resources/bank/strings.form.validation_name_required'),
                 'regex' => __('resources/bank/strings.form.validation_name'),
                 'unique' => __('resources/bank/strings.form.validation_name_unique'),
-                'max' => __('resources/bank/strings.form.validation_name_max')
+                'max' => __('resources/bank/strings.form.validation_name_max'),
             ])
             ->validationAttribute(__('resources/bank/strings.form.name'))
             ->helperText(__('resources/bank/strings.form.helper_name'));
@@ -40,7 +40,7 @@ trait Form
                 'required' => __('resources/bank/strings.form.validation_english_name_required'),
                 'regex' => __('resources/bank/strings.form.validation_english_name'),
                 'unique' => __('resources/bank/strings.form.validation_english_name_unique'),
-                'max' => __('resources/bank/strings.form.validation_english_name_max')
+                'max' => __('resources/bank/strings.form.validation_english_name_max'),
             ])
             ->validationAttribute(__('resources/bank/strings.form.english_name'))
             ->helperText(__('resources/bank/strings.form.helper_english_name'));
@@ -53,7 +53,10 @@ trait Form
             ->maxLength(65535)
             ->columnSpanFull()
             ->rows(5)
-            ->nullable();
+            ->nullable()
+            ->validationMessages([
+                'max' => __('resources/bank/strings.form.validation_description_max'),
+            ]);
     }
 
     public static function getIsActive(): Toggle

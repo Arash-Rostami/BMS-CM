@@ -7,10 +7,11 @@ use App\Models\RegisteredOrder;
 
 trait HasTargetableDisplay
 {
-
     public function getTargetableDisplay(bool $withDate = false): string
     {
-        if (! $this->targetable) return '-';
+        if (! $this->targetable) {
+            return '-';
+        }
 
         $name = match ($this->targetable_type) {
             PurchaseOrder::class, RegisteredOrder::class => $withDate

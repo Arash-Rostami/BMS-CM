@@ -20,7 +20,7 @@ trait HasPartSelection
 
         if ($excludeId) {
             $usedParts = array_diff($usedParts, [
-                static::find($excludeId)?->part
+                static::find($excludeId)?->part,
             ]);
         }
 
@@ -29,7 +29,7 @@ trait HasPartSelection
         return [
             'used' => $usedParts,
             'available' => $available,
-            'next' => !empty($available) ? min($available) : null,
+            'next' => ! empty($available) ? min($available) : null,
         ];
     }
 

@@ -31,7 +31,7 @@ trait Form
             ->label(__('resources/permission/strings.form.roles'))
             ->multiple()
             ->relationship('roles', 'name')
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
             ->preload()
             ->searchable()
             ->helperText(__('resources/permission/strings.form.helper_roles'));

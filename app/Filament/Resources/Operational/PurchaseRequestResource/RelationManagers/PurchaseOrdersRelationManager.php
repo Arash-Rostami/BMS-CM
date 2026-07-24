@@ -22,10 +22,9 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
-
 class PurchaseOrdersRelationManager extends RelationManager
 {
-    use PurchaseOrderTable, PurchaseOrderFilters;
+    use PurchaseOrderFilters, PurchaseOrderTable;
 
     protected static string $relationship = 'purchaseOrders';
 
@@ -78,15 +77,15 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->filtersFormColumns(3)
             ->headerActions([
                 Action::make('create')
-                    ->label(__('resources/proformaInvoice/strings.general.add_record'))
-                    ->visible(fn(): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Authorized', 'Conditional']))
-                    ->url(fn(): string => PurchaseOrderResource::getUrl('create', ['purchase_request_id' => $this->getOwnerRecord()->getKey()]))
+                    ->label(__('resources/general/strings.actions.add_record'))
+                    ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Authorized', 'Conditional']))
+                    ->url(fn (): string => PurchaseOrderResource::getUrl('create', ['purchase_request_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record) => PurchaseOrderResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record) => PurchaseOrderResource::getUrl('edit', ['record' => $record])),
                     DetachAction::make(),
                     DeleteAction::make(),
                 ]),
@@ -102,10 +101,10 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->groups([
                 Group::make('buyer.name')
                     ->label(__('resources/purchaseOrder/strings.filters.buyer'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'buyer')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'buyer')),
                 Group::make('supplier.name')
                     ->label(__('resources/purchaseOrder/strings.filters.supplier'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'supplier')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'supplier')),
             ])
             ->striped()
             ->recordUrl(null)

@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait Relationships
 {
-
     public function attachments(): MorphMany
     {
         return $this->morphMany(Attachment::class, 'attachable');
@@ -47,7 +46,7 @@ trait Relationships
 
     public function purchaseRequests(): BelongsToMany
     {
-        return $this->belongsToMany(PurchaseRequest::class, 'proforma_invoice_purchase_request');
+        return $this->belongsToMany(PurchaseRequest::class, 'proforma_invoice_purchase_request')->withTimestamps();
     }
 
     public function registeredOrders()
@@ -69,7 +68,7 @@ trait Relationships
     public function sellerCompany(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'seller_id')
-            ->ofAnyType( Company::TYPE_SERVICE_ALL_SELLERS)
+            ->ofAnyType(Company::TYPE_SERVICE_ALL_SELLERS)
             ->where('is_active', 1);
     }
 }

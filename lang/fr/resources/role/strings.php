@@ -17,8 +17,8 @@ return [
         'validation_name_regex' => 'Le nom ne peut contenir que des lettres anglaises et des traits de soulignement, sans espaces ni chiffres.',
         'validation_grade_required' => 'Veuillez sélectionner un niveau pour ce rôle.',
         'validation_name_max' => 'Le nom du rôle ne peut pas dépasser 255 caractères.',
-            'helper_grade' => 'Sélectionnez le niveau d\'ancienneté pour préfixer automatiquement le rôle.',
-            'helper_modules' => 'Sélectionnez des modules pour attribuer rapidement des autorisations en masse.',
+        'helper_grade' => 'Sélectionnez le niveau d\'ancienneté pour préfixer automatiquement le rôle.',
+        'helper_modules' => 'Sélectionnez des modules pour attribuer rapidement des autorisations en masse.',
     ],
     'table' => [
         'name' => 'Nom',
@@ -37,9 +37,6 @@ return [
     'filters' => [
         'name' => 'Nom',
         'grade' => 'Niveau',
-    ],
-    'grouping' => [
-        'base_name' => 'Nom',
-        'grade' => 'Niveau',
+        'group_base_name' => 'Nom',
     ],
 ];

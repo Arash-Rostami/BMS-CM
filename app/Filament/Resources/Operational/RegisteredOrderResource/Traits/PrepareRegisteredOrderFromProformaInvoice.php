@@ -13,7 +13,7 @@ trait PrepareRegisteredOrderFromProformaInvoice
             $proformaInvoiceId = request()->query('proforma_invoice_id');
             $proformaInvoice = ProformaInvoice::with(['items.product.specifications'])->find($proformaInvoiceId);
             if ($proformaInvoice) {
-                $items = $proformaInvoice->items->map(fn($item) => [
+                $items = $proformaInvoice->items->map(fn ($item) => [
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity ?? 0,
                     'unit' => $item->unit ?? null,
@@ -21,7 +21,7 @@ trait PrepareRegisteredOrderFromProformaInvoice
                     'net_weight' => $item->net_weight ?? 0,
                     'gross_weight' => $item->gross_weight ?? 0,
                     'shipping_cost' => $item->freight_charges ?? 0,
-                    'line_total' => (($item->quantity ?? 0) * ($item->unit_price ?? 0)) + $item->freight_charges
+                    'line_total' => (($item->quantity ?? 0) * ($item->unit_price ?? 0)) + $item->freight_charges,
                 ])->toArray();
 
                 $this->form->fill([

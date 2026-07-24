@@ -13,8 +13,8 @@ trait Infolist
     {
         return TextEntry::make('name')
             ->label(__('resources/role/strings.infolist.name'))
-            ->formatStateUsing(fn(string $state, Role $record) => $record->base_name)
-            ->color(fn(string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray')
+            ->formatStateUsing(fn (string $state, Role $record) => $record->base_name)
+            ->color(fn (string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray')
             ->badge();
     }
 
@@ -22,14 +22,14 @@ trait Infolist
     {
         return TextEntry::make('name')
             ->label(__('resources/role/strings.infolist.grade'))
-            ->formatStateUsing(fn(string $state, Role $record) => $record->grade_label);
+            ->formatStateUsing(fn (string $state, Role $record) => $record->grade_label);
     }
 
     public static function viewPermissions(): TextEntry
     {
         return TextEntry::make('permissions.name')
             ->label(__('resources/role/strings.infolist.permissions'))
-            ->formatStateUsing(fn(string $state) => PermissionLabeler::getLabel($state))
+            ->formatStateUsing(fn (string $state) => PermissionLabeler::getLabel($state))
             ->columnSpanFull()
             ->badge();
     }

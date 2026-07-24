@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CustomsRelationManager extends RelationManager
 {
-    use CustomTable, CustomFilters;
+    use CustomFilters, CustomTable;
 
     protected static string $relationship = 'customs';
 
@@ -76,14 +76,14 @@ class CustomsRelationManager extends RelationManager
             ->filtersFormColumns(3)
             ->headerActions([
                 Action::make('create')
-                    ->label(__('resources/custom/strings.general.add_record'))
-                    ->url(fn(): string => CustomResource::getUrl('create', ['shipment_id' => $this->getOwnerRecord()->getKey()])),
+                    ->label(__('resources/general/strings.actions.add_record'))
+                    ->url(fn (): string => CustomResource::getUrl('create', ['shipment_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record) => CustomResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record) => CustomResource::getUrl('edit', ['record' => $record])),
                     DeleteAction::make(),
                     RestoreAction::make(),
                 ]),
@@ -91,7 +91,7 @@ class CustomsRelationManager extends RelationManager
             ->toolbarActions([
                 BulkActionGroup::make([
                     ExportBulkAction::make()
-                        ->exporter(CustomExporter::class)
+                        ->exporter(CustomExporter::class),
                 ]),
             ])
             ->striped()
@@ -100,5 +100,4 @@ class CustomsRelationManager extends RelationManager
             ->reorderableColumns()
             ->defaultSort('id', 'desc');
     }
-
 }

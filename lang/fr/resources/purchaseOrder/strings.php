@@ -4,8 +4,6 @@ return [
     'general' => [
         'model_label' => 'Bon de Commande',
         'plural_model_label' => 'Bons de Commande',
-        'navigation_group' => 'Données Opérationnelles',
-        'add_record' => '˙⋆✮ Créer Nouveau',
         'delivery_terms' => [
             'cfr' => 'CFR (Coût et Fret)',
             'cif' => 'CIF (Coût, Assurance et Fret)',
@@ -25,16 +23,33 @@ return [
             'Draft' => 'Brouillon',
         ],
     ],
+    'export' => [
+        'id' => 'ID',
+        'po_number' => 'N° Bon de Commande',
+        'seller' => 'Vendeur',
+        'seller_english' => 'Vendeur (anglais)',
+        'buyer' => 'Acheteur',
+        'buyer_english' => 'Acheteur (anglais)',
+        'status' => 'Statut',
+        'status_english' => 'Statut (anglais)',
+        'order_date' => 'Date de Commande',
+        'validity_date' => 'Date de validité',
+        'expected_delivery_date' => 'Date de livraison prévue',
+        'currency' => 'Devise',
+        'currency_english' => 'Devise (anglais)',
+        'total_amount' => 'Montant total',
+        'items' => 'Articles',
+        'creator' => 'Créateur',
+        'updater' => 'Modificateur',
+        'created_at' => 'Créé le',
+        'updated_at' => 'Mis à jour le',
+    ],
     'form' => [
-        // Section Titles
         'tab_general' => 'Général',
         'section_order_details' => 'Détails de la commande',
         'section_items' => 'Articles de la commande',
         'section_shipping_notes' => 'Livraison & Notes',
-        'purchase_requests' => 'Demandes d\'Achat Associées',
 
-
-        // Fields
         'po_number' => 'Numéro du bon de commande',
         'seller' => 'Vendeur',
         'buyer' => 'Acheteur',
@@ -59,8 +74,6 @@ return [
         'gross_weight' => 'Poids brut ',
         'add_item_action' => 'Ajouter un article',
         'attachments' => 'Pièces Jointes',
-
-        // Validation
         'validation_required' => 'Ce champ est obligatoire.',
         'validation_unique' => 'Cette valeur doit être unique.',
         'validation_max_string' => 'Ce champ ne doit pas dépasser :max caractères.',
@@ -70,29 +83,28 @@ return [
         'validation_numeric' => 'Ce champ doit être un nombre.',
         'validation_min_numeric' => 'Ce champ doit être d\'au moins :min.',
         'validation_min_numeric_zero' => 'Ce champ ne peut pas être négatif.',
-        'validation_attachments_type' => 'Le type de fichier de :attribute n\'est pas autorisé.',
-        'validation_attachments_size' => 'Le fichier :attribute ne doit pas dépasser :max kilo-octets.',
+        'validation_string' => 'Ce champ doit être une chaîne de caractères.',
+        'validation_date' => 'Veuillez entrer une date valide.',
 
-        // Helper Text
         'helper_po_number' => 'Ce numéro est généré automatiquement et verrouillé, vous n\'avez donc jamais à en saisir un vous-même.',
         'helper_expected_delivery_date' => 'Choisissez une date égale ou postérieure à la date de commande, car le fournisseur compte le délai à partir de là.',
         'helper_validity_date' => 'C\'est le dernier jour où les prix et conditions convenus restent valables avant une éventuelle renégociation.',
         'helper_unit_price' => 'Chaque prix saisi ici recalcule instantanément le montant total de la commande ci-dessous.',
         'helper_status' => 'Suit le cycle de vie du bon de commande de la création à la réalisation.',
-        'id' => 'ID',
+        'helper_order_date' => 'Sert de référence pour les dates de validité et de livraison prévue ; toutes deux doivent être égales ou postérieures à cette date.',
+        'helper_gross_weight' => 'Le poids brut inclut l\'emballage et doit être au moins égal au poids net.',
     ],
     'table' => [
+        'id' => 'ID',
         'po_number' => 'N° Bon de Commande',
         'seller' => 'Vendeur',
         'buyer' => 'Acheteur',
         'status' => 'Statut',
         'order_date' => 'Date de Commande',
-        'currency' => 'Devise',
         'creator' => 'Créateur',
         'updater' => 'Modificateur',
         'created_at' => 'Créé le',
         'updated_at' => 'Mis à jour le',
-        'purchase_requests' => 'Demandes d\'Achat Associées',
     ],
     'filters' => [
         'seller' => 'Vendeur',
@@ -122,5 +134,12 @@ return [
         'item_unit_price' => 'Prix Unitaire',
         'item_net_weight' => 'Poids Net',
         'item_gross_weight' => 'Poids Brut',
+    ],
+    'source' => [
+        'tooltip' => [
+            'pr' => '🔄 Basculer la colonne Demande d\'Achat',
+            'ro' => '🔄 Basculer la colonne Commande Enregistrée',
+            'pi' => '🔄 Basculer la colonne Proforma',
+        ],
     ],
 ];

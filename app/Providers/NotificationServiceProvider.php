@@ -14,9 +14,7 @@ class NotificationServiceProvider extends ServiceProvider
         $this->registerScannableModelObservers();
     }
 
-    public function register(): void
-    {
-    }
+    public function register(): void {}
 
     private function registerScannableModelObservers(): void
     {
@@ -24,9 +22,11 @@ class NotificationServiceProvider extends ServiceProvider
         $models = File::allFiles($modelsPath);
 
         foreach ($models as $modelFile) {
-            $modelClass = 'App\\Models\\' . Str::studly(pathinfo($modelFile, PATHINFO_FILENAME));
+            $modelClass = 'App\\Models\\'.Str::studly(pathinfo($modelFile, PATHINFO_FILENAME));
 
-            if (!class_exists($modelClass)) continue;
+            if (! class_exists($modelClass)) {
+                continue;
+            }
 
             if (defined("{$modelClass}::SCANNABLE_TABLE")) {
                 $modelClass::observe(NotificationDispatcher::class);

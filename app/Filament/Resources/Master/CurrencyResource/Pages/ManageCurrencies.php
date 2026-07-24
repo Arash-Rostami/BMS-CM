@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Master\CurrencyResource\Pages;
 
+use App\Filament\Pages\ManageRecords;
 use App\Filament\Resources\CurrencyResource;
 use Filament\Actions\CreateAction;
-use App\Filament\Pages\ManageRecords;
 
 class ManageCurrencies extends ManageRecords
 {
@@ -14,7 +14,7 @@ class ManageCurrencies extends ManageRecords
     {
         return [
             CreateAction::make()
-                ->icon('heroicon-o-sparkles')
+                ->icon('heroicon-o-sparkles'),
         ];
     }
 }

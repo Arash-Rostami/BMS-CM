@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources;
 
-
 use App\Filament\Resources\Master\CategoryResource\Exports\CategoryExporter;
 use App\Filament\Resources\Master\CategoryResource\Pages\ManageCategories;
 use App\Filament\Resources\Master\CategoryResource\Traits\Filters as CategoryFilters;
@@ -11,6 +10,7 @@ use App\Filament\Resources\Master\CategoryResource\Traits\Infolist as CategoryIn
 use App\Filament\Resources\Master\CategoryResource\Traits\Table as CategoryTable;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Category;
+use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -30,10 +30,12 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CategoryResource extends Resource
 {
-    use CategoryForm, CategoryTable, CategoryInfolist, CategoryFilters, HasResourcePermissions;
+    use CategoryFilters, CategoryForm, CategoryInfolist, CategoryTable, HasResourcePermissions;
 
     protected static ?string $model = Category::class;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
@@ -86,6 +88,18 @@ class CategoryResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/category/strings.general.model_label');
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = SmartCacheManager::remember(
+            'Category',
+            ['user_id' => auth()->id(), 'type' => 'total_count'],
+            3600,
+            fn () => static::getModel()::count()
+        );
+
+        return $count > 0 ? (string) $count : null;
     }
 
     public static function getNavigationBadgeColor(): ?string
@@ -161,14 +175,14 @@ class CategoryResource extends Resource
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()->exporter(CategoryExporter::class)
-                ])
+                    ExportBulkAction::make()->exporter(CategoryExporter::class),
+                ]),
             ])
             ->striped()
             ->reorderableColumns()

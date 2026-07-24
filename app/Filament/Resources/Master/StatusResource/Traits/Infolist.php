@@ -9,7 +9,7 @@ trait Infolist
     public static function viewCreatedAt(): TextEntry
     {
         return TextEntry::make('created_at')
-            ->label(__('resources/status/strings.table.created_at'))
+            ->label(__('resources/status/strings.infolist.created_at'))
             ->dateTime('M Y | D: H:i:s')
             ->color('gray')
             ->placeholder('-');
@@ -18,7 +18,7 @@ trait Infolist
     public static function viewCreator(): TextEntry
     {
         return TextEntry::make('creator.name')
-            ->label(__('resources/status/strings.form.creator'))
+            ->label(__('resources/status/strings.infolist.creator'))
             ->icon('heroicon-m-user-circle')
             ->placeholder('-');
     }
@@ -26,7 +26,7 @@ trait Infolist
     public static function viewEnglishName(): TextEntry
     {
         return TextEntry::make('english_name')
-            ->label(__('resources/status/strings.form.english_name'))
+            ->label(__('resources/status/strings.infolist.english_name'))
             ->icon('heroicon-m-language')
             ->copyable()
             ->placeholder('-');
@@ -35,7 +35,7 @@ trait Infolist
     public static function viewEnglishType(): TextEntry
     {
         return TextEntry::make('english_type')
-            ->label(__('resources/status/strings.form.english_type'))
+            ->label(__('resources/status/strings.infolist.english_type'))
             ->badge()
             ->color('info')
             ->icon('heroicon-m-language')
@@ -45,7 +45,7 @@ trait Infolist
     public static function viewName(): TextEntry
     {
         return TextEntry::make('name')
-            ->label(__('resources/status/strings.form.name'))
+            ->label(__('resources/status/strings.infolist.name'))
             ->icon('heroicon-m-tag')
             ->copyable()
             ->placeholder('-');
@@ -54,7 +54,7 @@ trait Infolist
     public static function viewType(): TextEntry
     {
         return TextEntry::make('type')
-            ->label(__('resources/status/strings.form.type'))
+            ->label(__('resources/status/strings.infolist.type'))
             ->badge()
             ->color('info')
             ->icon('heroicon-m-rectangle-stack')
@@ -64,7 +64,7 @@ trait Infolist
     public static function viewUpdatedAt(): TextEntry
     {
         return TextEntry::make('updated_at')
-            ->label(__('resources/status/strings.table.updated_at'))
+            ->label(__('resources/status/strings.infolist.updated_at'))
             ->dateTime('M Y | D: H:i:s')
             ->color('gray')
             ->placeholder('-');
@@ -73,7 +73,7 @@ trait Infolist
     public static function viewUpdater(): TextEntry
     {
         return TextEntry::make('updater.name')
-            ->label(__('resources/status/strings.form.updater'))
+            ->label(__('resources/status/strings.infolist.updater'))
             ->icon('heroicon-m-pencil-square')
             ->placeholder('-');
     }

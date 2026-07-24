@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
@@ -16,12 +13,27 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone')->nullable()->unique();
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('company')->nullable();
+            $table->unsignedBigInteger('department_id')->nullable();
+            $table->string('position')->nullable();
+            $table->string('role')->nullable();
+            $table->string('image')->nullable();
+            $table->string('status')->nullable();
+            $table->string('ip')->nullable();
+            $table->timestamp('last_log_in')->nullable();
+            $table->timestamp('last_log_out')->nullable();
+            $table->json('settings')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index('phone', 'idx_users_phone');
+            $table->index(['role', 'deleted_at'], 'idx_users_role_deleted');
+            $table->index(['status', 'deleted_at'], 'idx_users_status_deleted');
+            $table->index(['department_id', 'deleted_at'], 'idx_users_department_deleted');
+            $table->index(['company', 'deleted_at'], 'idx_users_company_deleted');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -37,12 +49,11 @@ return new class extends Migration
             $table->text('user_agent')->nullable();
             $table->longText('payload');
             $table->integer('last_activity')->index();
+
+            $table->index(['user_id', 'last_activity'], 'idx_sessions_user_activity');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');

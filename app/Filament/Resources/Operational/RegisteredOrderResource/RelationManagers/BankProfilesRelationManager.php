@@ -13,8 +13,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -23,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BankProfilesRelationManager extends RelationManager
 {
-    use BankProfileTable, BankProfileFilters;
+    use BankProfileFilters, BankProfileTable;
 
     protected static string $relationship = 'bankProfiles';
 
@@ -74,8 +72,8 @@ class BankProfilesRelationManager extends RelationManager
             ->filtersFormColumns(3)
             ->headerActions([
                 Action::make('create')
-                    ->label(__('resources/bankProfile/strings.general.add_record', ['label' => self::getModelLabel()])) // Assuming you have an add_record key
-                    ->url(fn (): string => BankProfileResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()]))
+                    ->label(__('resources/general/strings.actions.add_record'))
+                    ->url(fn (): string => BankProfileResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
                 ActionGroup::make([

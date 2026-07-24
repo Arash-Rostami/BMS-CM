@@ -1,12 +1,115 @@
 <?php
 
-
 return [
     'navigation_group' => [
-        'base'              => '【#】مدیریت داده های پایه ⥃ ',
+        'base' => '【#】مدیریت داده های پایه ⥃ ',
         'operational_first' => '【۱】 مدیریت درخواست‌های خرید ⥃ ',
-        'operational_second'=> '【۲】 مدیریت پرونده‌های ثبت سفارش ⥃ ',
+        'operational_second' => '【۲】 مدیریت پرونده‌های ثبت سفارش ⥃ ',
         'operational_third' => '  【۳】 مدیریت مالی پرونده‌ها ⥃ ',
-        'operational_fourth'=> '【۴】مدیریت لجستیک و ترخیص  ⥃',
+        'operational_fourth' => '【۴】مدیریت لجستیک و ترخیص  ⥃',
+    ],
+    'widgets' => [
+        'tabs' => [
+            'risk' => 'نمای کلی ریسک',
+            'performance' => 'عملکرد',
+            'exposure' => 'مواجهه مالی',
+        ],
+        'cycle_time' => [
+            'heading' => 'زمان چرخه معامله',
+            'description' => 'میانه و صدک نودم روزها به تفکیک مرحله فرآیند',
+            'p50' => 'میانه (P50)',
+            'p90' => 'صدک نود (P90)',
+            'stages' => [
+                'request_to_order' => 'درخواست ← سفارش',
+                'order_to_payment' => 'سفارش ← پرداخت',
+                'payment_to_shipment' => 'پرداخت ← محموله',
+                'shipment_to_clearance' => 'محموله ← ترخیص',
+            ],
+        ],
+        'concentration' => [
+            'heading' => 'ریسک تمرکز',
+            'supplier' => 'تمرکز تأمین‌کننده (HHI)',
+            'currency' => 'تمرکز ارزی (HHI)',
+            'risk_high' => 'ریسک وابستگی بالا',
+            'risk_moderate' => 'ریسک وابستگی متوسط',
+            'risk_low' => 'تنوع مناسب',
+        ],
+        'punctuality' => [
+            'heading' => 'دقت زمان‌بندی محموله',
+            'description' => 'تاریخ خروج واقعی در برابر ETA',
+            'on_time' => 'به‌موقع',
+            'late_1_3' => '۱ تا ۳ روز تأخیر',
+            'late_4_7' => '۴ تا ۷ روز تأخیر',
+            'late_8_plus' => 'بیش از ۸ روز تأخیر',
+            'currently_overdue' => 'در حال حاضر معوق',
+        ],
+        'exposure_aging' => [
+            'heading' => 'عمربندی پرداخت‌های معوق',
+            'description' => 'مبالغ پرداخت‌نشده پس از موعد، به تفکیک ارز',
+            'bucket_0_30' => '۰ تا ۳۰ روز',
+            'bucket_31_60' => '۳۱ تا ۶۰ روز',
+            'bucket_61_90' => '۶۱ تا ۹۰ روز',
+            'bucket_90_plus' => 'بیش از ۹۰ روز',
+        ],
+        'open_exposure' => [
+            'heading' => 'مواجهه ارزی باز',
+            'description' => 'ارزش سفارش متعهدشده که هنوز پرداخت نشده، به تفکیک ارز',
+        ],
+        'pipeline_stalls' => [
+            'heading' => 'پرونده‌های متوقف‌شده',
+            'description' => 'پرونده‌های باز که از موعد هدف خود گذشته‌اند',
+            'days_overdue' => 'روزهای تأخیر',
+            'empty' => 'هیچ پرونده‌ای متوقف نشده — همه طبق برنامه هستند',
+            'record_types' => [
+                'purchase_request' => 'درخواست خرید',
+                'registered_order' => 'سفارش ثبت‌شده',
+                'payment' => 'پرداخت',
+                'shipment' => 'محموله',
+            ],
+        ],
+        'legend' => [
+            'toggle_show' => 'درباره این شاخص',
+            'toggle_hide' => 'پنهان کردن جزئیات',
+            'what_label' => 'این شاخص چه چیزی را نشان می‌دهد',
+            'data_label' => 'داده‌های استفاده‌شده',
+            'why_label' => 'چرا اهمیت دارد',
+            'technical_label' => 'جزئیات فنی',
+            'cycle_time' => [
+                'what' => 'معمولاً چند روز طول می‌کشد تا هر مرحله از فرآیند خرید طی شود — تأیید، سفارش، پرداخت، حمل، ترخیص گمرکی — به‌صورت زمان معمول (میانه) و بدترین حالت (صدک نودم).',
+                'data' => 'درخواست‌های خرید، سفارش‌های ثبت‌شده، پرداخت‌ها، محموله‌ها و پرونده‌های گمرکی، بر اساس تاریخ هر مرحله (تاریخ تأیید، تاریخ سفارش، تاریخ پرداخت، ETA، تاریخ خروج، تاریخ ترخیص) به هم متصل شده‌اند.',
+                'why' => 'دقیقاً نشان می‌دهد کدام مرحله از فرآیند گلوگاه است، به‌جای حدس زدن.',
+                'technical' => 'purchase_requests.approval_date ← registered_orders.order_date (از طریق registered_order_purchase_request)؛ registered_orders.order_date ← payments.payment_date (با شرط payments.targetable_type = RegisteredOrder و targetable_id = registered_orders.id)؛ اولین payments.payment_date ← shipments.eta (از طریق shipments.registered_order_id)؛ shipments.exit_date ← customs.clearance_date (از طریق customs.shipment_id). هر مرحله با DATEDIFF() محاسبه و در SQL به‌صورت صعودی مرتب می‌شود؛ PHP فقط اندیس میانه/صدک ۹۰ را انتخاب می‌کند، بدون مرتب‌سازی در PHP.',
+            ],
+            'concentration' => [
+                'what' => 'میزان وابستگی کسب‌وکار به تعداد کمی تأمین‌کننده یا یک ارز خاص، با شاخص هرفیندال-هیرشمن (HHI) محاسبه می‌شود.',
+                'data' => 'پرداخت‌ها، به تفکیک تأمین‌کننده (دریافت‌کننده) و همچنین به تفکیک ارز جمع می‌شوند.',
+                'why' => 'عبور از عدد ۲۵۰۰ هشداری زودهنگام برای تمرکز ریسک است، پیش از وقوع مشکل برای یک تأمین‌کننده یا یک ارز.',
+                'technical' => 'SUM(payments.total_amount) به تفکیک payments.payee_id، و جداگانه به تفکیک payments.currency_id. HHI = SUM((سهم گروه / کل)^۲) × ۱۰۰۰۰، به‌طور کامل در SQL محاسبه می‌شود (CTE در MySQL 8+ یا MariaDB 10.2+، در غیر این صورت زیرکوئری — تشخیص نسخه از طریق PDO::ATTR_SERVER_VERSION).',
+            ],
+            'punctuality' => [
+                'what' => 'تاریخ برآوردی رسیدن هر محموله (ETA) را با تاریخ واقعی خروج آن از مبدأ مقایسه می‌کند و آن‌ها را به‌موقع، دارای تأخیر و در حال حاضر معوق دسته‌بندی می‌کند.',
+                'data' => 'محموله‌ها — ستون‌های eta و exit_date.',
+                'why' => 'قابلیت اطمینان لجستیک را در یک نگاه نشان می‌دهد و محموله‌های معوق فعلی را مشخص می‌کند.',
+                'technical' => 'ستون‌های shipments.eta و shipments.exit_date، با شرط eta IS NOT NULL. DATEDIFF(exit_date, eta) رکوردها را با CASE WHEN به‌موقع (≤۰)، ۱ تا ۳، ۴ تا ۷، ۸+ روز تأخیر دسته‌بندی می‌کند. currently_overdue یعنی exit_date خالی و eta < CURDATE().',
+            ],
+            'exposure_aging' => [
+                'what' => 'تمام پرداخت‌های پرداخت‌نشده‌ای که از موعد آن‌ها گذشته، بر اساس میزان تأخیر — ۰ تا ۳۰، ۳۱ تا ۶۰، ۶۱ تا ۹۰، بیش از ۹۰ روز — و به تفکیک ارز گروه‌بندی می‌شوند.',
+                'data' => 'پرداخت‌ها — موعد پرداخت، تاریخ پرداخت، مبلغ قابل‌پرداخت و ارز.',
+                'why' => 'دقیقاً نشان می‌دهد چه مبلغی و به چه میزان معوق است، به تفکیک ارز، به‌جای یک رقم کلی پنهان.',
+                'technical' => 'پرداخت‌هایی با payment_date خالی و payment_deadline < CURDATE()، به تفکیک currency_id. DATEDIFF(CURDATE(), payment_deadline) مبلغ payable_amount را با CASE WHEN به بازه‌های ۰ تا ۳۰ / ۳۱ تا ۶۰ / ۶۱ تا ۹۰ / بیش از ۹۰ تقسیم می‌کند، با اتصال به currencies برای برچسب نمایشی.',
+            ],
+            'open_exposure' => [
+                'what' => 'چه میزان از ارزش کل سفارش‌های متعهدشده هنوز پرداخت نشده، به تفکیک ارز.',
+                'data' => 'مجموع اقلام سفارش‌های ثبت‌شده (line_total) منهای پرداخت‌های مرتبط (total_amount)، به تفکیک ارز.',
+                'why' => 'به خزانه‌داری نشان می‌دهد از هر ارز چه میزان باید از پیش خریداری شود.',
+                'technical' => 'SUM(registered_order_items.line_total) به ازای هر registered_order_id، با اتصال چپ به SUM(payments.total_amount) بر اساس targetable_id مطابق (فقط RegisteredOrder). GREATEST(تعهدشده − پرداخت‌شده, 0) به تفکیک registered_orders.currency_id جمع می‌شود، با شرط HAVING open_exposure > 0.',
+            ],
+            'pipeline_stalls' => [
+                'what' => 'پرونده‌های مشخصی که از موعد هدف خود گذشته‌اند و به مرحله بعد نرفته‌اند — یک فهرست است، نه نمودار.',
+                'data' => 'درخواست‌های خرید، سفارش‌های ثبت‌شده، پرداخت‌ها و محموله‌ها، هرکدام در برابر ستون موعد یا تاریخ هدف خودشان.',
+                'why' => 'فهرست «چه چیزی امروز نیاز به توجه دارد»، بر اساس تعداد روزهای تأخیر مرتب‌شده.',
+                'technical' => 'چهار کوئری با UNION ترکیب شده‌اند: purchase_requests (با approval_date خالی و required_by_date < CURDATE())؛ registered_orders (با expected_delivery_date < CURDATE() و بدون هیچ shipments.registered_order_id مرتبط)؛ payments (با payment_date خالی و payment_deadline < CURDATE())؛ shipments (با exit_date خالی و eta < CURDATE()). هرکدام DATEDIFF(CURDATE(), تاریخ هدف) را محاسبه می‌کنند؛ نتیجه ترکیبی بر اساس این مقدار نزولی مرتب و به ۱۵ مورد محدود می‌شود.',
+            ],
+        ],
     ],
 ];

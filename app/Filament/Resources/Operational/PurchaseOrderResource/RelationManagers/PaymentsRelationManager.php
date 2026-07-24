@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentsRelationManager extends RelationManager
 {
-    use PaymentTable, PaymentFilters;
+    use PaymentFilters, PaymentTable;
 
     protected static string $relationship = 'payments';
 
@@ -73,8 +73,8 @@ class PaymentsRelationManager extends RelationManager
             ->filtersFormColumns(3)
             ->headerActions([
                 Action::make('create')
-                    ->label(__('resources/payment/strings.general.add_record', ['label' => self::getModelLabel()]))
-                    ->url(fn (): string => PaymentResource::getUrl('create', ['purchase_order_id' => $this->getOwnerRecord()->getKey()]))
+                    ->label(__('resources/general/strings.actions.add_record'))
+                    ->url(fn (): string => PaymentResource::getUrl('create', ['purchase_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
                 ActionGroup::make([

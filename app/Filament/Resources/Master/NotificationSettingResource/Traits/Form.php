@@ -15,9 +15,9 @@ trait Form
         return Select::make('settings.actions')
             ->label(__('resources/notificationSetting/strings.form.actions'))
             ->options([
-                'create' => '🟢 Create',
-                'update' => '🟡 Update',
-                'delete' => '🔴 Delete',
+                'create' => __('resources/notificationSetting/strings.action_types.create'),
+                'update' => __('resources/notificationSetting/strings.action_types.update'),
+                'delete' => __('resources/notificationSetting/strings.action_types.delete'),
             ])
             ->default('create')
             ->live()
@@ -31,14 +31,14 @@ trait Form
     {
         return Select::make('settings.columns')
             ->label(__('resources/notificationSetting/strings.form.columns'))
-            ->options(fn($get) => NotificationSetting::getColumnsForSelectedTables($get('settings.tables')))
+            ->options(fn ($get) => NotificationSetting::getColumnsForSelectedTables($get('settings.tables')))
             ->multiple()
             ->columnSpan(1)
             ->columnSpanFull()
             ->live()
             ->searchable()
-            ->disabled(fn($get) => !in_array('update', (array)$get('settings.actions')))
-            ->hidden(fn($get) => !in_array('update', (array)$get('settings.actions')))
+            ->disabled(fn ($get) => ! in_array('update', (array) $get('settings.actions')))
+            ->hidden(fn ($get) => ! in_array('update', (array) $get('settings.actions')))
             ->nullable()
             ->helperText(__('resources/notificationSetting/strings.form.helper_columns'));
     }
@@ -47,7 +47,7 @@ trait Form
     {
         return Select::make('settings.values')
             ->label(__('resources/notificationSetting/strings.form.column_values'))
-            ->options(fn($get) => NotificationSetting::getColumnValuesForSelectedColumns(
+            ->options(fn ($get) => NotificationSetting::getColumnValuesForSelectedColumns(
                 $get('settings.columns') ?? [],
                 $get('settings.tables') ?? []
             ))
@@ -56,18 +56,10 @@ trait Form
             ->columnSpanFull()
             ->searchable()
             ->live()
-            ->disabled(fn($get) => !in_array('update', (array)$get('settings.actions')))
-            ->hidden(fn($get) => !in_array('update', (array)$get('settings.actions')))
+            ->disabled(fn ($get) => ! in_array('update', (array) $get('settings.actions')))
+            ->hidden(fn ($get) => ! in_array('update', (array) $get('settings.actions')))
             ->nullable()
             ->helperText(__('resources/notificationSetting/strings.form.helper_column_values'));
-    }
-
-    public static function getDescription(): Textarea
-    {
-        return Textarea::make('description')
-            ->label(__('resources/notificationSetting/strings.form.description'))
-            ->maxLength(65535)
-            ->nullable();
     }
 
     public static function getIsActive(): Toggle
@@ -103,7 +95,8 @@ trait Form
             ->options(NotificationSetting::notificationChannel())
             ->default('in_app')
             ->columnSpan(1)
-            ->columnSpanFull();
+            ->columnSpanFull()
+            ->helperText(__('resources/notificationSetting/strings.form.helper_notification_type'));
     }
 
     public static function getTableSelector(): Select

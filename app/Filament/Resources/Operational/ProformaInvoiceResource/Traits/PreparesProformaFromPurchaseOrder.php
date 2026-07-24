@@ -14,7 +14,7 @@ trait PreparesProformaFromPurchaseOrder
             $purchaseOrder = PurchaseOrder::with(['items.product.specifications'])->find($purchaseOrderId);
 
             if ($purchaseOrder) {
-                $items = $purchaseOrder->items->map(fn($item) => [
+                $items = $purchaseOrder->items->map(fn ($item) => [
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity ?? 0,
                     'unit' => $item->unit ?? null,
@@ -25,7 +25,7 @@ trait PreparesProformaFromPurchaseOrder
                         2,
                         '.',
                         ''
-                    )
+                    ),
                 ])->toArray();
 
                 $this->form->fill([

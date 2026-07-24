@@ -4,8 +4,6 @@ return [
     'general' => [
         'model_label' => 'سفارش خرید',
         'plural_model_label' => 'سفارشات خرید',
-        'navigation_group' => 'اطلاعات عملیاتی',
-        'add_record' => '˙⋆✮ ایجاد جدید',
         'delivery_terms' => [
             'cfr' => 'CFR (هزینه و کرایه حمل)',
             'cif' => 'CIF (هزینه، بیمه و کرایه حمل)',
@@ -25,14 +23,33 @@ return [
             'Draft' => 'پیش‌نویس',
         ],
     ],
+    'export' => [
+        'id' => 'شناسه',
+        'po_number' => 'شماره سفارش خرید',
+        'seller' => 'تأمین کننده (فروشنده)',
+        'seller_english' => 'تأمین کننده (انگلیسی)',
+        'buyer' => 'خریدار',
+        'buyer_english' => 'خریدار (انگلیسی)',
+        'status' => 'وضعیت',
+        'status_english' => 'وضعیت (انگلیسی)',
+        'order_date' => 'تاریخ سفارش',
+        'validity_date' => 'تاریخ اعتبار',
+        'expected_delivery_date' => 'تاریخ تحویل مورد انتظار',
+        'currency' => 'ارز',
+        'currency_english' => 'ارز (انگلیسی)',
+        'total_amount' => 'مبلغ کل',
+        'items' => 'اقلام',
+        'creator' => 'ایجاد کننده',
+        'updater' => 'بروزرسانی کننده',
+        'created_at' => 'تاریخ ایجاد',
+        'updated_at' => 'تاریخ به‌روزرسانی',
+    ],
     'form' => [
-        // Section Titles
         'tab_general' => 'عمومی',
         'section_order_details' => 'جزئیات سفارش',
         'section_items' => 'کالاهای سفارش',
         'section_shipping_notes' => 'حمل و نقل و یادداشت‌ها',
 
-        // Fields
         'po_number' => 'شماره سفارش خرید',
         'seller' => 'تأمین کننده (فروشنده)',
         'buyer' => 'خریدار',
@@ -57,9 +74,6 @@ return [
         'gross_weight' => 'وزن ناخالص ',
         'add_item_action' => 'افزودن کالا',
         'attachments' => 'پیوست‌ها',
-        'purchase_requests' => 'درخواست خرید مرتبط',
-
-        // Validation
         'validation_required' => 'این فیلد الزامی است.',
         'validation_unique' => 'این مقدار باید منحصر به فرد باشد.',
         'validation_max_string' => 'این فیلد نباید بیشتر از :max کاراکتر باشد.',
@@ -69,30 +83,29 @@ return [
         'validation_numeric' => 'این فیلد باید یک عدد باشد.',
         'validation_min_numeric' => 'این فیلد باید حداقل :min باشد.',
         'validation_min_numeric_zero' => 'این فیلد نمی‌تواند منفی باشد.',
+        'validation_string' => 'این فیلد باید یک رشته متنی باشد.',
+        'validation_date' => 'لطفاً یک تاریخ معتبر وارد کنید.',
 
-        // Helper Text
         'helper_po_number' => 'این شماره به‌طور خودکار ایجاد شده و برای حفظ یکپارچگی سیستم قفل است.',
         'helper_expected_delivery_date' => 'تاریخی بعد از ثبت سفارش انتخاب کنید؛ این زمان مبنای برنامه‌ریزی تأمین‌کننده خواهد بود.',
         'helper_validity_date' => 'پایان مهلت اعتبار این سفارش را مشخص می‌کند؛ پس از این تاریخ، توافقات ممکن است نیاز به بازنگری داشته باشند.',
         'helper_unit_price' => 'با وارد کردن قیمت واحد، سیستم بلافاصله جمع کل را برای شما محاسبه و بروزرسانی می‌کند.',
         'helper_status' => 'چرخهٔ عمر سفارش خرید از پیش‌نویس تا تکمیل را رهگیری می‌کند.',
-        'validation_attachments_type' => 'نوع فایل :attribute مجاز نیست.',
-        'validation_attachments_size' => 'حجم فایل :attribute نباید از :max کیلوبایت بیشتر باشد.',
+        'helper_order_date' => 'مبنای محاسبه تاریخ اعتبار و تاریخ تحویل مورد انتظار است؛ هر دو باید برابر یا پس از این تاریخ باشند.',
+        'helper_gross_weight' => 'وزن ناخالص شامل بسته‌بندی است و باید حداقل برابر با وزن خالص باشد.',
     ],
     'table' => [
+        'id' => 'شناسه',
         'po_number' => 'شماره سفارش',
         'seller' => ' تأمین کننده (فروشنده)',
         'buyer' => 'خریدار',
         'status' => 'وضعیت',
         'order_date' => 'تاریخ سفارش',
-        'currency' => 'ارز',
         'creator' => 'ایجاد کننده',
         'updater' => 'بروزرسانی کننده',
         'created_at' => 'تاریخ ایجاد',
         'updated_at' => 'تاریخ بروزرسانی',
-        'purchase_requests' => 'درخواست خرید مرتبط',
     ],
-    // Add these 'filters' and 'infolist' sections
     'filters' => [
         'seller' => 'فروشنده',
         'supplier' => 'تأمین‌کننده',
@@ -121,5 +134,12 @@ return [
         'item_unit_price' => 'قیمت واحد',
         'item_net_weight' => 'وزن خالص',
         'item_gross_weight' => 'وزن ناخالص',
+    ],
+    'source' => [
+        'tooltip' => [
+            'pr' => '🔄 ستون درخواست خرید را فعال کنید',
+            'ro' => '🔄 ستون ثبت سفارش را فعال کنید',
+            'pi' => '🔄 ستون پیش فاکتور خرید را فعال کنید',
+        ],
     ],
 ];

@@ -2,17 +2,17 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Pages;
 
+use App\Filament\Pages\CreateRecord;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\PreparesPurchaseOrderFromProforma;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\PreparesPurchaseOrderFromPurchaseRequest;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\PreparesPurchaseOrderFromRegisteredOrder;
 use App\Filament\Resources\PurchaseOrderResource;
-use App\Filament\Pages\CreateRecord;
 
 class CreatePurchaseOrder extends CreateRecord
 {
+    use PreparesPurchaseOrderFromProforma;
     use PreparesPurchaseOrderFromPurchaseRequest;
     use PreparesPurchaseOrderFromRegisteredOrder;
-    use PreparesPurchaseOrderFromProforma;
 
     protected static string $resource = PurchaseOrderResource::class;
 

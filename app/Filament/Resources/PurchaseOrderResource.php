@@ -18,15 +18,13 @@ use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Form as Purc
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Infolist as PurchaseOrderInfolist;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as PurchaseOrderTable;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\TotalCalculation;
+use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\PurchaseOrder;
-use App\Services\SmartCacheManager;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
@@ -48,10 +46,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use UnitEnum;
 
-
 class PurchaseOrderResource extends Resource
 {
-    use TotalCalculation, PurchaseOrderForm, PurchaseOrderTable, PurchaseOrderFilters, PurchaseOrderInfolist, HasResourcePermissions, HasExtraAttributesManagement;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, PurchaseOrderFilters, PurchaseOrderForm, PurchaseOrderInfolist, PurchaseOrderTable, TotalCalculation;
 
     protected static ?string $model = PurchaseOrder::class;
 
@@ -89,7 +86,6 @@ class PurchaseOrderResource extends Resource
                                                 static::getExpectedDeliveryDateField(),
                                             ])->columns(3),
 
-
                                         Section::make(__('resources/purchaseOrder/strings.form.section_items'))
                                             ->heading(__('resources/purchaseOrder/strings.form.section_items'))
                                             ->schema([
@@ -110,12 +106,12 @@ class PurchaseOrderResource extends Resource
                                                     ->defaultItems(0)
                                                     ->live(true)
                                                     ->addActionLabel(__('resources/purchaseOrder/strings.form.add_item_action'))
-                                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotal($get, $set))
-                                                    ->afterStateHydrated(fn(Get $get, Set $set) => static::updateTotal($get, $set))
+                                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateTotal($get, $set))
+                                                    ->afterStateHydrated(fn (Get $get, Set $set) => static::updateTotal($get, $set))
 //                                                  ->afterStateHydrated(fn($component, $state, $get) => ($items = $get('items')) ? $component->state($items) : null)
-                                                    ->mutateRelationshipDataBeforeFillUsing(fn(array $data): array => $data)
-                                                    ->addAction(fn($action) => $action->after(fn(Get $get, Set $set) => static::updateTotal($get, $set)))
-                                                    ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => self::updateTotal($get, $set)))])
+                                                    ->mutateRelationshipDataBeforeFillUsing(fn (array $data): array => $data)
+                                                    ->addAction(fn ($action) => $action->after(fn (Get $get, Set $set) => static::updateTotal($get, $set)))
+                                                    ->deleteAction(fn ($action) => $action->after(fn (Get $get, Set $set) => self::updateTotal($get, $set)))]),
                                     ])
                                     ->columnSpan(['lg' => 2]),
 
@@ -129,7 +125,7 @@ class PurchaseOrderResource extends Resource
                                                 static::getShippingAddressField(),
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
-                                            ])->columns(4)
+                                            ])->columns(4),
                                     ])
                                     ->columnSpan(['lg' => 1]),
                             ])
@@ -159,7 +155,7 @@ class PurchaseOrderResource extends Resource
                 'sellerCompany',
                 'sellerCompanyExclusive',
                 'supplierCompanyExclusive',
-                'manufacturerCompanyExclusive'
+                'manufacturerCompanyExclusive',
             ])
             ->withCount([
                 'proformaInvoices',
@@ -188,7 +184,7 @@ class PurchaseOrderResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return '🛍️ ' . ($record->po_number ?? '—');
+        return '🛍️ '.($record->po_number ?? '—');
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -199,23 +195,6 @@ class PurchaseOrderResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/purchaseOrder/strings.general.model_label');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'PurchaseOrder',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            150,
-            fn() => static::getModel()::count()
-        );
-
-        return $count > 0 ? (string)$count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
     }
 
     public static function getNavigationGroup(): ?string
@@ -243,7 +222,7 @@ class PurchaseOrderResource extends Resource
             PurchaseRequestsRelationManager::class,
             ProformaInvoicesRelationManager::class,
             RegisteredOrdersRelationManager::class,
-            PaymentsRelationManager::class
+            PaymentsRelationManager::class,
         ];
     }
 
@@ -280,7 +259,7 @@ class PurchaseOrderResource extends Resource
                     ]),
                 Tab::make(__('resources/purchaseOrder/strings.infolist.tab_items'))
                     ->icon('heroicon-o-list-bullet')
-                    ->badge(fn($record) => $record->items->count())
+                    ->badge(fn ($record) => $record->items->count())
                     ->schema([
                         Section::make()->schema([
                             RepeatableEntry::make('items')
@@ -292,13 +271,13 @@ class PurchaseOrderResource extends Resource
                                     self::viewItemUnit(),
                                     self::viewItemNetWeight(),
                                     self::viewItemGrossWeight(),
-                                ])->columns(7)
+                                ])->columns(7),
                         ]),
                     ]),
                 Tab::make('Documents')
                     ->icon('heroicon-o-paper-clip')
                     ->schema([Section::make()->schema([static::viewAttachments()])])
-                    ->label(fn($record) => tabBadge(
+                    ->label(fn ($record) => tabBadge(
                         __('resources/purchaseOrder/strings.infolist.tab_documents'),
                         $record?->attachments->count() ?? 0,
                         'info'
@@ -343,13 +322,11 @@ class PurchaseOrderResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    DeleteAction::make(),
                     RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(PurchaseOrderExporter::class),
@@ -358,16 +335,16 @@ class PurchaseOrderResource extends Resource
             ->groups([
                 Group::make('buyerCompany.name')
                     ->label(__('resources/purchaseOrder/strings.filters.buyer'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
                 Group::make('sellerCompanyExclusive.name')
                     ->label(__('resources/purchaseOrder/strings.filters.seller'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'sellerCompanyExclusive')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'sellerCompanyExclusive')),
                 Group::make('supplierCompanyExclusive.name')
                     ->label(__('resources/purchaseOrder/strings.filters.supplier'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'supplierCompanyExclusive')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'supplierCompanyExclusive')),
                 Group::make('manufacturerCompanyExclusive.name')
                     ->label(__('resources/purchaseOrder/strings.filters.manufacturer'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'manufacturerCompanyExclusive')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'manufacturerCompanyExclusive')),
             ])
             ->striped()
             ->searchDebounce('1000ms')

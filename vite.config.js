@@ -11,6 +11,8 @@ export default defineConfig({
                 'resources/css/layout/fonts.css',
                 'resources/css/landing-page.css',
                 'resources/js/app.js',
+                'resources/js/filament/nav-dock.js',
+                'resources/js/filament/topbar-autohide.js',
             ],
             refresh: true,
         }),
@@ -18,7 +20,8 @@ export default defineConfig({
             targets: [
                 { src: 'resources/img/*', dest: '../img/' },
                 { src: 'resources/audio/*', dest: '../audio/' },
-                { src: 'resources/video/*', dest: '../video/' }
+                { src: 'resources/video/*', dest: '../video/' },
+                { src: 'resources/fonts/*', dest: '../fonts/' }
             ]
         })
     ]

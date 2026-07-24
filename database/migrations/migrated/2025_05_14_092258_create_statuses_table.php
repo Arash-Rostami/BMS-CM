@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('statuses', function (Blueprint $table) {
@@ -19,18 +16,17 @@ return new class extends Migration
             $table->string('english_name')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('updated_by_id')->nullable();
-            $table->unique(['type','name']);
+            $table->unique(['type', 'name']);
             $table->softDeletes();
             $table->timestamps();
 
             $table->index(['english_type', 'deleted_at'], 'idx_statuses_eng_type_deleted');
             $table->index(['type', 'deleted_at'], 'idx_statuses_type_deleted');
+            $table->index('user_id', 'idx_statuses_user_id');
+            $table->index('updated_by_id', 'idx_statuses_updated_by_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('statuses');

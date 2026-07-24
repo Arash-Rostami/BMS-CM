@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('product_attributes', function (Blueprint $table) {
@@ -16,13 +13,12 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('products');
             $table->string('key', 50);
             $table->string('value', 100);
-            $table->index(['product_id','key']);
+
+            $table->index(['product_id', 'key']);
+            $table->index(['key', 'value'], 'idx_product_attributes_key_value');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('product_attributes');

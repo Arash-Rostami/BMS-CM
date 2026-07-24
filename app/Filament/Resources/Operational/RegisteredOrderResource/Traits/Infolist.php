@@ -15,11 +15,11 @@ trait Infolist
             ->schema([
                 TextEntry::make('path')
                     ->hiddenLabel()
-                    ->formatStateUsing(fn(string $state): string => basename($state))
-                    ->tooltip(fn($record) => $record->name ?? '')
+                    ->formatStateUsing(fn (string $state): string => basename($state))
+                    ->tooltip(fn ($record) => $record->name ?? '')
                     ->icon('heroicon-m-paper-clip')
                     ->color('primary')
-                    ->url(fn($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
+                    ->url(fn ($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
             ])
             ->columns(1);
     }
@@ -132,7 +132,7 @@ trait Infolist
         return TextEntry::make('unit_price')
             ->label(__('resources/registeredOrder/strings.infolist.item_unit_price'))
             ->color('success')
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-');
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-');
     }
 
     public static function viewNotes(): TextEntry
@@ -195,7 +195,7 @@ trait Infolist
         return TextEntry::make('status.name')
             ->label(__('resources/registeredOrder/strings.form.status'))
             ->badge()
-            ->formatStateUsing(fn($record): ?string => $record->status?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->status?->getLocalizedNameAttribute())
             ->placeholder('-');
     }
 
@@ -204,7 +204,7 @@ trait Infolist
         return TextEntry::make('total_amount')
             ->label(__('resources/registeredOrder/strings.infolist.total_amount'))
             ->color('success')
-            ->formatStateUsing(fn($state) => $state !== null ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? delimiter($state) : '-')
             ->placeholder('0.00');
     }
 
@@ -212,7 +212,7 @@ trait Infolist
     {
         return TextEntry::make('total_quantity')
             ->label(__('resources/registeredOrder/strings.form.total_quantity'))
-            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 0) : '-')
             ->placeholder('-');
     }
 

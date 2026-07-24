@@ -2,33 +2,27 @@
 
 namespace App\Filament\Resources\Operational\ProformaInvoiceResource\RelationManagers;
 
-use App\Filament\Resources\PurchaseOrderResource;
-use App\Filament\Resources\RegisteredOrderResource;
-use Filament\Actions\Action;
-use Filament\Schemas\Schema;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DetachAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrderExporter;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Filters as PurchaseOrderFilters;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as PurchaseOrderTable;
-use App\Filament\Resources\PurchaseRequestResource;
+use App\Filament\Resources\PurchaseOrderResource;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DetachAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrdersRelationManager extends RelationManager
 {
-    use PurchaseOrderTable, PurchaseOrderFilters;
+    use PurchaseOrderFilters, PurchaseOrderTable;
 
     protected static string $relationship = 'purchaseOrders';
 
@@ -82,14 +76,14 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->filtersFormColumns(3)
             ->headerActions([
                 Action::make('create')
-                    ->label(__('resources/purchaseOrder/strings.general.add_record'))
-                    ->url(fn(): string => PurchaseOrderResource::getUrl('create', ['proforma_invoice_id' => $this->getOwnerRecord()->getKey()]))
+                    ->label(__('resources/general/strings.actions.add_record'))
+                    ->url(fn (): string => PurchaseOrderResource::getUrl('create', ['proforma_invoice_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record) => PurchaseOrderResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record) => PurchaseOrderResource::getUrl('edit', ['record' => $record])),
                     DetachAction::make(),
                     DeleteAction::make(),
                 ]),
@@ -103,10 +97,10 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->groups([
                 Group::make('buyer.name')
                     ->label(__('resources/purchaseOrder/strings.filters.buyer'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'buyer')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'buyer')),
                 Group::make('supplier.name')
                     ->label(__('resources/purchaseOrder/strings.filters.supplier'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'supplier')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'supplier')),
             ])
             ->striped()
             ->recordUrl(null)

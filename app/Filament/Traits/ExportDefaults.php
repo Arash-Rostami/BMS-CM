@@ -2,7 +2,6 @@
 
 namespace App\Filament\Traits;
 
-
 use Filament\Actions\Exports\Models\Export;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -10,10 +9,14 @@ trait ExportDefaults
 {
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'Your export has completed and ' . number_format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
+        $body = __('resources/general/strings.export.completed', [
+            'successful' => number_format($export->successful_rows),
+        ]);
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
-            $body .= ' ' . number_format($failedRowsCount) . ' ' . str('row')->plural($failedRowsCount) . ' failed to export.';
+            $body .= __('resources/general/strings.export.failed', [
+                'failed' => number_format($failedRowsCount),
+            ]);
         }
 
         return $body;
@@ -28,9 +31,15 @@ trait ExportDefaults
         return "{$app}-{$model}-{$timestamp}";
     }
 
-
     public function getQuery(): Builder
     {
-        return parent::getQuery()->limit(1000);
+        return parent::getQuery()
+            ->with(array_merge(['creator', 'updater'], static::eagerLoadRelations()))
+            ->limit(1000);
+    }
+
+    protected static function eagerLoadRelations(): array
+    {
+        return [];
     }
 }

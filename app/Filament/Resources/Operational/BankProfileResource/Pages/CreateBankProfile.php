@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Operational\BankProfileResource\Pages;
 
+use App\Filament\Pages\CreateRecord;
 use App\Filament\Resources\BankProfileResource;
 use App\Filament\Resources\Operational\BankProfileResource\Traits\PrepareBankProfileFromRegisteredOrder;
-use App\Filament\Pages\CreateRecord;
 
 class CreateBankProfile extends CreateRecord
 {
@@ -27,6 +27,7 @@ class CreateBankProfile extends CreateRecord
             $data['commission_amount_purchased'] = null;
         }
         unset($data['commission_input_mode']);
+
         return $data;
     }
 }

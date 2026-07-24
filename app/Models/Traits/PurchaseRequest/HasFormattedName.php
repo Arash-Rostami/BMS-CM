@@ -17,12 +17,12 @@ trait HasFormattedName
     private function buildFormattedName(bool $withDates): string
     {
         $fa = app()->getLocale() === 'fa';
-        $s = fn($key, $faValue, $enValue) => $fa ? $faValue : $enValue;
+        $s = fn ($key, $faValue, $enValue) => $fa ? $faValue : $enValue;
 
         $status = match ($this->status?->english_name) {
-            'Authorized'  => '✅ ',
+            'Authorized' => '✅ ',
             'Conditional' => '☑️ ',
-            default       => '',
+            default => '',
         };
 
         $dept = $this->costCenter?->{$fa ? 'name' : 'english_name'}
@@ -38,7 +38,7 @@ trait HasFormattedName
                 : "{$status}{$idValue} ┆ {$name} ({$dept})";
         }
 
-        $fmt = fn($d) => $d ? ($fa ? toPersianDate($d) : toGregorianDate($d)) : 'N/A';
+        $fmt = fn ($d) => $d ? ($fa ? toPersianDate($d) : toGregorianDate($d)) : 'N/A';
         $cDate = $fmt($this->created_at);
 
         [$dDate, $dLabel] = $this->required_by_date

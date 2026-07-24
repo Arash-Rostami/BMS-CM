@@ -6,9 +6,8 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum IsActiveStatus: int implements HasLabel, HasIcon, HasColor
+enum IsActiveStatus: int implements HasColor, HasIcon, HasLabel
 {
-
     case IS_ACTIVE = 1;
     case IS_IN_ACTIVE = 0;
 

@@ -4,7 +4,6 @@ namespace App\Models\Traits\NotificationSetting;
 
 trait Setting
 {
-
     public function getActions(): array
     {
         return $this->settings['actions'] ?? [];

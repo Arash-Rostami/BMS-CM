@@ -34,14 +34,13 @@ class CustomLogin extends BaseLogin
 
     public function getHeading(): string|Htmlable
     {
-        return new HtmlString('
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <div style="display: flex; align-items: flex-start;">
-                    <span style="margin-left: 0.125rem; margin-top: 0.25rem; font-size: 10px; font-weight: bold; color: #6b7280;">CM</span>
-                    <span style="margin: 0; padding: 0; font-size: 1.875rem; line-height: 2.25rem; font-weight: 900; letter-spacing: -0.025em; color: #111827;">BMS</span>
-                </div>
+        $appName = e(config('app.name'));
+
+        return new HtmlString("
+            <div style=\"display: flex; flex-direction: column; align-items: center; justify-content: center;\">
+                <span class=\"fi-login-brand\">{$appName}</span>
             </div>
-        ');
+        ");
     }
 
     public function getSubheading(): string|Htmlable|null
@@ -49,7 +48,7 @@ class CustomLogin extends BaseLogin
         return new HtmlString('
             <div style="margin-bottom: 2rem; display: flex; align-items: center; justify-content: center;">
                 <span style="font-size: 0.75rem; line-height: 1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #4b5563;">
-                    Work
+                    Trade
                     <span style="position: relative; display: inline-block; opacity: 0.5;">
                         hard
                         <span style="position: absolute; left: 0; top: 50%; height: 2px; width: 100%; transform: translateY(-50%) rotate(8deg); background-color: #ef4444;"></span>

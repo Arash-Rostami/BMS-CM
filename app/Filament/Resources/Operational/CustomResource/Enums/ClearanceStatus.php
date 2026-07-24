@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum ClearanceStatus: string implements HasColor, HasLabel, HasIcon
+enum ClearanceStatus: string implements HasColor, HasIcon, HasLabel
 {
     case Declared = 'Declared';
     case DocumentsSubmitted = 'Documents Submitted';
@@ -47,6 +47,6 @@ enum ClearanceStatus: string implements HasColor, HasLabel, HasIcon
 
     public function getLabel(): ?string
     {
-        return __('resources/custom/strings.general.clearance_status.' . str($this->name)->snake());
+        return __('resources/custom/strings.general.clearance_status.'.str($this->name)->snake());
     }
 }

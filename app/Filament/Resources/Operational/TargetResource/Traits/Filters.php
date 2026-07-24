@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\Operational\TargetResource\Traits;
 
-
-use Filament\Schemas\Components\Fieldset;
 use App\Filament\Resources\Operational\TargetResource\Enums\Status as TargetStatus;
 use App\Models\Target;
 use App\Services\SmartCacheManager;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -28,7 +27,7 @@ trait Filters
     {
         return SelectFilter::make('metrics')
             ->label(__('resources/target/strings.filters.metrics'))
-            ->options(__('resources/target/strings.metrics'))
+            ->options(__('resources/general/strings.metrics'))
             ->placeholder(__('resources/target/strings.filters.metrics_placeholder'));
     }
 
@@ -49,9 +48,9 @@ trait Filters
                     ]),
             ])
             ->columnSpanFull()
-            ->query(fn(Builder $query, array $data) => $query
-                ->when($data['quantity_from'] ?? null, fn(Builder $query, $from): Builder => $query->where('quantity', '>=', $from))
-                ->when($data['quantity_to'] ?? null, fn(Builder $query, $to): Builder => $query->where('quantity', '<=', $to))
+            ->query(fn (Builder $query, array $data) => $query
+                ->when($data['quantity_from'] ?? null, fn (Builder $query, $from): Builder => $query->where('quantity', '>=', $from))
+                ->when($data['quantity_to'] ?? null, fn (Builder $query, $to): Builder => $query->where('quantity', '<=', $to))
             );
     }
 
@@ -81,11 +80,11 @@ trait Filters
     {
         return SelectFilter::make('year')
             ->label(__('resources/target/strings.filters.year'))
-            ->options(fn() => SmartCacheManager::remember(
+            ->options(fn () => SmartCacheManager::remember(
                 'Target',
                 ['filter' => 'year_options'],
                 150,
-                fn() => Target::pluck('year', 'year')->unique()->sort()->toArray()
+                fn () => Target::pluck('year', 'year')->unique()->sort()->toArray()
             ))
             ->placeholder(__('resources/target/strings.filters.year_placeholder'));
     }

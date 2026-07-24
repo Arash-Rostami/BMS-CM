@@ -4,10 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('bank_profiles', function (Blueprint $table) {
@@ -26,6 +24,7 @@ return new class extends Migration {
             $table->decimal('requested_amount', 15, 2)->default(0)->comment('Amount requested in requested_currency');
             $table->decimal('purchased_equivalent', 15, 2)->default(0)->comment('Amount actually purchased in requested currency or local equivalent');
             $table->decimal('commission_rate', 5, 5)->default(0)->comment('Commission percentage charged (e.g., 1.50)');
+            $table->decimal('commission_amount_purchased', 15, 2)->nullable();
             $table->decimal('exchange_rate', 15, 5)->default(0)->comment('Rate used to convert requested currency to reporting currency');
             $table->decimal('final_rate', 15, 5)->default(0)->comment('Final or effective rate after fees and adjustments');
             $table->foreignId('requested_currency_id')->nullable()->constrained('currencies');
@@ -37,6 +36,8 @@ return new class extends Migration {
             $table->date('allocation_date')->nullable()->comment('Date allocation of funds was made or reserved');
             $table->date('purchase_date')->nullable()->comment('Date when purchase/execution occurred');
             $table->date('delivery_date')->nullable()->comment('Expected or actual delivery date for goods/services');
+            $table->date('payment_due_date')->nullable();
+            $table->date('commitment_payment_date')->nullable();
 
             $table->text('notes')->nullable()->comment('Free-text notes for internal use');
 
@@ -45,17 +46,10 @@ return new class extends Migration {
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['targetable_type', 'targetable_id', 'deleted_at'], 'idx_targetable_deleted');
             $table->index(['registered_order_id', 'deleted_at']);
-            $table->index('company_id');
-            $table->index('bank_id');
-            $table->index('status_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('bank_profiles');

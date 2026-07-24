@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Operational\CorrespondenceResource\Pages;
 
+use App\Filament\Pages\CreateRecord;
 use App\Filament\Resources\CorrespondenceResource;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\HandlesRecipients;
-use App\Filament\Pages\CreateRecord;
 
 class CreateCorrespondence extends CreateRecord
 {

@@ -21,15 +21,13 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Filters as
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Form as RegisteredOrderForm;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Infolist as RegisteredOrderInfolist;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Table as RegisteredOrderTable;
+use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\RegisteredOrder;
-use App\Services\SmartCacheManager;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
@@ -52,16 +50,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-
 class RegisteredOrderResource extends Resource
 {
-    use RegisteredOrderForm, RegisteredOrderTable, RegisteredOrderInfolist, RegisteredOrderFilters, HasResourcePermissions, HasExtraAttributesManagement;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, RegisteredOrderFilters, RegisteredOrderForm, RegisteredOrderInfolist, RegisteredOrderTable;
 
     protected static ?string $model = RegisteredOrder::class;
 
-
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-check';
-
 
     protected static ?int $navigationSort = 1;
 
@@ -71,7 +66,7 @@ class RegisteredOrderResource extends Resource
             ->components([
                 Tabs::make('Registered Order')
                     ->tabs([
-                        Tab::make(__('resources/registeredOrder/strings.form.tabs.general'))
+                        Tab::make(__('resources/registeredOrder/strings.form.tab_general'))
                             ->icon('heroicon-o-clipboard-document-list')
                             ->schema([
                                 Group::make()
@@ -117,11 +112,11 @@ class RegisteredOrderResource extends Resource
                                                     ->defaultItems(0)
                                                     ->live()
                                                     ->addActionLabel(__('resources/registeredOrder/strings.form.add_item'))
-                                                    ->afterStateUpdated(fn(Get $get, Set $set) => static::updateTotal($get, $set))
-                                                    ->afterStateHydrated(fn(Get $get, Set $set) => static::updateTotal($get, $set))
-                                                    ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => static::updateTotal($get, $set)))
-                                                    ->addAction(fn($action) => $action->after(fn(Get $get, Set $set) => static::updateTotal($get, $set)))
-                                                    ->mutateRelationshipDataBeforeFillUsing(fn(array $data): array => $data)
+                                                    ->afterStateUpdated(fn (Get $get, Set $set) => static::updateTotal($get, $set))
+                                                    ->afterStateHydrated(fn (Get $get, Set $set) => static::updateTotal($get, $set))
+                                                    ->deleteAction(fn ($action) => $action->after(fn (Get $get, Set $set) => static::updateTotal($get, $set)))
+                                                    ->addAction(fn ($action) => $action->after(fn (Get $get, Set $set) => static::updateTotal($get, $set)))
+                                                    ->mutateRelationshipDataBeforeFillUsing(fn (array $data): array => $data),
                                             ]),
                                     ])
                                     ->columnSpan(['lg' => 2]),
@@ -141,7 +136,7 @@ class RegisteredOrderResource extends Resource
                                     ->columnSpan(['lg' => 1]),
                             ])->columns(3),
 
-                        Tab::make(__('resources/registeredOrder/strings.form.tabs.insurance'))
+                        Tab::make(__('resources/registeredOrder/strings.form.tab_insurance'))
                             ->icon('heroicon-o-shield-check')
                             ->schema([
                                 Section::make(__('resources/registeredOrder/strings.form.section_insurance_details'))
@@ -180,7 +175,7 @@ class RegisteredOrderResource extends Resource
                 'sellerCompanyExclusive',
                 'supplierCompanyExclusive',
                 'manufacturerCompanyExclusive',
-                'shipments'
+                'shipments',
             ])
             ->withCount([
                 'purchaseOrders',
@@ -195,7 +190,7 @@ class RegisteredOrderResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return '📋 ' . ($record->ro_number ?? $record->contract_no ?? '—');
+        return '📋 '.($record->ro_number ?? $record->contract_no ?? '—');
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
@@ -221,23 +216,6 @@ class RegisteredOrderResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/registeredOrder/strings.general.model_label');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'RegisteredOrder',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            150,
-            fn() => static::getModel()::count()
-        );
-
-        return $count > 0 ? (string)$count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
     }
 
     public static function getNavigationGroup(): ?string
@@ -316,7 +294,7 @@ class RegisteredOrderResource extends Resource
                         ]),
                     Tab::make(__('resources/registeredOrder/strings.infolist.tab_items'))
                         ->icon('heroicon-o-list-bullet')
-                        ->badge(fn($record) => $record->items->count())
+                        ->badge(fn ($record) => $record->items->count())
                         ->schema([
                             Section::make()->schema([
                                 RepeatableEntry::make('items')
@@ -334,7 +312,7 @@ class RegisteredOrderResource extends Resource
                     Tab::make(__('resources/registeredOrder/strings.infolist.tab_documents'))
                         ->icon('heroicon-o-paper-clip')
                         ->schema([Section::make()->schema([static::viewAttachments()])])
-                        ->label(fn($record) => tabBadge(
+                        ->label(fn ($record) => tabBadge(
                             __('resources/registeredOrder/strings.infolist.tab_documents'),
                             $record?->attachments->count() ?? 0,
                             'info'
@@ -343,7 +321,6 @@ class RegisteredOrderResource extends Resource
                 ])->columnSpanFull(),
             ]);
     }
-
 
     public static function table(FilamentTable $table): FilamentTable
     {
@@ -380,14 +357,12 @@ class RegisteredOrderResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    DeleteAction::make(),
                     RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkActionGroup::make([
-                        DeleteBulkAction::make(),
                         RestoreBulkAction::make(),
                         ExportBulkAction::make()
                             ->exporter(RegisteredOrderExporter::class),
@@ -397,16 +372,16 @@ class RegisteredOrderResource extends Resource
             ->groups([
                 TableGroup::make('buyerCompany.name')
                     ->label(__('resources/registeredOrder/strings.filters.buyer'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
                 TableGroup::make('sellerCompanyExclusive.name')
                     ->label(__('resources/registeredOrder/strings.filters.seller'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'sellerCompanyExclusive')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'sellerCompanyExclusive')),
                 TableGroup::make('supplierCompanyExclusive.name')
                     ->label(__('resources/registeredOrder/strings.filters.supplier'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'supplierCompanyExclusive')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'supplierCompanyExclusive')),
                 TableGroup::make('manufacturerCompanyExclusive.name')
                     ->label(__('resources/registeredOrder/strings.filters.manufacturer'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'manufacturerCompanyExclusive')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'manufacturerCompanyExclusive')),
             ])
             ->striped()
             ->searchDebounce('1000ms')

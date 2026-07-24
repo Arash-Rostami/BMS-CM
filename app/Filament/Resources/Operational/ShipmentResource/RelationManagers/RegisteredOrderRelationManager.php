@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Operational\ShipmentResource\RelationManagers;
 
-
 use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Exports\RegisteredOrderExporter;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Filters as RegisteredOrderFilters;
@@ -20,7 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RegisteredOrderRelationManager extends RelationManager
 {
-    use RegisteredOrderTable, RegisteredOrderFilters;
+    use RegisteredOrderFilters, RegisteredOrderTable;
 
     protected static string $relationship = 'registeredOrder';
 
@@ -79,7 +78,7 @@ class RegisteredOrderRelationManager extends RelationManager
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record) => RegisteredOrderResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record) => RegisteredOrderResource::getUrl('edit', ['record' => $record])),
                 ]),
             ])
             ->toolbarActions([

@@ -14,7 +14,6 @@ use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Infolist as
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Table as CorrespondenceTable;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Correspondence;
-use App\Services\SmartCacheManager;
 use DB;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -39,7 +38,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CorrespondenceResource extends Resource
 {
-    use CorrespondenceForm, CorrespondenceTable, CorrespondenceFilters, CorrespondenceInfolist, HasResourcePermissions;
+    use CorrespondenceFilters, CorrespondenceForm, CorrespondenceInfolist, CorrespondenceTable, HasResourcePermissions;
 
     protected static ?string $model = Correspondence::class;
 
@@ -123,23 +122,6 @@ class CorrespondenceResource extends Resource
         return __('resources/correspondence/strings.general.model_label');
     }
 
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'CorrespondenceResource',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            150,
-            fn() => static::getModel()::count()
-        );
-
-        return $count > 0 ? (string)$count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
-    }
-
     public static function getNavigationGroup(): ?string
     {
         return __('resources/dashboard/strings.navigation_group.operational_second');
@@ -158,7 +140,6 @@ class CorrespondenceResource extends Resource
     {
         return __('resources/correspondence/strings.general.plural_model_label');
     }
-
 
     public static function infolist(Schema $schema): Schema
     {
@@ -189,10 +170,10 @@ class CorrespondenceResource extends Resource
                                     ->extraAttributes(['style' => 'margin-top: 1.5rem;'])
                                     ->columns(3),
                             ]),
-                        Tab::make(__('resources/correspondence/strings.form.recipients'))
+                        Tab::make(__('resources/correspondence/strings.infolist.tab_recipients'))
                             ->icon('heroicon-o-users')
-                            ->label(fn($record) => tabBadge(
-                                __('resources/correspondence/strings.form.recipients'),
+                            ->label(fn ($record) => tabBadge(
+                                __('resources/correspondence/strings.infolist.tab_recipients'),
                                 $record?->recipients->count() ?? 0,
                                 'info'
                             ))
@@ -200,10 +181,10 @@ class CorrespondenceResource extends Resource
                                 Section::make()
                                     ->schema([static::viewRecipients()]),
                             ])->columnSpanFull(),
-                        Tab::make(__('resources/general/strings.attachments.attachments'))
+                        Tab::make(__('resources/correspondence/strings.infolist.tab_attachments'))
                             ->icon('heroicon-o-paper-clip')
-                            ->label(fn($record) => tabBadge(
-                                __('resources/general/strings.attachments.attachments'),
+                            ->label(fn ($record) => tabBadge(
+                                __('resources/correspondence/strings.infolist.tab_attachments'),
                                 $record?->attachments->count() ?? 0,
                                 'info'
                             ))
@@ -211,7 +192,7 @@ class CorrespondenceResource extends Resource
                                 Section::make()
                                     ->schema([
                                         static::viewAttachments(),
-                                    ])
+                                    ]),
                             ])->columnSpanFull(),
                     ])
                     ->columnSpanFull(),
@@ -225,6 +206,7 @@ class CorrespondenceResource extends Resource
                 return $query->select('*', DB::raw('COALESCE(parent_id, id) as conversation_id'));
             })
             ->columns([
+                static::showReadStatus(),
                 static::showSubject(),
                 static::showType(),
                 static::showPriority(),
@@ -242,13 +224,21 @@ class CorrespondenceResource extends Resource
                 static::getTrashedFilter(),
                 static::getCreationDateFilter(),
                 static::getMyMentionsFilter(),
+                static::getUnreadFilter(),
             ])
             ->filtersFormColumns(3)
             ->recordActions([
                 ActionGroup::make([
-                    ViewAction::make(),
+                    ViewAction::make()
+                        ->mutateRecordDataUsing(function (array $data, Correspondence $record): array {
+                            if ($userId = auth()->id()) {
+                                $record->markReadBy($userId);
+                            }
+
+                            return $data;
+                        }),
                     Action::make('reply')
-                        ->label('Reply')
+                        ->label(__('resources/correspondence/strings.general.reply'))
                         ->icon('heroicon-o-arrow-uturn-left')
                         ->url(function (Correspondence $record) {
                             // to link to master thread as nested in group
@@ -256,6 +246,7 @@ class CorrespondenceResource extends Resource
                             while ($root->parent_id) {
                                 $root = $root->parent;
                             }
+
                             return CreateCorrespondence::getUrl(['parent_id' => $root->id]);
                         }),
                     EditAction::make(),
@@ -271,26 +262,26 @@ class CorrespondenceResource extends Resource
             ->groups([
                 TableGroup::make('thread')
                     ->label(__('resources/correspondence/strings.table.thread'))
-                    ->getKeyFromRecordUsing(fn(Correspondence $record) => $record->getThreadKey())
-                    ->getTitleFromRecordUsing(fn(Correspondence $record) => $record->getThreadTitle())
-                    ->orderQueryUsing(fn(Builder $query, string $direction) => Correspondence::orderThreadQuery($query, $direction))
-                    ->scopeQueryByKeyUsing(fn(Builder $query, string $key) => Correspondence::scopeThreadQuery($query, $key))
+                    ->getKeyFromRecordUsing(fn (Correspondence $record) => $record->getThreadKey())
+                    ->getTitleFromRecordUsing(fn (Correspondence $record) => $record->getThreadTitle())
+                    ->orderQueryUsing(fn (Builder $query, string $direction) => Correspondence::orderThreadQuery($query, $direction))
+                    ->scopeQueryByKeyUsing(fn (Builder $query, string $key) => Correspondence::scopeThreadQuery($query, $key))
                     ->collapsible(),
                 TableGroup::make('correspondable_id')
                     ->label(__('resources/general/strings.relevant_module.table.related_to'))
-                    ->getTitleFromRecordUsing(fn($record) => $record->correspondable?->formatted_name ?? '-')
+                    ->getTitleFromRecordUsing(fn ($record) => $record->correspondable?->formatted_name ?? '-')
                     ->collapsible(),
                 TableGroup::make('status.name')
                     ->label(__('resources/correspondence/strings.table.status'))
-                    ->getTitleFromRecordUsing(fn($record) => $record->status?->getLocalizedNameAttribute())
+                    ->getTitleFromRecordUsing(fn ($record) => $record->status?->getLocalizedNameAttribute())
                     ->collapsible(),
                 TableGroup::make('priority')
                     ->label(__('resources/correspondence/strings.table.priority'))
-                    ->getTitleFromRecordUsing(fn($record) => Priority::tryFrom($record->priority)?->getLabel())
+                    ->getTitleFromRecordUsing(fn ($record) => Priority::tryFrom($record->priority)?->getLabel())
                     ->collapsible(),
                 TableGroup::make('type')
                     ->label(__('resources/correspondence/strings.table.type'))
-                    ->getTitleFromRecordUsing(fn($record) => Type::tryFrom($record->type)?->getLabel())
+                    ->getTitleFromRecordUsing(fn ($record) => Type::tryFrom($record->type)?->getLabel())
                     ->collapsible(),
             ])
             ->defaultGroup('thread')

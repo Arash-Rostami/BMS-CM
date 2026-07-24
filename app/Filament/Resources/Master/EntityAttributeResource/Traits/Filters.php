@@ -13,8 +13,8 @@ trait Filters
     public static function getCreatorFilter(): SelectFilter
     {
         return SelectFilter::make('user_id')
-            ->label(__('resources/entityAttribute/strings.table.created_by'))
-            ->options(fn(): array => User::query()->pluck('name', 'id')->toArray())
+            ->label(__('resources/entityAttribute/strings.filters.creator'))
+            ->options(fn (): array => User::query()->pluck('name', 'id')->toArray())
             ->searchable();
     }
 
@@ -22,18 +22,18 @@ trait Filters
     {
         return SelectFilter::make('entity_type')
             ->label(__('resources/entityAttribute/strings.filters.entity_type'))
-            ->options(fn(): array => EntityAttribute::query()
+            ->options(fn (): array => EntityAttribute::query()
                 ->distinct()
                 ->pluck('entity_type', 'entity_type')
-                ->mapWithKeys(fn($v) => [$v => PermissionLabeler::getEntityLabel($v)])
+                ->mapWithKeys(fn ($v) => [$v => PermissionLabeler::getEntityLabel($v)])
                 ->toArray());
     }
 
     public static function getKeyFilter(): SelectFilter
     {
         return SelectFilter::make('key')
-            ->label(__('resources/entityAttribute/strings.form.key'))
-            ->options(fn(): array => EntityAttribute::query()
+            ->label(__('resources/entityAttribute/strings.filters.key'))
+            ->options(fn (): array => EntityAttribute::query()
                 ->distinct()
                 ->pluck('key', 'key')
                 ->toArray())

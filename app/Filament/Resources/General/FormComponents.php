@@ -23,8 +23,8 @@ class FormComponents
             ->live()
             ->columnSpanFull()
             ->downloadable()
-            ->hintIconTooltip(fn($record) => $record?->attachments()->latest('id')->implode('name', "\n") ?? '')
-            ->rules([new ValidAttachment()])
+            ->hintIconTooltip(fn ($record) => $record?->attachments()->latest('id')->implode('name', "\n") ?? '')
+            ->rules([new ValidAttachment])
             ->acceptedFileTypes(ValidAttachment::ALLOWED_TYPES)
             ->maxSize(ValidAttachment::MAX_SIZE_KB)
             ->validationAttribute(__('resources/general/strings.attachments.attachments'))
@@ -39,8 +39,8 @@ class FormComponents
                             ->refreshComponent($record, $set);
                     } catch (\Exception $e) {
                         Notification::make()
-                            ->title('⚠️')
-                            ->body($e->getMessage())
+                            ->title(__('resources/general/strings.attachments.error_title'))
+                            ->body(__('resources/general/strings.attachments.error_body'))
                             ->danger()
                             ->send();
 

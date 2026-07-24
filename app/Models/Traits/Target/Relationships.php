@@ -2,7 +2,6 @@
 
 namespace App\Models\Traits\Target;
 
-
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 trait Relationships

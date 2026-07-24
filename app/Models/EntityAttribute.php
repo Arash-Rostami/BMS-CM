@@ -4,16 +4,17 @@ namespace App\Models;
 
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EntityAttribute extends Model
 {
-    use SoftDeletes,
+    use HasFactory,
         Relationships,
+        SoftDeletes,
         UserStamps;
-
 
     protected $fillable = [
         'entity_type',
@@ -22,7 +23,7 @@ class EntityAttribute extends Model
         'value',
         'user_id',
         'updated_by_id',
-        ];
+    ];
 
     protected $casts = [
         'value' => 'json',

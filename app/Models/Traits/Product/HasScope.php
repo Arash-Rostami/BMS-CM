@@ -2,7 +2,6 @@
 
 namespace App\Models\Traits\Product;
 
-
 use Illuminate\Database\Eloquent\Builder;
 
 trait HasScope

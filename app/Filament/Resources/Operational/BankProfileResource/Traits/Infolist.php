@@ -26,11 +26,11 @@ trait Infolist
             ->schema([
                 TextEntry::make('path')
                     ->hiddenLabel()
-                    ->formatStateUsing(fn(string $state): string => basename($state))
-                    ->tooltip(fn($record) => $record->name ?? '')
+                    ->formatStateUsing(fn (string $state): string => basename($state))
+                    ->tooltip(fn ($record) => $record->name ?? '')
                     ->icon('heroicon-m-paper-clip')
                     ->color('primary')
-                    ->url(fn($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
+                    ->url(fn ($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
             ])
             ->columns(1);
     }
@@ -39,7 +39,7 @@ trait Infolist
     {
         return TextEntry::make('bank.name')
             ->label(__('resources/bankProfile/strings.form.bank'))
-            ->formatStateUsing(fn($record): ?string => $record->bank?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->bank?->getLocalizedNameAttribute())
             ->icon('heroicon-m-building-library')
             ->placeholder('-');
     }
@@ -74,7 +74,7 @@ trait Infolist
     {
         return TextEntry::make('commission_amount_purchased')
             ->label(__('resources/bankProfile/strings.form.summary_commission_amount'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -83,7 +83,7 @@ trait Infolist
     {
         return TextEntry::make('commission_equivalent')
             ->label(__('resources/bankProfile/strings.form.summary_commission_equivalent'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -92,7 +92,7 @@ trait Infolist
     {
         return TextEntry::make('commission_rate')
             ->label(__('resources/bankProfile/strings.form.commission_rate'))
-            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 2) . '%' : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 2).'%' : '-')
             ->icon('heroicon-m-percent-badge')
             ->placeholder('-');
     }
@@ -101,7 +101,7 @@ trait Infolist
     {
         return TextEntry::make('company.name')
             ->label(__('resources/bankProfile/strings.form.company'))
-            ->formatStateUsing(fn($record): ?string => $record->company?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->company?->getLocalizedNameAttribute())
             ->icon('heroicon-m-building-office')
             ->placeholder('-');
     }
@@ -110,7 +110,7 @@ trait Infolist
     {
         return TextEntry::make('conversion_rate')
             ->label(__('resources/bankProfile/strings.form.conversion_rate'))
-            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 5) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 5) : '-')
             ->icon('heroicon-m-calculator')
             ->placeholder('-');
     }
@@ -145,7 +145,7 @@ trait Infolist
     {
         return TextEntry::make('currency.name')
             ->label(__('resources/bankProfile/strings.form.requested_currency'))
-            ->formatStateUsing(fn($record): ?string => $record->currency?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->currency?->getLocalizedNameAttribute())
             ->icon('heroicon-m-banknotes')
             ->placeholder('-');
     }
@@ -163,7 +163,7 @@ trait Infolist
     {
         return TextEntry::make('documents_amount')
             ->label(__('resources/bankProfile/strings.form.documents_amount'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -172,7 +172,7 @@ trait Infolist
     {
         return TextEntry::make('eur_equivalent_rate')
             ->label(__('resources/bankProfile/strings.form.eur_equivalent_rate'))
-            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 5) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 5) : '-')
             ->icon('heroicon-m-calculator')
             ->placeholder('-');
     }
@@ -181,7 +181,7 @@ trait Infolist
     {
         return TextEntry::make('exchange_rate')
             ->label(__('resources/bankProfile/strings.form.exchange_rate'))
-            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 5) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 5) : '-')
             ->icon('heroicon-m-calculator')
             ->placeholder('-');
     }
@@ -190,7 +190,7 @@ trait Infolist
     {
         return TextEntry::make('final_equivalent')
             ->label(__('resources/bankProfile/strings.form.summary_final_equivalent'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -209,7 +209,7 @@ trait Infolist
     {
         return TextEntry::make('final_rate')
             ->label(__('resources/bankProfile/strings.form.final_rate'))
-            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 5) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 5) : '-')
             ->icon('heroicon-m-calculator')
             ->placeholder('-');
     }
@@ -246,7 +246,7 @@ trait Infolist
     {
         return TextEntry::make('purchasedCurrency.name')
             ->label(__('resources/bankProfile/strings.form.purchased_currency'))
-            ->formatStateUsing(fn($record): ?string => $record->purchasedCurrency?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->purchasedCurrency?->getLocalizedNameAttribute())
             ->icon('heroicon-m-banknotes')
             ->placeholder('-');
     }
@@ -255,7 +255,7 @@ trait Infolist
     {
         return TextEntry::make('purchased_equivalent')
             ->label(__('resources/bankProfile/strings.form.purchased_equivalent'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -276,7 +276,7 @@ trait Infolist
     {
         return TextEntry::make('remaining_commitment')
             ->label(__('resources/bankProfile/strings.form.summary_remaining'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -285,7 +285,7 @@ trait Infolist
     {
         return TextEntry::make('requested_amount')
             ->label(__('resources/bankProfile/strings.form.requested_amount'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -294,7 +294,7 @@ trait Infolist
     {
         return TextEntry::make('requestedCurrency.name')
             ->label(__('resources/bankProfile/strings.form.requested_currency'))
-            ->formatStateUsing(fn($record): ?string => $record->requestedCurrency?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->requestedCurrency?->getLocalizedNameAttribute())
             ->icon('heroicon-m-banknotes')
             ->placeholder('-');
     }
@@ -304,7 +304,7 @@ trait Infolist
         return TextEntry::make('status.name')
             ->label(__('resources/bankProfile/strings.form.status'))
             ->badge()
-            ->formatStateUsing(fn($record): ?string => $record->status?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->status?->getLocalizedNameAttribute())
             ->placeholder('-');
     }
 
@@ -314,7 +314,7 @@ trait Infolist
             ->label(__('resources/bankProfile/strings.form.supply_source'))
             ->badge()
             ->color('info')
-            ->formatStateUsing(fn($state): ?string => $state ? __('resources/bankProfile/strings.general.supply_sources.' . $state) : '-')
+            ->formatStateUsing(fn ($state): ?string => $state ? __('resources/bankProfile/strings.general.supply_sources.'.$state) : '-')
             ->placeholder('-');
     }
 
@@ -323,15 +323,16 @@ trait Infolist
         return TextEntry::make('targetable.name')
             ->label(__('resources/bankProfile/strings.form.targetable'))
             ->formatStateUsing(function (Model $record) {
-                if (!$record->targetable) {
+                if (! $record->targetable) {
                     return '-';
                 }
+
                 return $record->targetable_type === Product::class
                     ? $record->targetable?->customized_label ?? $record->targetable?->getLocalizedNameAttribute()
                     : $record->targetable?->getLocalizedNameAttribute();
             })
             ->badge()
-            ->color(fn($record) => $record->targetable_type === Product::class ? 'success' : 'warning')
+            ->color(fn ($record) => $record->targetable_type === Product::class ? 'success' : 'warning')
             ->placeholder('-');
     }
 
@@ -349,7 +350,7 @@ trait Infolist
     {
         return TextEntry::make('total_purchased_remittance')
             ->label(__('resources/bankProfile/strings.form.summary_total_purchased'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -358,7 +359,7 @@ trait Infolist
     {
         return TextEntry::make('total_requested_remittance')
             ->label(__('resources/bankProfile/strings.form.summary_total_requested'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -367,7 +368,7 @@ trait Infolist
     {
         return TextEntry::make('total_rial_remittance')
             ->label(__('resources/bankProfile/strings.form.summary_total_rial'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -403,15 +404,18 @@ trait Infolist
         return TextEntry::make('waiting_duration')
             ->label(__('resources/bankProfile/strings.form.waiting_duration'))
             ->formatStateUsing(function ($state, $record) {
-                if ($state === null) return '-';
-                $label = $state . ' ' . __('resources/bankProfile/strings.form.days');
-                if (!$record?->allocation_date) {
-                    $label .= ' (' . __('resources/bankProfile/strings.form.ongoing') . ')';
+                if ($state === null) {
+                    return '-';
                 }
+                $label = $state.' '.__('resources/bankProfile/strings.form.days');
+                if (! $record?->allocation_date) {
+                    $label .= ' ('.__('resources/bankProfile/strings.form.ongoing').')';
+                }
+
                 return $label;
             })
             ->badge()
-            ->color(fn($record) => $record?->allocation_date ? 'success' : 'warning')
+            ->color(fn ($record) => $record?->allocation_date ? 'success' : 'warning')
             ->icon('heroicon-m-clock')
             ->placeholder('-');
     }

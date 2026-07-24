@@ -22,7 +22,7 @@ trait Infolist
     public static function viewCreatedAt(): TextEntry
     {
         return TextEntry::make('created_at')
-            ->label(__('Created At'))
+            ->label(__('resources/user/strings.table.created_at'))
             ->dateTime('M Y | D: H:i:s')
             ->color('gray')
             ->placeholder('-');
@@ -49,7 +49,7 @@ trait Infolist
     {
         return TextEntry::make('ip')
             ->label(__('resources/user/strings.form.ip'))
-            ->formatStateUsing(fn($state, ?Model $record): string => ($state && $record) ? "{$state} ({$record->user_country})" : '🌎 N/A')
+            ->formatStateUsing(fn ($state, ?Model $record): string => ($state && $record) ? "{$state} ({$record->user_country})" : '🌎 N/A')
             ->icon('heroicon-m-globe-alt')
             ->copyable()
             ->placeholder('-');
@@ -107,7 +107,7 @@ trait Infolist
     {
         return TextEntry::make('position')
             ->label(__('resources/user/strings.form.position'))
-            ->color(fn(string $state): string => PositionStatus::tryFrom($state)?->getColor() ?? 'gray')
+            ->color(fn (string $state): string => PositionStatus::tryFrom($state)?->getColor() ?? 'gray')
             ->badge()
             ->icon('heroicon-m-briefcase')
             ->placeholder('-');
@@ -118,8 +118,8 @@ trait Infolist
         return TextEntry::make('roles.name')
             ->label(__('resources/user/strings.form.role'))
             ->badge()
-            ->formatStateUsing(fn(string $state): string => UserRole::tryFrom($state)?->getLabel() ?? $state)
-            ->color(fn(string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray')
+            ->formatStateUsing(fn (string $state): string => UserRole::tryFrom($state)?->getLabel() ?? $state)
+            ->color(fn (string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray')
             ->icon('heroicon-m-shield-check')
             ->placeholder('-');
     }
@@ -128,8 +128,8 @@ trait Infolist
     {
         return TextEntry::make('status')
             ->label(__('resources/user/strings.form.status'))
-            ->formatStateUsing(fn(string $state): string => UserStatus::tryFrom($state)?->getLabel() ?? $state)
-            ->color(fn(string $state): string => UserStatus::tryFrom($state)?->getColor() ?? 'gray')
+            ->formatStateUsing(fn (string $state): string => UserStatus::tryFrom($state)?->getLabel() ?? $state)
+            ->color(fn (string $state): string => UserStatus::tryFrom($state)?->getColor() ?? 'gray')
             ->badge()
             ->placeholder('-');
     }
@@ -137,7 +137,7 @@ trait Infolist
     public static function viewUpdatedAt(): TextEntry
     {
         return TextEntry::make('updated_at')
-            ->label(__('Updated At'))
+            ->label(__('resources/user/strings.table.updated_at'))
             ->dateTime('M Y | D: H:i:s')
             ->color('gray')
             ->placeholder('-');

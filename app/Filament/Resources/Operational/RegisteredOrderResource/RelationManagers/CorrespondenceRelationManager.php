@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CorrespondenceRelationManager extends RelationManager
 {
-    use HandlesRecipients, CorrespondenceForm, CorrespondenceTable, CorrespondenceFilters, CorrespondenceInfolist;
+    use CorrespondenceFilters, CorrespondenceForm, CorrespondenceInfolist, CorrespondenceTable, HandlesRecipients;
 
     protected static string $relationship = 'correspondences';
 
@@ -85,6 +85,7 @@ class CorrespondenceRelationManager extends RelationManager
                     ->modalWidth('7xl')
                     ->mutateDataUsing(function (array $data): array {
                         $data['user_id'] = auth()->id();
+
                         return $data;
                     })
                     ->using(function (array $data, string $model): Model {
@@ -103,16 +104,18 @@ class CorrespondenceRelationManager extends RelationManager
                         ->mutateRecordDataUsing(function (array $data, Model $record): array {
                             $data['recipients_to'] = $record->recipients->where('pivot.type', 'to')->pluck('name')->toArray();
                             $data['recipients_cc'] = $record->recipients->where('pivot.type', 'cc')->pluck('name')->toArray();
+
                             return $data;
                         })
                         ->using(function (Model $record, array $data): Model {
                             [$cleanData, $to, $cc] = self::extractRecipients($data);
                             $record->update($cleanData);
                             self::syncRecipients($record, $to, $cc);
+
                             return $record->fresh();
                         }),
                     DeleteAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -125,22 +128,22 @@ class CorrespondenceRelationManager extends RelationManager
             ->groups([
                 TableGroup::make('thread')
                     ->label(__('resources/correspondence/strings.table.thread'))
-                    ->getKeyFromRecordUsing(fn(Correspondence $record) => $record->getThreadKey())
-                    ->getTitleFromRecordUsing(fn(Correspondence $record) => $record->getThreadTitle())
-                    ->orderQueryUsing(fn(Builder $query, string $direction) => Correspondence::orderThreadQuery($query, $direction))
-                    ->scopeQueryByKeyUsing(fn(Builder $query, string $key) => Correspondence::scopeThreadQuery($query, $key))
+                    ->getKeyFromRecordUsing(fn (Correspondence $record) => $record->getThreadKey())
+                    ->getTitleFromRecordUsing(fn (Correspondence $record) => $record->getThreadTitle())
+                    ->orderQueryUsing(fn (Builder $query, string $direction) => Correspondence::orderThreadQuery($query, $direction))
+                    ->scopeQueryByKeyUsing(fn (Builder $query, string $key) => Correspondence::scopeThreadQuery($query, $key))
                     ->collapsible(),
                 TableGroup::make('status.name')
                     ->label(__('resources/correspondence/strings.table.status'))
-                    ->getTitleFromRecordUsing(fn($record) => $record->status?->getLocalizedNameAttribute())
+                    ->getTitleFromRecordUsing(fn ($record) => $record->status?->getLocalizedNameAttribute())
                     ->collapsible(),
                 TableGroup::make('priority')
                     ->label(__('resources/correspondence/strings.table.priority'))
-                    ->getTitleFromRecordUsing(fn($record) => Priority::tryFrom($record->priority)?->getLabel())
+                    ->getTitleFromRecordUsing(fn ($record) => Priority::tryFrom($record->priority)?->getLabel())
                     ->collapsible(),
                 TableGroup::make('type')
                     ->label(__('resources/correspondence/strings.table.type'))
-                    ->getTitleFromRecordUsing(fn($record) => Type::tryFrom($record->type)?->getLabel())
+                    ->getTitleFromRecordUsing(fn ($record) => Type::tryFrom($record->type)?->getLabel())
                     ->collapsible(),
             ])
             ->defaultGroup('thread')
@@ -154,6 +157,7 @@ class CorrespondenceRelationManager extends RelationManager
     {
         if (empty($toNames) && empty($ccNames)) {
             self::syncRecipients($record, [], []);
+
             return;
         }
 

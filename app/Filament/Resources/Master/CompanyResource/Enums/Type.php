@@ -57,12 +57,16 @@ enum Type: string implements HasColor, HasIcon
 
     public static function tryFromLocalised(?string $value): ?self
     {
-        if ($value === null) return null;
+        if ($value === null) {
+            return null;
+        }
 
         $englishValue = self::FARSI_MAP[$value] ?? $value;
         $case = self::tryFrom($englishValue);
 
-        if ($case === null) return null;
+        if ($case === null) {
+            return null;
+        }
 
         return $case;
     }

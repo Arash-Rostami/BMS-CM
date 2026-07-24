@@ -30,13 +30,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CompanyResource extends Resource
 {
-    use CompanyForm, CompanyTable, CompanyInfolist, CompanyFilters, HandleActivation, HasResourcePermissions;
+    use CompanyFilters, CompanyForm, CompanyInfolist, CompanyTable, HandleActivation, HasResourcePermissions;
 
     protected static ?string $model = Company::class;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';
 
     protected static ?int $navigationSort = 3;
-
 
     public static function form(Schema $schema): Schema
     {
@@ -162,7 +162,7 @@ class CompanyResource extends Resource
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -171,7 +171,7 @@ class CompanyResource extends Resource
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
-                        ->exporter(CompanyExporter::class)
+                        ->exporter(CompanyExporter::class),
                 ]),
             ])
             ->striped()

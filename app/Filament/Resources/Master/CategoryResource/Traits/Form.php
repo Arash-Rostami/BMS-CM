@@ -25,7 +25,11 @@ trait Form
         return Textarea::make('description')
             ->label(__('resources/category/strings.form.description'))
             ->maxLength(65535)
-            ->nullable();
+            ->nullable()
+            ->validationAttribute(__('resources/category/strings.form.description'))
+            ->validationMessages([
+                'max' => __('resources/category/strings.form.validation_description_max'),
+            ]);
     }
 
     public static function getEnglishName(): TextInput
@@ -34,9 +38,9 @@ trait Form
             ->label(__('resources/category/strings.form.english_name'))
             ->required()
             ->maxLength(255)
-            ->rule(['string', 'max:255'])
+            ->rule('regex:/^[A-Za-z\s\p{P}\d\*]+$/')
             ->unique(column: 'english_name', ignoreRecord: true)
-            ->placeholder(__('resources/category/strings.form.validation_english_name'))
+            ->placeholder(__('resources/category/strings.form.english_name_placeholder'))
             ->validationMessages([
                 'required' => __('resources/category/strings.form.validation_english_name_required'),
                 'max' => __('resources/category/strings.form.validation_english_name_max'),
@@ -56,7 +60,7 @@ trait Form
             ->tooltip(__('resources/category/strings.form.level_helper'))
             ->helperText(__('resources/category/strings.form.level_helper'))
             ->rule('integer')
-            ->placeholder(__('resources/category/strings.form.validation_level'))
+            ->placeholder(__('resources/category/strings.form.level_placeholder'))
             ->validationMessages([
                 'required' => __('resources/category/strings.form.validation_level_required'),
                 'numeric' => __('resources/category/strings.form.validation_level_numeric'),
@@ -72,9 +76,9 @@ trait Form
             ->label(__('resources/category/strings.form.name'))
             ->required()
             ->maxLength(255)
-            ->rule(['string', 'max:255'])
+            ->rule('regex:/^[\x{0600}-\x{06FF}\s\p{P}\d\*]+$/u')
             ->unique(column: 'name', ignoreRecord: true)
-            ->placeholder(__('resources/category/strings.form.validation_name'))
+            ->placeholder(__('resources/category/strings.form.name_placeholder'))
             ->validationMessages([
                 'required' => __('resources/category/strings.form.validation_name_required'),
                 'max' => __('resources/category/strings.form.validation_name_max'),

@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('customs', function (Blueprint $table) {
@@ -27,18 +24,14 @@ return new class extends Migration
             $table->date('clearance_date')->nullable();
             $table->date('doc_submission_date')->nullable();
             $table->date('ten_percent_exit_date')->nullable();
-            $table->date('payment_due_date')->nullable();
-            $table->date('commitment_payment_date')->nullable();
             $table->date('rial_return_date')->nullable();
 
-            // Statuses
             $table->foreignId('clearance_status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->foreignId('bank_guarantee_status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->foreignId('commitment_status_id')->nullable()->constrained('statuses')->nullOnDelete();
 
             $table->text('notes')->nullable();
 
-            // User Stamps
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by_id')->nullable()->constrained('users')->nullOnDelete();
 
@@ -53,9 +46,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('customs');

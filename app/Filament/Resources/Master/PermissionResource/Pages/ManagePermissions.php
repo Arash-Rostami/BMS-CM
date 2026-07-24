@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Master\PermissionResource\Pages;
 
+use App\Filament\Pages\ManageRecords;
 use App\Filament\Resources\PermissionResource;
 use Filament\Actions\CreateAction;
-use App\Filament\Pages\ManageRecords;
 
 class ManagePermissions extends ManageRecords
 {

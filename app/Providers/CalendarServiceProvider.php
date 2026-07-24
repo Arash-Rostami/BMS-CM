@@ -10,10 +10,9 @@ class CalendarServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(PersianCalendar::class, function ($app) {
-            return new PersianCalendar();
+            return new PersianCalendar;
         });
     }
 
-    public function boot()
-    {}
+    public function boot() {}
 }

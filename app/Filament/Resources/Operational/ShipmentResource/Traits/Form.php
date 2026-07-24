@@ -63,7 +63,8 @@ trait Form
         return Select::make('container_no')
             ->label(__('resources/shipment/strings.form.container_no'))
             ->options(array_combine(range(1, 30), range(1, 30)))
-            ->searchable();
+            ->searchable()
+            ->helperText(__('resources/shipment/strings.form.helper_container_no'));
     }
 
     public static function getContainerStatusField(): Select
@@ -73,7 +74,7 @@ trait Form
             ->relationship(
                 name: 'containerStatus',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn($query) => $query->where('english_type', Shipment::TYPE_CONTAINER_STATUS)
+                modifyQueryUsing: fn ($query) => $query->where('english_type', Shipment::TYPE_CONTAINER_STATUS)
             )
             ->searchable()
             ->preload();
@@ -111,7 +112,7 @@ trait Form
                 'min' => __('resources/shipment/strings.form.validation.min_numeric_zero'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.customs_quantity'))
-            ->hint(fn($get) => delimiter($get('customs_quantity')));
+            ->hint(fn ($get) => delimiter($get('customs_quantity')));
     }
 
     public static function getDocStatusField(): Select
@@ -121,7 +122,7 @@ trait Form
             ->relationship(
                 name: 'docStatus',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn($query) => $query->where('english_type', Shipment::TYPE_DOC_STATUS)
+                modifyQueryUsing: fn ($query) => $query->where('english_type', Shipment::TYPE_DOC_STATUS)
             )
             ->searchable()
             ->preload();
@@ -131,7 +132,7 @@ trait Form
     {
         $defaults = __('resources/shipment/strings.form.docs_options');
         $options = is_array($defaults) ? collect($defaults)->except('track')->all() : [];
-        $locked = fn(Get $get) => (bool)$get('../../doc_tracking');
+        $locked = fn (Get $get) => (bool) $get('../../doc_tracking');
 
         return Repeater::make('docs')
             ->hiddenLabel()
@@ -139,19 +140,27 @@ trait Form
                 TextInput::make('name')
                     ->label(__('resources/shipment/strings.form.doc_name'))
                     ->required()
+                    ->validationMessages([
+                        'required' => __('resources/shipment/strings.form.validation.required'),
+                    ])
+                    ->validationAttribute(__('resources/shipment/strings.form.doc_name'))
                     ->columnSpan(3)
                     ->readOnly($locked)
                     ->dehydrated()
-                    ->afterStateHydrated(fn(TextInput $component, $state) => is_string($state) && array_key_exists($state, $options)
+                    ->afterStateHydrated(fn (TextInput $component, $state) => is_string($state) && array_key_exists($state, $options)
                         ? $component->state($options[$state])
                         : null)
-                    ->formatStateUsing(fn($state) => is_string($state) && isset($options[$state]) ? $options[$state] : $state)
-                    ->dehydrateStateUsing(fn($state) => ($key = array_search($state, $options, true)) !== false ? $key : $state)
+                    ->formatStateUsing(fn ($state) => is_string($state) && isset($options[$state]) ? $options[$state] : $state)
+                    ->dehydrateStateUsing(fn ($state) => ($key = array_search($state, $options, true)) !== false ? $key : $state)
                     ->rules([
                         function () use ($options) {
                             return function (string $attribute, $value, \Closure $fail) use ($options) {
-                                if (in_array($value, $options, true) || in_array($value, array_keys($options), true)) return;
-                                if (!preg_match('/^[a-zA-Z0-9\s\(\)\-_]+$/u', $value)) $fail(__('resources/shipment/strings.form.validation.english_only'));
+                                if (in_array($value, $options, true) || in_array($value, array_keys($options), true)) {
+                                    return;
+                                }
+                                if (! preg_match('/^[a-zA-Z0-9\s\(\)\-_]+$/u', $value)) {
+                                    $fail(__('resources/shipment/strings.form.validation.english_only'));
+                                }
                             };
                         },
                     ]),
@@ -166,15 +175,15 @@ trait Form
                     ->dehydrated()
                     ->columnSpan(1),
             ])
-            ->default(fn() => collect($options)->map(fn($label, $key) => ['name' => $label, 'received' => false])->values()->all())
+            ->default(fn () => collect($options)->map(fn ($label, $key) => ['name' => $label, 'received' => false])->values()->all())
             ->columns(4)
             ->columnSpanFull()
             ->grid(3)
-            ->addable(fn(Get $get) => !(bool)$get('doc_tracking'))
-            ->deletable(fn(Get $get) => !(bool)$get('doc_tracking'))
+            ->addable(fn (Get $get) => ! (bool) $get('doc_tracking'))
+            ->deletable(fn (Get $get) => ! (bool) $get('doc_tracking'))
             ->addActionLabel(__('resources/shipment/strings.form.add_doc'))
             ->collapsible()
-            ->itemLabel(fn() => null);
+            ->itemLabel(fn () => null);
     }
 
     public static function getEtaField()
@@ -182,7 +191,10 @@ trait Form
         return DatePicker::make('eta')
             ->label(__('resources/shipment/strings.form.eta'))
             ->native(false)
-            ->adaptive();
+            ->adaptive()
+            ->validationMessages([
+                'date' => __('resources/shipment/strings.form.validation.date'),
+            ]);
     }
 
     public static function getEtdField()
@@ -190,7 +202,10 @@ trait Form
         return DatePicker::make('etd')
             ->label(__('resources/shipment/strings.form.etd'))
             ->native(false)
-            ->adaptive();
+            ->adaptive()
+            ->validationMessages([
+                'date' => __('resources/shipment/strings.form.validation.date'),
+            ]);
     }
 
     public static function getExitDateField()
@@ -198,7 +213,10 @@ trait Form
         return DatePicker::make('exit_date')
             ->label(__('resources/shipment/strings.form.exit_date'))
             ->native(false)
-            ->adaptive();
+            ->adaptive()
+            ->validationMessages([
+                'date' => __('resources/shipment/strings.form.validation.date'),
+            ]);
     }
 
     public static function getNotesField(): Textarea
@@ -216,7 +234,7 @@ trait Form
             ->relationship(
                 name: 'operationStatus',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn($query) => $query->where('english_type', Shipment::TYPE_OPERATION_STATUS)
+                modifyQueryUsing: fn ($query) => $query->where('english_type', Shipment::TYPE_OPERATION_STATUS)
             )
             ->searchable()
             ->preload();
@@ -229,17 +247,18 @@ trait Form
             ->options(function (Get $get) {
                 [$registeredOrderId, $contractNo] = [$get('registered_order_id'), $get('contract_no')];
 
-                if (!$registeredOrderId || !$contractNo) {
+                if (! $registeredOrderId || ! $contractNo) {
                     return array_combine(range(1, 50), range(1, 50));
                 }
 
                 $available = Shipment::getPartData($registeredOrderId, $contractNo, $get('id'))['available'];
+
                 return array_combine($available, $available);
             })
             ->default(function (Get $get) {
                 [$registeredOrderId, $contractNo] = [$get('registered_order_id'), $get('contract_no')];
 
-                return (!$registeredOrderId || !$contractNo)
+                return (! $registeredOrderId || ! $contractNo)
                     ? 1
                     : Shipment::getPartData($registeredOrderId, $contractNo, $get('id'))['next'];
             })
@@ -258,7 +277,7 @@ trait Form
         return Select::make('registered_order_id')
             ->label(__('resources/shipment/strings.form.registered_order'))
             ->relationship('registeredOrder', 'ro_number')
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name_without_date)
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->formatted_name_without_date)
             ->searchable()
             ->preload()
             ->required()
@@ -269,7 +288,7 @@ trait Form
                     ? BankProfile::where('registered_order_id', $state)
                         ->whereNull('deleted_at')
                         ->get()
-                        ->sum(fn($bp) => $bp->total_purchased_remittance)
+                        ->sum(fn ($bp) => $bp->total_purchased_remittance)
                     : 0;
                 $set('remittance_amount', $total > 0 ? round((float) $total, 2) : null);
             })
@@ -284,10 +303,14 @@ trait Form
         return TextInput::make('remittance_amount')
             ->label(__('resources/shipment/strings.form.remittance_amount'))
             ->numeric()
+            ->validationMessages([
+                'numeric' => __('resources/shipment/strings.form.validation.numeric'),
+            ])
+            ->validationAttribute(__('resources/shipment/strings.form.remittance_amount'))
             ->dehydrated()
             ->prefix('💰')
             ->helperText(__('resources/shipment/strings.form.helper_remittance_amount'))
-            ->hint(fn($get) => delimiter($get('remittance_amount')));
+            ->hint(fn ($get) => delimiter($get('remittance_amount')));
     }
 
     public static function getShipmentNoField(): TextInput
@@ -296,7 +319,7 @@ trait Form
             ->label(__('resources/shipment/strings.form.shipment_no'))
             ->required()
             ->unique(ignoreRecord: true)
-            ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('shipment_no') : null)
+            ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('shipment_no') : null)
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
                 'unique' => __('resources/shipment/strings.form.validation.unique'),
@@ -311,7 +334,7 @@ trait Form
             ->relationship(
                 name: 'trackingStatus',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn($query) => $query->where('english_type', Shipment::TYPE_TRACKING_STATUS)
+                modifyQueryUsing: fn ($query) => $query->where('english_type', Shipment::TYPE_TRACKING_STATUS)
             )
             ->searchable()
             ->preload();
@@ -330,7 +353,7 @@ trait Form
                 'min' => __('resources/shipment/strings.form.validation.min_numeric_zero'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.shipped_quantity'))
-            ->hint(fn($get) => delimiter($get('shipped_quantity')));
+            ->hint(fn ($get) => delimiter($get('shipped_quantity')));
     }
 
     public static function getSmartTracerField(): Toggle
@@ -355,9 +378,9 @@ trait Form
             ->relationship(
                 name: 'status',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn($query) => $query->where('english_type', Shipment::TYPE_SHIPMENT_STATUS)
+                modifyQueryUsing: fn ($query) => $query->where('english_type', Shipment::TYPE_SHIPMENT_STATUS)
             )
-            ->default(fn($operation): ?int => $operation === 'create' ? Status::findBy(Shipment::TYPE_SHIPMENT_STATUS, 'Processing')?->id : null)
+            ->default(fn ($operation): ?int => $operation === 'create' ? Status::findBy(Shipment::TYPE_SHIPMENT_STATUS, 'Processing')?->id : null)
             ->searchable()
             ->preload()
             ->required()
@@ -373,6 +396,9 @@ trait Form
         return DatePicker::make('warehouse_date')
             ->label(__('resources/shipment/strings.form.warehouse_date'))
             ->native(false)
-            ->adaptive();
+            ->adaptive()
+            ->validationMessages([
+                'date' => __('resources/shipment/strings.form.validation.date'),
+            ]);
     }
 }

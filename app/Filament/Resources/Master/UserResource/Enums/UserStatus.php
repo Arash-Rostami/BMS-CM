@@ -2,13 +2,11 @@
 
 namespace App\Filament\Resources\Master\UserResource\Enums;
 
-
-
+use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
-use Filament\Support\Contracts\HasColor;
 
-enum UserStatus: string implements HasLabel, HasIcon, HasColor
+enum UserStatus: string implements HasColor, HasIcon, HasLabel
 {
     case ACTIVE = 'active';
     case INACTIVE = 'inactive';
@@ -47,6 +45,7 @@ enum UserStatus: string implements HasLabel, HasIcon, HasColor
         foreach (self::cases() as $case) {
             $options[$case->value] = $case->getLabel();
         }
+
         return $options;
     }
 }

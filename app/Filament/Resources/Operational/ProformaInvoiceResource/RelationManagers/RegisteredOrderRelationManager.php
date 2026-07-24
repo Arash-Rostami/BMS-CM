@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RegisteredOrderRelationManager extends RelationManager
 {
-    use RegisteredOrderTable, RegisteredOrderFilters;
+    use RegisteredOrderFilters, RegisteredOrderTable;
 
     protected static string $relationship = 'RegisteredOrders';
 
@@ -74,14 +74,14 @@ class RegisteredOrderRelationManager extends RelationManager
             ->filtersFormColumns(3)
             ->headerActions([
                 Action::make('create')
-                    ->label(__('resources/registeredOrder/strings.general.add_record'))
-                    ->url(fn(): string => RegisteredOrderResource::getUrl('create', ['proforma_invoice_id' => $this->getOwnerRecord()->getKey()]))
+                    ->label(__('resources/general/strings.actions.add_record'))
+                    ->url(fn (): string => RegisteredOrderResource::getUrl('create', ['proforma_invoice_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record) => RegisteredOrderResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record) => RegisteredOrderResource::getUrl('edit', ['record' => $record])),
                     DeleteAction::make(),
                     RestoreAction::make(),
                 ]),
@@ -99,16 +99,16 @@ class RegisteredOrderRelationManager extends RelationManager
             ->groups([
                 TableGroup::make('buyerCompany.name')
                     ->label(__('resources/registeredOrder/strings.filters.buyer'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
                 TableGroup::make('sellerCompanyExclusive.name')
                     ->label(__('resources/registeredOrder/strings.filters.seller'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'sellerCompanyExclusive')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'sellerCompanyExclusive')),
                 TableGroup::make('supplierCompanyExclusive.name')
                     ->label(__('resources/registeredOrder/strings.filters.supplier'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'supplierCompanyExclusive')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'supplierCompanyExclusive')),
                 TableGroup::make('manufacturerCompanyExclusive.name')
                     ->label(__('resources/registeredOrder/strings.filters.manufacturer'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'manufacturerCompanyExclusive')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'manufacturerCompanyExclusive')),
             ])
             ->striped()
             ->recordUrl(null)

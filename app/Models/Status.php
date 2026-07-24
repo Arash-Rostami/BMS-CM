@@ -9,19 +9,21 @@ use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\Status\HasSearchableRelations;
 use App\Models\Traits\Status\Relationships as ExclusiveRelationships;
 use App\Models\Traits\Status\StatusFinder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Status extends Model
 {
-    use SoftDeletes,
-        Relationships,
-        ExclusiveRelationships,
-        UserStamps,
-        Localization,
-        StatusFinder,
+    use ExclusiveRelationships,
+        HasFactory,
         HasNameSearch,
-        HasSearchableRelations;
+        HasSearchableRelations,
+        Localization,
+        Relationships,
+        SoftDeletes,
+        StatusFinder,
+        UserStamps;
 
     protected $table = 'statuses';
 

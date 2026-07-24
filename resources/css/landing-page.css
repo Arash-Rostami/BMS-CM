@@ -1,12 +1,21 @@
+/* ==========================================================================
+   Root Variables
+   ========================================================================== */
+
 :root {
     --font-default: "Roboto", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     --font-fa: "IranYekan", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    --font-brand: "Baloo 2", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
 }
 
 html[lang="fa"] {
     --font-default: var(--font-fa);
 }
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
 
 @media (prefers-reduced-motion: no-preference) {
     html {
@@ -35,6 +44,10 @@ a:focus-visible {
     display: none !important;
 }
 
+/* ==========================================================================
+   Theme Backgrounds
+   ========================================================================== */
+
 .light {
     background-color: var(--custom-first);
     background-image: radial-gradient(ellipse at 50% 0%, var(--google-second-light), transparent 70%);
@@ -44,6 +57,10 @@ a:focus-visible {
     background-color: var(--filament-dark);
     background-image: radial-gradient(ellipse at 50% 120%, var(--custom-third-mid), transparent 60%);
 }
+
+/* ==========================================================================
+   Surfaces & Panels
+   ========================================================================== */
 
 .lp-surface {
     background-color: var(--custom-third-light);
@@ -86,6 +103,10 @@ a:focus-visible {
     border-color: rgba(255, 255, 255, 0.08);
 }
 
+/* ==========================================================================
+   Tabs
+   ========================================================================== */
+
 .lp-tab {
     color: var(--custom-fourth);
     background-color: transparent;
@@ -125,6 +146,10 @@ a:focus-visible {
     box-shadow: var(--md-elevation-1-dark);
 }
 
+/* ==========================================================================
+   Panels, Wells, Float, Dock
+   ========================================================================== */
+
 .lp-panel {
     background-color: var(--custom-third-mid);
 }
@@ -152,6 +177,18 @@ a:focus-visible {
     box-shadow: var(--md-elevation-3-dark);
 }
 
+.lp-dock-pulse {
+    background-color: var(--google-fourth-light);
+}
+
+.dark .lp-dock-pulse {
+    background-color: var(--google-fourth-dark);
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
 @supports (padding-top: env(safe-area-inset-top)) {
     .fixed {
         padding-top: env(safe-area-inset-top);
@@ -172,6 +209,10 @@ a:focus-visible {
     cursor: not-allowed !important;
 }
 
+/* ==========================================================================
+   RTL / Direction
+   ========================================================================== */
+
 [dir="rtl"] .arrow-nav {
     transform: rotate(180deg);
 }
@@ -183,6 +224,10 @@ a:focus-visible {
 [dir="ltr"] .group:hover .arrow-nav {
     transform: translateX(0.5rem);
 }
+
+/* ==========================================================================
+   Widget & Form Inputs
+   ========================================================================== */
 
 .widget {
     direction: ltr;
@@ -283,6 +328,10 @@ input[type="range"]::-moz-range-thumb {
     background: rgba(255, 255, 255, 0.3);
 }
 
+/* ==========================================================================
+   Stepper
+   ========================================================================== */
+
 .stepper-connector {
     background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.12) 50%, transparent);
 }
@@ -291,71 +340,589 @@ input[type="range"]::-moz-range-thumb {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14) 50%, transparent);
 }
 
-.loader-overlay { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; overflow: hidden; perspective: 1000px; font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; }
+/* ==========================================================================
+   Insight Flag
+   ========================================================================== */
 
-.light .loader-overlay { background: var(--custom-first); }
-.light .loader-overlay::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 55% at 50% 50%, color-mix(in oklab, var(--primary-600) 5%, transparent) 0%, transparent 65%); pointer-events: none; }
-.light .ldr-grid { position: absolute; inset: 0; background-image: radial-gradient(circle, color-mix(in oklab, var(--primary-600) 8%, transparent) 1px, transparent 1px); background-size: 44px 44px; animation: lGrid 2s ease-out forwards; opacity: 0; pointer-events: none; }
-.light .ldr-scan { position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, transparent 0%, color-mix(in oklab, var(--primary-600) 45%, transparent) 50%, transparent 100%); animation: lScan 2.6s ease-in-out .5s infinite; pointer-events: none; will-change: transform; }
-.light .ldr-glow { position: absolute; width: 380px; height: 140px; border-radius: 50%; background: radial-gradient(ellipse, color-mix(in oklab, var(--primary-600) 10%, transparent), transparent 70%); animation: lGlow 2.4s ease-in-out .8s infinite; pointer-events: none; }
-.light .ldr-c { position: absolute; width: 30px; height: 30px; opacity: 0; animation: lCorner .7s cubic-bezier(.23, 1, .32, 1) forwards; }
-.light .ldr-c-tl { top: 28px; left: 28px; border-top: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent); border-left: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent); animation-delay: .05s; }
-.light .ldr-c-tr { top: 28px; right: 28px; border-top: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent); border-right: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent); animation-delay: .1s; }
-.light .ldr-c-bl { bottom: 28px; left: 28px; border-bottom: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent); border-left: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent); animation-delay: .15s; }
-.light .ldr-c-br { bottom: 28px; right: 28px; border-bottom: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent); border-right: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent); animation-delay: .2s; }
-.light .ldr-eyebrow { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace; font-size: .48rem; letter-spacing: .44em; color: color-mix(in oklab, var(--primary-600) 40%, transparent); text-transform: uppercase; animation: lUp .6s ease-out .2s both; margin-bottom: 18px; }
-.light .ldr-letter { display: inline-block; font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; font-size: clamp(4.5rem, 12vw, 7.5rem); font-weight: 900; color: var(--primary-900); letter-spacing: -.01em; animation: lIn .65s cubic-bezier(.23, 1, .32, 1) both; animation-delay: calc(.28s + var(--i) * .07s)!important; text-shadow: 0 0 60px color-mix(in oklab, var(--primary-600) 14%, transparent); will-change: transform, opacity, filter; }
-.light .ldr-subtitle { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace; font-size: .5rem; letter-spacing: .35em; color: color-mix(in oklab, var(--primary-600) 50%, transparent); text-transform: uppercase; animation: lSub .85s cubic-bezier(.23, 1, .32, 1) .52s both; margin-top: 8px; }
-.light .ldr-divider { width: 1px; height: 28px; background: linear-gradient(to bottom, transparent, color-mix(in oklab, var(--primary-600) 18%, transparent), transparent); margin: 22px 0 24px; animation: lUp .4s ease-out .65s both; }
-.light .ldr-track { width: 200px; height: 1px; background: rgba(0, 0, 0, .08); position: relative; }
-.light .ldr-fill { position: absolute; inset: 0; transform-origin: left center; transform: scaleX(0); background: linear-gradient(90deg, color-mix(in oklab, var(--primary-600) 15%, transparent), var(--primary-600)); animation: lFill 2s cubic-bezier(.4, 0, .2, 1) .85s forwards; will-change: transform; }
-.light .ldr-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 5px; height: 5px; border-radius: 50%; background: var(--primary-600); box-shadow: 0 0 10px 3px color-mix(in oklab, var(--primary-600) 60%, transparent); }
-.light .ldr-status { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace; font-size: .42rem; letter-spacing: .26em; color: rgba(0, 0, 0, .2); text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: .45em; margin-top: 7px; }
+.lp-insight-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px 2px 6px;
+    margin-bottom: 8px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--primary-600) 10%, transparent);
+    color: var(--primary-600);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
 
-.dark .loader-overlay { background: var(--filament-dark-mid); }
-.dark .loader-overlay::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 55% at 50% 50%, color-mix(in oklab, var(--primary-400) 5%, transparent) 0%, transparent 65%); pointer-events: none; }
-.dark .ldr-grid { position: absolute; inset: 0; background-image: radial-gradient(circle, color-mix(in oklab, var(--primary-400) 9%, transparent) 1px, transparent 1px); background-size: 44px 44px; animation: lGrid 2s ease-out forwards; opacity: 0; pointer-events: none; }
-.dark .ldr-scan { position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, transparent 0%, color-mix(in oklab, var(--primary-400) 55%, transparent) 50%, transparent 100%); animation: lScan 2.6s ease-in-out .5s infinite; pointer-events: none; will-change: transform; }
-.dark .ldr-glow { position: absolute; width: 380px; height: 140px; border-radius: 50%; background: radial-gradient(ellipse, color-mix(in oklab, var(--primary-400) 12%, transparent), transparent 70%); animation: lGlow 2.4s ease-in-out .8s infinite; pointer-events: none; }
-.dark .ldr-c { position: absolute; width: 30px; height: 30px; opacity: 0; animation: lCorner .7s cubic-bezier(.23, 1, .32, 1) forwards; }
-.dark .ldr-c-tl { top: 28px; left: 28px; border-top: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent); border-left: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent); animation-delay: .05s; }
-.dark .ldr-c-tr { top: 28px; right: 28px; border-top: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent); border-right: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent); animation-delay: .1s; }
-.dark .ldr-c-bl { bottom: 28px; left: 28px; border-bottom: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent); border-left: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent); animation-delay: .15s; }
-.dark .ldr-c-br { bottom: 28px; right: 28px; border-bottom: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent); border-right: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent); animation-delay: .2s; }
-.dark .ldr-eyebrow { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace; font-size: .48rem; letter-spacing: .44em; color: color-mix(in oklab, var(--primary-400) 38%, transparent); text-transform: uppercase; animation: lUp .6s ease-out .2s both; margin-bottom: 18px; }
-.dark .ldr-letter { display: inline-block; font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; font-size: clamp(4.5rem, 12vw, 7.5rem); font-weight: 700; color: var(--primary-50); letter-spacing: -.01em; animation: lIn .65s cubic-bezier(.23, 1, .32, 1) both; animation-delay: calc(.28s + var(--i) * .07s); text-shadow: 0 0 60px color-mix(in oklab, var(--primary-400) 18%, transparent); will-change: transform, opacity, filter; }
-.dark .ldr-subtitle { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace; font-size: .5rem; letter-spacing: .35em; color: color-mix(in oklab, var(--primary-400) 50%, transparent); text-transform: uppercase; animation: lSub .85s cubic-bezier(.23, 1, .32, 1) .52s both; margin-top: 8px; }
-.dark .ldr-divider { width: 1px; height: 28px; background: linear-gradient(to bottom, transparent, color-mix(in oklab, var(--primary-400) 20%, transparent), transparent); margin: 22px 0 24px; animation: lUp .4s ease-out .65s both; }
-.dark .ldr-track { width: 200px; height: 1px; background: rgba(255, 255, 255, .07); position: relative; }
-.dark .ldr-fill { position: absolute; inset: 0; transform-origin: left center; transform: scaleX(0); background: linear-gradient(90deg, color-mix(in oklab, var(--primary-400) 15%, transparent), var(--primary-400)); animation: lFill 2s cubic-bezier(.4, 0, .2, 1) .85s forwards; will-change: transform; }
-.dark .ldr-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 5px; height: 5px; border-radius: 50%; background: var(--primary-400); box-shadow: 0 0 10px 3px color-mix(in oklab, var(--primary-400) 75%, transparent); }
-.dark .ldr-status { font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace; font-size: .42rem; letter-spacing: .26em; color: rgba(255, 255, 255, .16); text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: .45em; margin-top: 7px; }
+.dark .lp-insight-flag {
+    background: color-mix(in oklab, var(--primary-400) 14%, transparent);
+    color: var(--primary-400);
+}
 
-.ldr-body { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.ldr-progress { display: flex; flex-direction: column; align-items: center; }
+.lp-insight-flag svg {
+    animation: bulbPulse 2.2s ease-in-out infinite;
+}
 
-.light .ldr-slogan-hard { position: relative; display: inline-block; opacity: .45; }
-.light .ldr-slogan-hard::after { content: ''; position: absolute; left: 0; top: 50%; width: 100%; height: 1.5px; background: rgba(239, 68, 68, .5); transform: translateY(-50%) rotate(8deg); pointer-events: none; }
-.light .ldr-slogan-smart { color: rgba(245, 158, 11, .65); }
-.dark .ldr-slogan-hard { position: relative; display: inline-block; opacity: .35; }
-.dark .ldr-slogan-hard::after { content: ''; position: absolute; left: 0; top: 50%; width: 100%; height: 1.5px; background: rgba(239, 68, 68, .6); transform: translateY(-50%) rotate(8deg); pointer-events: none; }
-.dark .ldr-slogan-smart { color: rgba(245, 158, 11, .78); }
+@keyframes bulbPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .4; }
+}
 
-.light .ldr-cm { display: inline-block; font-size: clamp(.5rem, 1.4vw, .85rem); font-weight: 900; color: color-mix(in oklab, var(--primary-600) 28%, transparent); vertical-align: top; margin-top: clamp(.35rem, 1vw, .6rem); margin-left: .06em; letter-spacing: .03em; animation: lIn .65s cubic-bezier(.23, 1, .32, 1) both; animation-delay: calc(.28s + 3 * .07s) !important; will-change: transform, opacity, filter; }
-.dark .ldr-cm { display: inline-block; font-size: clamp(.5rem, 1.4vw, .85rem); font-weight: 900; color: color-mix(in oklab, var(--primary-400) 28%, transparent); vertical-align: top; margin-top: clamp(.35rem, 1vw, .6rem); margin-left: .06em; letter-spacing: .03em; animation: lIn .65s cubic-bezier(.23, 1, .32, 1) both; animation-delay: calc(.28s + 3 * .07s); will-change: transform, opacity, filter; }
+@media (prefers-reduced-motion: reduce) {
+    .lp-insight-flag svg { animation: none; }
+}
 
-.light .ldr-status-icon { width: 1em; height: 1em; flex-shrink: 0; color: color-mix(in oklab, var(--primary-600) 40%, transparent); }
-.dark .ldr-status-icon { width: 1em; height: 1em; flex-shrink: 0; color: color-mix(in oklab, var(--primary-400) 35%, transparent); }
+/* ==========================================================================
+   Loader Overlay
+   ========================================================================== */
 
-@keyframes lIn { from { opacity: 0; transform: translateY(-14px); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
-@keyframes lUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-@keyframes lSub { from { opacity: 0; letter-spacing: .55em; } to { opacity: .55; letter-spacing: .35em; } }
-@keyframes lFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes lScan { 0% { transform: translateY(-55vh); opacity: 0; } 8% { opacity: .65; } 88% { opacity: .25; } 100% { transform: translateY(55vh); opacity: 0; } }
-@keyframes lCorner { from { opacity: 0; transform: scale(.88); } to { opacity: 1; transform: none; } }
-@keyframes lGlow { 0%, 100% { opacity: .1; } 50% { opacity: .26; } }
-@keyframes lGrid { from { opacity: 0; } to { opacity: 1; } }
+.loader-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    perspective: 1000px;
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Loader — light */
+
+.light .loader-overlay {
+    background: var(--custom-first);
+}
+
+.light .loader-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 55% at 50% 50%, color-mix(in oklab, var(--primary-600) 5%, transparent) 0%, transparent 65%);
+    pointer-events: none;
+}
+
+.light .ldr-grid {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, color-mix(in oklab, var(--primary-600) 8%, transparent) 1px, transparent 1px);
+    background-size: 44px 44px;
+    animation: lGrid 2s ease-out forwards;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.light .ldr-scan {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, color-mix(in oklab, var(--primary-600) 45%, transparent) 50%, transparent 100%);
+    animation: lScan 2.6s ease-in-out .5s infinite;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.light .ldr-glow {
+    position: absolute;
+    width: 380px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, color-mix(in oklab, var(--primary-600) 10%, transparent), transparent 70%);
+    animation: lGlow 2.4s ease-in-out .8s infinite;
+    pointer-events: none;
+}
+
+.light .ldr-c {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    opacity: 0;
+    animation: lCorner .7s cubic-bezier(.23, 1, .32, 1) forwards;
+}
+
+.light .ldr-c-tl {
+    top: 28px;
+    left: 28px;
+    border-top: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent);
+    border-left: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent);
+    animation-delay: .05s;
+}
+
+.light .ldr-c-tr {
+    top: 28px;
+    right: 28px;
+    border-top: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent);
+    border-right: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent);
+    animation-delay: .1s;
+}
+
+.light .ldr-c-bl {
+    bottom: 28px;
+    left: 28px;
+    border-bottom: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent);
+    border-left: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent);
+    animation-delay: .15s;
+}
+
+.light .ldr-c-br {
+    bottom: 28px;
+    right: 28px;
+    border-bottom: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent);
+    border-right: 1.5px solid color-mix(in oklab, var(--primary-600) 35%, transparent);
+    animation-delay: .2s;
+}
+
+.light .ldr-eyebrow {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .48rem;
+    letter-spacing: .44em;
+    color: color-mix(in oklab, var(--primary-600) 40%, transparent);
+    text-transform: uppercase;
+    animation: lUp .6s ease-out .2s both;
+    margin-bottom: 18px;
+}
+
+.light .ldr-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    animation: lUp .55s cubic-bezier(.23, 1, .32, 1) .22s both;
+}
+
+.light .ldr-mark-img {
+    display: block;
+    width: clamp(3rem, 8vw, 4.5rem);
+    height: auto;
+    filter: drop-shadow(0 0 32px color-mix(in oklab, var(--primary-600) 22%, transparent));
+}
+
+.light .ldr-mark-dark {
+    display: none;
+}
+
+.light .ldr-letter {
+    display: inline-block;
+    font-family: var(--font-brand);
+    font-size: clamp(2rem, 7vw, 3.75rem);
+    font-weight: 800;
+    color: var(--primary-900);
+    letter-spacing: -.06em;
+    animation: lIn .65s cubic-bezier(.23, 1, .32, 1) both;
+    animation-delay: calc(.28s + var(--i) * .07s)!important;
+    text-shadow: 0 0 60px color-mix(in oklab, var(--primary-600) 14%, transparent);
+    will-change: transform, opacity, filter;
+}
+
+.light .ldr-subtitle {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .5rem;
+    letter-spacing: .35em;
+    color: color-mix(in oklab, var(--primary-600) 50%, transparent);
+    text-transform: uppercase;
+    animation: lSub .85s cubic-bezier(.23, 1, .32, 1) .52s both;
+    margin-top: 8px;
+}
+
+.light .ldr-divider {
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(to bottom, transparent, color-mix(in oklab, var(--primary-600) 18%, transparent), transparent);
+    margin: 22px 0 24px;
+    animation: lUp .4s ease-out .65s both;
+}
+
+.light .ldr-track {
+    width: 200px;
+    height: 1px;
+    background: rgba(0, 0, 0, .08);
+    position: relative;
+}
+
+.light .ldr-fill {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    transform: scaleX(0);
+    background: linear-gradient(90deg, color-mix(in oklab, var(--primary-600) 15%, transparent), var(--primary-600));
+    animation: lFill 2s cubic-bezier(.4, 0, .2, 1) .85s forwards;
+    will-change: transform;
+}
+
+.light .ldr-fill::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--primary-600);
+    box-shadow: 0 0 10px 3px color-mix(in oklab, var(--primary-600) 60%, transparent);
+}
+
+.light .ldr-status {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .42rem;
+    letter-spacing: .26em;
+    color: rgba(0, 0, 0, .2);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45em;
+    margin-top: 7px;
+}
+
+/* Loader — dark */
+
+.dark .loader-overlay {
+    background: var(--filament-dark-mid);
+}
+
+.dark .loader-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 55% at 50% 50%, color-mix(in oklab, var(--primary-400) 5%, transparent) 0%, transparent 65%);
+    pointer-events: none;
+}
+
+.dark .ldr-grid {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, color-mix(in oklab, var(--primary-400) 9%, transparent) 1px, transparent 1px);
+    background-size: 44px 44px;
+    animation: lGrid 2s ease-out forwards;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dark .ldr-scan {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, color-mix(in oklab, var(--primary-400) 55%, transparent) 50%, transparent 100%);
+    animation: lScan 2.6s ease-in-out .5s infinite;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.dark .ldr-glow {
+    position: absolute;
+    width: 380px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, color-mix(in oklab, var(--primary-400) 12%, transparent), transparent 70%);
+    animation: lGlow 2.4s ease-in-out .8s infinite;
+    pointer-events: none;
+}
+
+.dark .ldr-c {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    opacity: 0;
+    animation: lCorner .7s cubic-bezier(.23, 1, .32, 1) forwards;
+}
+
+.dark .ldr-c-tl {
+    top: 28px;
+    left: 28px;
+    border-top: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent);
+    border-left: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent);
+    animation-delay: .05s;
+}
+
+.dark .ldr-c-tr {
+    top: 28px;
+    right: 28px;
+    border-top: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent);
+    border-right: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent);
+    animation-delay: .1s;
+}
+
+.dark .ldr-c-bl {
+    bottom: 28px;
+    left: 28px;
+    border-bottom: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent);
+    border-left: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent);
+    animation-delay: .15s;
+}
+
+.dark .ldr-c-br {
+    bottom: 28px;
+    right: 28px;
+    border-bottom: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent);
+    border-right: 1.5px solid color-mix(in oklab, var(--primary-400) 45%, transparent);
+    animation-delay: .2s;
+}
+
+.dark .ldr-eyebrow {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .48rem;
+    letter-spacing: .44em;
+    color: color-mix(in oklab, var(--primary-400) 38%, transparent);
+    text-transform: uppercase;
+    animation: lUp .6s ease-out .2s both;
+    margin-bottom: 18px;
+}
+
+.dark .ldr-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    animation: lUp .55s cubic-bezier(.23, 1, .32, 1) .22s both;
+}
+
+.dark .ldr-mark-img {
+    display: block;
+    width: clamp(3rem, 8vw, 4.5rem);
+    height: auto;
+    filter: drop-shadow(0 0 32px color-mix(in oklab, var(--primary-400) 26%, transparent));
+}
+
+.dark .ldr-mark-light {
+    display: none;
+}
+
+.dark .ldr-letter {
+    display: inline-block;
+    font-family: var(--font-brand);
+    font-size: clamp(2rem, 7vw, 3.75rem);
+    font-weight: 800;
+    color: var(--primary-50);
+    letter-spacing: -.03em;
+    animation: lIn .65s cubic-bezier(.23, 1, .32, 1) both;
+    animation-delay: calc(.28s + var(--i) * .07s);
+    text-shadow: 0 0 60px color-mix(in oklab, var(--primary-400) 18%, transparent);
+    will-change: transform, opacity, filter;
+}
+
+.dark .ldr-subtitle {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .5rem;
+    letter-spacing: .35em;
+    color: color-mix(in oklab, var(--primary-400) 50%, transparent);
+    text-transform: uppercase;
+    animation: lSub .85s cubic-bezier(.23, 1, .32, 1) .52s both;
+    margin-top: 8px;
+}
+
+.dark .ldr-divider {
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(to bottom, transparent, color-mix(in oklab, var(--primary-400) 20%, transparent), transparent);
+    margin: 22px 0 24px;
+    animation: lUp .4s ease-out .65s both;
+}
+
+.dark .ldr-track {
+    width: 200px;
+    height: 1px;
+    background: rgba(255, 255, 255, .07);
+    position: relative;
+}
+
+.dark .ldr-fill {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    transform: scaleX(0);
+    background: linear-gradient(90deg, color-mix(in oklab, var(--primary-400) 15%, transparent), var(--primary-400));
+    animation: lFill 2s cubic-bezier(.4, 0, .2, 1) .85s forwards;
+    will-change: transform;
+}
+
+.dark .ldr-fill::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--primary-400);
+    box-shadow: 0 0 10px 3px color-mix(in oklab, var(--primary-400) 75%, transparent);
+}
+
+.dark .ldr-status {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
+    font-size: .42rem;
+    letter-spacing: .26em;
+    color: rgba(255, 255, 255, .16);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45em;
+    margin-top: 7px;
+}
+
+/* Loader — layout & slogan */
+
+.ldr-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.ldr-progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.light .ldr-slogan-hard {
+    position: relative;
+    display: inline-block;
+    opacity: .45;
+}
+
+.light .ldr-slogan-hard::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1.5px;
+    background: rgba(239, 68, 68, .5);
+    transform: translateY(-50%) rotate(8deg);
+    pointer-events: none;
+}
+
+.light .ldr-slogan-smart {
+    color: rgba(245, 158, 11, .65);
+}
+
+.dark .ldr-slogan-hard {
+    position: relative;
+    display: inline-block;
+    opacity: .35;
+}
+
+.dark .ldr-slogan-hard::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1.5px;
+    background: rgba(239, 68, 68, .6);
+    transform: translateY(-50%) rotate(8deg);
+    pointer-events: none;
+}
+
+.dark .ldr-slogan-smart {
+    color: rgba(245, 158, 11, .78);
+}
+
+.light .ldr-status-icon {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+    color: color-mix(in oklab, var(--primary-600) 40%, transparent);
+}
+
+.dark .ldr-status-icon {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+    color: color-mix(in oklab, var(--primary-400) 35%, transparent);
+}
+
+/* ==========================================================================
+   Ticker
+   ========================================================================== */
+
+.lp-ticker {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.lp-ticker button {
+    white-space: nowrap;
+}
+
+
+/* Loader — keyframes */
+
+@keyframes lIn {
+    from {
+        opacity: 0;
+        transform: translateY(-14px);
+        filter: blur(10px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+        filter: none;
+    }
+}
+
+@keyframes lUp {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes lSub {
+    from {
+        opacity: 0;
+        letter-spacing: .55em;
+    }
+    to {
+        opacity: .55;
+        letter-spacing: .35em;
+    }
+}
+
+@keyframes lFill {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+@keyframes lScan {
+    0% { transform: translateY(-55vh); opacity: 0; }
+    8% { opacity: .65; }
+    88% { opacity: .25; }
+    100% { transform: translateY(55vh); opacity: 0; }
+}
+
+@keyframes lCorner {
+    from { opacity: 0; transform: scale(.88); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes lGlow {
+    0%, 100% { opacity: .1; }
+    50% { opacity: .26; }
+}
+
+@keyframes lGrid {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 
 @media (prefers-reduced-motion: reduce) {
     .ldr-scan, .ldr-glow { animation: none !important; }
 }
+

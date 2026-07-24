@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Operational\TargetResource\Traits;
 
-
 use App\Filament\Resources\Operational\TargetResource\Enums\Status as TargetStatus;
 use App\Models\Category;
 use App\Models\Product;
@@ -16,7 +15,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 
-
 trait Form
 {
     public static function getAchievedAmountField(): TextInput
@@ -29,7 +27,8 @@ trait Form
             ->validationMessages([
                 'numeric' => __('resources/target/strings.form.validation_numeric'),
             ])
-            ->validationAttribute(__('resources/target/strings.form.achieved_amount'));
+            ->validationAttribute(__('resources/target/strings.form.achieved_amount'))
+            ->helperText(__('resources/target/strings.form.helper_achieved'));
     }
 
     public static function getAchievedQuantityField(): TextInput
@@ -42,7 +41,8 @@ trait Form
             ->validationMessages([
                 'numeric' => __('resources/target/strings.form.validation_numeric'),
             ])
-            ->validationAttribute(__('resources/target/strings.form.achieved_quantity'));
+            ->validationAttribute(__('resources/target/strings.form.achieved_quantity'))
+            ->helperText(__('resources/target/strings.form.helper_achieved'));
     }
 
     public static function getAmountField(): TextInput
@@ -63,7 +63,10 @@ trait Form
         return Textarea::make('description')
             ->label(__('resources/target/strings.form.description'))
             ->maxLength(65535)
-            ->nullable();
+            ->nullable()
+            ->validationMessages([
+                'max' => __('resources/target/strings.form.validation_description_max'),
+            ]);
     }
 
     public static function getEndInField()
@@ -79,7 +82,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/target/strings.form.validation_required'),
                 'date' => __('resources/target/strings.form.validation_date'),
-                'after' => __('resources/target/strings.form.validation_end_in_after_start_from')
+                'after' => __('resources/target/strings.form.validation_end_in_after_start_from'),
             ]);
     }
 
@@ -87,7 +90,7 @@ trait Form
     {
         return Select::make('metrics')
             ->label(__('resources/target/strings.form.metrics'))
-            ->options(__('resources/target/strings.metrics'))
+            ->options(__('resources/general/strings.metrics'))
             ->searchable()
             ->preload()
             ->nullable();
@@ -154,12 +157,16 @@ trait Form
                     ->searchColumns(['name', 'english_name']),
                 Type::make(Product::class)
                     ->label(__('resources/target/strings.form.targetable_product'))
-                    ->getOptionLabelFromRecordUsing(fn(Product $r): string => $r->customized_label)
-                    ->searchColumns(['code', 'name', 'english_name'])
+                    ->getOptionLabelFromRecordUsing(fn (Product $r): string => $r->customized_label)
+                    ->searchColumns(['code', 'name', 'english_name']),
             ])
             ->searchable()
             ->columnSpan(2)
-            ->required();
+            ->required()
+            ->validationAttribute(__('resources/target/strings.form.targetable'))
+            ->validationMessages([
+                'required' => __('resources/target/strings.form.validation_required'),
+            ]);
     }
 
     public static function getYearField(): Select

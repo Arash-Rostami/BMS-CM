@@ -13,8 +13,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -23,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentsRelationManager extends RelationManager
 {
-    use PaymentTable, PaymentFilters;
+    use PaymentFilters, PaymentTable;
 
     protected static string $relationship = 'payments';
 
@@ -73,14 +71,14 @@ class PaymentsRelationManager extends RelationManager
             ->filtersFormColumns(3)
             ->headerActions([
                 Action::make('create')
-                    ->label(__('resources/payment/strings.general.add_record', ['label' => self::getModelLabel()]))
-                    ->url(fn(): string => PaymentResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()]))
+                    ->label(__('resources/general/strings.actions.add_record'))
+                    ->url(fn (): string => PaymentResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record): string => PaymentResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record): string => PaymentResource::getUrl('edit', ['record' => $record])),
                     DeleteAction::make(),
                 ]),
             ])

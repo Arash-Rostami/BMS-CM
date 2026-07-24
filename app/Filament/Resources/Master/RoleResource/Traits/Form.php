@@ -20,7 +20,9 @@ trait Form
             ->label(__("resources/general/strings.actions.{$action}"))
             ->live()
             ->afterStateHydrated(function (Toggle $component, $record) use ($action) {
-                if (!$record) return;
+                if (! $record) {
+                    return;
+                }
                 $total = Permission::where('name', 'like', "%.{$action}")->count();
                 $component->state(
                     $total > 0 &&
@@ -69,7 +71,9 @@ trait Form
             ->columnSpanFull()
             ->helperText(__('resources/role/strings.form.helper_modules'))
             ->afterStateHydrated(function (Set $set, $record) {
-                if (!$record) return;
+                if (! $record) {
+                    return;
+                }
                 $permissionIds = $record->permissions()->pluck('permissions.id')->all();
                 $set('modules', Role::getModulesFromPermissions($permissionIds));
                 $set('permissions', $permissionIds);
@@ -105,11 +109,13 @@ trait Form
                 $modules = $get('modules');
                 $selectAll = $get('select_all');
 
-                if (empty($modules) && !$selectAll) return [];
+                if (empty($modules) && ! $selectAll) {
+                    return [];
+                }
 
                 $query = Permission::query();
 
-                if (!empty($modules) && !$selectAll) {
+                if (! empty($modules) && ! $selectAll) {
                     $query->where(function ($q) use ($modules) {
                         foreach ($modules as $module) {
                             $q->orWhere('name', 'like', "{$module}.%");
@@ -118,14 +124,14 @@ trait Form
                 }
 
                 return $query->get()
-                    ->groupBy(fn($p) => PermissionLabeler::getLabel(Str::before($p->name, '.')))
-                    ->map(fn($perms) => $perms->mapWithKeys(fn($p) => [$p->id => PermissionLabeler::getLabel($p->name)])->toArray())
+                    ->groupBy(fn ($p) => PermissionLabeler::getLabel(Str::before($p->name, '.')))
+                    ->map(fn ($perms) => $perms->mapWithKeys(fn ($p) => [$p->id => PermissionLabeler::getLabel($p->name)])->toArray())
                     ->toArray();
             })
             ->multiple()
             ->live()
             ->searchable()
-            ->disabled(fn(Get $get) => empty($get('modules')) && !$get('select_all'))
+            ->disabled(fn (Get $get) => empty($get('modules')) && ! $get('select_all'))
             ->afterStateUpdated(function (Set $set, Get $get, ?array $state) {
                 $state ??= [];
 
@@ -155,14 +161,16 @@ trait Form
             ])
             ->live(onBlur: true)
             ->afterStateHydrated(function (Set $set, ?string $state) {
-                if (!$state) return;
+                if (! $state) {
+                    return;
+                }
 
                 if ($grade = Role::extractGrade($state)) {
                     $set('name', Role::extractBaseName($state));
                     $set('grade', $grade);
                 }
             })
-            ->afterStateUpdated(fn(Set $set, $state) => $set('name', Str::snake($state)));
+            ->afterStateUpdated(fn (Set $set, $state) => $set('name', Str::snake($state)));
     }
 
     public static function getSelectAllToggle(): Toggle
@@ -173,9 +181,10 @@ trait Form
             ->offIcon('heroicon-s-x-circle')
             ->live()
             ->afterStateUpdated(function (Set $set, bool $state) {
-                if (!$state) {
+                if (! $state) {
                     $set('modules', []);
                     $set('permissions', []);
+
                     return;
                 }
 

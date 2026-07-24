@@ -5,12 +5,19 @@ namespace App\Models\Traits\Company;
 trait TypeScopes
 {
     const TYPE_SELLER = 'seller';
+
     const TYPE_BUYER = 'buyer';
+
     const TYPE_SUPPLIER = 'supplier';
+
     const TYPE_DISTRIBUTOR = 'distributor';
+
     const TYPE_MANUFACTURER = 'manufacturer';
+
     const TYPE_RETAILER = 'retailer';
+
     const TYPE_WHOLESALER = 'wholesaler';
+
     const TYPE_SERVICE_PROVIDER = 'service_provider';
 
     const TYPE_SERVICE_ALL_SELLERS = ['supplier', 'manufacturer', 'seller'];
@@ -26,7 +33,7 @@ trait TypeScopes
                 self::TYPE_MANUFACTURER => 'تولیدکننده',
                 self::TYPE_RETAILER => 'خرده‌فروش',
                 self::TYPE_WHOLESALER => 'عمده‌فروش',
-                self::TYPE_SERVICE_PROVIDER => 'ارائه‌دهنده خدمات'
+                self::TYPE_SERVICE_PROVIDER => 'ارائه‌دهنده خدمات',
             ]
             : [
                 self::TYPE_SELLER => 'Seller',
@@ -42,9 +49,12 @@ trait TypeScopes
 
     public function getFormattedTypesAttribute(): array
     {
-        if (!$this->types) return [];
+        if (! $this->types) {
+            return [];
+        }
 
         $availableTypes = self::getAvailableTypes();
+
         return array_map(function ($type) use ($availableTypes) {
             return $availableTypes[$type] ?? ucfirst(str_replace('_', ' ', $type));
         }, $this->types);
@@ -91,6 +101,7 @@ trait TypeScopes
         foreach ($types as $type) {
             $query->whereJsonContains('types', $type);
         }
+
         return $query;
     }
 
@@ -152,7 +163,7 @@ trait TypeScopes
             self::TYPE_SUPPLIER,
             self::TYPE_DISTRIBUTOR,
             self::TYPE_MANUFACTURER,
-            self::TYPE_WHOLESALER
+            self::TYPE_WHOLESALER,
         ]);
     }
 
@@ -171,5 +182,4 @@ trait TypeScopes
     {
         return $query->ofType(self::TYPE_WHOLESALER);
     }
-
 }

@@ -11,13 +11,13 @@ trait Table
 {
     public static function showBuyerCompany(): TextColumn
     {
-        return TextColumn::make("buyerCompany.name")
+        return TextColumn::make('buyerCompany.name')
             ->label(__('resources/proformaInvoice/strings.table.buyer_company'))
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas('buyerCompany', fn($q) => $q->searchCompany($search)))
+                query: fn (Builder $query, string $search) => $query->whereHas('buyerCompany', fn ($q) => $q->searchCompany($search)))
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true)
-            ->formatStateUsing(fn($record): ?string => $record->buyerCompany?->localized_name);
+            ->formatStateUsing(fn ($record): ?string => $record->buyerCompany?->localized_name);
     }
 
     public static function showCreationTime(): TextColumn
@@ -52,7 +52,7 @@ trait Table
         return TextColumn::make('invoice_date')
             ->label(__('resources/proformaInvoice/strings.table.invoice_date'))
             ->date()
-            ->formatStateUsing(fn($record) => app()->getLocale() === 'fa' ? toPersianDate($record->invoice_date) : toGregorianDate($record->invoice_date))
+            ->formatStateUsing(fn ($record) => app()->getLocale() === 'fa' ? toPersianDate($record->invoice_date) : toGregorianDate($record->invoice_date))
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -65,21 +65,20 @@ trait Table
             ->sortable()
             ->badge()
             ->copyable()
-            ->tooltip(fn($record) => app()->getLocale() === 'fa' ? toPersianDate($record->invoice_date) : toGregorianDate($record->invoice_date))
+            ->tooltip(fn ($record) => app()->getLocale() === 'fa' ? toPersianDate($record->invoice_date) : toGregorianDate($record->invoice_date))
             ->toggleable();
     }
 
-
     public static function showSellerCompany(): TextColumn
     {
-        return TextColumn::make("sellerCompany.name")
+        return TextColumn::make('sellerCompany.name')
             ->label(__('resources/proformaInvoice/strings.table.seller_company'))
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas('sellerCompany', fn($q) => $q->searchCompany($search))
+                query: fn (Builder $query, string $search) => $query->whereHas('sellerCompany', fn ($q) => $q->searchCompany($search))
             )
             ->sortable()
             ->toggleable()
-            ->formatStateUsing(fn($record): ?string => $record->sellerCompany?->localized_name);
+            ->formatStateUsing(fn ($record): ?string => $record->sellerCompany?->localized_name);
     }
 
     public static function showTotalAmount(): TextColumn
@@ -89,7 +88,7 @@ trait Table
             ->sortable()
             ->numeric(decimalPlaces: 2)
             ->toggleable(isToggledHiddenByDefault: true)
-            ->formatStateUsing(fn(?float $state) => $state === null ? '-' : number_format($state, 2));
+            ->formatStateUsing(fn (?float $state) => $state === null ? '-' : number_format($state, 2));
     }
 
     public static function showUpdateTime(): TextColumn
@@ -108,7 +107,7 @@ trait Table
             ->icon('heroicon-o-document-check')
             ->alignEnd()
             ->badge()
-            ->color(fn(?int $state): string => $state === 0 ? 'gray' : 'success')
+            ->color(fn (?int $state): string => $state === 0 ? 'gray' : 'success')
             ->toggleable()
             ->sortable();
     }
@@ -127,12 +126,12 @@ trait Table
         return TextColumn::make('source')
             ->label(__('resources/general/strings.relevant_module.table.related_to'))
             ->badge()
-            ->getStateUsing(fn($record) => Source::getAllFromRecord($record))
-            ->formatStateUsing(fn(Source $state): ?string => $state->getLabel())
-            ->tooltip(fn(Source $state): ?string => $state->getTooltip())
+            ->getStateUsing(fn ($record) => Source::getAllFromRecord($record))
+            ->formatStateUsing(fn (Source $state): ?string => $state->getLabel())
+            ->tooltip(fn (Source $state): ?string => $state->getTooltip())
             ->iconPosition(IconPosition::Before)
-            ->icon(fn(Source $state): ?string => $state->getIcon())
-            ->color(fn(Source $state): string => $state->getColor())
+            ->icon(fn (Source $state): ?string => $state->getIcon())
+            ->color(fn (Source $state): string => $state->getColor())
             ->wrap();
     }
 }

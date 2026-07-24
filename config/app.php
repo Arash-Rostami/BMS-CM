@@ -13,7 +13,35 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'BMS-CM'),
+    'name' => env('APP_NAME', 'PORTERRA'),
+
+    'developer' => env('APP_DEVELOPER', 'Arash R.'),
+
+    'last_update' => env('LAST_UPDATE', now()),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Branding
+    |--------------------------------------------------------------------------
+    |
+    | Logo and favicon paths, relative to the public root. Referenced via
+    | Vite::asset('resources/'.config('app.branding.*')) where the compiled
+    | asset pipeline is used, or asset(config('app.branding.*')) elsewhere.
+    |
+    */
+
+    'branding' => [
+        'favicon' => 'img/logos/favicon.png',
+
+        'logo' => [
+            'light' => 'img/logos/logo-light.png',
+            'dark' => 'img/logos/logo-dark.png',
+        ],
+
+        'company_name' => env('COMPANY_NAME', 'شرکت پرسـال'),
+
+        'subtitle' => env('APP_SUB', 'پـرتـرا، سـامانه مدیریـت واردات'),
+    ],
 
     /*
     |--------------------------------------------------------------------------

@@ -8,7 +8,6 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 
 trait Filters
 {
@@ -28,7 +27,7 @@ trait Filters
             ->relationship(
                 'containerStatus',
                 app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                fn($query) => $query?->where('english_type', Shipment::TYPE_CONTAINER_STATUS)
+                fn ($query) => $query?->where('english_type', Shipment::TYPE_CONTAINER_STATUS)
             )
             ->searchable()
             ->preload();
@@ -49,8 +48,8 @@ trait Filters
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
-                    ->when($data['created_from'], fn(Builder $query, $date) => $query->whereDate('created_at', '>=', $date))
-                    ->when($data['created_until'], fn(Builder $query, $date) => $query->whereDate('created_at', '<=', $date));
+                    ->when($data['created_from'], fn (Builder $query, $date) => $query->whereDate('created_at', '>=', $date))
+                    ->when($data['created_until'], fn (Builder $query, $date) => $query->whereDate('created_at', '<=', $date));
             });
     }
 
@@ -78,8 +77,8 @@ trait Filters
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
-                    ->when($data['eta_from'], fn(Builder $query, $date) => $query->whereDate('eta', '>=', $date))
-                    ->when($data['eta_until'], fn(Builder $query, $date) => $query->whereDate('eta', '<=', $date));
+                    ->when($data['eta_from'], fn (Builder $query, $date) => $query->whereDate('eta', '>=', $date))
+                    ->when($data['eta_until'], fn (Builder $query, $date) => $query->whereDate('eta', '<=', $date));
             });
     }
 
@@ -90,7 +89,7 @@ trait Filters
             ->relationship(
                 'status',
                 app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                fn($query) => $query?->where('english_type', Shipment::TYPE_SHIPMENT_STATUS)
+                fn ($query) => $query?->where('english_type', Shipment::TYPE_SHIPMENT_STATUS)
             )
             ->searchable()
             ->preload();
@@ -103,7 +102,7 @@ trait Filters
             ->relationship(
                 'trackingStatus',
                 app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                fn($query) => $query?->where('english_type', Shipment::TYPE_TRACKING_STATUS)
+                fn ($query) => $query?->where('english_type', Shipment::TYPE_TRACKING_STATUS)
             )
             ->searchable()
             ->preload();
@@ -116,7 +115,7 @@ trait Filters
             ->relationship(
                 'operationStatus',
                 app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                fn($query) => $query->where('english_type', Shipment::TYPE_OPERATION_STATUS)
+                fn ($query) => $query->where('english_type', Shipment::TYPE_OPERATION_STATUS)
             )
             ->searchable()
             ->preload();
@@ -129,32 +128,11 @@ trait Filters
             ->relationship(
                 'docStatus',
                 app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                fn($query) => $query->where('english_type', Shipment::TYPE_DOC_STATUS)
+                fn ($query) => $query->where('english_type', Shipment::TYPE_DOC_STATUS)
             )
             ->searchable()
             ->preload();
     }
-
-    public static function getWarehouseDateFilter(): Filter
-    {
-        return Filter::make('warehouse_date')
-            ->schema([
-                DatePicker::make('warehouse_from')
-                    ->label(__('resources/shipment/strings.filters.warehouse_from'))
-                    ->native(false)
-                    ->adaptive(),
-                DatePicker::make('warehouse_until')
-                    ->label(__('resources/shipment/strings.filters.warehouse_until'))
-                    ->native(false)
-                    ->adaptive(),
-            ])
-            ->query(function (Builder $query, array $data): Builder {
-                return $query
-                    ->when($data['warehouse_from'], fn(Builder $query, $date) => $query->whereDate('warehouse_date', '>=', $date))
-                    ->when($data['warehouse_until'], fn(Builder $query, $date) => $query->whereDate('warehouse_date', '<=', $date));
-            });
-    }
-
 
     public static function getTrashedFilter(): TrashedFilter
     {

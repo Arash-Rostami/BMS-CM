@@ -16,7 +16,7 @@ trait Filters
     public static function getCreatorFilter(): SelectFilter
     {
         return SelectFilter::make('user_id')
-            ->label(__('resources/bank/strings.table.creator'))
+            ->label(__('resources/bank/strings.filters.creator'))
             ->relationship('creator', 'name')
             ->searchable()
             ->preload();
@@ -25,7 +25,7 @@ trait Filters
     public static function getUpdaterFilter(): SelectFilter
     {
         return SelectFilter::make('updated_by_id')
-            ->label(__('resources/bank/strings.table.updater'))
+            ->label(__('resources/bank/strings.filters.updater'))
             ->relationship('updater', 'name')
             ->searchable()
             ->preload();
@@ -34,8 +34,8 @@ trait Filters
     public static function getActiveFilter(): TernaryFilter
     {
         return TernaryFilter::make('is_active')
-            ->label(__('resources/bank/strings.table.is_active'))
-            ->trueLabel(__('resources/bank/strings.table.only_active'))
-            ->falseLabel(__('resources/bank/strings.table.only_inactive'));
+            ->label(__('resources/bank/strings.filters.is_active'))
+            ->trueLabel(__('resources/bank/strings.filters.only_active'))
+            ->falseLabel(__('resources/bank/strings.filters.only_inactive'));
     }
 }

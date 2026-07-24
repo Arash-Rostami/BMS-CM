@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Filament\Resources\Master\ProductResource\Traits;
 
 use App\Models\Product;
@@ -15,7 +14,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
-
 
 trait Form
 {
@@ -33,11 +31,13 @@ trait Form
             ->afterStateUpdated(function ($state, Get $get, Set $set) {
                 if ($get('action') !== 'check') {
                     $set('check_result', null);
+
                     return;
                 }
 
                 if (empty($state)) {
                     $set('check_result', null);
+
                     return;
                 }
 
@@ -45,13 +45,12 @@ trait Form
             });
     }
 
-
     public static function enquiryResponse(): TextEntry
     {
         return TextEntry::make('check_result_view')
             ->label(__('resources/product/strings.form.check_result'))
-            ->state(fn(Get $get) => $get('check_result'))
-            ->visible(fn(Get $get) => $get('action') === 'check' && $get('check_result') !== null);
+            ->state(fn (Get $get) => $get('check_result'))
+            ->visible(fn (Get $get) => $get('action') === 'check' && $get('check_result') !== null);
     }
 
     public static function getAttributesJsonField(): TagsInput
@@ -102,15 +101,19 @@ trait Form
         return Textarea::make('description')
             ->label(__('resources/product/strings.form.description'))
             ->maxLength(65535)
-            ->nullable();
+            ->nullable()
+            ->validationAttribute(__('resources/product/strings.form.description'))
+            ->validationMessages([
+                'max' => __('resources/product/strings.form.validation_description_max'),
+            ]);
     }
 
     public static function getEnglishNameField(): TextInput
     {
         return TextInput::make('english_name')
             ->label(__('resources/product/strings.form.english_name'))
-            ->required(fn(Get $get) => $get('use_custom_name') === true)
-            ->visible(fn($get) => $get('use_custom_name'))
+            ->required(fn (Get $get) => $get('use_custom_name') === true)
+            ->visible(fn ($get) => $get('use_custom_name'))
             ->maxLength(255)
             ->rule(['string', 'max:255'])
             ->unique(table: 'products', column: 'english_name', ignoreRecord: true)
@@ -126,7 +129,7 @@ trait Form
                 }
             })
             ->live(onBlur: true)
-            ->dehydrateStateUsing(fn($state) => ucwords(strtolower($state)))
+            ->dehydrateStateUsing(fn ($state) => ucwords(strtolower($state)))
             ->helperText(__('resources/product/strings.form.helper_english_name'))
             ->validationAttribute(__('resources/product/strings.form.english_name'));
     }
@@ -167,8 +170,7 @@ trait Form
             ->columnSpan(2);
     }
 
-
-    //SPECIFICATIONS
+    // SPECIFICATIONS
 
     public static function getInStockField(): Toggle
     {
@@ -204,8 +206,8 @@ trait Form
     {
         return TextInput::make('name')
             ->label(__('resources/product/strings.form.name'))
-            ->required(fn(Get $get) => $get('use_custom_name') === true)
-            ->visible(fn($get) => $get('use_custom_name'))
+            ->required(fn (Get $get) => $get('use_custom_name') === true)
+            ->visible(fn ($get) => $get('use_custom_name'))
             ->maxLength(255)
             ->rule(['string', 'max:255'])
             ->unique(table: 'products', column: 'name', ignoreRecord: true)
@@ -232,8 +234,8 @@ trait Form
     {
         return TextEntry::make('slug')
             ->label(__('resources/product/strings.form.slug'))
-            ->state(fn(?Product $record): string => $record?->slug ?? 'N/A')
-            ->hidden(fn(?Product $record): bool => $record === null);
+            ->state(fn (?Product $record): string => $record?->slug ?? __('resources/product/strings.form.na'))
+            ->hidden(fn (?Product $record): bool => $record === null);
     }
 
     public static function getTaxId(): TextInput

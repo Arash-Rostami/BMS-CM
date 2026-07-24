@@ -8,21 +8,23 @@ use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\PurchaseRequest\HasFormattedName;
 use App\Models\Traits\PurchaseRequest\HasSearchableRelations;
 use App\Models\Traits\PurchaseRequest\Relationships as ExclusiveRelationships;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PurchaseRequest extends Model
 {
-    use SoftDeletes,
-        Relationships,
-        ExclusiveRelationships,
+    use ExclusiveRelationships,
         HasCustomAttributes,
-        UserStamps,
+        HasFactory,
         HasFormattedName,
-        HasSearchableRelations;
-
+        HasSearchableRelations,
+        Relationships,
+        SoftDeletes,
+        UserStamps;
 
     public const SCANNABLE_TABLE = 'purchase_requests';
+
     public const SCANNABLE_IDENTIFIER = 'pr_number';
 
     public const TYPE_PURCHASE_REQUEST = 'Purchase Request Status';

@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('purchase_requests', function (Blueprint $table) {
@@ -33,13 +30,12 @@ return new class extends Migration
             $table->index(['department_id', 'deleted_at']);
             $table->index(['status_id', 'deleted_at']);
             $table->index(['requester_id', 'deleted_at']);
-            $table->index('approver_id');
+            $table->index('cost_center_id', 'idx_pr_cost_center_id');
+            $table->index('user_id', 'idx_pr_user_id');
+            $table->index('updated_by_id', 'idx_pr_updated_by_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('purchase_requests');

@@ -18,11 +18,11 @@ trait Infolist
             ->schema([
                 TextEntry::make('path')
                     ->hiddenLabel()
-                    ->formatStateUsing(fn(string $state): string => basename($state))
-                    ->tooltip(fn($record) => $record->name ?? '')
+                    ->formatStateUsing(fn (string $state): string => basename($state))
+                    ->tooltip(fn ($record) => $record->name ?? '')
                     ->icon('heroicon-m-paper-clip')
                     ->color('primary')
-                    ->url(fn($record) => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
+                    ->url(fn ($record) => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
             ])
             ->columns(1);
     }
@@ -31,9 +31,9 @@ trait Infolist
     {
         return TextEntry::make('bankGuaranteeStatus.name')
             ->label(__('resources/custom/strings.form.bank_guarantee_status'))
-            ->formatStateUsing(fn($record) => $record->bankGuaranteeStatus?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record) => $record->bankGuaranteeStatus?->getLocalizedNameAttribute())
             ->badge()
-            ->color(fn($record) => GuaranteeStatus::tryFrom($record->bankGuaranteeStatus?->english_name)?->getColor() ?? 'gray')
+            ->color(fn ($record) => GuaranteeStatus::tryFrom($record->bankGuaranteeStatus?->english_name)?->getColor() ?? 'gray')
             ->placeholder('-');
     }
 
@@ -50,10 +50,10 @@ trait Infolist
     {
         return TextEntry::make('clearanceStatus.name')
             ->label(__('resources/custom/strings.form.clearance_status'))
-            ->formatStateUsing(fn($record) => $record->clearanceStatus?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record) => $record->clearanceStatus?->getLocalizedNameAttribute())
             ->badge()
-            ->color(fn($record) => ClearanceStatus::tryFrom($record->clearanceStatus?->english_name)?->getColor() ?? 'gray')
-            ->icon(fn($record) => ClearanceStatus::tryFrom($record->clearanceStatus?->english_name)?->getIcon())
+            ->color(fn ($record) => ClearanceStatus::tryFrom($record->clearanceStatus?->english_name)?->getColor() ?? 'gray')
+            ->icon(fn ($record) => ClearanceStatus::tryFrom($record->clearanceStatus?->english_name)?->getIcon())
             ->placeholder('-');
     }
 
@@ -61,7 +61,7 @@ trait Infolist
     {
         return TextEntry::make('clearance_type')
             ->label(__('resources/custom/strings.form.clearance_type'))
-            ->formatStateUsing(fn($state) => $state ? ['90_percent' => '90%', '10_percent' => '10%'][$state] : '-')
+            ->formatStateUsing(fn ($state) => $state ? ['90_percent' => '90%', '10_percent' => '10%'][$state] : '-')
             ->icon('heroicon-m-scale')
             ->placeholder('-');
     }
@@ -70,7 +70,7 @@ trait Infolist
     {
         return TextEntry::make('commitment_balance')
             ->label(__('resources/custom/strings.form.commitment_balance'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -79,9 +79,9 @@ trait Infolist
     {
         return TextEntry::make('commitmentStatus.name')
             ->label(__('resources/custom/strings.form.commitment_status'))
-            ->formatStateUsing(fn($record) => $record->commitmentStatus?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record) => $record->commitmentStatus?->getLocalizedNameAttribute())
             ->badge()
-            ->color(fn($record) => CommitmentStatus::tryFrom($record->commitmentStatus?->english_name)?->getColor() ?? 'gray')
+            ->color(fn ($record) => CommitmentStatus::tryFrom($record->commitmentStatus?->english_name)?->getColor() ?? 'gray')
             ->placeholder('-');
     }
 
@@ -183,7 +183,7 @@ trait Infolist
             ->columnSpanFull()
             ->listWithLineBreaks()
             ->icon('heroicon-m-truck')
-            ->url(fn($record) => $record->shipment ? route('filament.dashboard.resources.shipments.edit', $record->shipment) : null)
+            ->url(fn ($record) => $record->shipment ? route('filament.dashboard.resources.shipments.edit', $record->shipment) : null)
             ->placeholder('-');
     }
 

@@ -5,10 +5,8 @@ namespace App\Listeners;
 use App\Models\User;
 use Illuminate\Auth\Events\Logout;
 
-
 class UpdateUserLastLogout
 {
-
     public function handle(Logout $event): void
     {
         if ($event->user instanceof User) {

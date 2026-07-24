@@ -16,9 +16,9 @@ trait Table
             ->label(__('resources/purchaseOrder/strings.table.buyer'))
             ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas('buyerCompany', fn($q) => $q->searchCompany($search))
+                query: fn (Builder $query, string $search) => $query->whereHas('buyerCompany', fn ($q) => $q->searchCompany($search))
             )
-            ->formatStateUsing(fn($record): ?string => $record->buyerCompany?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->buyerCompany?->getLocalizedNameAttribute())
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -43,9 +43,9 @@ trait Table
     public static function showID(): TextColumn
     {
         return TextColumn::make('id')
-            ->label(__('resources/proformaInvoice/strings.table.id'))
+            ->label(__('resources/purchaseOrder/strings.table.id'))
             ->sortable()
-            ->searchable(query: fn(Builder $query, string $search): Builder => $query->where('purchase_orders.id', 'like', "%{$search}%"))
+            ->searchable(query: fn (Builder $query, string $search): Builder => $query->where('purchase_orders.id', 'like', "%{$search}%"))
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -66,7 +66,7 @@ trait Table
             ->badge()
             ->copyable()
             ->sortable()
-            ->tooltip(fn($record) => $record->order_date->format('Y-m-d'));
+            ->tooltip(fn ($record) => $record->order_date->format('Y-m-d'));
     }
 
     public static function showSeller(): TextColumn
@@ -75,10 +75,10 @@ trait Table
             ->label(__('resources/purchaseOrder/strings.table.seller'))
             ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas('sellerCompany', fn($q) => $q->searchCompany($search))
+                query: fn (Builder $query, string $search) => $query->whereHas('sellerCompany', fn ($q) => $q->searchCompany($search))
             )
             ->toggleable()
-            ->formatStateUsing(fn($record): ?string => $record->sellerCompany?->getLocalizedNameAttribute());
+            ->formatStateUsing(fn ($record): ?string => $record->sellerCompany?->getLocalizedNameAttribute());
     }
 
     public static function showStatus(): TextColumn
@@ -88,19 +88,19 @@ trait Table
             ->badge()
             ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->orWhereHas('status', fn($q) => $q->searchStatus($search))
+                query: fn (Builder $query, string $search) => $query->orWhereHas('status', fn ($q) => $q->searchStatus($search))
             )
-            ->formatStateUsing(fn($record): ?string => $record->status?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->status?->getLocalizedNameAttribute())
             ->iconPosition(IconPosition::Before)
-            ->icon(fn($record): ?string => Status::tryFrom($record->status?->english_name)?->getIcon() ?? 'heroicon-o-question-mark-circle')
-            ->color(fn($record): string => Status::tryFrom($record->status?->english_name)?->getColor() ?? 'gray');
+            ->icon(fn ($record): ?string => Status::tryFrom($record->status?->english_name)?->getIcon() ?? 'heroicon-o-question-mark-circle')
+            ->color(fn ($record): string => Status::tryFrom($record->status?->english_name)?->getColor() ?? 'gray');
     }
 
     public static function showTotalAmount(): TextColumn
     {
         return TextColumn::make('total_amount')
             ->label(__('resources/purchaseOrder/strings.form.total_amount'))
-            ->formatStateUsing(fn($record): ?string => $record->total_amount)
+            ->formatStateUsing(fn ($record): ?string => $record->total_amount)
             ->numeric(decimalPlaces: 2)
             ->placeholder('-')
             ->toggleable(isToggledHiddenByDefault: true);
@@ -129,12 +129,12 @@ trait Table
         return TextColumn::make('source')
             ->label(__('resources/general/strings.relevant_module.table.related_to'))
             ->badge()
-            ->getStateUsing(fn($record) => Source::getAllFromRecord($record))
-            ->formatStateUsing(fn(Source $state): ?string => $state->getLabel())
-            ->tooltip(fn(Source $state): ?string => $state->getTooltip())
+            ->getStateUsing(fn ($record) => Source::getAllFromRecord($record))
+            ->formatStateUsing(fn (Source $state): ?string => $state->getLabel())
+            ->tooltip(fn (Source $state): ?string => $state->getTooltip())
             ->iconPosition(IconPosition::Before)
-            ->icon(fn(Source $state): ?string => $state->getIcon())
-            ->color(fn(Source $state): string => $state->getColor())
+            ->icon(fn (Source $state): ?string => $state->getIcon())
+            ->color(fn (Source $state): string => $state->getColor())
             ->wrap();
     }
 }

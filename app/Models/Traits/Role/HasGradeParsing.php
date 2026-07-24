@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 trait HasGradeParsing
 {
     private static array $grades = ['junior', 'mid', 'senior'];
+
     private static array $gradeLabels = ['junior' => '⭐', 'mid' => '⭐⭐', 'senior' => '⭐⭐⭐'];
 
     public function getBaseNameAttribute(): string
@@ -27,7 +28,8 @@ trait HasGradeParsing
     public function getGradeTitleAttribute(): ?string
     {
         $grade = $this->grade;
-        return $grade ? (self::$gradeLabels[$grade] . ' ' . ucfirst($grade)) : $grade;
+
+        return $grade ? (self::$gradeLabels[$grade].' '.ucfirst($grade)) : $grade;
     }
 
     public static function extractBaseName(string $name): string
@@ -36,6 +38,7 @@ trait HasGradeParsing
         if (in_array(end($parts), self::$grades, true)) {
             array_pop($parts);
         }
+
         return implode('_', $parts);
     }
 
@@ -43,12 +46,14 @@ trait HasGradeParsing
     {
         $parts = explode('_', $name);
         $last = end($parts);
+
         return in_array($last, self::$grades, true) ? $last : null;
     }
 
     public static function combineName(string $baseName, ?string $grade): string
     {
         $base = self::extractBaseName($baseName);
+
         return $grade ? "{$base}_{$grade}" : $base;
     }
 
@@ -64,7 +69,7 @@ trait HasGradeParsing
 
     public function scopeWhereBaseName($query, string $baseName)
     {
-        return $query->where(fn($q) => $q->where('name', $baseName)->orWhere('name', 'like', "{$baseName}_%"));
+        return $query->where(fn ($q) => $q->where('name', $baseName)->orWhere('name', 'like', "{$baseName}_%"));
     }
 
     public function scopeWhereGrade($query, string $grade)
@@ -80,6 +85,7 @@ trait HasGradeParsing
                 $key = "resources/user/strings.general.options.{$baseName}";
                 $translation = __($key);
                 $label = $translation !== $key ? $translation : Str::title(str_replace('_', ' ', $baseName));
+
                 return [$baseName => $label];
             })
             ->unique()

@@ -7,7 +7,6 @@ use App\Models\Currency;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 
-
 class CurrencyExporter extends Exporter
 {
     use ExportDefaults;
@@ -18,15 +17,23 @@ class CurrencyExporter extends Exporter
     {
         return [
             ExportColumn::make('id')
-                ->label('ID'),
-            ExportColumn::make('name'),
-            ExportColumn::make('english_name'),
-            ExportColumn::make('description'),
-            ExportColumn::make('is_active')->label('Active'),
-            ExportColumn::make('creator.name'),
-            ExportColumn::make('updater.name'),
-            ExportColumn::make('created_at'),
-            ExportColumn::make('updated_at'),
+                ->label(__('resources/currency/strings.export.id')),
+            ExportColumn::make('name')
+                ->label(__('resources/currency/strings.export.name')),
+            ExportColumn::make('english_name')
+                ->label(__('resources/currency/strings.export.english_name')),
+            ExportColumn::make('description')
+                ->label(__('resources/currency/strings.export.description')),
+            ExportColumn::make('is_active')
+                ->label(__('resources/currency/strings.export.is_active')),
+            ExportColumn::make('creator.name')
+                ->label(__('resources/currency/strings.export.creator')),
+            ExportColumn::make('updater.name')
+                ->label(__('resources/currency/strings.export.updater')),
+            ExportColumn::make('created_at')
+                ->label(__('resources/currency/strings.export.created_at')),
+            ExportColumn::make('updated_at')
+                ->label(__('resources/currency/strings.export.updated_at')),
         ];
     }
 }

@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Operational\TargetResource\Pages;
 
-use Filament\Actions\CreateAction;
-use App\Filament\Resources\TargetResource;
-use Filament\Actions;
 use App\Filament\Pages\ManageRecords;
+use App\Filament\Resources\TargetResource;
+use Filament\Actions\CreateAction;
 
 class ManageTargets extends ManageRecords
 {
@@ -15,7 +14,7 @@ class ManageTargets extends ManageRecords
     {
         return [
             CreateAction::make()
-                ->icon('heroicon-o-sparkles')
+                ->icon('heroicon-o-sparkles'),
         ];
     }
 }

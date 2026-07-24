@@ -3,8 +3,8 @@
 namespace App\Models\Traits\Status;
 
 use App\Models\Attachment;
-use App\Models\PurchaseRequestItem;
 use App\Models\PurchaseRequest;
+use App\Models\PurchaseRequestItem;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 trait Relationships

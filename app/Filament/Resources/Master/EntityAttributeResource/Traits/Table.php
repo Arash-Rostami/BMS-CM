@@ -36,7 +36,7 @@ trait Table
     {
         return TextColumn::make('entity_type')
             ->label(__('resources/entityAttribute/strings.table.entity_type'))
-            ->formatStateUsing(fn($state): string => PermissionLabeler::getEntityLabel($state))
+            ->formatStateUsing(fn ($state): string => PermissionLabeler::getEntityLabel($state))
             ->badge()
             ->searchable()
             ->sortable();
@@ -72,7 +72,7 @@ trait Table
     {
         return TextColumn::make('value')
             ->label(__('resources/entityAttribute/strings.table.value'))
-            ->formatStateUsing(fn($state): string => is_string($state) ? $state : json_encode($state, JSON_UNESCAPED_UNICODE))
+            ->formatStateUsing(fn ($state): string => is_string($state) ? $state : json_encode($state, JSON_UNESCAPED_UNICODE))
             ->limit(80)
             ->searchable();
     }

@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('proforma_invoices', function (Blueprint $table) {
@@ -44,13 +41,11 @@ return new class extends Migration
             $table->index('contract_no');
             $table->index(['buyer_id', 'deleted_at']);
             $table->index(['seller_id', 'deleted_at']);
-            $table->index('main_currency_id');
+            $table->index('user_id', 'idx_pi_user_id');
+            $table->index('updated_by_id', 'idx_pi_updated_by_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('proforma_invoices');

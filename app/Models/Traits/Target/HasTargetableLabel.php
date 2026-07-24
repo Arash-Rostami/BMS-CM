@@ -2,19 +2,17 @@
 
 namespace App\Models\Traits\Target;
 
-
 use App\Models\Category;
 
 trait HasTargetableLabel
 {
-
     public function getTargetableLabelAttribute(): string
     {
-        if (!$this->relationLoaded('targetable')) {
+        if (! $this->relationLoaded('targetable')) {
             $this->load('targetable');
         }
 
-        if (!$this->targetable) {
+        if (! $this->targetable) {
             return '-';
         }
 

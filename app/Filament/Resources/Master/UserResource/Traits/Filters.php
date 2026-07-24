@@ -13,19 +13,18 @@ use Illuminate\Database\Eloquent\Model;
 
 trait Filters
 {
-
     public static function getCompanyFilter(): SelectFilter
     {
         return SelectFilter::make('company')
-            ->label(__('resources/user/strings.table.company'))
-            ->options(fn() => SmartCacheManager::remember(
+            ->label(__('resources/user/strings.filters.company'))
+            ->options(fn () => SmartCacheManager::remember(
                 'User',
                 ['filter' => 'company_options'],
                 150,
-                fn() => User::distinct('company')
+                fn () => User::distinct('company')
                     ->pluck('company', 'company')
                     ->sort()
-                    ->filter(fn($company) => !empty($company))
+                    ->filter(fn ($company) => ! empty($company))
                     ->all()
             ))
             ->multiple()
@@ -35,16 +34,16 @@ trait Filters
     public static function getDepartmentFilter(): SelectFilter
     {
         return SelectFilter::make('department')
-            ->label(__('resources/user/strings.table.department'))
+            ->label(__('resources/user/strings.filters.department'))
             ->relationship(
                 name: 'department',
-                titleAttribute: fn() => app()->getLocale() === 'fa' ? ('name' ?? 'english_name') : 'english_name');
+                titleAttribute: fn () => app()->getLocale() === 'fa' ? ('name' ?? 'english_name') : 'english_name');
     }
 
     public static function getPositionFilter(): SelectFilter
     {
         return SelectFilter::make('position')
-            ->label(__('resources/user/strings.table.position'))
+            ->label(__('resources/user/strings.filters.position'))
             ->options(PositionStatus::class)
             ->multiple();
     }
@@ -52,7 +51,7 @@ trait Filters
     public static function getRoleFilter(): SelectFilter
     {
         return SelectFilter::make('roles')
-            ->label(__('resources/user/strings.table.role'))
+            ->label(__('resources/user/strings.filters.role'))
             ->relationship('roles', 'name')
             ->getOptionLabelFromRecordUsing(fn (Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
             ->multiple()
@@ -63,7 +62,7 @@ trait Filters
     public static function getStatusFilter(): SelectFilter
     {
         return SelectFilter::make('status')
-            ->label(__('resources/user/strings.table.status'))
+            ->label(__('resources/user/strings.filters.status'))
             ->options(UserStatus::class)
             ->multiple();
     }

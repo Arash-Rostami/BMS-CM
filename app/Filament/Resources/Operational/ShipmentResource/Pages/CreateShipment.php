@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Operational\ShipmentResource\Pages;
 
+use App\Filament\Pages\CreateRecord;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\HandlesDocumentChecklistForm;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\PrepareShipmentFromRegisteredOrder;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\SyncsDocumentChecklist;
 use App\Filament\Resources\ShipmentResource;
-use App\Filament\Pages\CreateRecord;
 
 class CreateShipment extends CreateRecord
 {
@@ -16,6 +16,8 @@ class CreateShipment extends CreateRecord
 
     public function afterFill(): void
     {
-        if (request()->has('registered_order_id')) self::afterFillFromRegisteredOrder();
+        if (request()->has('registered_order_id')) {
+            self::afterFillFromRegisteredOrder();
+        }
     }
 }

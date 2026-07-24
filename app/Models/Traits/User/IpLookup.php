@@ -2,15 +2,17 @@
 
 namespace App\Models\Traits\User;
 
-use Throwable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Throwable;
 
 trait IpLookup
 {
     protected static function getCountryFromIp(string $ip): string
     {
-        if (empty($ip)) return 'Unidentified IP';
+        if (empty($ip)) {
+            return 'Unidentified IP';
+        }
 
         return Cache::remember("country_{$ip}", now()->addMinutes(10), function () use ($ip) {
             try {

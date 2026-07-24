@@ -13,22 +13,21 @@ abstract class BaseModelEventNotification extends Notification
     use Queueable;
 
     public function __construct(
-        protected Model               $model,
-        protected string              $action,
-        protected array               $changes,
+        protected Model $model,
+        protected string $action,
+        protected array $changes,
         protected NotificationSetting $setting
-    )
-    {
-    }
+    ) {}
 
     protected function buildBody(): string
     {
         $modelName = Str::headline(class_basename($this->model));
         $identifier = $this->getModelIdentifier();
 
-        if ($this->action === 'update' && !empty($this->changes)) {
+        if ($this->action === 'update' && ! empty($this->changes)) {
             $columns = array_keys($this->changes);
-            $columnsList = implode(', ', array_map(fn($c) => Str::headline($c), $columns));
+            $columnsList = implode(', ', array_map(fn ($c) => Str::headline($c), $columns));
+
             return "{$modelName} {$identifier} updated: {$columnsList}";
         }
 

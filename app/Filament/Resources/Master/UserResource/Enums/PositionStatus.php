@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Master\UserResource\Enums;
 
-
+use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
-use Filament\Support\Contracts\HasColor;
-enum PositionStatus: string implements HasLabel, HasIcon, HasColor
+
+enum PositionStatus: string implements HasColor, HasIcon, HasLabel
 {
     case JNR = 'jnr';
     case MDR = 'mdr';

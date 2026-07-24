@@ -3,11 +3,9 @@
 namespace App\Filament\Resources\Operational\ShipmentResource\Traits;
 
 use App\Models\Shipment;
-use App\Models\Status;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 
 trait Table
 {
@@ -25,11 +23,10 @@ trait Table
         return TextColumn::make('carrier.name')
             ->label(__('resources/shipment/strings.table.carrier'))
             ->sortable()
-            ->searchable(query: fn(Builder $query, string $search) => $query->whereHas('carrier', fn($q) => $q->searchCompany($search)))
-            ->formatStateUsing(fn(Shipment $record): ?string => $record->carrier?->getLocalizedNameAttribute())
+            ->searchable(query: fn (Builder $query, string $search) => $query->whereHas('carrier', fn ($q) => $q->searchCompany($search)))
+            ->formatStateUsing(fn (Shipment $record): ?string => $record->carrier?->getLocalizedNameAttribute())
             ->toggleable(isToggledHiddenByDefault: true);
     }
-
 
     public static function showCreationTime(): TextColumn
     {
@@ -73,9 +70,9 @@ trait Table
         return TextColumn::make('registeredOrder.ro_number')
             ->label(__('resources/shipment/strings.table.registered_order'))
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas(
+                query: fn (Builder $query, string $search) => $query->whereHas(
                     'registeredOrder',
-                    fn(Builder $q) => $q->searchAll($search)
+                    fn (Builder $q) => $q->searchAll($search)
                 ), isIndividual: true)
             ->sortable()
             ->copyable()
@@ -83,7 +80,7 @@ trait Table
             ->icon('heroicon-o-document-check')
             ->badge()
             ->color('info')
-            ->tooltip(fn(Shipment $record) => ' 💼 ' .$record->contract_no)
+            ->tooltip(fn (Shipment $record) => ' 💼 '.$record->contract_no)
             ->toggleable();
     }
 
@@ -95,7 +92,7 @@ trait Table
             ->badge()
             ->copyable()
             ->sortable()
-            ->tooltip(fn(Shipment $record) => $record->bl_number);
+            ->tooltip(fn (Shipment $record) => $record->bl_number);
     }
 
     public static function showStatus(): TextColumn
@@ -104,8 +101,8 @@ trait Table
             ->label(__('resources/shipment/strings.table.status'))
             ->badge()
             ->sortable()
-            ->searchable(query: fn(Builder $query, string $search) => $query->orWhereHas('status', fn($q) => $q->searchStatus($search)))
-            ->formatStateUsing(fn($record) => $record->status?->getLocalizedNameAttribute())
+            ->searchable(query: fn (Builder $query, string $search) => $query->orWhereHas('status', fn ($q) => $q->searchStatus($search)))
+            ->formatStateUsing(fn ($record) => $record->status?->getLocalizedNameAttribute())
             ->color('primary');
     }
 
@@ -114,7 +111,7 @@ trait Table
         return TextColumn::make('trackingStatus.name')
             ->label(__('resources/shipment/strings.table.tracking_status'))
             ->badge()
-            ->formatStateUsing(fn($record) => $record->trackingStatus?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record) => $record->trackingStatus?->getLocalizedNameAttribute())
             ->color('warning')
             ->toggleable(isToggledHiddenByDefault: true);
     }

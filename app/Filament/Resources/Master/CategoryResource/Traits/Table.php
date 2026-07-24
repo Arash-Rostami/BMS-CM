@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Master\CategoryResource\Traits;
 
 use App\Filament\Resources\Master\CategoryResource\Enums\Level;
 use App\Filament\Resources\Master\CategoryResource\Enums\Status;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 
 trait Table
 {
@@ -31,9 +31,9 @@ trait Table
     {
         return TextColumn::make('level')
             ->label(__('resources/category/strings.table.level'))
-            ->formatStateUsing(fn($state): string => Level::fromLevel($state)->getLabel())
-            ->icon(fn($state): string => Level::fromLevel($state)->getIcon())
-            ->color(fn($state): string => Level::fromLevel($state)->getColor())
+            ->formatStateUsing(fn ($state): string => Level::fromLevel($state)->getLabel())
+            ->icon(fn ($state): string => Level::fromLevel($state)->getIcon())
+            ->color(fn ($state): string => Level::fromLevel($state)->getColor())
             ->toggleable()
             ->sortable();
     }
@@ -42,7 +42,7 @@ trait Table
     {
         return TextColumn::make('parent.name')
             ->label(__('resources/category/strings.table.parent'))
-            ->formatStateUsing(fn($record, $state) => app()->getLocale() != 'fa' ? optional($record->parent)->english_name : $state)
+            ->formatStateUsing(fn ($record, $state) => app()->getLocale() != 'fa' ? optional($record->parent)->english_name : $state)
             ->toggleable()
             ->sortable();
     }
@@ -53,8 +53,8 @@ trait Table
             ->boolean()
             ->label(__('resources/category/strings.table.active'))
             ->toggleable()
-            ->icon(fn(bool $state): string => Status::tryFrom((int)$state)?->getIcon() ?? 'heroicon-o-x-circle')
-            ->color(fn(bool $state): string => Status::tryFrom((int)$state)?->getColor() ?? 'gray');
+            ->icon(fn (bool $state): string => Status::tryFrom((int) $state)?->getIcon() ?? 'heroicon-o-x-circle')
+            ->color(fn (bool $state): string => Status::tryFrom((int) $state)?->getColor() ?? 'gray');
     }
 
     public static function showCreator(): TextColumn

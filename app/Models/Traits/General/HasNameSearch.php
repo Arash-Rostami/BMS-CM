@@ -9,10 +9,11 @@ trait HasNameSearch
     public function scopeSearchByName(Builder $query, string $term)
     {
         $term = trim($term);
-        if ($term === '') return $query;
+        if ($term === '') {
+            return $query;
+        }
 
-
-        return $query->where(fn(Builder $q) => $q->where('name', 'like', "%{$term}%")
+        return $query->where(fn (Builder $q) => $q->where('name', 'like', "%{$term}%")
             ->orWhere('english_name', 'like', "%{$term}%")
         );
     }

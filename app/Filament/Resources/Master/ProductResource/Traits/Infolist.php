@@ -19,7 +19,7 @@ trait Infolist
                 static $cached = null;
 
                 if ($cached === null) {
-                    $cached = __('resources/product/strings.attributes_manager');
+                    $cached = __('resources/product/strings.table.attributes_manager');
                 }
 
                 $typed = $record->typedAttributes();
@@ -44,7 +44,7 @@ trait Infolist
     {
         return TextEntry::make('category.name')
             ->label(__('resources/product/strings.form.category'))
-            ->formatStateUsing(fn($record, $state) => app()->getLocale() != 'fa' ? optional($record->category)->english_name : $state)
+            ->formatStateUsing(fn ($record, $state) => app()->getLocale() != 'fa' ? optional($record->category)->english_name : $state)
             ->icon('heroicon-m-folder')
             ->placeholder('-');
     }
@@ -128,14 +128,14 @@ trait Infolist
             ->columnSpanFull()
             ->icon('heroicon-m-document-check')
             ->formatStateUsing(function ($state) {
-                if (!is_string($state) || empty($state)) {
+                if (! is_string($state) || empty($state)) {
                     return $state;
                 }
                 $allLicenses = Lang::get('resources/product/strings.form.licenses');
                 $licenseKeys = array_map('trim', explode(',', $state));
 
                 return collect($licenseKeys)
-                    ->map(fn($licenseKey) => $allLicenses[$licenseKey] ?? $licenseKey)
+                    ->map(fn ($licenseKey) => $allLicenses[$licenseKey] ?? $licenseKey)
                     ->implode(' | ');
             })
             ->placeholder('-');
@@ -146,8 +146,8 @@ trait Infolist
         return TextEntry::make('in_stock')
             ->label(__('resources/product/strings.form.in_stock'))
             ->badge()
-            ->formatStateUsing(fn(bool $state): string => InStockStatus::tryFrom((int)$state)?->getLabel() ?? (string)$state)
-            ->color(fn(bool $state): string => InStockStatus::tryFrom((int)$state)?->getColor() ?? 'gray')
+            ->formatStateUsing(fn (bool $state): string => InStockStatus::tryFrom((int) $state)?->getLabel() ?? (string) $state)
+            ->color(fn (bool $state): string => InStockStatus::tryFrom((int) $state)?->getColor() ?? 'gray')
             ->placeholder('-');
     }
 
@@ -156,8 +156,8 @@ trait Infolist
         return TextEntry::make('is_active')
             ->label(__('resources/product/strings.form.is_active'))
             ->badge()
-            ->formatStateUsing(fn(bool $state): string => IsActiveStatus::tryFrom((int)$state)?->getLabel() ?? (string)$state)
-            ->color(fn(bool $state): string => IsActiveStatus::tryFrom((int)$state)?->getColor() ?? 'gray')
+            ->formatStateUsing(fn (bool $state): string => IsActiveStatus::tryFrom((int) $state)?->getLabel() ?? (string) $state)
+            ->color(fn (bool $state): string => IsActiveStatus::tryFrom((int) $state)?->getColor() ?? 'gray')
             ->placeholder('-');
     }
 

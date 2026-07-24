@@ -9,15 +9,15 @@ trait ValueTypeEstimator
         $attrs = $this->getAttributeValue('attributes') ?? [];
         $pairs = [];
 
-        if (count($attrs) === 1 && !empty($attrs[0])) {
-            $trimmedAttr = trim((string)$attrs[0]);
-            if (!empty($trimmedAttr)) {
+        if (count($attrs) === 1 && ! empty($attrs[0])) {
+            $trimmedAttr = trim((string) $attrs[0]);
+            if (! empty($trimmedAttr)) {
                 $pairs['Brand'] = $trimmedAttr;
             }
         }
 
         foreach ($attrs as $raw) {
-            $val = trim((string)$raw);
+            $val = trim((string) $raw);
 
             if ($val === '') {
                 continue;
@@ -44,7 +44,7 @@ trait ValueTypeEstimator
                 $pairs['Weight'] = $val;
             } elseif (preg_match('/^\d+\s*(Ream|Sheet|Box)$/i', $val)) {
                 $pairs['Packaging'] = $val;
-            } elseif (!array_key_exists('Brand', $pairs) && preg_match('/^[\p{L}\s\-]+$/u', $val)) {
+            } elseif (! array_key_exists('Brand', $pairs) && preg_match('/^[\p{L}\s\-]+$/u', $val)) {
                 $pairs['Brand'] = $val;
             }
         }

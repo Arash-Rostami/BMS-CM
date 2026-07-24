@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Models\Traits\PurchaseOrderItem\Relationships;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PurchaseOrderItem extends Model
 {
-    use SoftDeletes, Relationships;
+    use HasFactory, Relationships, SoftDeletes;
 
     protected $fillable = [
         'purchase_order_id',

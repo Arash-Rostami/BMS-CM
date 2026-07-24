@@ -16,12 +16,10 @@ trait Relationships
         return $this->belongsTo(Category::class, 'parent_id');
     }
 
-
     public function children(): HasMany
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
-
 
     public function ancestors()
     {

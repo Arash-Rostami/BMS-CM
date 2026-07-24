@@ -16,7 +16,7 @@ trait PrepareShipmentFromRegisteredOrder
             $registeredOrder = RegisteredOrder::find($registeredOrderId);
 
             if ($registeredOrder) {
-                $partData = Shipment::getPartData($registeredOrder->id, (string)$registeredOrder->contract_no);
+                $partData = Shipment::getPartData($registeredOrder->id, (string) $registeredOrder->contract_no);
                 $defaultStatus = Status::findBy(Shipment::TYPE_SHIPMENT_STATUS, 'Processing')?->id;
 
                 $this->form->fill([
@@ -25,7 +25,7 @@ trait PrepareShipmentFromRegisteredOrder
                     'company_id' => $registeredOrder->buyer_id,
                     'contract_no' => $registeredOrder->contract_no,
                     'part' => $partData['next'] ?? 1,
-                    'status_id' => $defaultStatus
+                    'status_id' => $defaultStatus,
                 ]);
             }
         }

@@ -16,13 +16,13 @@ trait ModelInspector
 {
     public static function getAvailableColumns(string $modelClass): array
     {
-        if (!class_exists($modelClass)) {
+        if (! class_exists($modelClass)) {
             return [];
         }
 
         return array_map(
-            fn($column) => ucfirst(str_replace('_', ' ', $column)),
-            (new $modelClass())->getFillable()
+            fn ($column) => ucfirst(str_replace('_', ' ', $column)),
+            (new $modelClass)->getFillable()
         );
     }
 
@@ -33,9 +33,9 @@ trait ModelInspector
         $tables = [];
 
         foreach ($models as $modelFile) {
-            $modelClass = 'App\\Models\\' . Str::studly(pathinfo($modelFile, PATHINFO_FILENAME));
+            $modelClass = 'App\\Models\\'.Str::studly(pathinfo($modelFile, PATHINFO_FILENAME));
 
-            if (!class_exists($modelClass)) {
+            if (! class_exists($modelClass)) {
                 continue;
             }
 
@@ -52,21 +52,21 @@ trait ModelInspector
         $values = [];
         $availableTables = self::getAvailableModels();
 
-        if (!empty($selectedTables)) {
+        if (! empty($selectedTables)) {
             $availableTables = array_filter(
                 $availableTables,
-                fn($label, $table) => in_array($table, $selectedTables),
+                fn ($label, $table) => in_array($table, $selectedTables),
                 ARRAY_FILTER_USE_BOTH
             );
         }
 
         foreach ($availableTables as $table => $label) {
             $modelClass = self::resolveModelClass($table);
-            if (!class_exists($modelClass)) {
+            if (! class_exists($modelClass)) {
                 continue;
             }
 
-            $model = new $modelClass();
+            $model = new $modelClass;
             $relations = self::guessRelationships($model);
 
             $tableColumns = Schema::getColumnListing($table);
@@ -88,7 +88,7 @@ trait ModelInspector
 
             foreach ($selectedColumns as $column) {
                 $bestRelation = self::findBestRelationForColumn($column, $relations);
-                $groupLabel = Str::headline($table) . ' → ' . Str::headline($bestRelation ?? $column);
+                $groupLabel = Str::headline($table).' → '.Str::headline($bestRelation ?? $column);
 
                 $hasRelation = $bestRelation && method_exists($model, $bestRelation);
                 $relatedMap = [];
@@ -100,7 +100,7 @@ trait ModelInspector
 
                     $rawValues = $rows->pluck($column)->filter()->unique()->values()->toArray();
 
-                    if (!empty($rawValues)) {
+                    if (! empty($rawValues)) {
                         $relatedMap = $relatedModel->whereIn($keyName, $rawValues)
                             ->pluck($displayColumn, $keyName)
                             ->toArray();
@@ -116,7 +116,7 @@ trait ModelInspector
                     $value = $hasRelation ? ($relatedMap[$rawValue] ?? $rawValue) : $rawValue;
 
                     if ($value !== null) {
-                        $values[$groupLabel][$rawValue] = (string)$value;
+                        $values[$groupLabel][$rawValue] = (string) $value;
                     }
                 }
             }
@@ -146,12 +146,12 @@ trait ModelInspector
 
     protected static function resolveModelClass(string $table): string
     {
-        return 'App\\Models\\' . Str::studly(Str::singular($table));
+        return 'App\\Models\\'.Str::studly(Str::singular($table));
     }
 
     private static function findBestRelationForColumn(string $column, array $relations): ?string
     {
-        if (!str_ends_with($column, '_id')) {
+        if (! str_ends_with($column, '_id')) {
             return null;
         }
 

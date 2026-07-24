@@ -30,14 +30,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TargetResource extends Resource
 {
-    use TargetForm, TargetTable, TargetInfolist, TargetFilters, HasResourcePermissions;
+    use HasResourcePermissions, TargetFilters, TargetForm, TargetInfolist, TargetTable;
 
     protected static ?string $model = Target::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cube';
 
     protected static ?int $navigationSort = 7;
-
 
     public static function form(Schema $schema): Schema
     {
@@ -70,7 +69,7 @@ class TargetResource extends Resource
             ->with([
                 'targetable',
                 'creator',
-                'updater'
+                'updater',
             ])
             ->withoutGlobalScopes([SoftDeletingScope::class]);
     }
@@ -160,7 +159,7 @@ class TargetResource extends Resource
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -168,14 +167,14 @@ class TargetResource extends Resource
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(TargetExporter::class),
-                ])
+                ]),
             ])
             ->groups([
                 Group::make('year')
                     ->label(__('resources/target/strings.table.year')),
                 Group::make('status')
                     ->label(__('resources/target/strings.table.status'))
-                    ->getTitleFromRecordUsing(fn(Target $record) => Status::tryFrom($record->status)?->getLabel()),
+                    ->getTitleFromRecordUsing(fn (Target $record) => Status::tryFrom($record->status)?->getLabel()),
                 Group::make('metrics')
                     ->label(__('resources/target/strings.table.metrics')),
             ])

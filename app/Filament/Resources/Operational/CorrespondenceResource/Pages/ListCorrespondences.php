@@ -2,9 +2,8 @@
 
 namespace App\Filament\Resources\Operational\CorrespondenceResource\Pages;
 
-use App\Filament\Resources\CorrespondenceResource;
-use Filament\Actions;
 use App\Filament\Pages\ListRecords;
+use App\Filament\Resources\CorrespondenceResource;
 
 class ListCorrespondences extends ListRecords
 {

@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum Source: string implements HasColor, HasLabel, HasIcon
+enum Source: string implements HasColor, HasIcon, HasLabel
 {
     case PR = 'PR';
     case RO = 'RO';
@@ -26,10 +26,18 @@ enum Source: string implements HasColor, HasLabel, HasIcon
         $hasPO = isset($record->purchase_orders_count)
             ? ($record->purchase_orders_count > 0) : $record->purchaseOrders()->exists();
 
-        if ($hasPR) $sources[] = self::PR;
-        if ($hasRO) $sources[] = self::RO;
-        if ($hasPO) $sources[] = self::PO;
-        if (empty($sources)) $sources[] = self::None;
+        if ($hasPR) {
+            $sources[] = self::PR;
+        }
+        if ($hasRO) {
+            $sources[] = self::RO;
+        }
+        if ($hasPO) {
+            $sources[] = self::PO;
+        }
+        if (empty($sources)) {
+            $sources[] = self::None;
+        }
 
         return $sources;
     }
@@ -46,9 +54,15 @@ enum Source: string implements HasColor, HasLabel, HasIcon
 
     public static function getFromRecord($record): self
     {
-        if ($record->purchaseRequests()->exists()) return self::PR;
-        if ($record->registeredOrders()->exists()) return self::RO;
-        if ($record->purchaseOrders()->exists()) return self::PO;
+        if ($record->purchaseRequests()->exists()) {
+            return self::PR;
+        }
+        if ($record->registeredOrders()->exists()) {
+            return self::RO;
+        }
+        if ($record->purchaseOrders()->exists()) {
+            return self::PO;
+        }
 
         return self::None;
     }
@@ -75,19 +89,11 @@ enum Source: string implements HasColor, HasLabel, HasIcon
 
     public function getTooltip(): ?string
     {
-        $isFa = app()->getLocale() === 'fa';
-
         return match ($this) {
-            self::PR => $isFa
-                ? '🔄 ستون درخواست خرید را فعال کنید'
-                : '🔄 Toggle Purchase Request Column',
-            self::RO => $isFa
-                ? '🔄 ستون ثبت سفارش را فعال کنید'
-                : '🔄 Toggle Registered Order Column',
-            self::PO => $isFa
-                ? '🔄 ستون ثبت سفارش  را فعال کنید'
-                : '🔄 Toggle Purchase Order Column',
-            default => '',
+            self::PR => __('resources/proformaInvoice/strings.source.tooltip.pr'),
+            self::RO => __('resources/proformaInvoice/strings.source.tooltip.ro'),
+            self::PO => __('resources/proformaInvoice/strings.source.tooltip.po'),
+            default => null,
         };
     }
 }

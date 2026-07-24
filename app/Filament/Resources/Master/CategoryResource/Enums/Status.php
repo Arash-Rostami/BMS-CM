@@ -2,20 +2,19 @@
 
 namespace App\Filament\Resources\Master\CategoryResource\Enums;
 
-
-use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum Status: int implements HasLabel, HasIcon, HasColor
+enum Status: int implements HasColor, HasIcon, HasLabel
 {
-    case ACTIVE   = 1;
+    case ACTIVE = 1;
     case INACTIVE = 0;
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::ACTIVE   => __('resources/category/strings.table.active'),
+            self::ACTIVE => __('resources/category/strings.table.active'),
             self::INACTIVE => __('resources/category/strings.table.inactive'),
         };
     }
@@ -23,7 +22,7 @@ enum Status: int implements HasLabel, HasIcon, HasColor
     public function getIcon(): string
     {
         return match ($this) {
-            self::ACTIVE   => 'heroicon-o-check-circle',
+            self::ACTIVE => 'heroicon-o-check-circle',
             self::INACTIVE => 'heroicon-o-x-circle',
         };
     }
@@ -31,7 +30,7 @@ enum Status: int implements HasLabel, HasIcon, HasColor
     public function getColor(): string|array|null
     {
         return match ($this) {
-            self::ACTIVE   => 'success',
+            self::ACTIVE => 'success',
             self::INACTIVE => 'danger',
         };
     }

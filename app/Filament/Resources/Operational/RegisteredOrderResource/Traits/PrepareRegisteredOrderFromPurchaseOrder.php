@@ -13,16 +13,15 @@ trait PrepareRegisteredOrderFromPurchaseOrder
             $purchaseOrderId = request()->query('purchase_order_id');
             $purchaseOrder = PurchaseOrder::with(['items.product.specifications'])->find($purchaseOrderId);
             if ($purchaseOrder) {
-                $items = $purchaseOrder->items->map(fn($item) => [
+                $items = $purchaseOrder->items->map(fn ($item) => [
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity ?? 0,
                     'unit' => $item->unit ?? null,
                     'unit_price' => $item->unit_price ?? 0,
                     'net_weight' => $item->net_weight ?? 0,
                     'gross_weight' => $item->gross_weight ?? 0,
-                    'line_total' => (($item->quantity ?? 0) * ($item->unit_price ?? 0))
+                    'line_total' => (($item->quantity ?? 0) * ($item->unit_price ?? 0)),
                 ])->toArray();
-
 
                 $this->form->fill([
                     'source_type' => 'po',

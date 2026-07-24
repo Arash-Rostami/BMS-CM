@@ -2,17 +2,16 @@
 
 namespace App\Filament\Resources\Operational\CorrespondenceResource\Pages;
 
+use App\Filament\Pages\EditRecord;
 use App\Filament\Resources\CorrespondenceResource;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\HandlesRecipients;
 use Filament\Actions;
-use App\Filament\Pages\EditRecord;
 
 class EditCorrespondence extends EditRecord
 {
     use HandlesRecipients;
 
     protected static string $resource = CorrespondenceResource::class;
-
 
     protected function afterSave(): void
     {
@@ -29,6 +28,10 @@ class EditCorrespondence extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
+        if ($userId = auth()->id()) {
+            $this->getRecord()->markReadBy($userId);
+        }
+
         return $this->loadRecipientsToForm($this->getRecord(), $data);
     }
 

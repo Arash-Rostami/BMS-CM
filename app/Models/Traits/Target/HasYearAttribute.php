@@ -2,8 +2,8 @@
 
 namespace App\Models\Traits\Target;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Services\PersianCalendar;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 trait HasYearAttribute
 {
@@ -14,6 +14,7 @@ trait HasYearAttribute
                 if (app()->isLocale('fa') && $value >= 1000 && $value <= 2000) {
                     return $value;
                 }
+
                 return app(PersianCalendar::class)->convertYear($value);
             },
         );

@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('registered_order_purchase_request', function (Blueprint $table) {
@@ -21,14 +18,9 @@ return new class extends Migration
                 ->cascadeOnDelete();
             $table->timestamps();
             $table->unique(['registered_order_id', 'purchase_request_id'], 'ro_pr_unique');
-
-            $table->index('purchase_request_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('registered_order_purchase_request');

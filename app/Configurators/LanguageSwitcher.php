@@ -2,7 +2,6 @@
 
 namespace App\Configurators;
 
-use BezhanSalleh\LanguageSwitch\Enums\Placement;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Vite;

@@ -2,8 +2,8 @@
 
 namespace App\Filament\Pages;
 
-use Livewire\Attributes\On;
 use Filament\Resources\Pages\EditRecord as BaseEditRecord;
+use Livewire\Attributes\On;
 
 class EditRecord extends BaseEditRecord
 {

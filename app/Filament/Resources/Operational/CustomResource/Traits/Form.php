@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
 
 trait Form
 {
-
     public static function getBankGuaranteeStatusField(): Select
     {
         return Select::make('bank_guarantee_status_id')
@@ -23,7 +22,7 @@ trait Form
             ->relationship(
                 name: 'bankGuaranteeStatus',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn($query) => $query->where('english_type', Custom::TYPE_BANK_GUARANTEE_STATUS)
+                modifyQueryUsing: fn ($query) => $query->where('english_type', Custom::TYPE_BANK_GUARANTEE_STATUS)
             )
             ->searchable()
             ->preload();
@@ -48,7 +47,7 @@ trait Form
             ->relationship(
                 name: 'clearanceStatus',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn($query) => $query->where('english_type', Custom::TYPE_CLEARANCE_STATUS)
+                modifyQueryUsing: fn ($query) => $query->where('english_type', Custom::TYPE_CLEARANCE_STATUS)
             )
             ->searchable()
             ->preload();
@@ -72,11 +71,12 @@ trait Form
             ->numeric()
             ->live()
             ->prefix('💰')
-            ->hint(fn(Get $get) => delimiter($get('commitment_balance')))
+            ->hint(fn (Get $get) => delimiter($get('commitment_balance')))
             ->validationAttribute(__('resources/custom/strings.form.commitment_balance'))
             ->validationMessages([
                 'numeric' => __('resources/custom/strings.form.validation_numeric'),
-            ]);
+            ])
+            ->helperText(__('resources/custom/strings.form.helper_commitment_balance'));
     }
 
     public static function getCommitmentStatusField(): Select
@@ -86,7 +86,7 @@ trait Form
             ->relationship(
                 name: 'commitmentStatus',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn($query) => $query->where('english_type', Custom::TYPE_COMMITMENT_STATUS)
+                modifyQueryUsing: fn ($query) => $query->where('english_type', Custom::TYPE_COMMITMENT_STATUS)
             )
             ->searchable()
             ->preload();
@@ -113,7 +113,7 @@ trait Form
             ->required()
             ->readOnly()
             ->unique(ignoreRecord: true)
-            ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('custom_no') : null)
+            ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('custom_no') : null)
             ->validationAttribute(__('resources/custom/strings.form.custom_no'))
             ->validationMessages([
                 'required' => __('resources/custom/strings.form.validation_required'),
@@ -129,7 +129,8 @@ trait Form
             ->validationAttribute(__('resources/custom/strings.form.declaration_no'))
             ->validationMessages([
                 'max' => __('resources/custom/strings.form.validation_declaration_no_max'),
-            ]);
+            ])
+            ->helperText(__('resources/custom/strings.form.helper_declaration_no'));
     }
 
     public static function getDocSubmissionDateField()
@@ -157,7 +158,7 @@ trait Form
         return Select::make('registered_order_id')
             ->label(__('resources/custom/strings.form.registered_order'))
             ->relationship('registeredOrder', 'ro_number')
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name_without_date)
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->formatted_name_without_date)
             ->disabled()
             ->dehydrated()
             ->live()
@@ -186,7 +187,7 @@ trait Form
             ->label(__('resources/custom/strings.form.shipment'))
             ->helperText(__('resources/custom/strings.form.helper_shipment'))
             ->relationship('shipment', 'shipment_no')
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name)
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->formatted_name)
             ->searchable()
             ->preload()
             ->required()

@@ -39,22 +39,22 @@ trait Form
     public static function getHiddenCorrespondableIdField(): Hidden
     {
         return Hidden::make('correspondable_id')
-            ->default(fn() => static::getReplyParent()?->correspondable_id)
-            ->dehydrated(fn($state) => filled($state));
+            ->default(fn () => static::getReplyParent()?->correspondable_id)
+            ->dehydrated(fn ($state) => filled($state));
     }
 
     public static function getHiddenCorrespondableTypeField(): Hidden
     {
         return Hidden::make('correspondable_type')
-            ->default(fn() => static::getReplyParent()?->correspondable_type)
-            ->dehydrated(fn($state) => filled($state));
+            ->default(fn () => static::getReplyParent()?->correspondable_type)
+            ->dehydrated(fn ($state) => filled($state));
     }
 
     public static function getHiddenParentIdField(): Hidden
     {
         return Hidden::make('parent_id')
             ->default(request()->query('parent_id'))
-            ->dehydrated(fn($state) => filled($state));
+            ->dehydrated(fn ($state) => filled($state));
     }
 
     public static function getIsInternalField(): Toggle
@@ -85,7 +85,7 @@ trait Form
             ->label(__('resources/correspondence/strings.form.parent'))
             ->relationship('parent', 'subject')
             ->searchable()
-            ->hidden(fn($get) => blank($get('parent_id')))
+            ->hidden(fn ($get) => blank($get('parent_id')))
             ->disabled()
             ->dehydrated()
             ->validationAttribute(__('resources/correspondence/strings.form.parent'));
@@ -110,7 +110,7 @@ trait Form
     {
         return TagsInput::make('recipients_cc')
             ->label(__('resources/correspondence/strings.form.recipients_cc'))
-            ->suggestions(fn() => User::pluck('name')->toArray())
+            ->suggestions(fn () => User::pluck('name')->toArray())
             ->placeholder('🇨🇨')
             ->nullable()
             ->validationAttribute(__('resources/correspondence/strings.form.recipients_cc'));
@@ -120,7 +120,7 @@ trait Form
     {
         return Select::make('recipients_to')
             ->label(__('resources/correspondence/strings.form.recipients_to'))
-            ->options(fn() => User::pluck('name', 'id'))
+            ->options(fn () => User::pluck('name', 'id'))
             ->multiple()
             ->searchable()
             ->preload()
@@ -140,9 +140,9 @@ trait Form
             ->relationship(
                 name: 'status',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn($query) => $query->where('english_type', Correspondence::TYPE_CORRESPONDENCE_STATUS)
+                modifyQueryUsing: fn ($query) => $query->where('english_type', Correspondence::TYPE_CORRESPONDENCE_STATUS)
             )
-            ->default(fn($operation) => $operation === 'create'
+            ->default(fn ($operation) => $operation === 'create'
                 ? Status::findBy(Correspondence::TYPE_CORRESPONDENCE_STATUS, 'Submitted')?->id
                 : null
             )
@@ -163,7 +163,8 @@ trait Form
             ->required()
             ->default(function () {
                 $parent = static::getReplyParent();
-                return $parent ? 'Re: ' . $parent->subject : null;
+
+                return $parent ? __('resources/correspondence/strings.form.reply_prefix').$parent->subject : null;
             })
             ->maxLength(255)
             ->columnSpanFull()

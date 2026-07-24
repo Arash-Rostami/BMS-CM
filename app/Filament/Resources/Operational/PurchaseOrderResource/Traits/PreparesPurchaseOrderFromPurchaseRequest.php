@@ -14,14 +14,13 @@ trait PreparesPurchaseOrderFromPurchaseRequest
             $purchaseRequest = PurchaseRequest::with(['items.product'])->find($purchaseRequestId);
 
             if ($purchaseRequest) {
-                $items = $purchaseRequest->items->map(fn($item) => [
+                $items = $purchaseRequest->items->map(fn ($item) => [
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity ?? 0,
                     'unit' => $item->unit ?? null,
                     'unit_price' => $item->estimated_cost ?? 0,
                     'total_amount' => ($item->quantity ?? 0) * ($item->estimated_cost ?? 0),
                 ])->toArray();
-
 
                 $this->form->fill([
                     'purchaseRequests' => [$purchaseRequestId],

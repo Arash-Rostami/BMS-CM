@@ -37,15 +37,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProductResource extends Resource
 {
-    use ProductForm, ProductTable, ProductInfolist, ProductFilters, CategoryDrilldown, HasResourcePermissions;
-
+    use CategoryDrilldown, HasResourcePermissions, ProductFilters, ProductForm, ProductInfolist, ProductTable;
 
     protected static ?string $model = Product::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-archive-box';
 
     protected static ?int $navigationSort = 2;
-
 
     public static function form(Schema $schema): Schema
     {
@@ -63,7 +61,7 @@ class ProductResource extends Resource
                         'required' => __('resources/product/strings.form.validation_action_required'),
                     ])
                     ->label(__('resources/product/strings.form.choose_action')),
-                //checking code
+                // checking code
                 Group::make([
                     Section::make(__('resources/product/strings.form.action_check'))
                         ->schema([
@@ -71,13 +69,13 @@ class ProductResource extends Resource
                             self::enquiryResponse(),
                         ])
                         ->columns(2),
-                ])->columnSpanFull()->visible(fn(Get $get) => $get('action') === 'check'),
-                //creating new product
+                ])->columnSpanFull()->visible(fn (Get $get) => $get('action') === 'check'),
+                // creating new product
                 Tabs::make('Tabs')
                     ->tabs([
-                        //Category & Details
+                        // Category & Details
                         Tab::make('1')
-                            ->label(__('resources/product/strings.form.tab1'))
+                            ->label(__('resources/product/strings.form.tab_general'))
                             ->schema([
                                 Section::make(__('resources/product/strings.form.category'))
                                     ->schema(static::getAllFields())
@@ -96,13 +94,13 @@ class ProductResource extends Resource
                                         static::getSlugField(),
                                         static::getDescriptionField(),
                                     ])
-                                    ->visible(fn($get) => $get('chain_complete') === true)
+                                    ->visible(fn ($get) => $get('chain_complete') === true)
                                     ->columns(2),
                             ])
                             ->icon('heroicon-o-cube'),
-                        //Specifications
+                        // Specifications
                         Tab::make('2')
-                            ->label(__('resources/product/strings.form.tab2'))
+                            ->label(__('resources/product/strings.form.tab_specifications'))
                             ->schema([
                                 Section::make(__('resources/product/strings.form.specifications_section_title'))
                                     ->schema([
@@ -112,6 +110,9 @@ class ProductResource extends Resource
                                             ->maxItems(1)
                                             ->deletable()
                                             ->columns(2)
+                                            ->validationMessages([
+                                                'max' => __('resources/product/strings.form.validation_specifications_max'),
+                                            ])
                                             ->schema([
                                                 static::getHsCode(),
                                                 static::getImportDuty(),
@@ -126,7 +127,7 @@ class ProductResource extends Resource
                             ])->icon('heroicon-o-list-bullet'),
                     ])
                     ->columnSpanFull()
-                    ->visible(fn(Get $get, $operation) => $get('action') === 'create' || $operation == 'edit')
+                    ->visible(fn (Get $get, $operation) => $get('action') === 'create' || $operation == 'edit'),
             ]);
     }
 
@@ -175,10 +176,10 @@ class ProductResource extends Resource
             'Product',
             ['user_id' => auth()->id(), 'type' => 'total_count'],
             3600,
-            fn() => static::getModel()::count()
+            fn () => static::getModel()::count()
         );
 
-        return $count > 0 ? (string)$count : null;
+        return $count > 0 ? (string) $count : null;
     }
 
     public static function getNavigationBadgeColor(): ?string
@@ -209,9 +210,8 @@ class ProductResource extends Resource
             ->components([
                 Tabs::make('Product Information')
                     ->tabs([
-                        //Product
-                        Tab::make('General')
-                            ->label(__('resources/product/strings.form.tab1'))
+                        // Product
+                        Tab::make(__('resources/product/strings.form.tab_general'))
                             ->icon('heroicon-o-cube')
                             ->schema([
                                 Section::make()->schema([
@@ -230,9 +230,8 @@ class ProductResource extends Resource
                                     static::viewUpdatedAt(),
                                 ])->columns(2),
                             ]),
-                        //Specifications
-                        Tab::make('Specifications')
-                            ->label(__('resources/product/strings.form.tab2'))
+                        // Specifications
+                        Tab::make(__('resources/product/strings.form.tab_specifications'))
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
                                 Section::make()
@@ -249,7 +248,7 @@ class ProductResource extends Resource
                                         static::viewSpecUpdater(),
                                         static::viewSpecCreatedAt(),
                                         static::viewSpecUpdatedAt(),
-                                    ])->columns(2)
+                                    ])->columns(2),
                             ]),
                     ])
                     ->columnSpanFull(),
@@ -286,17 +285,17 @@ class ProductResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->mutateDataUsing(fn(array $data) => ManageProducts::setSlugAndCategory($data)),
+                        ->mutateDataUsing(fn (array $data) => ManageProducts::setSlugAndCategory($data)),
                     DeleteAction::make(),
                     RestoreAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()->exporter(ProductExporter::class),
-                ])
+                ]),
             ])
             ->striped()
             ->searchDebounce('1000ms')

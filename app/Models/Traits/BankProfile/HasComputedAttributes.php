@@ -14,7 +14,8 @@ trait HasComputedAttributes
                 if ($raw !== null) {
                     return (float) $raw;
                 }
-                return (float)($this->purchased_equivalent ?? 0) * ((float)($this->commission_rate ?? 0) / 100);
+
+                return (float) ($this->purchased_equivalent ?? 0) * ((float) ($this->commission_rate ?? 0) / 100);
             }
         );
     }
@@ -24,6 +25,7 @@ trait HasComputedAttributes
         return Attribute::make(
             get: function () {
                 $raw = $this->attributes['commission_amount_purchased'] ?? null;
+
                 return $raw !== null ? 'amount' : 'rate';
             }
         );
@@ -37,7 +39,9 @@ trait HasComputedAttributes
                 $requested = $this->requested_amount ?? 0;
                 $purchased = $this->purchased_equivalent ?? 0;
 
-                if ($purchased == 0 || $requested == 0) return 0;
+                if ($purchased == 0 || $requested == 0) {
+                    return 0;
+                }
 
                 return ($requested / $purchased) * $commissionAmount;
             }
@@ -52,7 +56,9 @@ trait HasComputedAttributes
                 $purchased = $this->purchased_equivalent ?? 0;
                 $finalRate = $this->final_rate ?? 0;
 
-                if ($requested == 0) return 0;
+                if ($requested == 0) {
+                    return 0;
+                }
 
                 return ($purchased / $requested) * $finalRate;
             }
@@ -76,22 +82,21 @@ trait HasComputedAttributes
     public function remainingCommitment(): Attribute
     {
         return Attribute::make(
-            get: fn() => ($this->requested_amount ?? 0) - ($this->documents_amount ?? 0)
+            get: fn () => ($this->requested_amount ?? 0) - ($this->documents_amount ?? 0)
         );
     }
 
     public function totalPurchasedRemittance(): Attribute
     {
         return Attribute::make(
-            get: fn() => ($this->purchased_equivalent ?? 0) + $this->commission_amount_purchased
+            get: fn () => ($this->purchased_equivalent ?? 0) + $this->commission_amount_purchased
         );
     }
-
 
     public function totalRequestedRemittance(): Attribute
     {
         return Attribute::make(
-            get: fn() => ($this->requested_amount ?? 0) + $this->commission_equivalent
+            get: fn () => ($this->requested_amount ?? 0) + $this->commission_equivalent
         );
     }
 
@@ -101,8 +106,9 @@ trait HasComputedAttributes
             get: function () {
                 $exchangeRate = $this->exchange_rate ?? 0;
 
-                if ($this->purchased_currency_id !== 1) return ($this->requested_amount ?? 0) * $exchangeRate;
-
+                if ($this->purchased_currency_id !== 1) {
+                    return ($this->requested_amount ?? 0) * $exchangeRate;
+                }
 
                 return ($this->purchased_equivalent ?? 0) * $exchangeRate;
             }
@@ -113,8 +119,11 @@ trait HasComputedAttributes
     {
         return Attribute::make(
             get: function () {
-                if (!$this->creation_date) return null;
+                if (! $this->creation_date) {
+                    return null;
+                }
                 $end = $this->allocation_date ?? now()->startOfDay();
+
                 return (int) abs($this->creation_date->diffInDays($end));
             }
         );

@@ -10,26 +10,28 @@ use App\Models\Traits\General\HasProductCategoryFormatting;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\SearchTargetable;
 use App\Models\Traits\General\UserStamps;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BankProfile extends Model
 {
-    use SoftDeletes,
-        Relationships,
-        ExclusiveRelationships,
+    use ExclusiveRelationships,
         HasComputedAttributes,
-        searchTargetable,
+        HasCustomAttributes,
+        HasFactory,
         HasProductCategoryFormatting,
         HasSearchableRelations,
-        HasCustomAttributes,
+        Relationships,
+        searchTargetable,
+        SoftDeletes,
         UserStamps;
 
     public const TYPE_BANK_PROFILE = 'Bank Profile Status';
 
     public const SCANNABLE_TABLE = 'bank_profiles';
-    public const SCANNABLE_IDENTIFIER = 'bp_number';
 
+    public const SCANNABLE_IDENTIFIER = 'bp_number';
 
     protected $fillable = [
         'bp_number',
@@ -73,7 +75,6 @@ class BankProfile extends Model
         'total_purchased_remittance',
         'waiting_duration',
     ];
-
 
     protected $casts = [
         'creation_date' => 'date',

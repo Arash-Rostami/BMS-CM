@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShipmentsRelationManager extends RelationManager
 {
-    use ShipmentTable, ShipmentFilters;
+    use ShipmentFilters, ShipmentTable;
 
     protected static string $relationship = 'shipments';
 
@@ -79,17 +79,17 @@ class ShipmentsRelationManager extends RelationManager
             ->filtersFormColumns(3)
             ->headerActions([
                 Action::make('create')
-                    ->label(__('resources/shipment/strings.general.add_record'))
-                    ->url(fn(): string => ShipmentResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()]))
+                    ->label(__('resources/general/strings.actions.add_record'))
+                    ->url(fn (): string => ShipmentResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record): string => ShipmentResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record): string => ShipmentResource::getUrl('edit', ['record' => $record])),
                     DeleteAction::make(),
                     RestoreAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -103,13 +103,13 @@ class ShipmentsRelationManager extends RelationManager
             ->groups([
                 TableGroup::make('carrier.name')
                     ->label(__('resources/shipment/strings.form.carrier'))
-                    ->getTitleFromRecordUsing(fn(Model $record) => $record->carrier?->getLocalizedNameAttribute()),
+                    ->getTitleFromRecordUsing(fn (Model $record) => $record->carrier?->getLocalizedNameAttribute()),
                 TableGroup::make('status.name')
                     ->label(__('resources/shipment/strings.form.status'))
-                    ->getTitleFromRecordUsing(fn(Model $record) => $record->status?->getLocalizedNameAttribute()),
+                    ->getTitleFromRecordUsing(fn (Model $record) => $record->status?->getLocalizedNameAttribute()),
                 TableGroup::make('trackingStatus.name')
                     ->label(__('resources/shipment/strings.form.shipment_status'))
-                    ->getTitleFromRecordUsing(fn(Model $record) => $record->trackingStatus?->getLocalizedNameAttribute()),
+                    ->getTitleFromRecordUsing(fn (Model $record) => $record->trackingStatus?->getLocalizedNameAttribute()),
             ])
             ->striped()
             ->recordUrl(null)

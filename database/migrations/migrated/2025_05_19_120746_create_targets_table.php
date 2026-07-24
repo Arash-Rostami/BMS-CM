@@ -6,16 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('targets', function (Blueprint $table) {
             $table->id();
 
             $table->morphs('targetable');
-            $table->integer('year')->index();
+            $table->integer('year');
             $table->date('start_from');
             $table->date('end_in');
             $table->decimal('quantity', 10, 2)->nullable();
@@ -24,6 +21,7 @@ return new class extends Migration
             $table->decimal('achieved_amount', 10, 2)->nullable();
             $table->string('metrics')->nullable();
             $table->text('description')->nullable();
+            $table->json('tags')->nullable();
             $table->string('status')->default('draft');
 
             $table->foreignId('user_id')->nullable();
@@ -34,12 +32,12 @@ return new class extends Migration
             $table->index(['targetable_type', 'targetable_id', 'deleted_at'], 'idx_targets_targetable_deleted');
             $table->index(['year', 'deleted_at'], 'idx_targets_year_deleted');
             $table->index(['status', 'deleted_at'], 'idx_targets_status_deleted');
+            $table->index('user_id', 'idx_targets_user_id');
+            $table->index('updated_by_id', 'idx_targets_updated_by_id');
+            $table->index(['start_from', 'end_in'], 'idx_targets_date_range');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('targets');

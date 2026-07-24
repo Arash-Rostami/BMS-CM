@@ -11,76 +11,56 @@ use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrder;
 use App\Models\Shipment;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request;
 
 class CodeGenerator
 {
     protected static array $map = [
-        'purchase-requests' => [
-            'pr_number' => ['model' => PurchaseRequest::class, 'prefix' => 'PR'],
-        ],
-        'proforma-invoices' => [
-            'invoice_no' => ['model' => ProformaInvoice::class, 'prefix' => 'PI'],
-        ],
-        'registered-orders' => [
-            'ro_number' => ['model' => RegisteredOrder::class, 'prefix' => 'RO'],
-            'contract_no' => ['model' => RegisteredOrder::class, 'prefix' => 'CT'],
-        ],
-        'purchase-orders' => [
-            'po_number' => ['model' => PurchaseOrder::class, 'prefix' => 'PO'],
-        ],
-        'bank-profiles' => [
-            'bp_number' => ['model' => BankProfile::class, 'prefix' => 'BP'],
-        ],
-        'payments' => [
-            'payment_no' => ['model' => Payment::class, 'prefix' => 'P'],
-        ],
-        'shipments' => [
-            'shipment_no' => ['model' => Shipment::class, 'prefix' => 'S'],
-        ],
-        'customs' => [
-            'custom_no' => ['model' => Custom::class, 'prefix' => 'CU'],
-        ],
+        'pr_number' => ['model' => PurchaseRequest::class, 'prefix' => 'PR'],
+        'invoice_no' => ['model' => ProformaInvoice::class, 'prefix' => 'PI'],
+        'ro_number' => ['model' => RegisteredOrder::class, 'prefix' => 'RO'],
+        'contract_no' => ['model' => RegisteredOrder::class, 'prefix' => 'CT'],
+        'po_number' => ['model' => PurchaseOrder::class,   'prefix' => 'PO'],
+        'bp_number' => ['model' => BankProfile::class,     'prefix' => 'BP'],
+        'payment_no' => ['model' => Payment::class,         'prefix' => 'P'],
+        'shipment_no' => ['model' => Shipment::class,        'prefix' => 'S'],
+        'custom_no' => ['model' => Custom::class,          'prefix' => 'CU'],
     ];
 
     public static function generate(string $field): string
     {
         $dateCode = now()->format('ymd');
-        $segment = Request::segment(2);
-        $modelConfigs = static::$map[$segment] ?? null;
+        $data = static::$map[$field] ?? null;
 
-        if (!$modelConfigs) {
-            return "ERROR-{$dateCode}-URL";
-        }
-
-        $data = $modelConfigs[$field] ?? null;
-
-        if (!$data) {
+        if (! $data) {
             return "ERROR-{$dateCode}-FIELD";
         }
 
-        $modelClass = $data['model'];
-        $prefix = $data['prefix'];
+        [$modelClass, $prefix] = [$data['model'], $data['prefix']];
 
-        if (!class_exists($modelClass)) {
+        if (! class_exists($modelClass)) {
             return "ERROR-{$dateCode}-MODEL";
         }
 
         $base = "{$prefix}-{$dateCode}";
         $table = (new $modelClass)->getTable();
 
-        $last = DB::table($table)
+        $maxSuffix = DB::table($table)
             ->where($field, 'like', "{$base}%")
-            ->orderByDesc($field)
-            ->value($field);
+            ->lockForUpdate()
+            ->pluck($field)
+            ->map(fn ($code) => (int) (explode('-', $code)[2] ?? 0))
+            ->max();
 
-        if (!$last) {
-            return $base;
-        }
+        return $maxSuffix === null
+            ? $base
+            : "{$base}-".($maxSuffix + 1);
+    }
 
-        $parts = explode('-', $last);
-        $seq = (count($parts) < 3) ? 1 : intval(end($parts)) + 1;
-
-        return "{$base}-{$seq}";
+    public static function fieldsForModel(string $modelClass): array
+    {
+        return collect(static::$map)
+            ->filter(fn ($config) => $config['model'] === $modelClass)
+            ->keys()
+            ->all();
     }
 }

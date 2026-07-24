@@ -7,18 +7,19 @@ use App\Models\Traits\General\HasScope;
 use App\Models\Traits\General\Localization;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
 class Currency extends Model
 {
-    use SoftDeletes,
-        Relationships,
-        ExclusiveRelationships,
-        UserStamps,
+    use ExclusiveRelationships,
+        HasFactory,
+        HasScope,
         Localization,
-        HasScope;
+        Relationships,
+        SoftDeletes,
+        UserStamps;
 
     protected $fillable = [
         'name',

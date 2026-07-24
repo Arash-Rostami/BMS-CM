@@ -14,13 +14,13 @@ use App\Filament\Resources\Operational\PaymentResource\Traits\Form as PaymentFor
 use App\Filament\Resources\Operational\PaymentResource\Traits\Infolist as PaymentInfolist;
 use App\Filament\Resources\Operational\PaymentResource\Traits\Table as PaymentTable;
 use App\Filament\Resources\Operational\PaymentResource\Traits\VisibilityCheck;
+use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\BankProfile;
 use App\Models\Payment;
 use App\Models\PurchaseOrder;
 use App\Models\RegisteredOrder;
-use App\Services\SmartCacheManager;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -46,17 +46,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-
 class PaymentResource extends Resource
 {
-    use PaymentForm, PaymentTable, PaymentFilters, PaymentInfolist, VisibilityCheck, HasResourcePermissions, HasExtraAttributesManagement;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, PaymentFilters, PaymentForm, PaymentInfolist, PaymentTable, VisibilityCheck;
 
     protected static ?string $model = Payment::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-banknotes';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Operational';
-
 
     protected static ?int $navigationSort = 2;
 
@@ -65,9 +63,9 @@ class PaymentResource extends Resource
         return $schema
             ->components([
                 Tabs::make('Payment')
-                    ->afterStateHydrated(fn(Get $get, Set $set) => static::updateComputations($get, $set))
+                    ->afterStateHydrated(fn (Get $get, Set $set) => static::updateComputations($get, $set))
                     ->tabs([
-                        Tab::make(__('resources/payment/strings.form.tabs.general'))
+                        Tab::make(__('resources/payment/strings.form.tab_general'))
                             ->icon('heroicon-o-clipboard-document-list')
                             ->schema([
                                 Group::make()
@@ -86,8 +84,8 @@ class PaymentResource extends Resource
                                                     ])
                                                     ->columns(2)
                                                     ->columnSpanFull()
-                                                    ->disabled(fn(Get $get): bool => !static::isTargetSelected($get))
-                                                    ->hidden(fn(Get $get): bool => !static::isTargetSelected($get))
+                                                    ->disabled(fn (Get $get): bool => ! static::isTargetSelected($get))
+                                                    ->hidden(fn (Get $get): bool => ! static::isTargetSelected($get)),
                                             ])
                                             ->columns(2),
                                     ])
@@ -100,14 +98,14 @@ class PaymentResource extends Resource
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
                                             ])
-                                            ->disabled(fn(Get $get): bool => !static::isTargetSelected($get))
-                                            ->hidden(fn(Get $get): bool => !static::isTargetSelected($get))
+                                            ->disabled(fn (Get $get): bool => ! static::isTargetSelected($get))
+                                            ->hidden(fn (Get $get): bool => ! static::isTargetSelected($get))
                                             ->columns(1),
                                     ])
                                     ->columnSpan(['lg' => 1]),
                             ])->columns(3),
 
-                        Tab::make(__('resources/payment/strings.form.tabs.financials'))
+                        Tab::make(__('resources/payment/strings.form.tab_financials'))
                             ->icon('heroicon-o-currency-dollar')
                             ->schema([
                                 Group::make()
@@ -132,8 +130,8 @@ class PaymentResource extends Resource
                                                 static::getBankAddressField(),
                                             ])->columns(3),
                                     ])
-                                    ->disabled(fn(Get $get): bool => !static::isTargetSelected($get))
-                                    ->hidden(fn(Get $get): bool => !static::isTargetSelected($get))
+                                    ->disabled(fn (Get $get): bool => ! static::isTargetSelected($get))
+                                    ->hidden(fn (Get $get): bool => ! static::isTargetSelected($get))
                                     ->columnSpan(['lg' => 2]),
 
                                 Group::make()
@@ -142,8 +140,8 @@ class PaymentResource extends Resource
                                             ->schema(static::getSummaryFields())
                                             ->columns(1),
                                     ])
-                                    ->disabled(fn(Get $get): bool => !static::isTargetSelected($get))
-                                    ->hidden(fn(Get $get): bool => !static::isTargetSelected($get))
+                                    ->disabled(fn (Get $get): bool => ! static::isTargetSelected($get))
+                                    ->hidden(fn (Get $get): bool => ! static::isTargetSelected($get))
                                     ->columnSpan(['lg' => 1]),
                             ])->columns(3),
                         static::getExtraAttributesFormTab(),
@@ -163,7 +161,7 @@ class PaymentResource extends Resource
                 'payor',
                 'payee',
                 'currency',
-                'targetable' => fn(MorphTo $morphTo) => $morphTo->morphWith([
+                'targetable' => fn (MorphTo $morphTo) => $morphTo->morphWith([
                     PurchaseOrder::class,
                     RegisteredOrder::class,
                     BankProfile::class,
@@ -192,7 +190,7 @@ class PaymentResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return '💳 ' . ($record->payment_no ?? $record->id ?? '—');
+        return '💳 '.($record->payment_no ?? $record->id ?? '—');
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -203,22 +201,6 @@ class PaymentResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/payment/strings.general.model_label');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'Payment',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            150,
-            fn() => static::getModel()::count()
-        );
-        return $count > 0 ? (string)$count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
     }
 
     public static function getNavigationGroup(): ?string
@@ -304,9 +286,9 @@ class PaymentResource extends Resource
                     Tab::make(__('resources/payment/strings.infolist.tab_documents'))
                         ->icon('heroicon-o-paper-clip')
                         ->schema([
-                            Section::make()->schema([static::viewAttachments()])
+                            Section::make()->schema([static::viewAttachments()]),
                         ])
-                        ->label(fn($record) => tabBadge(
+                        ->label(fn ($record) => tabBadge(
                             __('resources/payment/strings.infolist.tab_documents'),
                             $record?->attachments->count() ?? 0,
                             'info'
@@ -359,27 +341,27 @@ class PaymentResource extends Resource
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
-                        ->exporter(PaymentExporter::class)
+                        ->exporter(PaymentExporter::class),
                 ]),
             ])
             ->groups([
                 TableGroup::make('targetable_type')
                     ->label(__('resources/payment/strings.groups.targetable'))
-                    ->getTitleFromRecordUsing(fn(Model $record) => $record->getTargetableDisplay()),
+                    ->getTitleFromRecordUsing(fn (Model $record) => $record->getTargetableDisplay()),
                 TableGroup::make('payor.name')
                     ->label(__('resources/payment/strings.groups.payor'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => $record->payor?->getLocalizedNameAttribute()),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => $record->payor?->getLocalizedNameAttribute()),
                 TableGroup::make('payee.name')
                     ->label(__('resources/payment/strings.groups.payee'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => $record->payee?->getLocalizedNameAttribute()),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => $record->payee?->getLocalizedNameAttribute()),
                 TableGroup::make('beneficiary_name')
                     ->label(__('resources/payment/strings.groups.beneficiary_name')),
                 TableGroup::make('status.name')
                     ->label(__('resources/payment/strings.groups.status'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => $record->status?->getLocalizedNameAttribute()),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => $record->status?->getLocalizedNameAttribute()),
                 TableGroup::make('currency.name')
                     ->label(__('resources/payment/strings.groups.currency'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => $record->currency?->getLocalizedNameAttribute()),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => $record->currency?->getLocalizedNameAttribute()),
             ])
             ->striped()
             ->searchDebounce('1000ms')

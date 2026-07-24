@@ -27,11 +27,11 @@ trait Filters
                 return $query
                     ->when(
                         $data['created_from'],
-                        fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
                     )
                     ->when(
                         $data['created_until'],
-                        fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                     );
             });
     }
@@ -39,7 +39,7 @@ trait Filters
     public static function getCreatorFilter(): SelectFilter
     {
         return SelectFilter::make('user_id')
-            ->label(__('resources/purchaseRequest/strings.table.creator'))
+            ->label(__('resources/purchaseRequest/strings.filters.creator'))
             ->relationship('creator', 'name')
             ->searchable()
             ->preload();
@@ -80,7 +80,7 @@ trait Filters
     public static function getUpdaterFilter(): SelectFilter
     {
         return SelectFilter::make('updated_by_id')
-            ->label(__('resources/purchaseRequest/strings.table.updater'))
+            ->label(__('resources/purchaseRequest/strings.filters.updater'))
             ->relationship('updater', 'name')
             ->searchable()
             ->preload();
@@ -89,11 +89,12 @@ trait Filters
     public static function getUrgencyFilter(): SelectFilter
     {
         return SelectFilter::make('urgency_level')
-            ->label(__('resources/purchaseRequest/strings.table.urgency_level'))
+            ->label(__('resources/purchaseRequest/strings.filters.urgency_level'))
             ->options([
                 'low' => __('resources/purchaseRequest/strings.general.urgency.low'),
                 'medium' => __('resources/purchaseRequest/strings.general.urgency.medium'),
                 'high' => __('resources/purchaseRequest/strings.general.urgency.high'),
+                'critical' => __('resources/purchaseRequest/strings.general.urgency.critical'),
             ]);
     }
 }

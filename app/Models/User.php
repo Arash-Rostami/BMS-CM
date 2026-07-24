@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filament\Resources\Master\UserResource\Enums\UserRole;
 use App\Models\Traits\User\DashboardAccess;
 use App\Models\Traits\User\IpLookup;
 use App\Models\Traits\User\Relationships;
@@ -17,20 +18,21 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser, HasAvatar, CanResetPassword
+class User extends Authenticatable implements CanResetPassword, FilamentUser, HasAvatar
 {
-    use HasFactory,
-        Notifiable,
-        SoftDeletes,
+    use DashboardAccess,
         HasAvatars,
-        UserImage,
-        DashboardAccess,
-        Relationships,
+        HasFactory,
+        HasRoles,
         IpLookup,
+        Notifiable,
+        Relationships,
         Setting,
-        HasRoles;
+        SoftDeletes,
+        UserImage;
 
     public const CACHE_MINUTES = 60;
+
     protected $fillable = [
         'name',
         'phone',
@@ -47,6 +49,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, CanResetP
         'company',
         'settings',
     ];
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -63,5 +66,26 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, CanResetP
             'settings' => 'json',
             'deleted_at' => 'datetime',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole([
+            UserRole::ADMIN_JUNIOR->value,
+            UserRole::ADMIN_MID->value,
+            UserRole::ADMIN_SENIOR->value,
+        ]);
+    }
+
+    protected static function booted(): void
+    {
+        static::forceDeleting(function (self $user) {
+            $hasOrders = PurchaseOrder::where('user_id', $user->id)->orWhere('updated_by_id', $user->id)->exists()
+                || RegisteredOrder::where('user_id', $user->id)->orWhere('updated_by_id', $user->id)->exists();
+
+            if ($hasOrders) {
+                throw new \RuntimeException("Cannot permanently delete user #{$user->id}: they are the creator or last updater of one or more PurchaseOrder/RegisteredOrder records — force-deleting would cascade-delete those records at the database level. Reassign those records' user_id/updated_by_id first.");
+            }
+        });
     }
 }

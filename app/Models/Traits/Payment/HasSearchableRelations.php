@@ -11,7 +11,7 @@ trait HasSearchableRelations
             return $query;
         }
 
-        return $query->where(fn($q) => $q->where('payments.id', 'like', "%{$term}%")
+        return $query->where(fn ($q) => $q->where('payments.id', 'like', "%{$term}%")
             ->orWhere('payments.payment_no', 'like', "%{$term}%")
         );
     }

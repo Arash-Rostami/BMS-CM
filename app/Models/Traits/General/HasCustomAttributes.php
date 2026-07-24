@@ -21,7 +21,7 @@ trait HasCustomAttributes
     {
         return $this->customAttributes()
             ->pluck('value', 'key')
-            ->map(fn($v) => is_string($v) ? $v : (string) json_encode($v, JSON_UNESCAPED_UNICODE))
+            ->map(fn ($v) => is_string($v) ? $v : (string) json_encode($v, JSON_UNESCAPED_UNICODE))
             ->toArray();
     }
 }

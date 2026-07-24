@@ -11,7 +11,7 @@ trait HasSearchableRelations
             return $query;
         }
 
-        return $query->where(fn($q) => $q->where('bank_profiles.id', 'like', "%{$term}%")
+        return $query->where(fn ($q) => $q->where('bank_profiles.id', 'like', "%{$term}%")
             ->orWhere('bank_profiles.bp_number', 'like', "%{$term}%")
             ->orWhere('bank_profiles.order_number', 'like', "%{$term}%")
         );

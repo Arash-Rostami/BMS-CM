@@ -6,19 +6,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('correspondences', function (Blueprint $table) {
             $table->id();
             $table->morphs('correspondable');
-            // Threading support
             $table->foreignId('parent_id')->nullable()->constrained('correspondences')->nullOnDelete();
             $table->string('subject')->comment('Brief title or subject of the correspondence');
             $table->text('body')->comment('Main content/message body');
-            // Classification
             $table->string('type')->default('note')->comment('Enum: Report, Inquiry, Warning, Note');
             $table->string('priority')->default('normal')->comment('Enum: Low, Normal, High, Urgent');
             $table->boolean('is_internal')->default(false)->comment('Visible only to internal staff (general access)');
@@ -35,37 +30,27 @@ return new class extends Migration
                 'idx_correspondable_deleted'
             );
             $table->index(['parent_id', 'deleted_at'], 'idx_parent_deleted');
-            $table->index('user_id');
         });
 
-
-        // Recipients Pivot Table (Audience & Read Receipts)
         Schema::create('correspondence_recipients', function (Blueprint $table) {
             $table->id();
             $table->foreignId('correspondence_id')->constrained('correspondences')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
 
-            // Role in conversation
             $table->string('type')->default('to')->comment('to, cc, mention');
 
-            // Read Receipt
             $table->timestamp('read_at')->nullable();
 
             $table->timestamps();
 
             $table->unique(['correspondence_id', 'user_id']);
             $table->index(['user_id', 'read_at'], 'idx_user_read');
-            $table->index('correspondence_id');
         });
     }
 
-
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
+        Schema::dropIfExists('correspondence_recipients');
         Schema::dropIfExists('correspondences');
     }
 };

@@ -27,8 +27,8 @@ trait Filters
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
-                    ->when($data['created_from'], fn(Builder $query, $date) => $query->whereDate('created_at', '>=', $date))
-                    ->when($data['created_until'], fn(Builder $query, $date) => $query->whereDate('created_at', '<=', $date));
+                    ->when($data['created_from'], fn (Builder $query, $date) => $query->whereDate('created_at', '>=', $date))
+                    ->when($data['created_until'], fn (Builder $query, $date) => $query->whereDate('created_at', '<=', $date));
             });
     }
 
@@ -45,7 +45,18 @@ trait Filters
     {
         return Filter::make('my_mentions')
             ->label(__('resources/correspondence/strings.filters.my_mentions'))
-            ->query(fn(Builder $query) => $query->whereHas('recipients', fn($q) => $q->where('user_id', auth()->id())))
+            ->query(fn (Builder $query) => $query->whereHas('recipients', fn ($q) => $q->where('user_id', auth()->id())))
+            ->toggle();
+    }
+
+    public static function getUnreadFilter(): Filter
+    {
+        return Filter::make('unread')
+            ->label(__('resources/correspondence/strings.filters.unread'))
+            ->query(fn (Builder $query) => $query->whereHas(
+                'recipients',
+                fn (Builder $q) => $q->where('user_id', auth()->id())->whereNull('read_at')
+            ))
             ->toggle();
     }
 

@@ -6,7 +6,6 @@ use App\Filament\Traits\ExportDefaults;
 use App\Models\ProformaInvoice;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
-use Filament\Actions\Exports\Models\Export;
 
 class ProformaInvoiceExporter extends Exporter
 {
@@ -14,37 +13,42 @@ class ProformaInvoiceExporter extends Exporter
 
     protected static ?string $model = ProformaInvoice::class;
 
+    protected static function eagerLoadRelations(): array
+    {
+        return ['sellerCompany', 'buyerCompany', 'mainCurrency', 'secondaryCurrency', 'items.product'];
+    }
+
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')->label('ID'),
-            ExportColumn::make('invoice_no')->label('Invoice Number'),
-            ExportColumn::make('invoice_date')->label('Invoice Date'),
-            ExportColumn::make('validity_date')->label('Validity Date'),
-            ExportColumn::make("sellerCompany.name")->label('Seller'),
-            ExportColumn::make("sellerCompany.english_name")->label('Seller E'),
-            ExportColumn::make("buyerCompany.name")->label('Buyer '),
-            ExportColumn::make("buyerCompany.english_name")->label('Buyer  E'),
-            ExportColumn::make('discount')->label('Discount'),
-            ExportColumn::make('freight_charges')->label('Freight Charges'),
-            ExportColumn::make('other_charges')->label('Other Charges'),
-            ExportColumn::make('total_amount')->label('Total Amount'),
-            ExportColumn::make("mainCurrency.name")->label('Main Currency'),
-            ExportColumn::make("mainCurrency.english_name")->label('Main Currency E'),
-            ExportColumn::make("secondaryCurrency.name")->label('Secondary Currency'),
-            ExportColumn::make("secondaryCurrency.english_name")->label('Secondary Currency E'),
-            ExportColumn::make('delivery_terms')->label('Delivery Terms'),
-            ExportColumn::make('transport_mode')->label('Transport Mode'),
-            ExportColumn::make('contract_no')->label('Contract No'),
-            ExportColumn::make('buyer_comm_card_num')->label('Buyer Commercial Card Number'),
-            ExportColumn::make('origin_country')->label('Country of Origin'),
-            ExportColumn::make('destination_country')->label('Country of Destination'),
-            ExportColumn::make('beneficiary_country')->label('Beneficiary Country'),
-            ExportColumn::make('port_of_loading')->label('Port of Loading'),
-            ExportColumn::make('port_of_discharge')->label('Port of Discharge'),
+            ExportColumn::make('id')->label(__('resources/proformaInvoice/strings.export.id')),
+            ExportColumn::make('invoice_no')->label(__('resources/proformaInvoice/strings.export.invoice_number')),
+            ExportColumn::make('invoice_date')->label(__('resources/proformaInvoice/strings.export.invoice_date')),
+            ExportColumn::make('validity_date')->label(__('resources/proformaInvoice/strings.export.validity_date')),
+            ExportColumn::make('sellerCompany.name')->label(__('resources/proformaInvoice/strings.export.seller')),
+            ExportColumn::make('sellerCompany.english_name')->label(__('resources/proformaInvoice/strings.export.seller_english')),
+            ExportColumn::make('buyerCompany.name')->label(__('resources/proformaInvoice/strings.export.buyer')),
+            ExportColumn::make('buyerCompany.english_name')->label(__('resources/proformaInvoice/strings.export.buyer_english')),
+            ExportColumn::make('discount')->label(__('resources/proformaInvoice/strings.export.discount')),
+            ExportColumn::make('freight_charges')->label(__('resources/proformaInvoice/strings.export.freight_charges')),
+            ExportColumn::make('other_charges')->label(__('resources/proformaInvoice/strings.export.other_charges')),
+            ExportColumn::make('total_amount')->label(__('resources/proformaInvoice/strings.export.total_amount')),
+            ExportColumn::make('mainCurrency.name')->label(__('resources/proformaInvoice/strings.export.main_currency')),
+            ExportColumn::make('mainCurrency.english_name')->label(__('resources/proformaInvoice/strings.export.main_currency_english')),
+            ExportColumn::make('secondaryCurrency.name')->label(__('resources/proformaInvoice/strings.export.secondary_currency')),
+            ExportColumn::make('secondaryCurrency.english_name')->label(__('resources/proformaInvoice/strings.export.secondary_currency_english')),
+            ExportColumn::make('delivery_terms')->label(__('resources/proformaInvoice/strings.export.delivery_terms')),
+            ExportColumn::make('transport_mode')->label(__('resources/proformaInvoice/strings.export.transport_mode')),
+            ExportColumn::make('contract_no')->label(__('resources/proformaInvoice/strings.export.contract_no')),
+            ExportColumn::make('buyer_comm_card_num')->label(__('resources/proformaInvoice/strings.export.buyer_commercial_card_number')),
+            ExportColumn::make('origin_country')->label(__('resources/proformaInvoice/strings.export.country_of_origin')),
+            ExportColumn::make('destination_country')->label(__('resources/proformaInvoice/strings.export.country_of_destination')),
+            ExportColumn::make('beneficiary_country')->label(__('resources/proformaInvoice/strings.export.beneficiary_country')),
+            ExportColumn::make('port_of_loading')->label(__('resources/proformaInvoice/strings.export.port_of_loading')),
+            ExportColumn::make('port_of_discharge')->label(__('resources/proformaInvoice/strings.export.port_of_discharge')),
 
             ExportColumn::make('items')
-                ->label('Items')
+                ->label(__('resources/proformaInvoice/strings.export.items'))
                 ->state(function (ProformaInvoice $record): string {
                     return $record->items->map(function ($item) {
                         $product = $item->product?->getLocalizedNameAttribute() ?? 'N/A';
@@ -57,15 +61,10 @@ class ProformaInvoiceExporter extends Exporter
                     })->implode("\n");
                 }),
 
-            ExportColumn::make('creator.name')->label('Creator'),
-            ExportColumn::make('updater.name')->label('Updater'),
-            ExportColumn::make('created_at'),
-            ExportColumn::make('updated_at'),
+            ExportColumn::make('creator.name')->label(__('resources/proformaInvoice/strings.export.creator')),
+            ExportColumn::make('updater.name')->label(__('resources/proformaInvoice/strings.export.updater')),
+            ExportColumn::make('created_at')->label(__('resources/proformaInvoice/strings.export.created_at')),
+            ExportColumn::make('updated_at')->label(__('resources/proformaInvoice/strings.export.updated_at')),
         ];
-    }
-
-    public function getFileName(Export $export): string
-    {
-        return "ProformaInvoices-{$export->getKey()}";
     }
 }

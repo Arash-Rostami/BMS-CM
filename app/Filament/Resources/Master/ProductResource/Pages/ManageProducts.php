@@ -2,22 +2,20 @@
 
 namespace App\Filament\Resources\Master\ProductResource\Pages;
 
-use Filament\Actions\CreateAction;
-use App\Filament\Resources\ProductResource;
-use Filament\Actions;
 use App\Filament\Pages\ManageRecords;
+use App\Filament\Resources\ProductResource;
+use Filament\Actions\CreateAction;
 
 class ManageProducts extends ManageRecords
 {
     protected static string $resource = ProductResource::class;
-
 
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
                 ->icon('heroicon-o-sparkles')
-                ->mutateDataUsing(fn(array $data) => self::setSlugAndCategory($data))
+                ->mutateDataUsing(fn (array $data) => self::setSlugAndCategory($data)),
         ];
 
     }
@@ -25,9 +23,9 @@ class ManageProducts extends ManageRecords
     public static function setSlugAndCategory(array $data): array
     {
         $deepest = null;
-        if (!empty($data['categories']) && is_array($data['categories'])) {
+        if (! empty($data['categories']) && is_array($data['categories'])) {
             foreach ($data['categories'] as $catId) {
-                if (!empty($catId)) {
+                if (! empty($catId)) {
                     $deepest = $catId;
                 }
             }

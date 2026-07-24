@@ -17,18 +17,18 @@ trait HasFormattedName
     private function buildFormattedName(bool $withDates): string
     {
         $fa = app()->getLocale() === 'fa';
-        $s = fn($key, $faValue, $enValue) => $fa ? $faValue : $enValue;
+        $s = fn ($key, $faValue, $enValue) => $fa ? $faValue : $enValue;
 
         $invoiceNo = $this->invoice_no ?? 'N/A';
         $status = '✅ ';
         $seller = $this->sellerCompany?->{$fa ? 'name' : 'english_name'} ?? $s('sellerCompany', 'فروشنده نامشخص', 'Unknown Seller');
         $buyer = $this->buyerCompany?->{$fa ? 'name' : 'english_name'} ?? $s('buyerCompany', 'گیرنده نامشخص', 'Unknown Buyer');
 
-        if (!$withDates) {
+        if (! $withDates) {
             return "{$invoiceNo} ┆ {$seller} => {$buyer}";
         }
 
-        $fmt = fn($d) => $d ? ($fa ? toPersianDate($d) : toGregorianDate($d)) : 'N/A';
+        $fmt = fn ($d) => $d ? ($fa ? toPersianDate($d) : toGregorianDate($d)) : 'N/A';
         $invDate = $fmt($this->invoice_date);
         $valDate = $fmt($this->validity_date);
         $invLabel = $s('inv', 'تاریخ پیش فاکتور', 'Invoice Date');

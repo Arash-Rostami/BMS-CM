@@ -1,60 +1,42 @@
 # BMS-CM CSS Design Pattern
 
-Verified against source on branch `feature/landing-page-enterprise-redesign` (2026-07-18). Where this doc conflicts with CLAUDE.md's CSS sections, this doc is authoritative — CLAUDE.md's landing-page utility-class catalog and keyframes list are stale (several listed classes/keyframes were removed in the 2026-07-18 enterprise redesign).
-
-This document captures the two coexisting CSS systems that theme BMS-CM and the single shared token layer that binds them. Future AI agents must replicate this exact structure when extending or retheming the application.
+Verified against source on branch `master` (2026-07-25). Authoritative reference for the CSS token system, the `.fi-*` morphing overrides, and the landing-page design system.
 
 ## Core idea
 
-BMS-CM has **TWO coexisting CSS systems with ONE shared token layer**:
+BMS-CM has **two coexisting CSS systems sharing one token layer**:
 
-- **(a) `fi-custom.css`** — the Filament panel morphing layer. It does not invent new components; it overrides Filament's internal `.fi-*` classes via a token bridge (`--custom-*`, `--google-*`, and named `--gradient-*` variables) declared in `:root`.
-- **(b) `landing-page.css`** — a flat, data-dense, enterprise landing-page design system that was JUST rewritten away from glassmorphism/3D in the 2026-07-18 enterprise redesign.
+- **(a) `fi-custom.css`** — the Filament panel morphing layer. Overrides Filament's internal `.fi-*` classes via a token bridge (`--custom-*`, `--google-*`, `--gradient-*`) declared in `:root`.
+- **(b) `landing-page.css`** — a flat, data-dense, enterprise landing-page design system (rewritten away from glassmorphism/3D in the 2026-07-18 redesign).
 
-The shared tokens mean a theme change in `fi-custom.css :root` re-themes **both** systems. This dual-system-with-shared-tokens is THE hallmark of BMS-CM's CSS. Respect it: do not fork the token layer, do not introduce a third system, and do not hardcode colors that already have a `--custom-*` / `--google-*` variable.
+A theme change in `fi-custom.css :root` re-themes both systems. Do not fork the token layer, do not introduce a third system, and do not hardcode a color that already has a `--custom-*` / `--google-*` variable.
 
 ## Directory & pipeline
 
 ```
 resources/css/
 ├── app.css                  ← Tailwind base (scans resources/views)
-├── fi-custom.css            ← Filament panel morph layer + :root tokens (load-bearing)
+├── fi-custom.css            ← Filament panel morph layer + :root tokens (load-bearing, 1478 lines)
 ├── layout/
-│   └── fonts.css            ← @font-face: Roboto (woff2/woff) + IranYekan (woff/ttf)
-└── landing-page.css         ← Landing page design system (flat, post-2026-07-18)
-resources/js/
-└── app.js                   ← ONLY JS entry (Filament/Livewire). No other JS entries.
-resources/img/*   → public/img/      (static copy)
-resources/audio/* → public/audio/    (static copy)
-resources/video/* → public/video/    (static copy; includes 1.webp / 2.webp for login bg)
+│   └── fonts.css            ← @font-face: Roboto (woff2/woff), IranYekan (woff/ttf), Baloo 2 ExtraBold 800-only (woff2, brand wordmark)
+└── landing-page.css         ← Landing page design system (flat, 928 lines)
 ```
 
-### Vite entry order (`vite.config.js` lines 8–14)
+See CLAUDE.md's "Vite / Asset Pipeline" section for entry order and static-copy targets.
 
-1. `resources/css/app.css`
-2. `resources/css/fi-custom.css`
-3. `resources/css/layout/fonts.css`
-4. `resources/css/landing-page.css`
-5. `resources/js/app.js`  ← the ONLY JS entry
+### Dark-mode variant strategy
 
-### Static copies (`vite.config.js` lines 17–23, `vite-plugin-static-copy`, `refresh: true`)
+`app.css` and `fi-custom.css` are two **independent** Tailwind v4 build entries. Tailwind v4's `dark:` variant defaults to `@media (prefers-color-scheme: dark)` unless overridden — both entries declare `@custom-variant dark (&:where(.dark, .dark *));` right after their `tailwindcss` import, so `dark:` utilities follow the app's `html.dark` class (toggled by `landingPage()`'s `darkMode` watcher / Filament's theme toggle), not the OS preference. Any **new** Tailwind entry point must declare this too, or its `dark:` classes will silently ignore the in-app toggle.
 
-- `resources/img/*`   → `../img/`
-- `resources/audio/*` → `../audio/`
-- `resources/video/*` → `../video/`
+### Dead code — do not reintroduce
 
-### Removed in the enterprise redesign — do NOT reintroduce
-
-- `resources/js/3d.min.js` — deleted. Not an entry, not a static-copy target, zero references.
-- `resources/js/landing-page.js` — deleted. Was 100% Three.js particle/torus/ring scene code. No references remain.
-
-Do not reintroduce either file, and do not add them back to `vite.config.js` input or `viteStaticCopy` targets. The full-screen Three.js torus background (`<canvas id="canvas-bg">`) and its `window.torusMaterial` / `window.ringMaterial` opacity-toggle watcher in `landing-page-alpine.js` are also gone.
+`resources/js/3d.min.js` and `resources/js/landing-page.js` were deleted in the 2026-07-18 redesign (Three.js torus/particle background). Zero references remain anywhere. Do not re-add them to `vite.config.js`.
 
 ---
 
-## 1. `fi-custom.css :root` token layer (lines 11–66)
+## 1. `fi-custom.css :root` token layer
 
-This is the single source of truth for color, motion, and elevation. Both CSS systems consume these tokens; the landing page does **not** declare its own color tokens (it only declares `--font-default` / `--font-fa`).
+Single source of truth for color, motion, and elevation. Both CSS systems consume these tokens; the landing page only adds `--font-*` tokens of its own (see §5).
 
 ### Core surface palette
 
@@ -67,61 +49,43 @@ This is the single source of truth for color, motion, and elevation. Both CSS sy
 --filament-dark: #09090B;   /* dark bg */
 ```
 
-### Mid-alpha (0.7)
+### Mid-alpha (0.7) / Light-alpha (0.4) variants
 
 ```css
---custom-second-mid: rgb(217,234,253,0.7);
---custom-third-mid:  rgb(188,204,220,0.7);
---custom-fourth-mid: rgb(154,166,178,0.7);
---filament-dark-mid: #18181B;
+--custom-second-mid / --custom-third-mid / --custom-fourth-mid / --filament-dark-mid   /* 0.7 alpha */
+--custom-second-light / --custom-third-light / --custom-fourth-light / --custom-neutral-light   /* 0.4 alpha */
 ```
 
-### Light-alpha (0.4)
+### Google Material palette (light / dark)
 
 ```css
---custom-second-light:  rgb(217,234,253,0.4);
---custom-third-light:   rgb(188,204,220,0.4);
---custom-fourth-light:  rgb(154,166,178,0.4);
---custom-neutral-light:rgb(232,232,232,0.5);
+--google-first-light:  #FFFFFF;   --google-first-dark:  #1E1E1E;
+--google-second-light: #E1E4E8;   --google-second-dark: #2C2B2F;
+--google-third-light:  #C1C6CC;   --google-third-dark:  #49454F;
+--google-fourth-light: #5C6AC4;   --google-fourth-dark: #6750A4;
 ```
 
-### Google Material palette — light
+### Named gradients (15)
 
-```css
---google-first-light:  #FFFFFF;
---google-second-light: #E1E4E8;
---google-third-light:  #C1C6CC;
---google-fourth-light: #5C6AC4;
-```
+All `linear-gradient(135deg, A, B)`; only the two stops vary:
 
-### Google Material palette — dark
-
-```css
---google-first-dark:  #1E1E1E;
---google-second-dark: #2C2B2F;
---google-third-dark:  #49454F;
---google-fourth-dark: #6750A4;
-```
-
-### Named gradients (15, all `linear-gradient(135deg, …)`)
-
-```css
---gradient-primary:        linear-gradient(135deg, var(--custom-first),  var(--custom-second));
---gradient-secondary:      linear-gradient(135deg, var(--custom-second), var(--custom-third));
---gradient-accent:         linear-gradient(135deg, var(--custom-third),  var(--custom-fourth));
---gradient-dark:           linear-gradient(135deg, var(--custom-fourth), var(--filament-dark));
---gradient-neutral:        linear-gradient(135deg, var(--custom-neutral),var(--custom-second-mid));
---gradient-deep:           linear-gradient(135deg, var(--filament-dark), var(--filament-dark-mid));
---gradient-light:          linear-gradient(135deg, var(--custom-second-light), var(--custom-third-light));
---gradient-soft:           linear-gradient(135deg, var(--custom-fourth-light), var(--custom-neutral-light));
---gradient-google-light:   linear-gradient(135deg, var(--google-first-light), var(--google-second-light));
---gradient-google-accent:  linear-gradient(135deg, var(--google-third-light), var(--google-fourth-light));
---gradient-google-dark:    linear-gradient(135deg, var(--google-first-dark), var(--google-second-dark));
---gradient-google-deep:    linear-gradient(135deg, var(--google-third-dark), var(--google-fourth-dark));
---gradient-contrast:       linear-gradient(135deg, var(--custom-first),  var(--custom-fourth));
---gradient-brand:          linear-gradient(135deg, var(--google-fourth-light), var(--google-fourth-dark));
---gradient-hero:           linear-gradient(135deg, var(--custom-second), var(--filament-dark));
-```
+| Name | Stop A | Stop B |
+|---|---|---|
+| `--gradient-primary` | `--custom-first` | `--custom-second` |
+| `--gradient-secondary` | `--custom-second` | `--custom-third` |
+| `--gradient-accent` | `--custom-third` | `--custom-fourth` |
+| `--gradient-dark` | `--custom-fourth` | `--filament-dark` |
+| `--gradient-neutral` | `--custom-neutral` | `--custom-second-mid` |
+| `--gradient-deep` | `--filament-dark` | `--filament-dark-mid` |
+| `--gradient-light` | `--custom-second-light` | `--custom-third-light` |
+| `--gradient-soft` | `--custom-fourth-light` | `--custom-neutral-light` |
+| `--gradient-google-light` | `--google-first-light` | `--google-second-light` |
+| `--gradient-google-accent` | `--google-third-light` | `--google-fourth-light` |
+| `--gradient-google-dark` | `--google-first-dark` | `--google-second-dark` |
+| `--gradient-google-deep` | `--google-third-dark` | `--google-fourth-dark` |
+| `--gradient-contrast` | `--custom-first` | `--custom-fourth` |
+| `--gradient-brand` | `--google-fourth-light` | `--google-fourth-dark` |
+| `--gradient-hero` | `--custom-second` | `--filament-dark` |
 
 ### Motion & elevation
 
@@ -129,377 +93,113 @@ This is the single source of truth for color, motion, and elevation. Both CSS sy
 --md-motion:      cubic-bezier(0.2, 0, 0, 1);   /* enter / standard */
 --md-motion-exit: cubic-bezier(0.4, 0, 1, 1);   /* exit */
 
-/* each elevation is a TWO-layer shadow (ambient + key), not a single shadow */
---md-elevation-1:      0px 1px 2px 0px rgba(0,0,0,0.3), 0px 1px 3px 1px rgba(0,0,0,0.15);
---md-elevation-2:      0px 1px 2px 0px rgba(0,0,0,0.3), 0px 2px 6px 2px rgba(0,0,0,0.15);
---md-elevation-3:      0px 1px 3px 0px rgba(0,0,0,0.3), 0px 4px 8px 3px rgba(0,0,0,0.15);
---md-elevation-1-dark: 0px 1px 2px 0px rgba(0,0,0,0.5), 0px 1px 3px 1px rgba(0,0,0,0.3);
---md-elevation-2-dark: 0px 1px 2px 0px rgba(0,0,0,0.5), 0px 2px 6px 2px rgba(0,0,0,0.3);
---md-elevation-3-dark: 0px 1px 3px 0px rgba(0,0,0,0.5), 0px 4px 8px 3px rgba(0,0,0,0.3);
+/* each elevation is a TWO-layer shadow (ambient + key) */
+--md-elevation-1/2/3        /* light */
+--md-elevation-1/2/3-dark   /* dark */
 ```
 
 ---
 
-## 2. `.fi-*` morphing declarations (the load-bearing overrides)
+## 2. `.fi-*` morphing declarations
 
-These are the Filament panel overrides that give BMS-CM its identity. Every override goes through a `--custom-*` / `--google-*` / `--gradient-*` token — never a hardcoded hex.
+Every override goes through a `--custom-*` / `--google-*` / `--gradient-*` token — never a hardcoded hex. Selectors below are searchable class names, not line numbers (the file is 1478 lines and reflows often).
 
-### `.fi-body` (L79) — body background
-
-```css
-.fi-body {
-  background-color: var(--custom-first) !important;
-  background-image: radial-gradient(ellipse at 50% 0%, var(--google-second-light), transparent 70%) !important;
-  background-attachment: fixed !important;
-}
-.dark .fi-body {
-  background-color: var(--filament-dark) !important;
-  background-image: radial-gradient(ellipse at 50% 120%, var(--custom-third-mid), transparent 60%) !important;
-}
-/* the shift animation only runs for :not(.dark), gated behind reduced-motion */
-@media (prefers-reduced-motion: no-preference) {
-  :not(.dark) .fi-body { animation: gradient-shift 15s var(--md-motion) infinite !important; }
-}
-```
-
-Note: there is no `alternate` keyword on the animation, and the dark-mode glow uses `--custom-third-mid`/`70%→60%`, not a repeat of the light-mode `--google-second-light`/`70%`.
-
-### `.fi-topbar` (L97)
-
-```css
-.fi-topbar {
-  box-shadow: var(--md-elevation-2) !important;
-  max-height: 20px !important;
-  border: none;
-  background-color: var(--custom-third-mid) !important;
-  animation: slide-in-top 0.5s var(--md-motion) both;
-}
-.dark .fi-topbar {
-  background-color: var(--filament-dark-mid) !important;
-  box-shadow: var(--md-elevation-2-dark) !important;
-}
-```
-
-### `.fi-sidebar-item > a` (L245)
-
-```css
-.fi-sidebar-item > a {
-  background-image: var(--gradient-neutral);
-  transition: all 0.25s var(--md-motion);
-}
-.dark .fi-sidebar-item > a {
-  background-color: var(--filament-dark-mid) !important;
-  background-image: none;
-}
-.fi-sidebar-item > a:hover {
-  border-radius: 8px;
-  background-color: var(--custom-neutral);
-  transform: translateX(3px);
-  box-shadow: var(--md-elevation-1);
-}
-```
-
-### `.fi-sidebar-item.fi-active > a::before` (L280)
-
-```css
-.fi-sidebar-item.fi-active > a::before {
-  content: '\1F539';           /* 🔹 SMALL BLUE DIAMOND (U+1F539) — not 🔵 */
-  position: absolute;
-  width: 3px;
-  border-radius: 50%;
-  animation: pulse 2.5s infinite var(--md-motion);
-}
-```
-
-### `.fi-section` (L306)
-
-```css
-.fi-section {
-  background-color: var(--custom-third-light) !important;
-  box-shadow: var(--md-elevation-1) !important;
-  transition: … 0.3s var(--md-motion);
-  border-radius: 12px;
-}
-.dark .fi-section {
-  background-color: var(--filament-dark-mid) !important;
-  box-shadow: var(--md-elevation-1-dark) !important;
-}
-.fi-section:hover { box-shadow: var(--md-elevation-2) !important; }
-/* hover elevation is suppressed inside modals and widgets */
-```
-
-### `.fi-ta` tables (L335)
-
-```css
-.fi-ta { border: none; box-shadow: var(--md-elevation-1) !important; }
-.fi-ta-header-ctn {
-  background-color: var(--custom-third-light) !important;
-  border-radius: 12px 12px 0 0;
-}
-thead > tr th { background-color: var(--custom-third) !important; }   /* NOT -light */
-nav.fi-ta-pagination {
-  background-color: var(--custom-second-light) !important;
-  border-radius: 0 0 12px 12px;
-}
-```
-
-There is no `.fi-ta thead th` / `.fi-ta .fi-ta-pag` selector — the header-row background lives on `.fi-ta-header-ctn`, the `<th>` text row is styled separately via `thead > tr th` (using the *solid* `--custom-third`, not `-light`), and pagination targets `nav.fi-ta-pagination`.
-
-### `.fi-modal-window` (L379) + modal-open side-effects (L421–431)
-
-```css
-.fi-modal-window {
-  background-color: var(--custom-neutral);
-  border-radius: 16px;
-  box-shadow: var(--md-elevation-3) !important;
-}
-.dark .fi-modal-window {
-  background-color: var(--filament-dark-mid);
-  box-shadow: var(--md-elevation-3-dark) !important;
-}
-/* Container backdrop — class is .fi-modal-window-ctn, NOT .fi-modal-overlay */
-.fi-modal-window-ctn { background: rgba(217,234,253,0.85); }   /* light */
-.dark .fi-modal-window-ctn { background: rgba(24,24,27,0.9); } /* dark */
-
-/* L431: when a modal is open, hide topbar + sidebar */
-body:has(.fi-modal-open) :is(nav.fi-topbar,
-                              .fi-sidebar-nav,
-                              aside.fi-sidebar.fi-main-sidebar.fi-sidebar-open) {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transition: opacity 0.2s ease-out;
-}
-/* L421-429: badge + scrollbar hidden while modal open */
-```
-
-### `.fi-tabs` / `.fi-tabs-item` (L474 / L496)
-
-```css
-.fi-tabs {
-  display: flex;
-  overflow-x: auto;
-  border-radius: 12px;
-  scrollbar-width: thin;
-  padding: 4px;
-}
-.fi-tabs-item {
-  color: var(--custom-fourth) !important;
-  transition: all 0.3s var(--md-motion);
-  border-radius: 8px;
-}
-.fi-tabs-item:hover {
-  background-color: var(--custom-neutral-light);
-  box-shadow: var(--md-elevation-1);
-}
-.fi-tabs-item.fi-active {
-  background-image: var(--gradient-secondary);
-  box-shadow: var(--md-elevation-1);
-}
-.dark .fi-tabs-item.fi-active {
-  background-image: var(--gradient-google-deep);
-  color: var(--google-first-light);
-}
-```
-
-### `.tb-badge` (L437) — backs the `tabBadge()` PHP helper
-
-```css
-.tb-badge {
-  display: inline-flex;
-  margin-left: 0.5rem;
-  padding: 0.25rem 0.6rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 6px;
-  border: 1px solid;
-}
-.tb-info    { /* blue   */ background-color: rgb(239 246 255) !important; color: rgb(29 78 216) !important;  border-color: rgb(29 78 216 / 0.1) !important; }
-.tb-success { /* green  */ background-color: rgb(240 253 244) !important; color: rgb(21 128 61) !important;  border-color: rgb(22 163 74 / 0.2) !important; }
-.tb-warning { /* amber  */ background-color: rgb(254 252 232) !important; color: rgb(133 77 14) !important;  border-color: rgb(202 138 4 / 0.2) !important; }
-.tb-danger  { /* red    */ background-color: rgb(254 242 242) !important; color: rgb(185 28 28) !important;  border-color: rgb(220 38 38 / 0.1) !important; }
-```
-
-The background is a solid pale tint (not an alpha of the accent color), and `border-color` — not `background` — carries the alpha channel. `success`/`warning` also use a *different* RGB triplet for the border than for the text (`22 163 74` / `202 138 4`), not a reused one.
-
-### Custom scrollbar (L748–828)
-
-- 8px wide; track `var(--custom-second)` (dark `var(--google-first-dark)`); thumb `var(--custom-third)` (dark `var(--google-third-dark)`).
-- Inline SVG arrow buttons (`fill='%23888'`); corner transparent.
-- Reduced-motion (L820–828) disables the thumb transition.
-
-### `.fi-sc-text` (L606)
-
-```css
-.fi-sc-text::before {
-  content: '';
-  width: 2px;
-  height: …;
-  background: var(--gradient-accent);
-}
-.dark .fi-sc-text::before { background: var(--gradient-brand); }
-.fi-sc-text:hover::before { width: 3px; height: 100%; }
-```
+| Selector | Behavior | Non-obvious gotcha |
+|---|---|---|
+| `.fi-body` | Body bg: `--custom-first` + radial gradient light, `--filament-dark` + radial dark. Light-only `gradient-shift` animation, gated behind `prefers-reduced-motion: no-preference`. | Dark glow uses `--custom-third-mid`, not a repeat of the light `--google-second-light` value. |
+| `.fi-topbar` | `--custom-third-mid` bg, `max-height: 20px`, `slide-in-top` entrance. | — |
+| `.fi-sidebar-item > a` | `--gradient-neutral` bg; hover → `translateX(3px)` + `--custom-neutral` + elevation-1. | Dark mode drops the gradient for a flat `--filament-dark-mid`. |
+| `.fi-sidebar-item.fi-active > a::before` | 🔹 (U+1F539, not 🔵) pulsing indicator dot. | — |
+| `.fi-section` | `--custom-third-light` bg + elevation-1; hover → elevation-2. | Hover elevation is suppressed inside modals and widgets (separate override rule). |
+| `.fi-ta` (tables) | Border-none + elevation-1. Header row bg lives on `.fi-ta-header-ctn` (`--custom-third-light`), the `<th>` text row is `thead > tr th` using the *solid* `--custom-third` (not `-light`), pagination is `nav.fi-ta-pagination` (`--custom-second-light`). | There is no `.fi-ta thead th` selector — it's the unscoped `thead > tr th`. |
+| `.fi-modal-window` | `--custom-neutral` bg, `border-radius: 16px`, elevation-3. Backdrop is `.fi-modal-window-ctn` (NOT `.fi-modal-overlay`): `rgba(217,234,253,.85)` light / `rgba(24,24,27,.9)` dark. | When `.fi-modal-open`, sidebar + topbar get `opacity:0; pointer-events:none` via `body:has(.fi-modal-open) :is(nav.fi-topbar, .fi-sidebar-nav, aside.fi-sidebar...)`; scrollbars hidden too. |
+| `.fi-tabs` / `.fi-tabs-item` | Flex row, `overflow-x:auto`, thin custom scrollbar. Item color `--custom-fourth`; active → `--gradient-secondary` light / `--gradient-google-deep` dark. | — |
+| `.tb-badge` (backs `tabBadge()` helper) | `.tb-info/-success/-warning/-danger` — solid pale-tint background (not an alpha of the accent), `border-color` carries the alpha channel. | `success`/`warning` use a *different* RGB triplet for border vs. text, not a reused one — check source before assuming symmetry. |
+| Custom scrollbar | 8px wide; track `--custom-second` (dark `--google-first-dark`); thumb `--custom-third` (dark `--google-third-dark`); inline SVG arrow buttons. | Reduced-motion disables the thumb transition. |
+| `.fi-sc-text` (helper text) | Gradient left-border `::before` indicator (`--gradient-accent` light / `--gradient-brand` dark); expands on hover. | — |
 
 ---
 
 ## 3. LOAD-BEARING — login CSS (DO NOT RESTRUCTURE)
 
-The login page background effect lives in `::before` / `::after` pseudo-elements on Filament's auth wrappers — **not** in the blade view. Never restructure `.fi-body .fi-simple-layout` or `.fi-simple-main` (the layout selector is always `.fi-body`-scoped; the card selector, `.fi-simple-main`, is not).
-
-### `.fi-body .fi-simple-layout` (L550)
-
-The selector is always scoped under `.fi-body` — it is never bare `.fi-simple-layout` anywhere in the file.
+The login background effect lives in `::before` / `::after` pseudo-elements on `.fi-body .fi-simple-layout` — **not** in the blade view, which has no `<video>` element. Never restructure `.fi-body .fi-simple-layout` or `.fi-simple-main`.
 
 ```css
 .fi-body .fi-simple-layout {
-  position: relative;
-  z-index: 0;
-  min-height: 100vh;
-  overflow: hidden;
-  /* light */
-  background: linear-gradient(135deg,
-    #2c313c 0%, #3a4452 30%, #f5f7f9 55%, #3a4452 80%, #2c313c 100%);
-  box-shadow: inset 0 0 220px 80px rgba(0,0,0,.28);
+  background: linear-gradient(135deg in oklch,
+    var(--custom-fourth) 0%, var(--custom-third-mid) 30%, var(--custom-first) 55%,
+    var(--custom-third-mid) 80%, var(--custom-fourth) 100%);
+  box-shadow: inset 0 0 220px 80px rgba(0,0,0,.12);
 }
-/* dark variant replaces the gradient stops with #1B1B1D… */
+.dark .fi-body .fi-simple-layout { background: var(--filament-dark); box-shadow: inset 0 0 240px 90px rgba(0,0,0,.5); }
 ```
-
-### `.fi-body .fi-simple-layout::before` (L564) — THE WEBP LOGIN BACKGROUND
 
 ```css
 .fi-body .fi-simple-layout::before {
-  position: fixed;
-  right: 0; top: 0;
-  width: 40%; height: 100vh;
-  /* light */
-  background: url("../video/2.webp") center center / cover no-repeat !important;
-  mix-blend-mode: soft-light;
-  opacity: 0.38;
-  filter: contrast(115%) brightness(96%) saturate(115%);
+  position: fixed; right: 0; top: 0; width: 45%; height: 100vh;
+  background: url("../video/2.webp") center center / cover no-repeat !important;   /* light */
+  mix-blend-mode: screen; opacity: .65;
   mask-image: linear-gradient(to left, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%);
   z-index: -1;
 }
 .dark .fi-body .fi-simple-layout::before {
   background: url("../video/1.webp") center center / cover no-repeat !important;
-  mix-blend-mode: lighten;
-  opacity: 0.28;
-  filter: contrast(120%) brightness(85%) saturate(120%) drop-shadow(0 0 20px rgba(0,180,255,.15));
+  mix-blend-mode: lighten; opacity: .28;
 }
 ```
 
-`1.webp` and `2.webp` are **static/animated WebP images** served as CSS `background-image` on `::before` — they are **NOT** HTML `<video>` elements. The path `url("../video/2.webp")` resolves after Vite build: CSS output lives in `public/build/assets/`, and two `../` hops reach `public/video/`.
+`1.webp`/`2.webp` are **static/animated WebP images** used as a CSS `background-image` on `::before` — not `<video>` elements. `url("../video/2.webp")` resolves after Vite build because CSS output lands in `public/build/assets/`, two `../` hops from `public/video/`.
 
-### `.fi-body .fi-simple-layout::after` (L719) — fractal-noise grain overlay
+`.fi-body .fi-simple-layout::after` is a fractal-noise grain overlay (inline SVG `feTurbulence`, `background-size:180px`, `mix-blend-mode: soft-light`, `opacity: .55` light / `.35` dark), animated via `grain-drift 14s linear infinite` (gated behind `prefers-reduced-motion`). Do not remove.
 
-```css
-.fi-body .fi-simple-layout::after {
-  content: '';
-  /* SVG data URI: feTurbulence baseFrequency='.85' numOctaves='2' stitchTiles='stitch' */
-  background-size: 180px;
-  mix-blend-mode: soft-light;
-  animation: grain-drift 14s linear infinite;   /* gated behind prefers-reduced-motion */
-}
-```
+`.fi-simple-main` (the login card): `position:absolute; left:15%; border-radius:16px;` elevation-2 → elevation-3 on hover.
 
-### `.fi-simple-main` (L697) — the login card
+`.fi-simple-header .fi-logo` is currently height-authoritative (`width:auto; height:3rem !important`, matching the panel's `brandLogoHeight('3rem')`) — this value has been re-tuned before; check the live file rather than trusting any specific number here.
 
-```css
-.fi-simple-main {
-  position: absolute;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: var(--md-elevation-2) !important;
-}
-.fi-simple-main:hover { box-shadow: var(--md-elevation-3) !important; }
-```
-
-**Rule:** After ANY `fi-custom.css` edit, run `npm run build` and hard-refresh (`Ctrl+Shift+R`). The login background will silently appear broken in dev otherwise.
+`.fi-login-brand` (the login page app-name wordmark, rendered by `CustomLogin::getHeading()` wrapping `config('app.name')`) uses `font-family: "Baloo 2", …` at `font-weight: 900`. Note: `fonts.css` registers the Baloo 2 `@font-face` at `font-weight: 800` only — requesting `900` means the browser synthesizes a fake-bolder layer on top of the real 800 glyph. If the wordmark ever looks subtly off, this mismatch (900 requested vs. 800 embedded) is the first thing to check. The loader's `.ldr-letter` (§6) correctly requests `800` on both themes — `.fi-login-brand` does not currently match it.
 
 ---
 
 ## 4. `fi-custom.css` @keyframes
 
-```css
-@keyframes gradient-shift   { /* background-position 0% ↔ 100% */ }
-@keyframes jello-horizontal { /* scale3d wobble — note: defined redundantly 4× in the file */ }
-@keyframes fade-in          { /* opacity 0 → 1 */ }
-@keyframes pulse            { /* box-shadow ring expand; used by active-sidebar ::before */ }
-@keyframes slide-in-top     { /* translateY(-50px) → 0 */ }
-@keyframes slide-in-down     { /* translateY(-20px) scale(.98) → 0 */ }
-@keyframes slide-right      { /* +300% translate */ }
-@keyframes slide-left       { /* −300% translate */ }
-@keyframes slide-down       { /* vertical translate */ }
-@keyframes grain-drift      { /* background-position → 180px 180px */ }
-```
+`gradient-shift`, `jello-horizontal` (defined redundantly 4× in the file), `fade-in`, `pulse` (box-shadow ring, used by the active-sidebar `::before`), `slide-in-top`, `slide-in-down`, `slide-right`, `slide-left`, `slide-down`, `grain-drift`, plus `dr-ping` (desk-reference unread-badge pulse, unrelated to the landing page/loader systems documented here).
 
-`pulse` and the `slide-*` keyframes live in `fi-custom.css`, NOT in `landing-page.css`.
+`pulse` and the `slide-*` keyframes live in `fi-custom.css`, NOT `landing-page.css`.
 
 ---
 
-## 5. `landing-page.css` — CURRENT STATE (post-2026-07-18 enterprise redesign)
+## 5. `landing-page.css` — flat enterprise system (post-2026-07-18)
 
-This is where CLAUDE.md is badly stale. The 2026-07-18 enterprise redesign replaced the landing page's glassmorphism/3D aesthetic with a flat, data-dense, Filament-native language: bordered `bg-white dark:bg-zinc-900` surfaces, `rounded-lg` / `shadow-sm`, 150–200ms transitions, no scale/rotate/spring hover flourishes. Scope was the landing page only.
+Bordered `bg-white dark:bg-zinc-900` surfaces, `rounded-lg` / `shadow-sm`, 150–200ms transitions. No scale/rotate/spring hover flourishes, no 3D tilt. Scope is the landing page only.
 
-### Removed in the enterprise redesign — do NOT reintroduce (16 classes)
+### Removed classes — do not reintroduce
 
-The following classes are listed in CLAUDE.md's landing-page utility catalog but **DO NOT EXIST** anywhere in `landing-page.css` — they were removed in the 2026-07-18 redesign:
+`.card-3d`, `.glass`, `.tri-widget-panel`, `.shimmer-effect`, `.floating`, `.glow-orb`, `.pulse-ring`, `.shadow-elegant`, `.workflow-connector`, `.thread-path`, `.workflow-node`, `.btn-wrapper`, `.badge-float`, `.btn-gradient`, `.icon-container`, `.btn-inline` — none exist in `landing-page.css`/`fi-custom.css` (confirmed via grep). `.glow-orb` does still exist verbatim inside `resources/views/errors/404.blade.php`'s own self-contained `<style>` block — that page is a standalone document outside the Filament panel/landing page, so it's not a counter-example.
 
-- `.card-3d`
-- `.glass`
-- `.tri-widget-panel`
-- `.shimmer-effect`
-- `.floating`
-- `.glow-orb`
-- `.pulse-ring`
-- `.shadow-elegant`
-- `.workflow-connector`
-- `.thread-path`
-- `.workflow-node`
-- `.btn-wrapper`
-- `.badge-float`
-- `.btn-gradient`
-- `.icon-container`
-- `.btn-inline`
-
-Future agents must NOT reintroduce or reference these as if they exist — within `landing-page.css` / `fi-custom.css`, i.e. the two-system token bridge this doc describes.
-
-Caveat: `.glow-orb` does still exist verbatim in `resources/views/errors/404.blade.php`, inside that page's own self-contained `<style>` block. The 404 page is a standalone `<!DOCTYPE html>` document (its own Google-Fonts/CDN links, no `@extends`/`@vite`) — it is not part of the Filament panel or the landing page, so it never touches `fi-custom.css` or `landing-page.css`. "Zero references" above means zero within the two-system token bridge, not zero in the repository.
-
-### Nonexistent keyframes (CLAUDE.md is stale here too)
-
-CLAUDE.md's landing-page keyframes list (`float, glow, shimmer, pulse-ring, pulse, fadeSlide, slide, draw-thread, pulse-amber`) is **WRONG** — none of those exist in `landing-page.css`. The only keyframes in `landing-page.css` are the 8 loader keyframes (see §6). (`pulse` / `slide-*` exist in `fi-custom.css`.)
-
-### Classes that DO exist in `landing-page.css`
+### Classes that exist
 
 | Class | Notes |
 |---|---|
-| `.widget` (L160) | Just `direction: ltr; position: relative;` — a 2-declaration utility, NOT a glass panel. |
-| `.loader-overlay` + all `.ldr-*` | Loader system. See §6. Byte-for-byte untouched by constraint. |
-| `.light` (L38) / `.dark` (L43) | Soft top/bottom ellipse radial-gradient glow — **NOT a dot-grid**. The dot-grid is ONLY on `.ldr-grid` (loader). |
-| `.lp-surface` / `.lp-surface-hover` / `.lp-bar` / `.lp-divider` / `.lp-tab` / `.lp-tab-active` (L48–126) | Flat surface tokens for the enterprise landing UI — the underline tab switcher is `.lp-tab` / `.lp-tab-active`, there is no bare `.tab` / `.tab-active`. |
-| `.lp-panel` / `.lp-well` (added 2026-07-19) | Nested-depth tokens for content inside an `.lp-surface` card (e.g. the Customize tab's accordion body in `workspace.blade.php`). `.lp-panel` = `--custom-third-mid` light / `--google-second-dark` dark (one step up in tone from `.lp-surface`'s own bg — reuses `.lp-bar`'s light tone and `.lp-tab:hover`'s dark tone, so it doesn't introduce a new color, just reuses existing ones in a new role). `.lp-well` = `--custom-neutral-light` light / `--google-first-dark` dark, one step further recessed, for scrollable result lists sitting inside an `.lp-panel`. Neither carries its own `box-shadow` — depth here is tonal only, the parent `.lp-surface` keeps the elevation. |
-| `.lp-float` (added 2026-07-19) | Opaque surface for **floating/overlay** landing-page elements (currently only the tri-widget popover in `widget.blade.php`) — NOT for inline cards, use `.lp-surface` for those. `.lp-surface`'s light-mode bg (`--custom-third-light`) is translucent (`rgba(…, 0.4)`), which is fine for a card sitting on the page's own gradient bg but causes underlying page content to bleed through a `fixed`-position popover. `.lp-float` mirrors Filament's own `.fi-modal-window` fix for the identical problem: solid `--custom-neutral` light / `--filament-dark-mid` dark (dark was already opaque; only light mode actually changes), `--md-elevation-3` (highest, matching modal elevation since it's the topmost floating layer). |
+| `.widget` | Just `direction: ltr; position: relative;` — a 2-declaration utility, not a glass panel. |
+| `.loader-overlay` + `.ldr-*` | Loader system — see §6. |
+| `.light` / `.dark` | Soft top/bottom ellipse radial-gradient glow — not a dot-grid (the dot-grid is `.ldr-grid`, loader-only). |
+| `.lp-surface` / `.lp-surface-hover` / `.lp-bar` / `.lp-divider` / `.lp-tab` / `.lp-tab-active` | Flat surface tokens for the enterprise landing UI. The underline tab switcher is `.lp-tab` / `.lp-tab-active` — there is no bare `.tab` / `.tab-active`. |
+| `.lp-panel` / `.lp-well` | Nested-depth surfaces inside an `.lp-surface` card. `.lp-panel` = `--custom-third-mid` light / `--google-second-dark` dark. `.lp-well` = `--custom-neutral-light` light / `--google-first-dark` dark, one step further recessed. Neither carries its own `box-shadow` — the parent `.lp-surface` keeps the elevation. |
+| `.lp-float` | Opaque surface for floating/overlay elements (tri-widget popover). `--custom-neutral` light / `--filament-dark-mid` dark, elevation-3 — solid (unlike `.lp-surface`'s translucent bg) so page content doesn't bleed through a `fixed`-position popover. |
+| `.lp-dock-pulse` | `--google-fourth-light`/`-dark` — small activity-indicator dot color (tri-widget dock). |
+| `.lp-insight-flag` | Pill badge (Workflow tab tip callouts); its `svg` runs `bulbPulse` (opacity pulse), disabled under reduced-motion. |
+| `.lp-ticker` | Auto-rotating tips strip at the bottom of the Workflow tab. `overflow:hidden; white-space:nowrap`; each tip is an absolutely-positioned `x-show="i === rotateIdx"` button that cross-fades — row never wraps, height stays fixed. Gated by `x-show="tips.length >= 2"` in the `workflow()` Alpine scope. |
 | `.truncate-2` | 2-line clamp. |
-| `.input-inline` | Inline form input. |
-| `.chip` | Resource selector chip (workspace). |
-| `.range` | Custom range input. |
-| `.custom-scrollbar` | Local scrollbar utility. |
-| `.stepper-connector` | Workflow stepper connector line. |
-| `.ldr-slogan-hard` / `.ldr-slogan-smart` / `.ldr-cm` / `.ldr-status-icon` | Loader text/mark decorations. |
+| `.input-inline` / `.chip` / `.range` / `.custom-scrollbar` / `.stepper-connector` | Inline form input / workspace resource chip / custom range input / local scrollbar utility / workflow stepper connector line. |
+| `.ldr-slogan-hard` / `.ldr-slogan-smart` / `.ldr-cm` / `.ldr-status-icon` | Loader text/mark decorations — see §6. |
 
-### Accent truth (CLAUDE.md overstates this)
+### Accent scope
 
-The CLAUDE.md claim "indigo-600 / cyan-400 is the single primary accent across the landing page" is **WRONG, not just overstated**. Indigo/cyan is genuinely hardcoded in exactly one place:
+Indigo `#4f46e5` (light) / cyan `#06b6d4` (dark) is hardcoded in exactly one place: `.range` (track + both thumb variants). It is not a landing-page-wide accent — the loader and tab-switcher route through the `--primary-*`/token bridge instead, not this pair.
 
-- `.range` bg `#4f46e5` light / `#06b6d4` dark (thumbs same).
+### No 5-tone semantic palette in CSS
 
-The loader is NOT indigo/cyan — it resolves through `var(--primary-*)` (Filament's panel primary color, currently `Color::Slate`; see §6 "Loader theme colors"). So indigo/cyan isn't even a "loader + form-controls" family — it's `.range`-only.
-
-There is no raw-indigo/cyan `.tab-active` class — the tab switcher is `.lp-tab-active`, and it (like `.lp-surface`, `.lp-bar`, `.light` / `.dark`) is themed via the `--custom-*` / `--google-*` token bridge (`--gradient-secondary` light / `--gradient-google-deep` dark — slate-blue + purple), NOT indigo/cyan. So indigo/cyan is strictly the loader + form-controls (`.range`) accent, nothing wider.
-
-### There is NO 5-tone semantic palette in CSS
-
-The `blue` / `green` / `yellow` / `red` / `slate` 5-tone semantic palette (for Request&Approval / Order Processing / Procurement&Payment / Logistics + `slate` for master data) is a **Blade/PHP** concern — `SearchService::THEME` (`app/Services/SearchService.php`) defines exactly these 5 keys, and `workflow.blade.php`'s `$accent` array / `workspace.blade.php`'s per-module `'accent'` values reuse the same 4+1 names. It is not expressed in `landing-page.css` at all. (Note: CLAUDE.md's Workflow Tab section uses looser color names — "green", "amber", "purple" — for the same 4 stages; the actual Tailwind keys in code are `green`, `yellow`, `red`.)
+The `blue`/`green`/`yellow`/`red` (4 pipeline stages) + `slate` (master data) palette is a **Blade/PHP** concern — `SearchService::THEME` defines the keys, reused by `workflow.blade.php`'s `$accent` array and `workspace.blade.php`'s per-module `'accent'` values. Not expressed in CSS at all; don't add it there.
 
 ### Font setup
 
@@ -507,54 +207,41 @@ The `blue` / `green` / `yellow` / `red` / `slate` 5-tone semantic palette (for R
 :root {
   --font-default: "Roboto", system-ui, …;
   --font-fa:      "IranYekan", …;
+  --font-brand:   "Baloo 2", "Segoe UI", system-ui, …;
 }
 html[lang="fa"] { --font-default: var(--font-fa); }
 body     { font-family: var(--font-default); }
 .fi-body { font-family: var(--font-fa); }
 ```
 
-`resources/css/layout/fonts.css` declares `@font-face` for Roboto (woff2/woff) and IranYekan (woff/ttf), both sourced from `/resources/fonts/`.
+`--font-brand` (declared in `landing-page.css :root`, not `fi-custom.css`) is opt-in, used only where the app name renders as literal text (`.ldr-letter`, `.fi-login-brand`) — Roboto/IranYekan ship a single `normal`-weight `@font-face` and can't produce a genuine heavy glyph. Baloo 2 is self-hosted at exactly `font-weight: 800`; requesting a different weight against it triggers synthetic (fake) bolding.
 
 ---
 
-## 6. Loader system (`landing-page.css` L293–356) — BYTE-FOR-BYTE UNTOUCHED
+## 6. Loader system (`landing-page.css`, `.ldr-*` block)
 
-The loader is frozen by explicit constraint. Do not modify it.
+Rules are scoped `.light .ldr-*` / `.dark .ldr-*`, not bare — same ancestor-class theming convention used throughout the file (distinct from Tailwind `dark:`, which `header.blade.php` uses instead).
 
-| Class | Definition |
+| Class | Notes |
 |---|---|
-| `.loader-overlay` | fixed inset:0; z-index:9999; flex center; perspective:1000px |
-| `.ldr-grid` | dot-grid; `lGrid 2s ease-out forwards` |
-| `.ldr-scan` | 1px horizontal scan line; `lScan 2.6s ease-in-out .5s infinite` |
-| `.ldr-glow` | 380×140 radial ellipse; `lGlow 2.4s ease-in-out .8s infinite` |
-| `.ldr-c` + `.ldr-c-tl/tr/bl/br` | 30×30 corner brackets; staggered .05/.1/.15/.2s; `lCorner .7s cubic-bezier(.23,1,.32,1) forwards` |
-| `.ldr-eyebrow` | mono `.48rem`; letter-spacing `.44em`; `lUp` |
-| `.ldr-letter` | inline-block; `clamp(4.5rem, 12vw, 7.5rem)`; `lIn .65s cubic-bezier(.23,1,.32,1) both`; delay `calc(.28s + var(--i) * .07s)` (stagger via `--i`) |
-| `.ldr-subtitle` | mono `.5rem`; letter-spacing `.35em`; `lSub .85s .52s` |
-| `.ldr-divider` / `.ldr-track` / `.ldr-fill` | progress track + fill; `.ldr-fill` is `scaleX(0) → 1`; `lFill 2s .85s` |
-| `.ldr-fill::after` | 5px glowing dot |
-| `.ldr-status` | mono `.42rem`; letter-spacing `.26em` |
-| `.ldr-slogan-hard` + `::after` | strikethrough red diagonal; rotate 8deg |
-| `.ldr-slogan-smart` | amber |
-| `.ldr-cm` | inline-block "CM" mark; `lIn` |
-| `.ldr-status-icon` | status icon |
+| `.loader-overlay` | `fixed inset:0; z-index:9999`, flex-centered, `perspective:1000px`. |
+| `.ldr-grid` / `.ldr-scan` / `.ldr-glow` | Dot-grid, horizontal scan line, central glow — `lGrid`/`lScan`/`lGlow`. |
+| `.ldr-c` + `.ldr-c-tl/tr/bl/br` | Corner brackets, staggered entrance via `lCorner`. |
+| `.ldr-eyebrow` | Mono label, wide letter-spacing, `lUp`. |
+| `.ldr-mark` + `.ldr-mark-img` | Brand mark lockup between eyebrow and wordmark. Two `<img>`s (`.ldr-mark-light`/`.ldr-mark-dark`, `config('app.branding.logo.*')`), one hidden per theme (`.light .ldr-mark-dark{display:none}` etc.) — the same `.light .x`/`.dark .x` convention, not Tailwind `dark:`. |
+| `.ldr-letter` | `font-family: var(--font-brand)`, `font-weight: 800` in **both** themes (correctly matches the 800-only `@font-face` — contrast with `.fi-login-brand`'s mismatch, §3). Staggered via `--i` CSS var, `lIn`. |
+| `.ldr-subtitle` | CSS exists but the element isn't rendered in `loader.blade.php` (removed in the 2026-07-18 redesign) — dead but harmless. |
+| `.ldr-divider` / `.ldr-track` / `.ldr-fill` | Progress bar; `.ldr-fill` scales `0 → 1` via `lFill`; `::after` is a 5px glowing dot. |
+| `.ldr-status` | Status text line. |
+| `.ldr-slogan-hard` + `::after` | Strikethrough diagonal (the "~~hard~~" wordplay). |
+| `.ldr-slogan-smart` | Complementary accent color. |
+| `.ldr-cm` | Leftover pre-rebrand "CM" mark class — not rendered by current `loader.blade.php`; don't assume it exists as a live element. |
 
-### 2900ms auto-hide is NOT in CSS
+**2900ms auto-hide is not CSS** — it's Alpine `x-init="setTimeout(...)"` in `landing-page.blade.php` and `loader.blade.php` (writes `sessionStorage['bms_loaded']`).
 
-It lives in Alpine `x-init` in two blade files:
+**Theme colors are not hardcoded indigo/cyan** — every loader color routes through `color-mix(in oklab, var(--primary-600|400) X%, transparent)` (or `var(--primary-900)`/`var(--primary-50)` for the letters), tracking Filament's panel `--primary` color (`Color::Slate` in `DashboardPanelProvider.php`) — so the loader currently renders in slate tones, not indigo/cyan.
 
-- `resources/views/components/filament/landing-page.blade.php:36` — `setTimeout(() => appReady = true, 2900)`
-- `resources/views/components/filament/landing-page/loader.blade.php:4` — `setTimeout(() => { showing = false; sessionStorage.setItem('bms_loaded', '1') }, 2900)`
-
-### Loader theme colors
-
-Not hardcoded indigo/cyan — every loader color is `color-mix(in oklab, var(--primary-600|400) X%, transparent)` (or `var(--primary-900)` / `var(--primary-50)` for the letters), i.e. it tracks Filament's panel `--primary` color scale. `app/Providers/Filament/DashboardPanelProvider.php` sets `'primary' => Color::Slate`, so the loader currently renders in slate tones in both themes, not indigo/cyan. Light mode uses the `-600`/`-900` steps, dark mode uses `-400`/`-50`.
-
-### Loader @keyframes (L349–356) — the ONLY keyframes in `landing-page.css`
-
-`lIn`, `lUp`, `lSub`, `lFill`, `lScan`, `lCorner`, `lGlow`, `lGrid`.
-
-Reduced-motion disables `.ldr-scan` and `.ldr-glow`.
+**Keyframes**: `lIn`, `lUp`, `lSub`, `lFill`, `lScan`, `lCorner`, `lGlow`, `lGrid` — plus `bulbPulse` (used by `.lp-insight-flag`, §5), which is easy to miss since it's declared outside the loader block. Reduced-motion disables `.ldr-scan`/`.ldr-glow`/`bulbPulse`.
 
 ---
 
@@ -562,39 +249,36 @@ Reduced-motion disables `.ldr-scan` and `.ldr-glow`.
 
 | When you need to… | Do this… | Why… |
 |---|---|---|
-| Change a panel color | Edit the relevant `--custom-*` / `--google-*` token in `fi-custom.css :root`. | The token bridge re-themes both the Filament panel and the landing page in one move. |
-| Add a new panel surface override | Target the Filament `.fi-*` class in `fi-custom.css`; consume tokens, never hex. | Keeps the token bridge intact; future rethemes stay single-point. |
-| Add a landing-page-only utility class | Add it to `landing-page.css`; reuse `--custom-*` / `--google-*` for color. | Prevents a third CSS system from forking the token layer. |
-| Add a motion | Put the `@keyframes` in the file it belongs to (`fi-custom.css` for panel, `landing-page.css` for landing/loader). Keeps the keyframes block at the bottom of that file. | Matches the existing split; avoids cross-file motion coupling. |
-| Add a form-control accent on the landing page | Use indigo `#4f46e5` (light) / cyan `#06b6d4` (dark), matching `.range`. | That is the one place indigo/cyan is genuinely hardcoded; the loader itself tracks `var(--primary-*)`, not this pair — do not conflate the two. |
-| Color a workflow/workspace stage | Use the 5-tone Blade/PHP palette: `blue`/`green`/`yellow`/`red` for the 4 operational stages, `slate` for master data. Do NOT express this in CSS. | The semantic palette is a PHP concern (`SearchService::THEME`, `$modules`, `$steps`); CSS stays neutral. |
-| Change the login background | Do not. If absolutely forced: edit `.fi-body .fi-simple-layout::before` in `fi-custom.css`, keep the `url("../video/N.webp")` path, then `npm run build` + `Ctrl+Shift+R`. | The WebP `::before` is load-bearing; the path resolves only after Vite build. |
-| Add a JS-driven visual effect on the landing page | Don't. Use CSS-only. The Three.js background was removed intentionally. | The enterprise redesign traded GPU/JS cost for a cheap CSS-only surface. |
+| Change a panel color | Edit the relevant `--custom-*`/`--google-*` token in `fi-custom.css :root`. | Re-themes both systems in one move. |
+| Add a new panel surface override | Target the Filament `.fi-*` class in `fi-custom.css`; consume tokens, never hex. | Keeps the token bridge intact. |
+| Add a landing-page-only utility class | Add it to `landing-page.css`; reuse `--custom-*`/`--google-*` for color. | Prevents a third CSS system forking the token layer. |
+| Add a motion | Put `@keyframes` in the file it belongs to (panel → `fi-custom.css`, landing/loader → `landing-page.css`). | Matches the existing split. |
+| Add a form-control accent on the landing page | Use `#4f46e5` (light) / `#06b6d4` (dark), matching `.range`. | The one place indigo/cyan is genuinely hardcoded — the loader tracks `var(--primary-*)` instead, don't conflate the two. |
+| Color a workflow/workspace stage | Use the Blade/PHP palette (`SearchService::THEME`) — don't express it in CSS. | Avoids a second source of truth. |
+| Change the login background | Don't, if avoidable. If forced: edit `.fi-body .fi-simple-layout::before`, keep the `url("../video/N.webp")` path, then rebuild + hard-refresh. | The WebP `::before` is load-bearing; the path only resolves after `npm run build`. |
+| Add a JS-driven visual effect on the landing page | Don't — CSS-only. | The Three.js background was removed intentionally to cut GPU/JS cost. |
 
 ---
 
-## Absolute Anti-Patterns (Do Not Do This)
+## Absolute Anti-Patterns
 
-- ❌ **Hardcode a hex that already has a `--custom-*` / `--google-*` token.** Why: breaks the token bridge; a future retheme leaves your element behind.
-- ❌ **Declare a third color-token layer in `landing-page.css`.** Why: `landing-page.css` must consume `fi-custom.css :root` tokens, not invent its own. The dual-system-with-shared-tokens hallmark depends on this.
-- ❌ **Reintroduce `.glass`, `.card-3d`, `.shimmer-effect`, `.floating`, `.glow-orb`, `.badge-float`, `.workflow-connector`, `.thread-path`, `.workflow-node`, `.tri-widget-panel`, `.btn-wrapper`, `.btn-gradient`, `.icon-container`, `.btn-inline`, `.pulse-ring`, `.shadow-elegant`.** Why: all 16 were removed in the 2026-07-18 enterprise redesign; the landing page is now flat and data-dense. Reintroducing them re-imports the dead 3D/glass aesthetic.
-- ❌ **Reference the nonexistent landing-page keyframes (`float`, `glow`, `shimmer`, `pulse-ring`, `pulse`, `fadeSlide`, `slide`, `draw-thread`, `pulse-amber`) as if they live in `landing-page.css`.** Why: CLAUDE.md lists them but they were removed/never existed there. Only the 8 `l*` loader keyframes exist in `landing-page.css`.
-- ❌ **Put `pulse` / `slide-*` keyframes in `landing-page.css`.** Why: they live in `fi-custom.css`. Duplicating them forks motion.
-- ❌ **Reintroduce `resources/js/3d.min.js` or `resources/js/landing-page.js`, or add them to `vite.config.js` input / `viteStaticCopy`.** Why: removed in the enterprise redesign; zero references. The full-screen Three.js torus is gone by design.
-- ❌ **Touch the loader (`loader.blade.php` + all `.ldr-*` CSS/keyframes).** Why: frozen by explicit constraint.
-- ❌ **Restructure `.fi-body .fi-simple-layout` / `.fi-simple-main` or remove their `::before` / `::after` pseudo-elements.** Why: the login background effect lives entirely in those pseudo-elements; the blade view has no `<video>`. Restructuring breaks the WebP path resolution.
-- ❌ **Use a scale/rotate/spring hover flourish on the landing page.** Why: the enterprise redesign established 150–200ms transitions only; no 3D tilt, no spring.
-- ❌ **Put `will-change` on elements that are not GPU-accelerated (`transform` / `opacity`).** Why: project coding-philosophy rule; misuse causes layer explosions.
-- ❌ **Duplicate a utility class that already exists in `landing-page.css` or `fi-custom.css`.** Why: project coding-philosophy rule.
-- ❌ **Treat the `blue`/`green`/`yellow`/`red`/`slate` palette as a CSS concern.** Why: it is Blade/PHP only; putting it in CSS would duplicate the source of truth (`SearchService::THEME`, `$modules`, `$steps`).
+- ❌ Hardcode a hex that already has a `--custom-*`/`--google-*` token — breaks the token bridge for future rethemes.
+- ❌ Declare a third color-token layer in `landing-page.css` — it must consume `fi-custom.css :root` tokens, never invent its own.
+- ❌ Reintroduce any of the 16 removed landing-page classes (§5) — reimports the dead 3D/glass aesthetic.
+- ❌ Reference `float`/`glow`/`shimmer`/`pulse-ring`/`fadeSlide`/`slide`/`draw-thread`/`pulse-amber` as if they exist in `landing-page.css` — they don't; only the loader keyframes + `bulbPulse` do (§6).
+- ❌ Put `pulse`/`slide-*` keyframes in `landing-page.css` — they live in `fi-custom.css`.
+- ❌ Reintroduce `resources/js/3d.min.js` / `resources/js/landing-page.js` or add them back to `vite.config.js`.
+- ❌ Restructure `.fi-body .fi-simple-layout`/`.fi-simple-main` or remove their `::before`/`::after` — the login background lives entirely there; the blade view has no `<video>`.
+- ❌ Use a scale/rotate/spring hover flourish on the landing page — the enterprise redesign is 150–200ms transitions only.
+- ❌ Put `will-change` on elements not using GPU-accelerated properties (`transform`/`opacity`) — project coding-philosophy rule.
+- ❌ Duplicate a utility class that already exists in `landing-page.css` or `fi-custom.css`.
 
 ---
 
 ## Load-bearing warnings
 
-1. **`fi-custom.css` is load-bearing.** Any edit → `npm run build` + hard-refresh (`Ctrl+Shift+R`). Dev-mode CSS will silently appear broken otherwise (especially the login WebP background).
-2. **`.fi-body .fi-simple-layout::before` is the login background.** The WebP images (`resources/video/1.webp` dark, `2.webp` light) are CSS `background-image`, not `<video>` elements. The `url("../video/N.webp")` path resolves only after Vite build (CSS in `public/build/assets/`, two `../` hops reach `public/video/`). Never restructure this pseudo-element.
-3. **`.fi-body .fi-simple-layout::after` is the fractal-noise grain overlay** (`feTurbulence baseFrequency='.85' numOctaves='2' stitchTiles='stitch'`, `background-size:180px`, `grain-drift 14s linear infinite`). Do not remove.
-4. **The token bridge is the only bridge.** `fi-custom.css :root` is the single point of theme truth for both CSS systems. Do not fork it, do not shadow it in `landing-page.css`.
-5. **The loader (`.ldr-*` CSS + `loader.blade.php`) is frozen byte-for-byte by constraint.** The 2900ms auto-hide lives in Alpine `x-init`, not CSS.
-6. **The 2026-07-18 enterprise redesign removed 16 utility classes and the Three.js background.** CLAUDE.md's landing-page utility catalog and keyframes list are stale. This doc is authoritative for the current state.
+1. **`fi-custom.css` is load-bearing. Any edit → `npm run build` + hard-refresh (`Ctrl+Shift+R`).** Dev-mode CSS can silently appear broken otherwise (especially the login WebP background).
+2. **`.fi-body .fi-simple-layout::before` is the login background** (§3). Never restructure this pseudo-element.
+3. **`.fi-body .fi-simple-layout::after` is the fractal-noise grain overlay.** Do not remove.
+4. **The token bridge is the only bridge.** `fi-custom.css :root` is the single point of theme truth for both CSS systems — do not fork or shadow it.
+5. **The loader is not frozen** — it has been edited since (brand mark, wordmark font) and will be again. Verify against the live file before assuming any specific value here.

@@ -14,7 +14,7 @@ trait PreparesPurchaseOrderFromProforma
             $proformaInvoice = ProformaInvoice::with(['items.product.specifications'])->find($proformaInvoiceId);
 
             if ($proformaInvoice) {
-                $items = $proformaInvoice->items->map(fn($item) => [
+                $items = $proformaInvoice->items->map(fn ($item) => [
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity ?? 0,
                     'unit' => $item->unit ?? null,
@@ -26,7 +26,7 @@ trait PreparesPurchaseOrderFromProforma
                         2,
                         '.',
                         ''
-                    )
+                    ),
                 ])->toArray();
 
                 $this->form->fill([
@@ -35,7 +35,7 @@ trait PreparesPurchaseOrderFromProforma
                     'seller_id' => $proformaInvoice->seller_id ?? null,
                     'buyer_id' => $proformaInvoice->buyer_id ?? null,
                     'currency_id' => $proformaInvoice->main_currency_id ?? null,
-                    'incoterms' => $proformaInvoice-> delivery_terms ?? null,
+                    'incoterms' => $proformaInvoice->delivery_terms ?? null,
                     'po_number' => CodeGenerator::generate('po_number'),
                     'order_date' => now()->toDateString(),
                     'items' => $items,

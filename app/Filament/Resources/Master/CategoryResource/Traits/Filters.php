@@ -33,7 +33,7 @@ trait Filters
                     ->mapWithKeys(fn (int $lvl) => [
                         $lvl => $lvl === 0
                             ? Level::BASE->getLabel()
-                            : Level::fromLevel($lvl)->getLabel() ?? (string) $lvl
+                            : Level::fromLevel($lvl)->getLabel() ?? (string) $lvl,
                     ])->all()
             ))
             ->placeholder(__('resources/category/strings.filters.level_placeholder'));
@@ -57,19 +57,18 @@ trait Filters
         );
     }
 
-
     public static function getActiveFilter(): TernaryFilter
     {
         return TernaryFilter::make('active')
-            ->label(__('resources/category/strings.table.active'))
-            ->trueLabel(__('resources/category/strings.table.active'))
-            ->falseLabel(__('resources/category/strings.table.inactive'));
+            ->label(__('resources/category/strings.filters.active'))
+            ->trueLabel(__('resources/category/strings.filters.active'))
+            ->falseLabel(__('resources/category/strings.filters.inactive'));
     }
 
     public static function getCreatorFilter(): SelectFilter
     {
         return SelectFilter::make('user_id')
-            ->label(__('resources/category/strings.table.creator'))
+            ->label(__('resources/category/strings.filters.creator'))
             ->relationship('creator', 'name')
             ->searchable()
             ->preload();
@@ -78,7 +77,7 @@ trait Filters
     public static function getUpdaterFilter(): SelectFilter
     {
         return SelectFilter::make('updated_by_id')
-            ->label(__('resources/category/strings.table.updater'))
+            ->label(__('resources/category/strings.filters.updater'))
             ->relationship('updater', 'name')
             ->searchable()
             ->preload();
@@ -91,14 +90,14 @@ trait Filters
             ->schema([
                 Select::make('category_id')
                     ->label(__($labelKey))
-                    ->options(fn() => Cache::remember("filter_{$filterName}_options", now()->addMinutes(5),
-                        fn() => Category::pluck('name', 'id')->all())
+                    ->options(fn () => Cache::remember("filter_{$filterName}_options", now()->addMinutes(5),
+                        fn () => Category::pluck('name', 'id')->all())
                     )->searchable(),
             ])
-            ->query(fn($query, array $data) => $query
+            ->query(fn ($query, array $data) => $query
                 ->when(
                     $data['category_id'] ?? null,
-                    fn($q, $id) => $q->whereHas($relation, fn($q) => $q->where('id', $id))
+                    fn ($q, $id) => $q->whereHas($relation, fn ($q) => $q->where('id', $id))
                 )
             );
     }

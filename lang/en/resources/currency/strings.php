@@ -1,11 +1,20 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'Currency',
         'plural_model_label' => 'Currencies',
-        'navigation_group' => 'Master Data',
+    ],
+    'export' => [
+        'id' => 'ID',
+        'name' => 'Name (Persian)',
+        'english_name' => 'Name (English)',
+        'description' => 'Symbol',
+        'is_active' => 'Active',
+        'creator' => 'Creator',
+        'updater' => 'Updater',
+        'created_at' => 'Created At',
+        'updated_at' => 'Updated At',
     ],
     'form' => [
         'name' => 'Name (Persian)',
@@ -13,8 +22,9 @@ return [
         'description' => 'Symbol',
         'is_active' => 'Is Active?',
         'helper_is_active' => 'Toggle off to hide this currency from dropdowns without deleting its history.',
-        'creator' => 'Created By',
-        'updater' => 'Last Updated By',
+        'helper_name' => 'Enter the currency name in Persian script.',
+        'helper_english_name' => 'Enter the currency name in English letters.',
+        'helper_description' => 'Enter the currency symbol (e.g. $, €, ﷼) or a short note.',
         'validation_name_required' => 'Please enter the Persian name.',
         'validation_name' => 'Only Persian characters are allowed.',
         'validation_name_max' => 'The Persian name may not exceed 255 characters.',
@@ -22,7 +32,8 @@ return [
         'validation_english_name_required' => 'Please enter the English name.',
         'validation_english_name' => 'Only English characters are allowed.',
         'validation_english_name_max' => 'The English name may not exceed 255 characters.',
-        'validation_english_name_unique' => 'The English name already exists.'
+        'validation_english_name_unique' => 'The English name already exists.',
+        'validation_description_max' => 'The description must not exceed 65535 characters.',
     ],
     'table' => [
         'name' => 'Name (Persian)',
@@ -35,6 +46,22 @@ return [
         'updater' => 'Last Updated By',
         'created_at' => 'Date Created',
         'updated_at' => 'Last Updated',
-        'deleted_at' => 'Date Deleted',
+    ],
+    'filters' => [
+        'creator' => 'Created By',
+        'updater' => 'Last Updated By',
+        'is_active' => 'Status',
+        'only_active' => 'Only Active',
+        'only_inactive' => 'Only Inactive',
+    ],
+    'infolist' => [
+        'name' => 'Name (Persian)',
+        'english_name' => 'Name (English)',
+        'description' => 'Symbol',
+        'is_active' => 'Is Active?',
+        'creator' => 'Created By',
+        'updater' => 'Last Updated By',
+        'created_at' => 'Date Created',
+        'updated_at' => 'Last Updated',
     ],
 ];

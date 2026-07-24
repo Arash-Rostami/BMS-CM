@@ -16,8 +16,8 @@ trait Table
         return TextColumn::make('bank.name')
             ->label(__('resources/bankProfile/strings.table.bank'))
             ->sortable()
-            ->searchable(query: fn(Builder $query, string $search) => $query->whereHas('bank', fn($q) => $q->searchByName($search)))
-            ->formatStateUsing(fn($record): ?string => $record->bank?->getLocalizedNameAttribute())
+            ->searchable(query: fn (Builder $query, string $search) => $query->whereHas('bank', fn ($q) => $q->searchByName($search)))
+            ->formatStateUsing(fn ($record): ?string => $record->bank?->getLocalizedNameAttribute())
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -29,7 +29,7 @@ trait Table
             ->badge()
             ->copyable()
             ->sortable()
-            ->tooltip(fn($record) => '🔗 ' . $record->registeredOrder?->contract_no ?? $record->registeredOrder?->ro_number);
+            ->tooltip(fn ($record) => '🔗 '.$record->registeredOrder?->contract_no ?? $record->registeredOrder?->ro_number);
     }
 
     public static function showCompany(): TextColumn
@@ -37,8 +37,8 @@ trait Table
         return TextColumn::make('company.name')
             ->label(__('resources/bankProfile/strings.table.company'))
             ->sortable()
-            ->searchable(query: fn(Builder $query, string $search) => $query->whereHas('company', fn($q) => $q->searchByName($search)))
-            ->formatStateUsing(fn($record): ?string => $record->company?->getLocalizedNameAttribute())
+            ->searchable(query: fn (Builder $query, string $search) => $query->whereHas('company', fn ($q) => $q->searchByName($search)))
+            ->formatStateUsing(fn ($record): ?string => $record->company?->getLocalizedNameAttribute())
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -83,7 +83,7 @@ trait Table
         return TextColumn::make('id')
             ->label(__('resources/bankProfile/strings.table.id'))
             ->sortable()
-            ->searchable(query: fn(Builder $query, string $search): Builder => $query->where('bank_profiles.id', 'like', "%{$search}%"))
+            ->searchable(query: fn (Builder $query, string $search): Builder => $query->where('bank_profiles.id', 'like', "%{$search}%"))
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -92,12 +92,12 @@ trait Table
         return TextColumn::make('registeredOrder.ro_number')
             ->label(__('resources/bankProfile/strings.table.registered_order'))
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas(
+                query: fn (Builder $query, string $search) => $query->whereHas(
                     'registeredOrder',
-                    fn(Builder $q) => $q->searchAll($search)
+                    fn (Builder $q) => $q->searchAll($search)
                 ), isIndividual: true)
             ->sortable()
-            ->tooltip(fn(Model $record) => ' 💼 ' .$record->registeredOrder?->contract_no ?? ' ')
+            ->tooltip(fn (Model $record) => ' 💼 '.$record->registeredOrder?->contract_no ?? ' ')
             ->iconPosition(IconPosition::Before)
             ->icon('heroicon-o-document-check')
             ->badge()
@@ -111,11 +111,11 @@ trait Table
             ->label(__('resources/bankProfile/strings.table.status'))
             ->badge()
             ->sortable()
-            ->searchable(query: fn(Builder $query, string $search) => $query->orWhereHas('status', fn($q) => fn($q) => $q->searchByName($search)))
-            ->formatStateUsing(fn($record): ?string => $record->status?->getLocalizedNameAttribute())
+            ->searchable(query: fn (Builder $query, string $search) => $query->orWhereHas('status', fn ($q) => fn ($q) => $q->searchByName($search)))
+            ->formatStateUsing(fn ($record): ?string => $record->status?->getLocalizedNameAttribute())
             ->iconPosition(IconPosition::Before)
-            ->icon(fn($record): ?string => Status::tryFrom($record->status?->english_name)?->getIcon() ?? 'heroicon-o-question-mark-circle')
-            ->color(fn($record): string => Status::tryFrom($record->status?->english_name)?->getColor() ?? 'gray');
+            ->icon(fn ($record): ?string => Status::tryFrom($record->status?->english_name)?->getIcon() ?? 'heroicon-o-question-mark-circle')
+            ->color(fn ($record): string => Status::tryFrom($record->status?->english_name)?->getColor() ?? 'gray');
     }
 
     public static function showTargetable(): TextColumn
@@ -123,13 +123,16 @@ trait Table
         return TextColumn::make('targetable.name')
             ->label(__('resources/bankProfile/strings.table.targetable'))
             ->sortable(['targetable_type', 'targetable_id'])
-            ->searchable(true, fn($query, string $search) => $query->SearchTargetable($search), false)
+            ->searchable(true, fn ($query, string $search) => $query->SearchTargetable($search), false)
             ->formatStateUsing(function (Model $record) {
-                if (!$record->targetable) return '-';
+                if (! $record->targetable) {
+                    return '-';
+                }
+
                 return $record->targetable_type === Product::class ? $record->targetable?->customized_label ?? $record->targetable?->getLocalizedNameAttribute() : $record->targetable?->getLocalizedNameAttribute();
             })
             ->badge()
-            ->color(fn($record) => $record->targetable_type === Product::class ? 'success' : 'warning')
+            ->color(fn ($record) => $record->targetable_type === Product::class ? 'success' : 'warning')
             ->toggleable(isToggledHiddenByDefault: true);
     }
 

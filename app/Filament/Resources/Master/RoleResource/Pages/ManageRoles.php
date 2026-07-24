@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Master\RoleResource\Pages;
 
+use App\Filament\Pages\ManageRecords;
 use App\Filament\Resources\RoleResource;
 use App\Models\Role;
 use Filament\Actions\CreateAction;
-use App\Filament\Pages\ManageRecords;
 
 class ManageRoles extends ManageRecords
 {
@@ -17,7 +17,8 @@ class ManageRoles extends ManageRecords
             CreateAction::make()
                 ->icon('heroicon-o-sparkles')
                 ->mutateDataUsing(function (array $data): array {
-                    $data['name'] = $data['name'] . '_' . $data['grade'];
+                    $data['name'] = $data['name'].'_'.$data['grade'];
+
                     return $data;
                 })
                 ->after(function (Role $record, array $data) {

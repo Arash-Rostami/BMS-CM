@@ -9,7 +9,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum Target: string implements HasColor, HasLabel, HasIcon
+enum Target: string implements HasColor, HasIcon, HasLabel
 {
     case PO = PurchaseOrder::class;
     case RO = RegisteredOrder::class;

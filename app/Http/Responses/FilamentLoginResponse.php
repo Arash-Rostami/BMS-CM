@@ -8,14 +8,12 @@ use Filament\Auth\Http\Responses\LoginResponse as BaseLoginResponse;
 use Illuminate\Http\RedirectResponse;
 use Livewire\Features\SupportRedirects\Redirector;
 
-
 class FilamentLoginResponse extends BaseLoginResponse implements LoginResponseContract
 {
     /**
      * Return RedirectResponse or Livewire Redirector for Filament v4.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return RedirectResponse|Redirector
+     * @param  \Illuminate\Http\Request  $request
      */
     public function toResponse($request): RedirectResponse|Redirector
     {

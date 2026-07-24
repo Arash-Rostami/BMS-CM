@@ -15,7 +15,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Database\Eloquent\Model;
 
-
 trait Form
 {
     public static function getApprovalDateField(): DatePicker
@@ -24,6 +23,9 @@ trait Form
             ->label(__('resources/purchaseRequest/strings.form.approval_date'))
             ->adaptive()
             ->disabled()
+            ->validationMessages([
+                'date' => __('resources/purchaseRequest/strings.form.validation_date'),
+            ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.approval_date'));
     }
 
@@ -32,7 +34,7 @@ trait Form
         return Select::make('approver_id')
             ->label(__('resources/purchaseRequest/strings.form.approver'))
             ->relationship('approver', 'name')
-            ->getOptionLabelFromRecordUsing(fn(User $record) => $record->name ?? '--')
+            ->getOptionLabelFromRecordUsing(fn (User $record) => $record->name ?? '--')
             ->disabled()
             ->validationAttribute(__('resources/purchaseRequest/strings.form.approver'));
 
@@ -45,13 +47,13 @@ trait Form
         return Select::make('cost_center_id')
             ->label(__('resources/purchaseRequest/strings.form.cost_center'))
             ->relationship('costCenter', app()->getLocale() === 'fa' ? 'name' : 'english_name')
-            ->getOptionLabelFromRecordUsing(fn(?Model $record) => $record->getLocalizedNameAttribute() ?? '--')
+            ->getOptionLabelFromRecordUsing(fn (?Model $record) => $record->getLocalizedNameAttribute() ?? '--')
             ->default($department?->id)
             ->searchable()
             ->preload()
             ->required()
             ->validationMessages([
-                'required' => __('resources/purchaseRequest/strings.form.validation_department_required'),
+                'required' => __('resources/purchaseRequest/strings.form.validation_cost_center_required'),
             ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.cost_center'));
 
@@ -64,7 +66,7 @@ trait Form
             ->prefix('💰')
             ->columns(1)
             ->numeric()
-            ->hint(fn(Get $get) => delimiter($get('estimated_cost')))
+            ->hint(fn (Get $get) => delimiter($get('estimated_cost')))
             ->default(0)
             ->minValue(0)
             ->step(0.01)
@@ -84,7 +86,7 @@ trait Form
             ->hiddenLabel()
             ->maxLength(255)
             ->live()
-            ->extraAttributes(fn(Get $get) => ['style' => !$get('show_notes') ? 'display: none;' : ''])
+            ->extraAttributes(fn (Get $get) => ['style' => ! $get('show_notes') ? 'display: none;' : ''])
             ->columnSpan('full')
             ->rules(['max:500'])
             ->validationMessages([
@@ -102,8 +104,8 @@ trait Form
             ->onColor('success')
             ->offColor('danger')
             ->live()
-            ->afterStateHydrated(fn(Set $set, Get $get) => $set('show_notes', filled($get('notes'))))
-            ->afterStateUpdated(fn(?bool $state, Set $set) => !$state ? $set('notes', null) : null);
+            ->afterStateHydrated(fn (Set $set, Get $get) => $set('show_notes', filled($get('notes'))))
+            ->afterStateUpdated(fn (?bool $state, Set $set) => ! $state ? $set('notes', null) : null);
     }
 
     public static function getItemProductIdField(): Select
@@ -111,13 +113,13 @@ trait Form
         return Select::make('product_id')
             ->label(__('resources/purchaseRequest/strings.form.product'))
             ->relationship('product', app()->getLocale() === 'fa' ? 'name' : 'english_name')
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->getCustomizedLabelAttribute() ?? $record->slug ?? '-')
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->getCustomizedLabelAttribute() ?? $record->slug ?? '-')
             ->searchable(['name', 'english_name', 'code'])
             ->preload()
             ->columnSpan(2)
             ->required()
             ->live()
-            ->disableOptionWhen(fn($value, Get $get) => in_array($value, collect($get('../../items'))
+            ->disableOptionWhen(fn ($value, Get $get) => in_array($value, collect($get('../../items'))
                 ->pluck('product_id')
                 ->filter()
                 ->diff([$get('product_id')])
@@ -133,7 +135,7 @@ trait Form
         return TextInput::make('quantity')
             ->label(__('resources/purchaseRequest/strings.form.quantity'))
             ->numeric()
-            ->hint(fn(Get $get) => delimiter($get('quantity')))
+            ->hint(fn (Get $get) => delimiter($get('quantity')))
             ->required()
             ->default(0)
             ->numeric()
@@ -150,15 +152,15 @@ trait Form
             ->validationAttribute(__('resources/purchaseRequest/strings.form.quantity'));
     }
 
-// Purchase Item Fields
+    // Purchase Item Fields
 
     public static function getItemStatusIdField(): Select
     {
         return Select::make('status_id')
             ->label(__('resources/purchaseRequest/strings.form.status'))
             ->relationship('status', app()->getLocale() === 'fa' ? 'name' : 'english_name')
-            ->default(fn($operation): ?int => $operation === 'create' ? Status::findBy('Purchase Item Status', 'Under Review')?->id : null)
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->getLocalizedNameAttribute() ?? '--')
+            ->default(fn ($operation): ?int => $operation === 'create' ? Status::findBy('Purchase Item Status', 'Under Review')?->id : null)
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->getLocalizedNameAttribute() ?? '--')
             ->columns(1)
             ->required()
             ->validationMessages([
@@ -171,7 +173,7 @@ trait Form
     {
         return Select::make('unit')
             ->label(__('resources/target/strings.form.metrics'))
-            ->options(__('resources/target/strings.metrics'))
+            ->options(__('resources/general/strings.metrics'))
             ->searchable()
             ->preload()
             ->columns(1)
@@ -199,13 +201,14 @@ trait Form
             ->readOnly()
             ->maxLength(255)
             ->unique(ignoreRecord: true)
-            ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('pr_number') : null)
+            ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('pr_number') : null)
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_required'),
                 'unique' => __('resources/purchaseRequest/strings.form.validation_unique'),
                 'max' => __('resources/purchaseRequest/strings.form.validation_max_string'),
             ])
-            ->validationAttribute(__('resources/purchaseRequest/strings.form.pr_number'));
+            ->validationAttribute(__('resources/purchaseRequest/strings.form.pr_number'))
+            ->helperText(__('resources/purchaseRequest/strings.form.helper_pr_number'));
     }
 
     public static function getRejectionReasonField(): Textarea
@@ -213,7 +216,7 @@ trait Form
         return Textarea::make('rejection_reason')
             ->label(__('resources/purchaseRequest/strings.form.rejection_reason'))
             ->rows(3)
-            ->visible(fn(Get $get): bool => ($statusId = $get('status_id')) && Status::where('id', $statusId)->value('english_name') === 'Declined')
+            ->visible(fn (Get $get): bool => ($statusId = $get('status_id')) && Status::where('id', $statusId)->value('english_name') === 'Declined')
             ->maxLength(65535)
             ->rules(['max:65535'])
             ->validationMessages([
@@ -232,6 +235,7 @@ trait Form
             ->rules(['after:today'])
             ->helperText(__('resources/purchaseRequest/strings.form.helper_required_by_date'))
             ->validationMessages([
+                'date' => __('resources/purchaseRequest/strings.form.validation_date'),
                 'required' => __('resources/purchaseRequest/strings.form.validation_required_by_date_required'),
                 'after' => __('resources/purchaseRequest/strings.form.validation_required_by_date_after'),
             ])
@@ -246,9 +250,9 @@ trait Form
                 name: 'status',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
             )
-            ->default(fn($operation): ?int => $operation === 'create' ? Status::findBy('Purchase Request Status', 'Under Review')?->id : null)
+            ->default(fn ($operation): ?int => $operation === 'create' ? Status::findBy('Purchase Request Status', 'Under Review')?->id : null)
             ->live()
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->getLocalizedNameAttribute() ?? '--')
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->getLocalizedNameAttribute() ?? '--')
             ->required()
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_status_required'),
@@ -261,8 +265,8 @@ trait Form
         return TextInput::make('total_estimated_cost')
             ->label(__('resources/purchaseRequest/strings.form.total_estimated_cost'))
             ->live()
-            ->dehydrateStateUsing(fn($state) => floatval(str_replace(['💰', ',', ' '], '', $state)))
-            ->formatStateUsing(fn(Get $get) => is_numeric($get('total_estimated_cost')) ? '💰 ' . number_format($get('total_estimated_cost'), 2) : $get('total_estimated_cost'));
+            ->dehydrateStateUsing(fn ($state) => floatval(str_replace(['💰', ',', ' '], '', $state)))
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_estimated_cost')) ? '💰 '.number_format($get('total_estimated_cost'), 2) : $get('total_estimated_cost'));
     }
 
     public static function getUrgencyLevelField(): Select

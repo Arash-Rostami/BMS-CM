@@ -6,7 +6,6 @@ use App\Filament\Traits\ExportDefaults;
 use App\Models\PurchaseOrder;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
-use Filament\Actions\Exports\Models\Export;
 
 class PurchaseOrderExporter extends Exporter
 {
@@ -14,25 +13,30 @@ class PurchaseOrderExporter extends Exporter
 
     protected static ?string $model = PurchaseOrder::class;
 
+    protected static function eagerLoadRelations(): array
+    {
+        return ['sellerCompany', 'buyerCompany', 'status', 'currency', 'items.product'];
+    }
+
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')->label('ID'),
-            ExportColumn::make('po_number')->label('PO Number'),
-            ExportColumn::make("sellerCompany.name")->label('Seller'),
-            ExportColumn::make("sellerCompany.english_name")->label('Seller E'),
-            ExportColumn::make("buyerCompany.name")->label('Buyer'),
-            ExportColumn::make("buyerCompany.english_name")->label('Buyer E'),
-            ExportColumn::make("status.name")->label('Status'),
-            ExportColumn::make("status.english_name")->label('Status E'),
-            ExportColumn::make('order_date')->label('Order Date'),
-            ExportColumn::make('validity_date')->label('Validity Date'),
-            ExportColumn::make('expected_delivery_date')->label('Expected Delivery Date'),
-            ExportColumn::make("currency.name")->label('Currency'),
-            ExportColumn::make("currency.english_name")->label('Currency E'),
-            ExportColumn::make('total_amount')->label('Total Amount'),
+            ExportColumn::make('id')->label(__('resources/purchaseOrder/strings.export.id')),
+            ExportColumn::make('po_number')->label(__('resources/purchaseOrder/strings.export.po_number')),
+            ExportColumn::make('sellerCompany.name')->label(__('resources/purchaseOrder/strings.export.seller')),
+            ExportColumn::make('sellerCompany.english_name')->label(__('resources/purchaseOrder/strings.export.seller_english')),
+            ExportColumn::make('buyerCompany.name')->label(__('resources/purchaseOrder/strings.export.buyer')),
+            ExportColumn::make('buyerCompany.english_name')->label(__('resources/purchaseOrder/strings.export.buyer_english')),
+            ExportColumn::make('status.name')->label(__('resources/purchaseOrder/strings.export.status')),
+            ExportColumn::make('status.english_name')->label(__('resources/purchaseOrder/strings.export.status_english')),
+            ExportColumn::make('order_date')->label(__('resources/purchaseOrder/strings.export.order_date')),
+            ExportColumn::make('validity_date')->label(__('resources/purchaseOrder/strings.export.validity_date')),
+            ExportColumn::make('expected_delivery_date')->label(__('resources/purchaseOrder/strings.export.expected_delivery_date')),
+            ExportColumn::make('currency.name')->label(__('resources/purchaseOrder/strings.export.currency')),
+            ExportColumn::make('currency.english_name')->label(__('resources/purchaseOrder/strings.export.currency_english')),
+            ExportColumn::make('total_amount')->label(__('resources/purchaseOrder/strings.export.total_amount')),
             ExportColumn::make('items')
-                ->label('Items')
+                ->label(__('resources/purchaseOrder/strings.export.items'))
                 ->state(function (PurchaseOrder $record): string {
                     return $record->items->map(function ($item) {
                         $product = $item->product?->getLocalizedNameAttribute() ?? 'N/A';
@@ -43,15 +47,10 @@ class PurchaseOrderExporter extends Exporter
                         return "Product: {$product}, Qty: {$quantity} {$unit}, Price: {$price}";
                     })->implode("\n");
                 }),
-            ExportColumn::make('user.name')->label('Creator'),
-            ExportColumn::make('updater.name')->label('Updater'),
-            ExportColumn::make('created_at'),
-            ExportColumn::make('updated_at'),
+            ExportColumn::make('creator.name')->label(__('resources/purchaseOrder/strings.export.creator')),
+            ExportColumn::make('updater.name')->label(__('resources/purchaseOrder/strings.export.updater')),
+            ExportColumn::make('created_at')->label(__('resources/purchaseOrder/strings.export.created_at')),
+            ExportColumn::make('updated_at')->label(__('resources/purchaseOrder/strings.export.updated_at')),
         ];
-    }
-
-    public function getFileName(Export $export): string
-    {
-        return "PurchaseOrders-{$export->getKey()}";
     }
 }

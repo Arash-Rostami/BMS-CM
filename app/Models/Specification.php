@@ -5,14 +5,16 @@ namespace App\Models;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\Specification\Relationships as ExclusiveRelationships;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Specification extends Model
 {
-    use SoftDeletes,
+    use ExclusiveRelationships,
+        HasFactory,
         Relationships,
-        ExclusiveRelationships,
+        SoftDeletes,
         UserStamps;
 
     protected $fillable = [

@@ -10,8 +10,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait Filters
 {
-
-
     public static function getBuyerCompanyFilter(): SelectFilter
     {
         return SelectFilter::make('buyer_id')
@@ -41,7 +39,7 @@ trait Filters
     {
         return Filter::make('has_purchase_orders')
             ->label(__('resources/proformaInvoice/strings.filters.has_purchase_orders'))
-            ->query(fn(Builder $query): Builder => $query->has('purchaseOrders'))
+            ->query(fn (Builder $query): Builder => $query->has('purchaseOrders'))
             ->toggle();
     }
 
@@ -49,7 +47,7 @@ trait Filters
     {
         return Filter::make('has_purchase_requests')
             ->label(__('resources/proformaInvoice/strings.filters.has_purchase_requests'))
-            ->query(fn(Builder $query): Builder => $query->has('purchaseRequests'))
+            ->query(fn (Builder $query): Builder => $query->has('purchaseRequests'))
             ->toggle();
     }
 
@@ -70,11 +68,11 @@ trait Filters
                 return $query
                     ->when(
                         $data['invoice_date_from'],
-                        fn(Builder $query, $date): Builder => $query->whereDate('invoice_date', '>=', $date),
+                        fn (Builder $query, $date): Builder => $query->whereDate('invoice_date', '>=', $date),
                     )
                     ->when(
                         $data['invoice_date_until'],
-                        fn(Builder $query, $date): Builder => $query->whereDate('invoice_date', '<=', $date),
+                        fn (Builder $query, $date): Builder => $query->whereDate('invoice_date', '<=', $date),
                     );
             });
     }
@@ -110,7 +108,7 @@ trait Filters
     public static function getUpdaterFilter(): SelectFilter
     {
         return SelectFilter::make('updated_by_id')
-            ->label(__('resources/proformaInvoice/strings.table.updater'))
+            ->label(__('resources/proformaInvoice/strings.filters.updater'))
             ->relationship('updater', 'name')
             ->searchable()
             ->preload();

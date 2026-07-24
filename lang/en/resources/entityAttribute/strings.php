@@ -5,16 +5,15 @@ return [
         'model_label' => 'Custom Attribute',
         'plural_model_label' => 'Custom Attributes',
     ],
-    'form' => [
-        'entity_type' => 'Entity Type',
+    'infolist' => [
+        'entity_type' => 'Entity',
         'entity_id' => 'Record ID',
         'key' => 'Key',
         'value' => 'Value',
-        'add_attribute_action' => 'Add Attribute',
-    ],
-    'infolist' => [
-        'key' => 'Key',
-        'value' => 'Value',
+        'created_by' => 'Creator',
+        'updated_by' => 'Updater',
+        'created_at' => 'Created At',
+        'updated_at' => 'Updated At',
     ],
     'table' => [
         'entity_type' => 'Entity',
@@ -28,5 +27,7 @@ return [
     ],
     'filters' => [
         'entity_type' => 'Entity Type',
+        'creator' => 'Creator',
+        'key' => 'Key',
     ],
 ];

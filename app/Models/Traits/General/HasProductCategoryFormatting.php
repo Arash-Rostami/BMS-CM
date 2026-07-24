@@ -8,7 +8,7 @@ trait HasProductCategoryFormatting
 {
     public function getTargetableFormatted(string $format = 'table'): string
     {
-        if (!$this->targetable) {
+        if (! $this->targetable) {
             return '-';
         }
 

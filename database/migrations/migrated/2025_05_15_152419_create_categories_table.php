@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
@@ -23,18 +20,20 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('categories')
                 ->cascadeOnDelete();
+            $table->tinyInteger('level')->default(0)->comment('Level in the category hierarchy');
             $table->boolean('active')->default(true);
 
             $table->foreignId('user_id')->nullable();
             $table->foreignId('updated_by_id')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index('user_id', 'idx_categories_user_id');
+            $table->index('updated_by_id', 'idx_categories_updated_by_id');
+            $table->index(['active', 'deleted_at'], 'idx_categories_active_deleted');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('categories');

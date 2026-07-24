@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('departments', function (Blueprint $table) {
@@ -17,12 +14,11 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->string('english_name')->nullable();
             $table->text('description')->nullable();
+
+            $table->index('name', 'idx_departments_name');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('departments');

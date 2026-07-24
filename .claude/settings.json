@@ -38,6 +38,12 @@
                         "statusMessage": "Loading session self-introduction policy…",
                         "timeout": 30,
                         "command": "php .claude/hooks/sessionstart_06_selfintro.php"
+                    },
+                    {
+                        "type": "command",
+                        "statusMessage": "Loading doc-review-action policy…",
+                        "timeout": 30,
+                        "command": "php .claude/hooks/sessionstart_07_doc_review.php"
                     }
                 ]
             }
@@ -51,6 +57,12 @@
                         "statusMessage": "Workflow-aware review (sonnet-4-6 / dual glm-5.2:cloud consensus at 93%)…",
                         "timeout": 120,
                         "command": "php .claude/hooks/post_tool_review.php"
+                    },
+                    {
+                        "type": "command",
+                        "statusMessage": "Doc-accuracy review (grep-verified claims, sonnet-4-6 / dual glm-5.2:cloud consensus at 93%)…",
+                        "timeout": 120,
+                        "command": "php .claude/hooks/post_tool_doc_review.php"
                     }
                 ]
             }

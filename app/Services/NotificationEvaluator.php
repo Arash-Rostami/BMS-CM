@@ -18,11 +18,13 @@ class NotificationEvaluator
 
         $settings = NotificationSetting::whereJsonContains('settings->tables', $tableName)
             ->whereJsonContains('settings->actions', $action)
-            ->where(fn($query) => $query->where('settings->is_active', true)->orWhereJsonLength('settings->is_active', 0))
+            ->where(fn ($query) => $query->where('settings->is_active', true)->orWhereJsonLength('settings->is_active', 0))
             ->get();
 
         foreach ($settings as $setting) {
-            if (!$this->shouldNotify($setting, $model, $action, $dirty)) continue;
+            if (! $this->shouldNotify($setting, $model, $action, $dirty)) {
+                continue;
+            }
 
             $this->dispatch($setting, $model, $action, $dirty);
         }
@@ -30,7 +32,9 @@ class NotificationEvaluator
 
     private function buildChangeData(Model $model, string $action, array $dirty): array
     {
-        if ($action !== 'update' || empty($dirty)) return [];
+        if ($action !== 'update' || empty($dirty)) {
+            return [];
+        }
 
         $changes = [];
         foreach ($dirty as $column => $newValue) {
@@ -48,7 +52,9 @@ class NotificationEvaluator
     private function dispatch(NotificationSetting $setting, Model $model, string $action, array $dirty): void
     {
         $users = User::whereIn('id', $setting->getUsers())->get();
-        if ($users->isEmpty()) return;
+        if ($users->isEmpty()) {
+            return;
+        }
 
         $changedData = $this->buildChangeData($model, $action, $dirty);
 
@@ -87,7 +93,9 @@ class NotificationEvaluator
         $values = $setting->getValues();
 
         // CASE 1: No column filter → Notify on any action for this table
-        if (empty($columns)) return true;
+        if (empty($columns)) {
+            return true;
+        }
 
         // CASE 2: UPDATE action with column filters
         if ($action === 'update') {
@@ -95,10 +103,14 @@ class NotificationEvaluator
             $relevantColumns = array_intersect($columns, $changedColumns);
 
             // None of the watched columns changed → Skip notification
-            if (empty($relevantColumns)) return false;
+            if (empty($relevantColumns)) {
+                return false;
+            }
 
             // Watched columns changed, but no value filter → Notify
-            if (empty($values)) return true;
+            if (empty($values)) {
+                return true;
+            }
 
             // Check if ANY watched column (not just changed ones) has a value in the values pool
             foreach ($columns as $column) {
@@ -112,7 +124,9 @@ class NotificationEvaluator
         }
 
         // CASE 3: CREATE/DELETE actions with column filters
-        if (empty($values)) return true;
+        if (empty($values)) {
+            return true;
+        }
 
         // Check if ANY watched column has a value in the values pool
         foreach ($columns as $column) {

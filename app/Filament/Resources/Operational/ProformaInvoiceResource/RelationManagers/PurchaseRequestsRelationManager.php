@@ -18,10 +18,9 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
-
 class PurchaseRequestsRelationManager extends RelationManager
 {
-    use  PurchaseRequestTable, PurchaseRequestFilters;
+    use PurchaseRequestFilters, PurchaseRequestTable;
 
     protected static string $relationship = 'purchaseRequests';
 
@@ -78,7 +77,7 @@ class PurchaseRequestsRelationManager extends RelationManager
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record) => PurchaseRequestResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record) => PurchaseRequestResource::getUrl('edit', ['record' => $record])),
                 ]),
             ])
             ->toolbarActions([
@@ -92,10 +91,10 @@ class PurchaseRequestsRelationManager extends RelationManager
                     ->label(__('resources/purchaseRequest/strings.filters.requester')),
                 Group::make('department.name')
                     ->label(__('resources/purchaseRequest/strings.filters.department'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'department')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'department')),
                 Group::make('status.english_name')
                     ->label(__('resources/purchaseRequest/strings.filters.status'))
-                    ->getTitleFromRecordUsing(fn($record): ?string => Status::tryFrom($record->status?->english_name)?->getLabel() ?? $record->status?->name),
+                    ->getTitleFromRecordUsing(fn ($record): ?string => Status::tryFrom($record->status?->english_name)?->getLabel() ?? $record->status?->name),
             ])
             ->striped()
             ->recordUrl(null)

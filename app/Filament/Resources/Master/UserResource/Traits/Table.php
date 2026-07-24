@@ -7,7 +7,6 @@ use App\Filament\Resources\Master\UserResource\Enums\UserRole;
 use App\Filament\Resources\Master\UserResource\Enums\UserStatus;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Support\Facades\Vite;
 
 trait Table
 {
@@ -18,7 +17,6 @@ trait Table
             ->sortable()
             ->searchable();
     }
-
 
     public static function showPhone(): TextColumn
     {
@@ -35,7 +33,6 @@ trait Table
             ->icon('heroicon-m-envelope')
             ->searchable();
     }
-
 
     public static function showCompany(): TextColumn
     {
@@ -54,9 +51,10 @@ trait Table
             ->label(__('resources/user/strings.table.department'))
             ->getStateUsing(function ($record): string {
                 $department = $record->department;
+
                 return $department?->code ?? '-';
             })
-            ->tooltip(fn($record) => (app()->getLocale() !== 'fa') ? optional($record->department)->english_name : '')
+            ->tooltip(fn ($record) => (app()->getLocale() !== 'fa') ? optional($record->department)->english_name : '')
             ->sortable();
     }
 
@@ -64,9 +62,9 @@ trait Table
     {
         return TextColumn::make('position')
             ->label(__('resources/user/strings.table.position'))
-            ->icon(fn(string $state): string => (PositionStatus::tryFrom($state))?->getIcon() ?? 'heroicon-o-briefcase')
-            ->color(fn(string $state): string => (PositionStatus::tryFrom($state))?->getColor() ?? 'secondary')
-            ->formatStateUsing(fn(string $state): string => (PositionStatus::tryFrom($state))?->getLabel() ?? $state)
+            ->icon(fn (string $state): string => (PositionStatus::tryFrom($state))?->getIcon() ?? 'heroicon-o-briefcase')
+            ->color(fn (string $state): string => (PositionStatus::tryFrom($state))?->getColor() ?? 'secondary')
+            ->formatStateUsing(fn (string $state): string => (PositionStatus::tryFrom($state))?->getLabel() ?? $state)
             ->toggleable(isToggledHiddenByDefault: true)
             ->searchable();
     }
@@ -76,8 +74,8 @@ trait Table
         return TextColumn::make('roles.name')
             ->label(__('resources/user/strings.table.role'))
             ->badge()
-            ->formatStateUsing(fn(string $state): string => UserRole::tryFrom($state)?->getLabel() ?? $state)
-            ->color(fn(string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray')
+            ->formatStateUsing(fn (string $state): string => UserRole::tryFrom($state)?->getLabel() ?? $state)
+            ->color(fn (string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray')
             ->searchable();
     }
 
@@ -88,7 +86,7 @@ trait Table
             ->circular()
             ->disk('public')
             ->visibility('public')
-            ->defaultImageUrl(fn($record) => $record->getFilamentAvatarUrl())
+            ->defaultImageUrl(fn ($record) => $record->getFilamentAvatarUrl())
             ->label(__('resources/user/strings.table.image'));
     }
 
@@ -96,9 +94,9 @@ trait Table
     {
         return TextColumn::make('status')
             ->label(__('resources/user/strings.table.status'))
-            ->icon(fn(string $state): string => (UserStatus::tryFrom($state))?->getIcon() ?? 'heroicon-o-question-mark-circle')
-            ->formatStateUsing(fn(string $state): string => (UserStatus::tryFrom($state))?->getLabel() ?? $state)
-            ->color(fn(string $state): string => (UserStatus::tryFrom($state))?->getColor() ?? 'secondary')
+            ->icon(fn (string $state): string => (UserStatus::tryFrom($state))?->getIcon() ?? 'heroicon-o-question-mark-circle')
+            ->formatStateUsing(fn (string $state): string => (UserStatus::tryFrom($state))?->getLabel() ?? $state)
+            ->color(fn (string $state): string => (UserStatus::tryFrom($state))?->getColor() ?? 'secondary')
             ->searchable();
     }
 
@@ -110,13 +108,12 @@ trait Table
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
-
     public static function showLastLogIn(): TextColumn
     {
         return TextColumn::make('last_log_in')
             ->label(__('resources/user/strings.table.last_log_in'))
             ->dateTime()
-            ->formatStateUsing(fn($state) => $state->diffForHumans())
+            ->formatStateUsing(fn ($state) => $state->diffForHumans())
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -126,11 +123,10 @@ trait Table
         return TextColumn::make('last_log_out')
             ->label(__('resources/user/strings.table.last_log_out'))
             ->dateTime()
-            ->formatStateUsing(fn($state) => $state->diffForHumans())
+            ->formatStateUsing(fn ($state) => $state->diffForHumans())
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
-
 
     public static function showDeletionTime(): TextColumn
     {

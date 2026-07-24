@@ -63,10 +63,6 @@ class CategoryObserver
         }
     }
 
-    /**
-     * @param Category $category
-     * @return void
-     */
     private function removeOldLinks(Category $category): void
     {
         DB::table('category_closure')
@@ -74,10 +70,6 @@ class CategoryObserver
             ->delete();
     }
 
-    /**
-     * @param Category $category
-     * @return void
-     */
     private function createSelfLink(Category $category): void
     {
         DB::table('category_closure')->insert([
@@ -87,18 +79,13 @@ class CategoryObserver
         ]);
     }
 
-    /**
-     * @param mixed $parentId
-     * @param Category $category
-     * @return void
-     */
     private function createAncestorLinks(mixed $parentId, Category $category): void
     {
         $ancestors = DB::table('category_closure')
             ->where('descendant_id', $parentId)
             ->get(['ancestor_id', 'depth']);
 
-        $batch = $ancestors->map(fn($anc) => [
+        $batch = $ancestors->map(fn ($anc) => [
             'ancestor_id' => $anc->ancestor_id,
             'descendant_id' => $category->id,
             'depth' => $anc->depth + 1,

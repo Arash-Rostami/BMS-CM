@@ -11,14 +11,15 @@ trait UpdatesFromProformaInvoice
     {
         if (empty($state)) {
             $set('items', []);
+
             return;
         }
 
-        $proformaInvoice = ProformaInvoice::whereIn('id', (array)$state)
+        $proformaInvoice = ProformaInvoice::whereIn('id', (array) $state)
             ->with(['items.product.specifications'])
             ->get();
 
-        $items = $proformaInvoice->flatMap(fn($pr) => $pr->items->map(fn($item) => [
+        $items = $proformaInvoice->flatMap(fn ($pr) => $pr->items->map(fn ($item) => [
             'product_id' => $item->product_id,
             'quantity' => $item->quantity ?? 0,
             'unit' => $item->unit ?? null,
@@ -35,7 +36,7 @@ trait UpdatesFromProformaInvoice
                 '.',
                 ''
             ),
-            'show_notes' => true
+            'show_notes' => true,
         ])
         )->toArray();
 

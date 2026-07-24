@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Operational\PurchaseRequestResource\Traits;
 
-use Filament\Schemas\Components\Utilities\Set;
 use App\Models\PurchaseRequest;
+use Filament\Schemas\Components\Utilities\Set;
 
 trait UpdatesFromPurchaseRequests
 {
@@ -11,14 +11,15 @@ trait UpdatesFromPurchaseRequests
     {
         if (empty($state)) {
             $set('items', []);
+
             return;
         }
 
-        $purchaseRequests = PurchaseRequest::whereIn('id', (array)$state)
+        $purchaseRequests = PurchaseRequest::whereIn('id', (array) $state)
             ->with(['items.product.specifications'])
             ->get();
 
-        $items = $purchaseRequests->flatMap(fn($pr) => $pr->items->map(fn($item) => [
+        $items = $purchaseRequests->flatMap(fn ($pr) => $pr->items->map(fn ($item) => [
             'product_id' => $item->product_id,
             'quantity' => $item->quantity ?? 0,
             'unit' => $item->unit ?? null,
@@ -36,7 +37,7 @@ trait UpdatesFromPurchaseRequests
                 '.',
                 ''
             ),
-            'show_notes' => true
+            'show_notes' => true,
         ])
         )->toArray();
 

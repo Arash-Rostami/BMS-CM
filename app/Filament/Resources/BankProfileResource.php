@@ -12,12 +12,12 @@ use App\Filament\Resources\Operational\BankProfileResource\Traits\Filters as Ban
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Form as BankProfileForm;
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Infolist as BankProfileInfolist;
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Table as BankProfileTable;
+use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\BankProfile;
 use App\Models\Category;
 use App\Models\Product;
-use App\Services\SmartCacheManager;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -41,10 +41,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-
 class BankProfileResource extends Resource
 {
-    use BankProfileForm, BankProfileTable, BankProfileFilters, BankProfileInfolist, HasResourcePermissions, HasExtraAttributesManagement;
+    use BankProfileFilters, BankProfileForm, BankProfileInfolist, BankProfileTable, HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions;
 
     protected static ?string $model = BankProfile::class;
 
@@ -58,7 +57,7 @@ class BankProfileResource extends Resource
             ->components([
                 Tabs::make('Bank Profile')
                     ->tabs([
-                        Tab::make(__('resources/bankProfile/strings.form.tabs.general'))
+                        Tab::make(__('resources/bankProfile/strings.form.tab_general'))
                             ->icon('heroicon-o-clipboard-document-list')
                             ->schema([
                                 Group::make()
@@ -88,14 +87,14 @@ class BankProfileResource extends Resource
                                                 static::getPaymentDueDateField(),
                                                 static::getCommitmentPaymentDateField(),
                                                 static::getNotesField(),
-                                                FormComponents::getAttachmentsField()
+                                                FormComponents::getAttachmentsField(),
                                             ])
                                             ->columns(2),
                                     ])
                                     ->columnSpan(['lg' => 1]),
                             ])->columns(3),
 
-                        Tab::make(__('resources/bankProfile/strings.form.tabs.details'))
+                        Tab::make(__('resources/bankProfile/strings.form.tab_details'))
                             ->icon('heroicon-o-cog-6-tooth')
                             ->schema([
                                 Group::make()
@@ -146,7 +145,7 @@ class BankProfileResource extends Resource
                 'company',
                 'requestedCurrency',
                 'purchasedCurrency',
-                'targetable' => fn(MorphTo $morphTo) => $morphTo->morphWith([Product::class, Category::class]),
+                'targetable' => fn (MorphTo $morphTo) => $morphTo->morphWith([Product::class, Category::class]),
                 'registeredOrder',
                 'status',
             ])
@@ -172,7 +171,7 @@ class BankProfileResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return '🏦 ' . ($record->bp_number ?? $record->id ?? '—');
+        return '🏦 '.($record->bp_number ?? $record->id ?? '—');
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -183,23 +182,6 @@ class BankProfileResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/bankProfile/strings.general.model_label');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'BankProfile',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            150,
-            fn() => static::getModel()::count()
-        );
-
-        return $count > 0 ? (string)$count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
     }
 
     public static function getNavigationGroup(): ?string
@@ -294,9 +276,9 @@ class BankProfileResource extends Resource
                     Tab::make(__('resources/bankProfile/strings.infolist.tab_documents'))
                         ->icon('heroicon-o-paper-clip')
                         ->schema([
-                            Section::make()->schema([static::viewAttachments()])
+                            Section::make()->schema([static::viewAttachments()]),
                         ])
-                        ->label(fn($record) => tabBadge(
+                        ->label(fn ($record) => tabBadge(
                             __('resources/bankProfile/strings.infolist.tab_documents'),
                             $record?->attachments->count() ?? 0,
                             'info'
@@ -353,17 +335,17 @@ class BankProfileResource extends Resource
             ])
             ->groups([
                 TableGroup::make('bank.name')
-                    ->label(__('resources/bankProfile/strings.groups.bank'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => $record->bank?->getLocalizedNameAttribute()),
+                    ->label(__('resources/bankProfile/strings.filters.group_bank'))
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => $record->bank?->getLocalizedNameAttribute()),
                 TableGroup::make('company.name')
-                    ->label(__('resources/bankProfile/strings.groups.company'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => $record->company?->getLocalizedNameAttribute()),
+                    ->label(__('resources/bankProfile/strings.filters.group_company'))
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => $record->company?->getLocalizedNameAttribute()),
                 TableGroup::make('registeredOrder.ro_number')
-                    ->label(__('resources/bankProfile/strings.groups.registered_order'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => $record->registeredOrder?->formatted_name ?? '-'),
+                    ->label(__('resources/bankProfile/strings.filters.group_registered_order'))
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => $record->registeredOrder?->formatted_name ?? '-'),
                 TableGroup::make('targetable_type')
-                    ->label(__('resources/bankProfile/strings.groups.targetable'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => $record->getTargetableFormatted('table')),
+                    ->label(__('resources/bankProfile/strings.filters.group_targetable'))
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => $record->getTargetableFormatted('table')),
             ])
             ->striped()
             ->searchDebounce('1000ms')
@@ -372,4 +354,3 @@ class BankProfileResource extends Resource
             ->defaultSort('id', 'desc');
     }
 }
-

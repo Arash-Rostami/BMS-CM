@@ -31,11 +31,11 @@ trait Infolist
             ->schema([
                 TextEntry::make('path')
                     ->hiddenLabel()
-                    ->formatStateUsing(fn(string $state): string => basename($state))
-                    ->tooltip(fn($record) => $record->name ?? '')
+                    ->formatStateUsing(fn (string $state): string => basename($state))
+                    ->tooltip(fn ($record) => $record->name ?? '')
                     ->icon('heroicon-m-paper-clip')
                     ->color('primary')
-                    ->url(fn($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
+                    ->url(fn ($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
             ])
             ->columns(1);
     }
@@ -93,7 +93,7 @@ trait Infolist
             ->schema([
                 TextEntry::make('product.name')
                     ->label(__('resources/purchaseRequest/strings.infolist.item_product'))
-                    ->formatStateUsing(fn($record) => $record->product?->getLocalizedNameAttribute())
+                    ->formatStateUsing(fn ($record) => $record->product?->getLocalizedNameAttribute())
                     ->columnSpan(2),
                 TextEntry::make('quantity')
                     ->label(__('resources/purchaseRequest/strings.infolist.item_quantity')),
@@ -101,15 +101,15 @@ trait Infolist
                     ->label(__('resources/purchaseRequest/strings.infolist.item_unit'))
                     ->badge()
                     ->color('gray')
-                    ->formatStateUsing(fn($state) => __('resources/target/strings.metrics.' . $state) ?? $state),
+                    ->formatStateUsing(fn ($state) => __('resources/general/strings.metrics.'.$state) ?? $state),
                 TextEntry::make('estimated_cost')
                     ->label(__('resources/purchaseRequest/strings.infolist.item_estimated_cost'))
-                    ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+                    ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
                     ->color('success'),
                 TextEntry::make('status.name')
                     ->label(__('resources/purchaseRequest/strings.infolist.item_status'))
                     ->badge()
-                    ->formatStateUsing(fn($record) => $record->status?->getLocalizedNameAttribute()),
+                    ->formatStateUsing(fn ($record) => $record->status?->getLocalizedNameAttribute()),
                 TextEntry::make('notes')
                     ->label(__('resources/purchaseRequest/strings.infolist.item_notes'))
                     ->columnSpanFull()
@@ -148,8 +148,8 @@ trait Infolist
             ->label(__('resources/purchaseRequest/strings.form.status'))
             ->badge()
             ->icon('heroicon-m-check-circle')
-            ->formatStateUsing(fn(?string $state): ?string => Status::tryFrom($state)?->getLabel() ?? $state)
-            ->color(fn(?string $state): ?string => Status::tryFrom($state)?->getColor() ?? 'info');
+            ->formatStateUsing(fn (?string $state): ?string => Status::tryFrom($state)?->getLabel() ?? $state)
+            ->color(fn (?string $state): ?string => Status::tryFrom($state)?->getColor() ?? 'info');
     }
 
     public static function viewTotalCost(): TextEntry
@@ -157,7 +157,7 @@ trait Infolist
         return TextEntry::make('total_estimated_cost')
             ->label(__('resources/purchaseRequest/strings.form.total_estimated_cost'))
             ->formatStateUsing(
-                fn($state, $record): string => isset($record->total_estimated_cost)
+                fn ($state, $record): string => isset($record->total_estimated_cost)
                     ? number_format($record->total_estimated_cost, 2, '.', ',')
                     : ''
             );
@@ -184,8 +184,8 @@ trait Infolist
             ->label(__('resources/purchaseRequest/strings.form.urgency_level'))
             ->badge()
             ->icon('heroicon-m-exclamation-triangle')
-            ->formatStateUsing(fn(string $state): string => __('resources/purchaseRequest/strings.general.urgency.' . strtolower($state)) ?? $state)
-            ->color(fn(string $state): string => match (strtolower($state)) {
+            ->formatStateUsing(fn (string $state): string => __('resources/purchaseRequest/strings.general.urgency.'.strtolower($state)) ?? $state)
+            ->color(fn (string $state): string => match (strtolower($state)) {
                 'critical', 'high' => 'danger',
                 'medium' => 'warning',
                 default => 'success',

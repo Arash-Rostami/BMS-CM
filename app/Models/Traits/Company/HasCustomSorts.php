@@ -3,8 +3,8 @@
 namespace App\Models\Traits\Company;
 
 use App\Models\Company;
-use Illuminate\Database\Eloquent\Builder;
 use Closure;
+use Illuminate\Database\Eloquent\Builder;
 
 trait HasCustomSorts
 {

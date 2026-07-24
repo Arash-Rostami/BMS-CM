@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Master\BankResource\Pages;
 
-use Filament\Actions\CreateAction;
-use App\Filament\Resources\BankResource;
-use Filament\Actions;
 use App\Filament\Pages\ManageRecords;
+use App\Filament\Resources\BankResource;
+use Filament\Actions\CreateAction;
 
 class ManageBanks extends ManageRecords
 {
@@ -15,7 +14,7 @@ class ManageBanks extends ManageRecords
     {
         return [
             CreateAction::make()
-                ->icon('heroicon-o-sparkles')
+                ->icon('heroicon-o-sparkles'),
         ];
     }
 }

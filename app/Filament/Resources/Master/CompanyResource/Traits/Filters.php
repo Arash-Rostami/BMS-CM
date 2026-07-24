@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Master\CompanyResource\Traits;
 
-
 use App\Models\Company;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Filters\Filter;
@@ -17,8 +16,8 @@ trait Filters
     {
         return TernaryFilter::make('is_active')
             ->label(__('resources/company/strings.table.is_active'))
-            ->trueLabel(__('resources/company/strings.table.only_active'))
-            ->falseLabel(__('resources/company/strings.table.only_inactive'));
+            ->trueLabel(__('resources/company/strings.filters.only_active'))
+            ->falseLabel(__('resources/company/strings.filters.only_inactive'));
     }
 
     public static function getCompanyTypeFilter(): Filter
@@ -32,10 +31,12 @@ trait Filters
                     ->multiple()
                     ->searchable()
                     ->preload()
-                    ->placeholder(__('resources/company/strings.filters.all_types'))
+                    ->placeholder(__('resources/company/strings.filters.all_types')),
             ])
             ->query(function (Builder $query, array $data): Builder {
-                if (empty($data['types'])) return $query;
+                if (empty($data['types'])) {
+                    return $query;
+                }
 
                 return $query->where(function (Builder $query) use ($data) {
                     foreach ($data['types'] as $type) {
@@ -44,15 +45,17 @@ trait Filters
                 });
             })
             ->indicateUsing(function (array $data): array {
-                if (empty($data['types'])) return [];
+                if (empty($data['types'])) {
+                    return [];
+                }
 
                 $availableTypes = Company::getAvailableTypes();
                 $selectedTypes = collect($data['types'])
-                    ->map(fn($type) => $availableTypes[$type] ?? $type)
+                    ->map(fn ($type) => $availableTypes[$type] ?? $type)
                     ->join(', ');
 
                 return [
-                    __('resources/company/strings.filters.types_indicator', ['types' => $selectedTypes])
+                    __('resources/company/strings.filters.types_indicator', ['types' => $selectedTypes]),
                 ];
             });
     }

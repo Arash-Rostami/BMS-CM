@@ -27,9 +27,10 @@ use Str;
 
 class NotificationSettingResource extends Resource
 {
-    use NotificationSettingForm, NotificationSettingTable, NotificationSettingInfolist, NotificationSettingFilters;
+    use NotificationSettingFilters, NotificationSettingForm, NotificationSettingInfolist, NotificationSettingTable;
 
     protected static ?string $model = NotificationSetting::class;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bell';
 
     protected static ?int $navigationSort = 11;
@@ -47,7 +48,7 @@ class NotificationSettingResource extends Resource
                         static::getUserSelector(),
                         static::getNotificationChannel(),
                         static::getIsActive(),
-                        static::getNotes()
+                        static::getNotes(),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
@@ -68,12 +69,12 @@ class NotificationSettingResource extends Resource
         $details = [];
 
         if ($columns = $record->getColumns()) {
-            $details[] = 'Columns: ' . implode(', ', array_map(fn($c) => Str::headline($c), $columns));
+            $details[] = 'Columns: '.implode(', ', array_map(fn ($c) => Str::headline($c), $columns));
         }
 
         if ($users = $record->getUsers()) {
             $userNames = User::whereIn('id', $users)->pluck('name')->join(', ');
-            $details[] = 'Recipients: ' . $userNames;
+            $details[] = 'Recipients: '.$userNames;
         }
 
         return $details;
@@ -81,7 +82,7 @@ class NotificationSettingResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        $tables = implode(', ', array_map(fn($t) => Str::headline($t), $record->getTables()));
+        $tables = implode(', ', array_map(fn ($t) => Str::headline($t), $record->getTables()));
         $actions = implode(', ', array_map('ucfirst', $record->getActions()));
 
         return "🔔 {$tables} · {$actions}";
@@ -90,7 +91,8 @@ class NotificationSettingResource extends Resource
     public static function getGlobalSearchResultUrl(Model $record): ?string
     {
         $tables = $record->getTables();
-        return static::getUrl('index', ['search' => !empty($tables) ? $tables[0] : '']);
+
+        return static::getUrl('index', ['search' => ! empty($tables) ? $tables[0] : '']);
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -109,10 +111,10 @@ class NotificationSettingResource extends Resource
             'NotificationSetting',
             ['user_id' => auth()->id(), 'type' => 'total_count'],
             3600,
-            fn() => static::getModel()::count()
+            fn () => static::getModel()::count()
         );
 
-        return $count > 0 ? (string)$count : null;
+        return $count > 0 ? (string) $count : null;
     }
 
     public static function getNavigationBadgeColor(): ?string
@@ -191,15 +193,15 @@ class NotificationSettingResource extends Resource
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
-                ])
+                ]),
             ])
             ->groups([
                 Group::make('settings->actions')
-                    ->getTitleFromRecordUsing(fn($record) => implode(', ', $record->getActions()))
+                    ->getTitleFromRecordUsing(fn ($record) => implode(', ', $record->getActions()))
                     ->label(__('resources/notificationSetting/strings.table.actions'))
                     ->collapsible(),
                 Group::make('settings->tables')
-                    ->getTitleFromRecordUsing(fn($record) => implode(', ', $record->getTables()))
+                    ->getTitleFromRecordUsing(fn ($record) => implode(', ', $record->getTables()))
                     ->label(__('resources/notificationSetting/strings.table.tables'))
                     ->collapsible(),
             ])

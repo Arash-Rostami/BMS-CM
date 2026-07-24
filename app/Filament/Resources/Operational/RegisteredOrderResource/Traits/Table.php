@@ -9,7 +9,6 @@ use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 
-
 trait Table
 {
     public static function showBuyer(): TextColumn
@@ -18,9 +17,9 @@ trait Table
             ->label(__('resources/registeredOrder/strings.table.buyer'))
             ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas('buyerCompany', fn($q) => $q->searchCompany($search))
+                query: fn (Builder $query, string $search) => $query->whereHas('buyerCompany', fn ($q) => $q->searchCompany($search))
             )
-            ->formatStateUsing(fn($record): ?string => $record->buyerCompany?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->buyerCompany?->getLocalizedNameAttribute())
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -47,7 +46,7 @@ trait Table
         return TextColumn::make('id')
             ->label(__('resources/registeredOrder/strings.table.id'))
             ->sortable()
-            ->searchable(query: fn(Builder $query, string $search): Builder => $query->where('registered_orders.id', 'like', "%{$search}%"))
+            ->searchable(query: fn (Builder $query, string $search): Builder => $query->where('registered_orders.id', 'like', "%{$search}%"))
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -56,7 +55,7 @@ trait Table
         return TextColumn::make('order_date')
             ->label(__('resources/registeredOrder/strings.table.order_date'))
             ->date()
-            ->formatStateUsing(fn($record) => app()->getLocale() === 'fa' ? toPersianDate($record->order_date) : toGregorianDate($record->order_date))
+            ->formatStateUsing(fn ($record) => app()->getLocale() === 'fa' ? toPersianDate($record->order_date) : toGregorianDate($record->order_date))
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -68,7 +67,7 @@ trait Table
             ->icon('heroicon-o-shopping-bag')
             ->alignEnd()
             ->badge()
-            ->color(fn(?int $state): string => $state === 0 ? 'gray' : 'success')
+            ->color(fn (?int $state): string => $state === 0 ? 'gray' : 'success')
             ->toggleable()
             ->sortable();
     }
@@ -81,13 +80,13 @@ trait Table
             ->badge()
             ->copyable()
             ->sortable()
-            ->tooltip(fn($record) => $record->order_date->format('Y-m-d'));
+            ->tooltip(fn ($record) => $record->order_date->format('Y-m-d'));
     }
 
     public static function showOfficialRegistrationNo(): TextColumn
     {
         return TextColumn::make('official_registration_no')
-            ->label(__('resources/registeredOrder/strings.form.official_registration_no'))
+            ->label(__('resources/registeredOrder/strings.table.official_registration_no'))
             ->searchable()
             ->badge()
             ->copyable()
@@ -98,7 +97,7 @@ trait Table
     public static function showCtNumber(): TextColumn
     {
         return TextColumn::make('contract_no')
-            ->label(__('resources/registeredOrder/strings.form.contract_number'))
+            ->label(__('resources/registeredOrder/strings.table.contract_number'))
             ->searchable()
             ->badge()
             ->copyable()
@@ -112,10 +111,10 @@ trait Table
             ->label(__('resources/registeredOrder/strings.table.seller'))
             ->sortable(query: Company::getSellerCompanySort('registered_orders.seller_id'))
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas('sellerCompany', fn($q) => $q->searchCompany($search))
+                query: fn (Builder $query, string $search) => $query->whereHas('sellerCompany', fn ($q) => $q->searchCompany($search))
             )
             ->toggleable()
-            ->formatStateUsing(fn($record): ?string => $record->sellerCompany?->getLocalizedNameAttribute());
+            ->formatStateUsing(fn ($record): ?string => $record->sellerCompany?->getLocalizedNameAttribute());
     }
 
     public static function showStatus(): TextColumn
@@ -125,12 +124,12 @@ trait Table
             ->badge()
             ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->orWhereHas('status', fn($q) => $q->searchStatus($search))
+                query: fn (Builder $query, string $search) => $query->orWhereHas('status', fn ($q) => $q->searchStatus($search))
             )
-            ->formatStateUsing(fn($record): ?string => $record->status?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->status?->getLocalizedNameAttribute())
             ->iconPosition(IconPosition::Before)
-            ->icon(fn($record): ?string => Status::tryFrom($record->status?->english_name)?->getIcon() ?? 'heroicon-o-question-mark-circle')
-            ->color(fn($record): string => Status::tryFrom($record->status?->english_name)?->getColor() ?? 'gray');
+            ->icon(fn ($record): ?string => Status::tryFrom($record->status?->english_name)?->getIcon() ?? 'heroicon-o-question-mark-circle')
+            ->color(fn ($record): string => Status::tryFrom($record->status?->english_name)?->getColor() ?? 'gray');
     }
 
     public static function showUpdateTime(): TextColumn
@@ -155,12 +154,12 @@ trait Table
         return TextColumn::make('source')
             ->label(__('resources/general/strings.relevant_module.table.related_to'))
             ->badge()
-            ->getStateUsing(fn($record) => Source::getAllFromRecord($record))
-            ->formatStateUsing(fn(Source $state): ?string => $state->getLabel())
-            ->tooltip(fn(Source $state): ?string => $state->getTooltip())
+            ->getStateUsing(fn ($record) => Source::getAllFromRecord($record))
+            ->formatStateUsing(fn (Source $state): ?string => $state->getLabel())
+            ->tooltip(fn (Source $state): ?string => $state->getTooltip())
             ->iconPosition(IconPosition::Before)
-            ->icon(fn(Source $state): ?string => $state->getIcon())
-            ->color(fn(Source $state): string => $state->getColor())
+            ->icon(fn (Source $state): ?string => $state->getIcon())
+            ->color(fn (Source $state): string => $state->getColor())
             ->wrap();
     }
 }

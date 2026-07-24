@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Operational\BankProfileResource\Pages;
 
+use App\Filament\Pages\ListRecords;
 use App\Filament\Resources\BankProfileResource;
 use Filament\Actions\CreateAction;
-use App\Filament\Pages\ListRecords;
 
 class ListBankProfiles extends ListRecords
 {
@@ -13,8 +13,9 @@ class ListBankProfiles extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ...array_filter([BankProfileResource::getDeskReferenceHeaderAction()]),
             CreateAction::make()
-                ->icon('heroicon-o-sparkles')
+                ->icon('heroicon-o-sparkles'),
         ];
     }
 }

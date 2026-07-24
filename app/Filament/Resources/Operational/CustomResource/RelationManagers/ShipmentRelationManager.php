@@ -18,14 +18,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShipmentRelationManager extends RelationManager
 {
-    use ShipmentTable, ShipmentFilters;
+    use ShipmentFilters, ShipmentTable;
 
     protected static string $relationship = 'shipment';
 
     protected bool $canAssociate = false;
+
     protected bool $canCreate = false;
+
     protected bool $canDelete = false;
+
     protected bool $canDissociate = false;
+
     protected bool $canEdit = false;
 
     public static function getModelLabel(): string
@@ -81,8 +85,8 @@ class ShipmentRelationManager extends RelationManager
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record) => ShipmentResource::getUrl('edit', ['record' => $record])),
-                ])
+                        ->url(fn ($record) => ShipmentResource::getUrl('edit', ['record' => $record])),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

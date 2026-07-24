@@ -14,7 +14,7 @@ trait PreparesProformaFromRegisteredOrder
             $registeredOrder = RegisteredOrder::with(['items.product.specifications'])->find($registeredOrderId);
 
             if ($registeredOrder) {
-                $items = $registeredOrder->items->map(fn($item) => [
+                $items = $registeredOrder->items->map(fn ($item) => [
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity ?? 0,
                     'unit' => $item->unit ?? null,
@@ -28,7 +28,7 @@ trait PreparesProformaFromRegisteredOrder
                         2,
                         '.',
                         ''
-                    )
+                    ),
                 ])->toArray();
 
                 $this->form->fill([

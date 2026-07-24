@@ -27,8 +27,8 @@ trait Filters
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
-                    ->when($data['created_from'], fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
-                    ->when($data['created_until'], fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date));
+                    ->when($data['created_from'], fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
+                    ->when($data['created_until'], fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date));
             });
     }
 
@@ -80,7 +80,7 @@ trait Filters
     public static function getTargetableFilter(): SelectFilter
     {
         return SelectFilter::make('targetable_type')
-            ->label(__('resources/payment/strings.form.targetable'))
+            ->label(__('resources/payment/strings.filters.targetable'))
             ->options([
                 PurchaseOrder::class => __('resources/payment/strings.form.targetable_purchase_order'),
                 RegisteredOrder::class => __('resources/payment/strings.form.targetable_registered_order'),

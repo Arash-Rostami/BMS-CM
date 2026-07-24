@@ -6,7 +6,6 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
 
-
 trait SearchTargetable
 {
     public function scopeSearchTargetable(Builder $query, string $term): Builder
@@ -15,14 +14,14 @@ trait SearchTargetable
             ->orWhereHasMorph(
                 'targetable',
                 [Category::class],
-                fn(Builder $q) => $q
+                fn (Builder $q) => $q
                     ->where('name', 'like', "%{$term}%")
                     ->orWhere('english_name', 'like', "%{$term}%")
             )
             ->orWhereHasMorph(
                 'targetable',
                 [Product::class],
-                fn(Builder $q) => $q->where('code', 'like', "%{$term}%")
+                fn (Builder $q) => $q->where('code', 'like', "%{$term}%")
             );
     }
 }

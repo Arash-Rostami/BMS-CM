@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Operational\ShipmentResource\Pages;
 
+use App\Filament\Pages\ListRecords;
 use App\Filament\Resources\ShipmentResource;
 use Filament\Actions\CreateAction;
-use App\Filament\Pages\ListRecords;
 
 class ListShipments extends ListRecords
 {
@@ -13,6 +13,7 @@ class ListShipments extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ...array_filter([ShipmentResource::getDeskReferenceHeaderAction()]),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
         ];

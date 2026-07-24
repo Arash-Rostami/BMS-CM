@@ -14,7 +14,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DetachAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -25,8 +24,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProformaInvoicesRelationManager extends RelationManager
 {
-    use ProformaInvoiceTable;
     use ProformaInvoiceFilters;
+    use ProformaInvoiceTable;
 
     protected static string $relationship = 'proformaInvoices';
 
@@ -81,18 +80,18 @@ class ProformaInvoicesRelationManager extends RelationManager
             ->filtersFormColumns(3)
             ->headerActions([
                 Action::make('create')
-                    ->label(__('resources/proformaInvoice/strings.general.add_record'))
-                    ->visible(fn(): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Submitted']))
-                    ->url(fn(): string => ProformaInvoiceResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()]))
+                    ->label(__('resources/general/strings.actions.add_record'))
+                    ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Submitted']))
+                    ->url(fn (): string => ProformaInvoiceResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record): string => ProformaInvoiceResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record): string => ProformaInvoiceResource::getUrl('edit', ['record' => $record])),
                     DetachAction::make(),
                     DeleteAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -105,10 +104,10 @@ class ProformaInvoicesRelationManager extends RelationManager
             ->groups([
                 Group::make('sellerCompany.name')
                     ->label(__('resources/proformaInvoice/strings.filters.seller_company'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'sellerCompany')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'sellerCompany')),
                 Group::make('buyerCompany.name')
                     ->label(__('resources/proformaInvoice/strings.filters.buyer_company'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
             ])
             ->striped()
             ->recordUrl(null)

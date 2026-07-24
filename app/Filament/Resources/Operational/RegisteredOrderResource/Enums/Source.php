@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum Source: string implements HasColor, HasLabel, HasIcon
+enum Source: string implements HasColor, HasIcon, HasLabel
 {
     case PR = 'PR';
     case PO = 'PO';
@@ -26,13 +26,22 @@ enum Source: string implements HasColor, HasLabel, HasIcon
         $hasPO = isset($record->purchase_orders_count)
             ? ($record->purchase_orders_count > 0) : $record->purchaseOrders()->exists();
 
-        if ($hasPI) $sources[] = self::PI;
-        if ($hasPR) $sources[] = self::PR;
-        if ($hasPO) $sources[] = self::PO;
-        if (empty($sources)) $sources[] = self::None;
+        if ($hasPI) {
+            $sources[] = self::PI;
+        }
+        if ($hasPR) {
+            $sources[] = self::PR;
+        }
+        if ($hasPO) {
+            $sources[] = self::PO;
+        }
+        if (empty($sources)) {
+            $sources[] = self::None;
+        }
 
         return $sources;
     }
+
     public function getColor(): string|array|null
     {
         return match ($this) {
@@ -45,9 +54,15 @@ enum Source: string implements HasColor, HasLabel, HasIcon
 
     public static function getFromRecord($record): self
     {
-        if ($record->purchaseRequests()->exists()) return self::PR;
-        if ($record->purchaseOrders()->exists()) return self::PO;
-        if ($record->proformaInvoices()->exists()) return self::PI;
+        if ($record->purchaseRequests()->exists()) {
+            return self::PR;
+        }
+        if ($record->purchaseOrders()->exists()) {
+            return self::PO;
+        }
+        if ($record->proformaInvoices()->exists()) {
+            return self::PI;
+        }
 
         return self::None;
     }

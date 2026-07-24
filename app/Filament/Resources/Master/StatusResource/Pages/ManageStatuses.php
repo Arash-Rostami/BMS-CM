@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Master\StatusResource\Pages;
 
-use Filament\Actions\CreateAction;
-use App\Filament\Resources\StatusResource;
-use Filament\Actions;
 use App\Filament\Pages\ManageRecords;
+use App\Filament\Resources\StatusResource;
+use Filament\Actions\CreateAction;
 
 class ManageStatuses extends ManageRecords
 {
@@ -16,7 +15,7 @@ class ManageStatuses extends ManageRecords
         return [
             CreateAction::make()
                 ->icon('heroicon-o-sparkles')
-                ->mutateDataUsing(fn(array $data): array => static::processCustomFields($data)),
+                ->mutateDataUsing(fn (array $data): array => static::processCustomFields($data)),
         ];
     }
 

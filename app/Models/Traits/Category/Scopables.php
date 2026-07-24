@@ -11,12 +11,10 @@ trait Scopables
         return $query->where('active', true);
     }
 
-
     public function scopeTopLevel(Builder $query): Builder
     {
         return $query->whereNull('parent_id');
     }
-
 
     public function scopeLevel(Builder $query, int $level): Builder
     {

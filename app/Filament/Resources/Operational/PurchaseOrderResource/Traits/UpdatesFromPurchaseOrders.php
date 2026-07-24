@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Traits;
 
-use Filament\Schemas\Components\Utilities\Set;
 use App\Models\PurchaseOrder;
+use Filament\Schemas\Components\Utilities\Set;
 
 trait UpdatesFromPurchaseOrders
 {
@@ -11,14 +11,15 @@ trait UpdatesFromPurchaseOrders
     {
         if (empty($state)) {
             $set('items', []);
+
             return;
         }
 
-        $purchaseOrders = PurchaseOrder::whereIn('id', (array)$state)
+        $purchaseOrders = PurchaseOrder::whereIn('id', (array) $state)
             ->with(['items.product.specifications'])
             ->get();
 
-        $items = $purchaseOrders->flatMap(fn($pr) => $pr->items->map(fn($item) => [
+        $items = $purchaseOrders->flatMap(fn ($pr) => $pr->items->map(fn ($item) => [
             'product_id' => $item->product_id,
             'quantity' => $item->quantity ?? 0,
             'unit' => $item->unit ?? null,
@@ -36,7 +37,7 @@ trait UpdatesFromPurchaseOrders
                 '.',
                 ''
             ),
-            'show_notes' => true
+            'show_notes' => true,
         ])
         )->toArray();
 

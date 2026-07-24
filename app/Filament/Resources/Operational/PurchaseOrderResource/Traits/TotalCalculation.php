@@ -11,12 +11,13 @@ trait TotalCalculation
         $items = $get('items') ?? [];
 
         $totalQuantity = collect($items)->sum(function ($item) {
-            return is_numeric($item['quantity'] ?? 0) ? (float)$item['quantity'] : 0;
+            return is_numeric($item['quantity'] ?? 0) ? (float) $item['quantity'] : 0;
         });
 
         $totalAmount = collect($items)->sum(function ($item) {
-            $quantity = is_numeric($item['quantity'] ?? 0) ? (float)$item['quantity'] : 0;
-            $price = is_numeric($item['unit_price'] ?? 0) ? (float)$item['unit_price'] : 0;
+            $quantity = is_numeric($item['quantity'] ?? 0) ? (float) $item['quantity'] : 0;
+            $price = is_numeric($item['unit_price'] ?? 0) ? (float) $item['unit_price'] : 0;
+
             return $quantity * $price;
         });
 

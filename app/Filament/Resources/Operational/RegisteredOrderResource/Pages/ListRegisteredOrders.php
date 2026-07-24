@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\Pages;
 
+use App\Filament\Pages\ListRecords;
 use App\Filament\Resources\RegisteredOrderResource;
 use Filament\Actions\CreateAction;
-use App\Filament\Pages\ListRecords;
 
 class ListRegisteredOrders extends ListRecords
 {
@@ -13,8 +13,9 @@ class ListRegisteredOrders extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ...array_filter([RegisteredOrderResource::getDeskReferenceHeaderAction()]),
             CreateAction::make()
-                ->icon('heroicon-o-sparkles')
+                ->icon('heroicon-o-sparkles'),
         ];
     }
 }

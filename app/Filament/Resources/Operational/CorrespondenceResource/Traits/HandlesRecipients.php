@@ -12,7 +12,6 @@ trait HandlesRecipients
         'cc' => [],
     ];
 
-
     public static function extractRecipients(array $data): array
     {
         $to = $data['recipients_to'] ?? [];
@@ -35,7 +34,7 @@ trait HandlesRecipients
 
         foreach ($ccIds as $id) {
             // 'to' takes precedence if user is in both lists
-            if (!isset($syncData[$id])) {
+            if (! isset($syncData[$id])) {
                 $syncData[$id] = ['type' => 'cc'];
             }
         }
@@ -45,8 +44,9 @@ trait HandlesRecipients
 
     protected function loadRecipientsToForm(Model $record, array $data): array
     {
-        if (!$record->relationLoaded('recipients')) $record->load('recipients');
-
+        if (! $record->relationLoaded('recipients')) {
+            $record->load('recipients');
+        }
 
         $data['recipients_to'] = $record->recipients->where('pivot.type', 'to')->pluck('id')->toArray();
         $data['recipients_cc'] = $record->recipients->where('pivot.type', 'cc')->pluck('name')->toArray();

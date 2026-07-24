@@ -34,8 +34,8 @@ trait Filters
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
-                    ->when($data['created_from'], fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
-                    ->when($data['created_until'], fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date));
+                    ->when($data['created_from'], fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
+                    ->when($data['created_until'], fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date));
             });
     }
 
@@ -64,7 +64,7 @@ trait Filters
     {
         return SelectFilter::make('incoterms')
             ->label(__('resources/purchaseOrder/strings.filters.incoterms'))
-            ->options(fn() => __('resources/purchaseOrder/strings.general.delivery_terms'));
+            ->options(fn () => __('resources/purchaseOrder/strings.general.delivery_terms'));
     }
 
     public static function getStatusFilter(): SelectFilter

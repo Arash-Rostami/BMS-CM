@@ -44,8 +44,8 @@ trait Filters
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
-                    ->when($data['created_from'], fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
-                    ->when($data['created_until'], fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date));
+                    ->when($data['created_from'], fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
+                    ->when($data['created_until'], fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date));
             });
     }
 
@@ -73,8 +73,8 @@ trait Filters
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
-                    ->when($data['payment_due_from'], fn(Builder $query, $date): Builder => $query->whereDate('payment_due_date', '>=', $date))
-                    ->when($data['payment_due_until'], fn(Builder $query, $date): Builder => $query->whereDate('payment_due_date', '<=', $date));
+                    ->when($data['payment_due_from'], fn (Builder $query, $date): Builder => $query->whereDate('payment_due_date', '>=', $date))
+                    ->when($data['payment_due_until'], fn (Builder $query, $date): Builder => $query->whereDate('payment_due_date', '<=', $date));
             });
     }
 
@@ -83,7 +83,7 @@ trait Filters
         return SelectFilter::make('registered_order_id')
             ->label(__('resources/bankProfile/strings.filters.registered_order'))
             ->relationship('registeredOrder', 'ro_number')
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name_without_date)
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->formatted_name_without_date)
             ->columnSpan(2)
             ->searchable()
             ->preload();

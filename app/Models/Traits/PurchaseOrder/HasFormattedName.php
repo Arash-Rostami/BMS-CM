@@ -4,7 +4,6 @@ namespace App\Models\Traits\PurchaseOrder;
 
 trait HasFormattedName
 {
-
     public function getFormattedNameAttribute(): string
     {
         return $this->buildFormattedName(true);
@@ -18,22 +17,22 @@ trait HasFormattedName
     private function buildFormattedName(bool $withDates): string
     {
         $fa = app()->getLocale() === 'fa';
-        $s = fn($key, $faValue, $enValue) => $fa ? $faValue : $enValue;
+        $s = fn ($key, $faValue, $enValue) => $fa ? $faValue : $enValue;
 
         $name = $this->creator?->name ?? 'N/A';
         $status = match ($this->status?->english_name) {
-            'Approved'  => '✅ ',
+            'Approved' => '✅ ',
             'Submitted' => '☑️ ',
-            default     => '',
+            default => '',
         };
 
         $id = $this->po_number ?? $this->id;
 
-        if (!$withDates) {
+        if (! $withDates) {
             return $fa ? "{$status} {$name} ┆ {$id}" : "{$status} {$id} ┆ {$name}";
         }
 
-        $fmt = fn($d) => $d ? ($fa ? toPersianDate($d) : toGregorianDate($d)) : 'N/A';
+        $fmt = fn ($d) => $d ? ($fa ? toPersianDate($d) : toGregorianDate($d)) : 'N/A';
         $cDate = $fmt($this->created_at);
         [$dDate, $dLabel] =
             $this->validity_date

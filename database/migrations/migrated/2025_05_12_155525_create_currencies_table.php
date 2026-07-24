@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('currencies', function (Blueprint $table) {
@@ -21,12 +18,13 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by_id')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index('user_id', 'idx_currencies_user_id');
+            $table->index('updated_by_id', 'idx_currencies_updated_by_id');
+            $table->index(['is_active', 'deleted_at'], 'idx_currencies_active_deleted');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('currencies');

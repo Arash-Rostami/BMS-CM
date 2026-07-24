@@ -25,11 +25,11 @@ class DocChecklistMatcher
             return;
         }
 
-        $files  = $record->attachments()->pluck('name')->filter()
+        $files = $record->attachments()->pluck('name')->filter()
             ->map(fn (string $n): array => ['compact' => self::normalize($n), 'tokens' => self::tokens($n)])
             ->all();
 
-        $labels  = self::labelsByKey($record->documentChecklistOptions());
+        $labels = self::labelsByKey($record->documentChecklistOptions());
         $changed = false;
 
         foreach ($rows as $i => $row) {

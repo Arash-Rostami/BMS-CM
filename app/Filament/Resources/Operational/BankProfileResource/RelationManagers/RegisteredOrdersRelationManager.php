@@ -18,16 +18,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class RegisteredOrdersRelationManager extends RelationManager
 {
-    use RegisteredOrderTable, RegisteredOrderFilters;
+    use RegisteredOrderFilters, RegisteredOrderTable;
 
     protected static string $relationship = 'registeredOrder';
 
     protected bool $canAssociate = false;
-    protected bool $canCreate = false;
-    protected bool $canDelete = false;
-    protected bool $canDissociate = false;
-    protected bool $canEdit = false;
 
+    protected bool $canCreate = false;
+
+    protected bool $canDelete = false;
+
+    protected bool $canDissociate = false;
+
+    protected bool $canEdit = false;
 
     public static function getModelLabel(): string
     {
@@ -77,7 +80,7 @@ class RegisteredOrdersRelationManager extends RelationManager
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record) => RegisteredOrderResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record) => RegisteredOrderResource::getUrl('edit', ['record' => $record])),
                 ]),
             ])
             ->toolbarActions([

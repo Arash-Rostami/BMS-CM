@@ -11,6 +11,7 @@ trait Relationships
     {
         return $this->hasMany(ProformaInvoice::class, 'main_currency_id');
     }
+
     public function proformaInvoicesAsSecondary(): HasMany
     {
         return $this->hasMany(ProformaInvoice::class, 'secondary_currency_id');

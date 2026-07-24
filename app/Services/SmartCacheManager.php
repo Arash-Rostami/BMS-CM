@@ -34,25 +34,26 @@ class SmartCacheManager
     {
         $baseKey = strtolower($model);
 
-        Cache::forget('total_count_' . $baseKey);
+        Cache::forget('total_count_'.$baseKey);
     }
 
     private static function generateKey(string $model, array $filters): string
     {
         $hash = md5(json_encode($filters));
-        return self::CACHE_PREFIX . strtolower($model) . '_' . substr($hash, 0, 16);
+
+        return self::CACHE_PREFIX.strtolower($model).'_'.substr($hash, 0, 16);
     }
 
     private static function getRegistryKey(string $model): string
     {
-        return self::CACHE_PREFIX . strtolower($model) . '_registry';
+        return self::CACHE_PREFIX.strtolower($model).'_registry';
     }
 
     private static function registerCacheKey(string $registryKey, string $key): void
     {
         $registry = Cache::get($registryKey, []);
 
-        if (!in_array($key, $registry)) {
+        if (! in_array($key, $registry)) {
             $registry[] = $key;
             Cache::forever($registryKey, $registry);
         }

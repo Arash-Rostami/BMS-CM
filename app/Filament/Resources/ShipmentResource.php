@@ -15,10 +15,10 @@ use App\Filament\Resources\Operational\ShipmentResource\Traits\Form as ShipmentF
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Infolist as ShipmentInfolist;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\InvoiceForm as ShipmentInvoiceForm;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Table as ShipmentTable;
+use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Shipment;
-use App\Services\SmartCacheManager;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -42,10 +42,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-
 class ShipmentResource extends Resource
 {
-    use ShipmentForm, ShipmentTable, ShipmentFilters, ShipmentInfolist, ShipmentInvoiceForm, HasResourcePermissions, HasExtraAttributesManagement;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, ShipmentFilters, ShipmentForm, ShipmentInfolist, ShipmentInvoiceForm, ShipmentTable;
 
     protected static ?string $model = Shipment::class;
 
@@ -59,7 +58,7 @@ class ShipmentResource extends Resource
             ->components([
                 Tabs::make('Shipment Tabs')
                     ->tabs([
-                        Tab::make(__('resources/shipment/strings.form.tabs.general'))
+                        Tab::make(__('resources/shipment/strings.form.tab_general'))
                             ->icon('heroicon-o-document-text')
                             ->schema([
                                 Group::make()
@@ -78,7 +77,7 @@ class ShipmentResource extends Resource
                                                 static::getDocsField(),
                                             ])
                                             ->collapsible()
-                                            ->collapsed(fn($operation) => $operation !== 'edit')
+                                            ->collapsed(fn ($operation) => $operation !== 'edit')
                                             ->columns(2),
                                     ])->columnSpan(['lg' => 2]),
 
@@ -92,7 +91,7 @@ class ShipmentResource extends Resource
                                     ])->columnSpan(['lg' => 1]),
                             ])->columns(3),
 
-                        Tab::make(__('resources/shipment/strings.form.tabs.logistics'))
+                        Tab::make(__('resources/shipment/strings.form.tab_logistics'))
                             ->icon('heroicon-o-map')
                             ->schema([
                                 Group::make()
@@ -179,7 +178,7 @@ class ShipmentResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return '🚢 ' . ($record->shipment_no ?? $record->bl_number ?? '—');
+        return '🚢 '.($record->shipment_no ?? $record->bl_number ?? '—');
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -191,24 +190,6 @@ class ShipmentResource extends Resource
     {
         return __('resources/shipment/strings.general.model_label');
     }
-
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'Shipment',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            150,
-            fn() => static::getModel()::count()
-        );
-
-        return $count > 0 ? (string)$count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
-    }
-
 
     public static function getNavigationGroup(): ?string
     {
@@ -234,7 +215,7 @@ class ShipmentResource extends Resource
         return [
             CorrespondenceRelationManager::class,
             RegisteredOrderRelationManager::class,
-            CustomsRelationManager::class
+            CustomsRelationManager::class,
         ];
     }
 
@@ -298,7 +279,7 @@ class ShipmentResource extends Resource
                                     ->columnSpanFull(),
                             ]),
                         Tab::make(__('resources/shipment/strings.infolist.tab_docs'))
-                            ->label(fn($record) => tabBadge(
+                            ->label(fn ($record) => tabBadge(
                                 __('resources/shipment/strings.infolist.tab_docs'),
                                 collect($record->docs)->count(),
                                 'warning'
@@ -310,7 +291,7 @@ class ShipmentResource extends Resource
                                     ->schema([static::viewDocs()])->columnSpanFull(),
                             ]),
                         Tab::make(__('resources/shipment/strings.infolist.tab_documents'))
-                            ->label(fn($record) => tabBadge(
+                            ->label(fn ($record) => tabBadge(
                                 __('resources/shipment/strings.infolist.tab_documents'),
                                 collect($record->docs['items'] ?? [])->count(),
                                 'info'
@@ -358,7 +339,7 @@ class ShipmentResource extends Resource
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -371,16 +352,16 @@ class ShipmentResource extends Resource
             ->groups([
                 TableGroup::make('registeredOrder.ro_number')
                     ->label(__('resources/shipment/strings.form.registered_order'))
-                    ->getTitleFromRecordUsing(fn(Model $record) => $record->registeredOrder?->formatted_name_without_date),
+                    ->getTitleFromRecordUsing(fn (Model $record) => $record->registeredOrder?->formatted_name_without_date),
                 TableGroup::make('carrier.name')
                     ->label(__('resources/shipment/strings.form.carrier'))
-                    ->getTitleFromRecordUsing(fn(Model $record) => $record->carrier?->getLocalizedNameAttribute()),
+                    ->getTitleFromRecordUsing(fn (Model $record) => $record->carrier?->getLocalizedNameAttribute()),
                 TableGroup::make('status.name')
                     ->label(__('resources/shipment/strings.form.status'))
-                    ->getTitleFromRecordUsing(fn(Model $record) => $record->status?->getLocalizedNameAttribute()),
+                    ->getTitleFromRecordUsing(fn (Model $record) => $record->status?->getLocalizedNameAttribute()),
                 TableGroup::make('trackingStatus.name')
                     ->label(__('resources/shipment/strings.form.shipment_status'))
-                    ->getTitleFromRecordUsing(fn(Model $record) => $record->trackingStatus?->getLocalizedNameAttribute()),
+                    ->getTitleFromRecordUsing(fn (Model $record) => $record->trackingStatus?->getLocalizedNameAttribute()),
             ])
             ->striped()
             ->searchDebounce('1000ms')

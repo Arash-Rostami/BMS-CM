@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum CommitmentStatus: string implements HasColor, HasLabel, HasIcon
+enum CommitmentStatus: string implements HasColor, HasIcon, HasLabel
 {
     case Completed = 'Completed';
     case NotCompleted = 'Not Completed';
@@ -29,6 +29,6 @@ enum CommitmentStatus: string implements HasColor, HasLabel, HasIcon
 
     public function getLabel(): ?string
     {
-        return __('resources/custom/strings.general.commitment_status.' . str($this->name)->snake());
+        return __('resources/custom/strings.general.commitment_status.'.str($this->name)->snake());
     }
 }

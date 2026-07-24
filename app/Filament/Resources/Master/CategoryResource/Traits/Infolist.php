@@ -13,8 +13,8 @@ trait Infolist
         return TextEntry::make('active')
             ->label(__('resources/category/strings.table.active'))
             ->badge()
-            ->formatStateUsing(fn($state): string => Status::tryFrom((int)$state)?->getLabel() ?? $state)
-            ->color(fn($state): string => Status::tryFrom((int)$state)?->getColor() ?? 'gray')
+            ->formatStateUsing(fn ($state): string => Status::tryFrom((int) $state)?->getLabel() ?? $state)
+            ->color(fn ($state): string => Status::tryFrom((int) $state)?->getColor() ?? 'gray')
             ->icon('heroicon-m-check-circle')
             ->placeholder('-');
     }
@@ -60,8 +60,8 @@ trait Infolist
         return TextEntry::make('level')
             ->label(__('resources/category/strings.form.level'))
             ->badge()
-            ->formatStateUsing(fn($state): string => Level::fromLevel($state)?->getLabel() ?? $state)
-            ->color(fn($state): string => Level::fromLevel($state)?->getColor())
+            ->formatStateUsing(fn ($state): string => Level::fromLevel($state)?->getLabel() ?? $state)
+            ->color(fn ($state): string => Level::fromLevel($state)?->getColor())
             ->icon('heroicon-m-rectangle-stack')
             ->placeholder('-');
     }
@@ -79,7 +79,7 @@ trait Infolist
     {
         return TextEntry::make('parent.name')
             ->label(__('resources/category/strings.form.parent'))
-            ->formatStateUsing(fn($record, $state) => app()->getLocale() != 'fa' ? optional($record->parent)->english_name : $state)
+            ->formatStateUsing(fn ($record, $state) => app()->getLocale() != 'fa' ? optional($record->parent)->english_name : $state)
             ->icon('heroicon-m-folder')
             ->placeholder('-');
     }

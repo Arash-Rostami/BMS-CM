@@ -16,11 +16,11 @@ trait Infolist
             ->schema([
                 TextEntry::make('path')
                     ->hiddenLabel()
-                    ->formatStateUsing(fn(string $state): string => basename($state))
-                    ->tooltip(fn($record) => $record->name ?? '')
+                    ->formatStateUsing(fn (string $state): string => basename($state))
+                    ->tooltip(fn ($record) => $record->name ?? '')
                     ->icon('heroicon-m-paper-clip')
                     ->color('primary')
-                    ->url(fn($record) => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
+                    ->url(fn ($record) => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
             ])
             ->columns(1);
     }
@@ -51,7 +51,7 @@ trait Infolist
     {
         return TextEntry::make('carrier.name')
             ->label(__('resources/shipment/strings.form.carrier'))
-            ->formatStateUsing(fn($record) => $record->carrier?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record) => $record->carrier?->getLocalizedNameAttribute())
             ->icon('heroicon-m-truck')
             ->placeholder('-');
     }
@@ -69,7 +69,7 @@ trait Infolist
     {
         return TextEntry::make('containerStatus.name')
             ->label(__('resources/shipment/strings.form.container_status'))
-            ->formatStateUsing(fn($record) => $record->containerStatus?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record) => $record->containerStatus?->getLocalizedNameAttribute())
             ->badge()
             ->placeholder('-');
     }
@@ -78,7 +78,7 @@ trait Infolist
     {
         return TextEntry::make('container_type')
             ->label(__('resources/shipment/strings.form.container_type'))
-            ->formatStateUsing(fn($record) => ($record->container_type ? __('resources/shipment/strings.form.container_types.' . $record->container_type) : '-'))
+            ->formatStateUsing(fn ($record) => ($record->container_type ? __('resources/shipment/strings.form.container_types.'.$record->container_type) : '-'))
             ->icon('heroicon-m-cube-transparent')
             ->placeholder('-');
     }
@@ -113,7 +113,7 @@ trait Infolist
     {
         return TextEntry::make('customs_quantity')
             ->label(__('resources/shipment/strings.form.customs_quantity'))
-            ->formatStateUsing(fn($state) => $state !== null ? number_format($state) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state) : '-')
             ->icon('heroicon-m-scale')
             ->placeholder('-');
     }
@@ -122,11 +122,10 @@ trait Infolist
     {
         return TextEntry::make('docStatus.name')
             ->label(__('resources/shipment/strings.form.doc_status'))
-            ->formatStateUsing(fn($record) => $record->docStatus?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record) => $record->docStatus?->getLocalizedNameAttribute())
             ->badge()
             ->placeholder('-');
     }
-
 
     public static function viewDocs(): RepeatableEntry
     {
@@ -137,12 +136,11 @@ trait Infolist
             ->schema([
                 TextEntry::make('name')
                     ->hiddenLabel()
-                    ->formatStateUsing(fn($state) => is_string($state) && array_key_exists($state, $defaults)
+                    ->formatStateUsing(fn ($state) => is_string($state) && array_key_exists($state, $defaults)
                         ? $defaults[$state]
                         : $state
                     )
-                    ->icon('heroicon-m-document')
-                    ->label(__('resources/shipment/strings.form.doc_name')),
+                    ->icon('heroicon-m-document'),
                 IconEntry::make('received')
                     ->hiddenLabel()
                     ->boolean()
@@ -195,7 +193,7 @@ trait Infolist
     {
         return TextEntry::make('operationStatus.name')
             ->label(__('resources/shipment/strings.form.operation_status'))
-            ->formatStateUsing(fn($record) => $record->operationStatus?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record) => $record->operationStatus?->getLocalizedNameAttribute())
             ->badge()
             ->placeholder('-');
     }
@@ -224,7 +222,7 @@ trait Infolist
     {
         return TextEntry::make('remittance_amount')
             ->label(__('resources/shipment/strings.form.remittance_amount'))
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -243,7 +241,7 @@ trait Infolist
     {
         return TextEntry::make('shipped_quantity')
             ->label(__('resources/shipment/strings.form.shipped_quantity'))
-            ->formatStateUsing(fn($state) => $state !== null ? number_format($state) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state) : '-')
             ->icon('heroicon-m-cube')
             ->placeholder('-');
     }
@@ -252,7 +250,7 @@ trait Infolist
     {
         return TextEntry::make('status.name')
             ->label(__('resources/shipment/strings.form.status'))
-            ->formatStateUsing(fn($record) => $record->status?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record) => $record->status?->getLocalizedNameAttribute())
             ->badge()
             ->color('primary');
     }
@@ -261,7 +259,7 @@ trait Infolist
     {
         return TextEntry::make('trackingStatus.name')
             ->label(__('resources/shipment/strings.form.shipment_status'))
-            ->formatStateUsing(fn($record) => $record->trackingStatus?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record) => $record->trackingStatus?->getLocalizedNameAttribute())
             ->badge()
             ->placeholder('-');
     }

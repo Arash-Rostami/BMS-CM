@@ -10,15 +10,14 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait Table
 {
-
     public static function showCostCenter(): TextColumn
     {
         return TextColumn::make('costCenter.localized_name')
             ->label(__('resources/purchaseRequest/strings.form.cost_center'))
-            ->tooltip(fn($record) => $record?->requester->name)
+            ->tooltip(fn ($record) => $record?->requester->name)
             ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->orWhereHas('costCenter', fn($q) => $q->searchDepartment($search))
+                query: fn (Builder $query, string $search) => $query->orWhereHas('costCenter', fn ($q) => $q->searchDepartment($search))
             )
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -45,10 +44,10 @@ trait Table
     {
         return TextColumn::make('department.localized_name')
             ->label(__('resources/purchaseRequest/strings.table.department'))
-            ->tooltip(fn($record) => $record?->requester->name)
+            ->tooltip(fn ($record) => $record?->requester->name)
             ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->orWhereHas('department', fn($q) => $q->searchDepartment($search))
+                query: fn (Builder $query, string $search) => $query->orWhereHas('department', fn ($q) => $q->searchDepartment($search))
             )
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -80,7 +79,7 @@ trait Table
             ->icon('heroicon-o-document-text')
             ->alignEnd()
             ->badge()
-            ->color(fn(int $state): string => match ($state) {
+            ->color(fn (int $state): string => match ($state) {
                 0 => 'gray',
                 default => 'success',
             })
@@ -113,12 +112,12 @@ trait Table
             ->badge()
             ->toggleable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->orWhereHas('status', fn($q) => $q->searchStatus($search))
+                query: fn (Builder $query, string $search) => $query->orWhereHas('status', fn ($q) => $q->searchStatus($search))
             )
             ->iconPosition(IconPosition::Before)
-            ->formatStateUsing(fn(?string $state): ?string => Status::tryFrom($state)?->getLabel() ?? $state)
-            ->color(fn(?string $state): ?string => Status::tryFrom($state)?->getColor() ?? 'info')
-            ->icon(fn(?string $state): ?string => Status::tryFrom($state)?->getIcon() ?? 'heroicon-o-question-mark-circle')
+            ->formatStateUsing(fn (?string $state): ?string => Status::tryFrom($state)?->getLabel() ?? $state)
+            ->color(fn (?string $state): ?string => Status::tryFrom($state)?->getColor() ?? 'info')
+            ->icon(fn (?string $state): ?string => Status::tryFrom($state)?->getIcon() ?? 'heroicon-o-question-mark-circle')
             ->sortable();
     }
 
@@ -127,7 +126,7 @@ trait Table
         return TextColumn::make('total_estimated_cost')
             ->label(__('resources/purchaseRequest/strings.table.total_estimated_cost'))
             ->sortable()
-            ->formatStateUsing(fn(?float $state) => $state === null
+            ->formatStateUsing(fn (?float $state) => $state === null
                 ? '-'
                 : number_format($state, 2)
             )
@@ -158,8 +157,8 @@ trait Table
             ->label(__('resources/purchaseRequest/strings.table.urgency_level'))
             ->badge()
             ->toggleable(isToggledHiddenByDefault: true)
-            ->formatStateUsing(fn(?string $state): ?string => __("resources/purchaseRequest/strings.general.urgency.{$state}") ?? $state)
-            ->color(fn(?string $state): string => match ($state) {
+            ->formatStateUsing(fn (?string $state): ?string => __("resources/purchaseRequest/strings.general.urgency.{$state}") ?? $state)
+            ->color(fn (?string $state): string => match ($state) {
                 'high' => 'danger',
                 'medium' => 'warning',
                 'low' => 'success',
@@ -168,21 +167,17 @@ trait Table
             ->sortable();
     }
 
-
-
-
-
     protected static function showSource(): TextColumn
     {
         return TextColumn::make('source')
             ->label(__('resources/general/strings.relevant_module.table.related_to'))
             ->badge()
-            ->getStateUsing(fn($record) => Source::getAllFromRecord($record))
-            ->formatStateUsing(fn(Source $state): ?string => $state->getLabel())
-            ->tooltip(fn(Source $state): ?string => $state->getTooltip())
+            ->getStateUsing(fn ($record) => Source::getAllFromRecord($record))
+            ->formatStateUsing(fn (Source $state): ?string => $state->getLabel())
+            ->tooltip(fn (Source $state): ?string => $state->getTooltip())
             ->iconPosition(IconPosition::Before)
-            ->icon(fn(Source $state): ?string => $state->getIcon())
-            ->color(fn(Source $state): string => $state->getColor())
+            ->icon(fn (Source $state): ?string => $state->getIcon())
+            ->color(fn (Source $state): string => $state->getColor())
             ->wrap();
     }
 }

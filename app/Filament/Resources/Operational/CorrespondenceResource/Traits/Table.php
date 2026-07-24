@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Operational\CorrespondenceResource\Traits;
 use App\Filament\Resources\Operational\CorrespondenceResource\Enums\Priority;
 use App\Filament\Resources\Operational\CorrespondenceResource\Enums\Type;
 use App\Models\Correspondence;
+use App\Models\Status;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -17,7 +18,7 @@ trait Table
     {
         return TextColumn::make('creator.name')
             ->label(__('resources/correspondence/strings.table.creator'))
-            ->description(fn(Correspondence $record) => $record->created_at ? toPersianDate($record->created_at) : '-')
+            ->description(fn (Correspondence $record) => $record->created_at ? toPersianDate($record->created_at) : '-')
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -27,26 +28,63 @@ trait Table
         return IconColumn::make('flags')
             ->label(__('resources/correspondence/strings.table.visibility'))
             ->state(function (Correspondence $record): string {
-                if ($record->is_private) return 'private';
-                if ($record->is_internal) return 'internal';
+                if ($record->is_private) {
+                    return 'private';
+                }
+                if ($record->is_internal) {
+                    return 'internal';
+                }
+
                 return 'public';
             })
-            ->icon(fn(string $state): string => match ($state) {
+            ->icon(fn (string $state): string => match ($state) {
                 'private' => 'heroicon-s-lock-closed',
                 'internal' => 'heroicon-s-building-office',
                 default => 'heroicon-o-globe-alt',
             })
-            ->color(fn(string $state): string => match ($state) {
+            ->color(fn (string $state): string => match ($state) {
                 'private' => 'danger',
                 'internal' => 'warning',
                 default => 'gray',
             })
-            ->tooltip(fn(string $state): string => match ($state) {
-                'private' => __('resources/correspondence/strings.form.is_private'),
-                'internal' => __('resources/correspondence/strings.form.is_internal'),
-                default => 'Public',
+            ->tooltip(fn (string $state): string => match ($state) {
+                'private' => __('resources/correspondence/strings.table.visibility_private'),
+                'internal' => __('resources/correspondence/strings.table.visibility_internal'),
+                default => __('resources/correspondence/strings.table.visibility_public'),
             })
             ->toggleable();
+    }
+
+    public static function showReadStatus(): IconColumn
+    {
+        return IconColumn::make('read_status')
+            ->label(__('resources/correspondence/strings.table.read_status'))
+            ->state(function (Correspondence $record): ?bool {
+                $userId = auth()->id();
+
+                if (! $userId) {
+                    return null;
+                }
+
+                $pivot = $record->recipients->firstWhere('id', $userId)?->pivot;
+
+                return $pivot ? $pivot->read_at === null : null;
+            })
+            ->icon(fn (?bool $state): ?string => match ($state) {
+                true => 'heroicon-s-envelope',
+                false => 'heroicon-o-envelope-open',
+                default => null,
+            })
+            ->color(fn (?bool $state): ?string => match ($state) {
+                true => 'primary',
+                false => 'gray',
+                default => null,
+            })
+            ->tooltip(fn (?bool $state): ?string => match ($state) {
+                true => __('resources/correspondence/strings.table.unread_tooltip'),
+                false => __('resources/correspondence/strings.table.read_tooltip'),
+                default => null,
+            });
     }
 
     public static function showLastUpdated(): TextColumn
@@ -65,9 +103,9 @@ trait Table
             ->badge()
             ->sortable()
             ->searchable()
-            ->formatStateUsing(fn(string $state): string => Priority::tryFrom($state)?->getLabel() ?? $state)
-            ->icon(fn(string $state): ?string => Priority::tryFrom($state)?->getIcon())
-            ->color(fn(string $state): string => Priority::tryFrom($state)?->getColor() ?? 'gray')
+            ->formatStateUsing(fn (string $state): string => Priority::tryFrom($state)?->getLabel() ?? $state)
+            ->icon(fn (string $state): ?string => Priority::tryFrom($state)?->getIcon())
+            ->color(fn (string $state): string => Priority::tryFrom($state)?->getColor() ?? 'gray')
             ->toggleable();
     }
 
@@ -78,7 +116,7 @@ trait Table
             ->badge()
             ->separator(',')
             ->limitList(3)
-            ->tooltip(fn(Correspondence $record) => $record->recipients->pluck('name')->implode(', '))
+            ->tooltip(fn (Correspondence $record) => $record->recipients->pluck('name')->implode(', '))
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -88,12 +126,35 @@ trait Table
             ->label(__('resources/correspondence/strings.table.status'))
             ->badge()
             ->sortable()
-            ->formatStateUsing(fn(Model $record): ?string => $record->status?->getLocalizedNameAttribute())
-            ->color(fn(Model $record): string => match ($record->status?->english_name) {
-                'Approved', 'Sent', 'Published' => 'success',
-                'Draft', 'Pending' => 'gray',
-                'Rejected', 'Archived' => 'danger',
-                default => 'info'
+            ->formatStateUsing(fn (Model $record): ?string => $record->status?->getLocalizedNameAttribute())
+            ->color(function (Model $record): string {
+                static $colors = null;
+
+                if ($colors === null) {
+                    $colors = collect([
+                        'success' => ['Approved', 'Sent', 'Published'],
+                        'gray' => ['Draft', 'Pending'],
+                        'danger' => ['Rejected', 'Archived'],
+                    ])->map(fn ($names) => collect($names)
+                        ->map(fn ($name) => Status::findBy(Correspondence::TYPE_CORRESPONDENCE_STATUS, $name)?->id)
+                        ->filter()
+                        ->all()
+                    )->all();
+                }
+
+                $id = $record->status?->id;
+
+                if (! $id) {
+                    return 'info';
+                }
+
+                foreach ($colors as $color => $ids) {
+                    if (in_array($id, $ids, true)) {
+                        return $color;
+                    }
+                }
+
+                return 'info';
             });
     }
 
@@ -105,7 +166,7 @@ trait Table
             ->sortable()
             ->limit(50)
             ->weight(FontWeight::Bold)
-            ->description(fn(Correspondence $record): string => Str::limit(strip_tags($record->body), 60));
+            ->description(fn (Correspondence $record): string => Str::limit(strip_tags($record->body), 60));
     }
 
     public static function showType(): TextColumn
@@ -115,8 +176,8 @@ trait Table
             ->badge()
             ->sortable()
             ->searchable()
-            ->formatStateUsing(fn(string $state): string => Type::tryFrom($state)?->getLabel() ?? $state)
-            ->icon(fn(string $state): ?string => Type::tryFrom($state)?->getIcon())
-            ->color(fn(string $state): string => Type::tryFrom($state)?->getColor() ?? 'gray');
+            ->formatStateUsing(fn (string $state): string => Type::tryFrom($state)?->getLabel() ?? $state)
+            ->icon(fn (string $state): ?string => Type::tryFrom($state)?->getIcon())
+            ->color(fn (string $state): string => Type::tryFrom($state)?->getColor() ?? 'gray');
     }
 }

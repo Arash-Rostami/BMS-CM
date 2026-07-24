@@ -1,45 +1,13 @@
 <?php
 
 use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\DeskReferenceController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
-
-Route::get('/', fn() => redirect()->to('dashboard'));
-
-Route::get('/clear', function () {
-    if (!Auth::check()) abort(403, 'Unauthorized');
-
-    Artisan::call('cache:clear');
-    Artisan::call('config:clear');
-    Artisan::call('route:clear');
-    Artisan::call('view:clear');
-    Artisan::call('optimize:clear');
-    Artisan::call('filament:clear-cached-components');
-
-    return response()->json([
-        'message' => 'All caches, including Filament caches, have been cleared successfully!',
-        'timestamp' => now()->toDateTimeString()
-    ]);
-});
-
-Route::get('/cache', function () {
-    if (!Auth::check()) abort(403, 'Unauthorized');
-
-    // Rebuild caches
-    Artisan::call('config:cache');
-    Artisan::call('route:cache');
-    Artisan::call('view:cache');
-    Artisan::call('filament:cache-components');
-
-    return response()->json([
-        'message' => 'All caches, including Filament caches, have been rebuilt successfully!',
-        'timestamp' => now()->toDateTimeString()
-    ]);
-});
-
+Route::get('/', fn () => redirect()->to('dashboard'));
 
 Route::get('/attachments/{attachment}/download', [AttachmentController::class, 'download'])
     ->name('attachments.download');
@@ -47,6 +15,10 @@ Route::get('/attachments/{attachment}/download', [AttachmentController::class, '
 Route::get('/api/search/spotlight', [SearchController::class, 'spotlight'])
     ->middleware('auth')
     ->name('search.spotlight');
+
+Route::get('/api/search/chain', [SearchController::class, 'chain'])
+    ->middleware('auth')
+    ->name('search.chain');
 
 Route::get('/workspace/records/{resource}', [WorkspaceController::class, 'records'])
     ->middleware('auth')
@@ -56,4 +28,8 @@ Route::get('/shipments/{shipment}/invoice/pdf', [InvoiceController::class, 'ship
     ->middleware('auth')
     ->name('shipments.invoice.pdf');
 
-Route::fallback(fn() => view('errors.404'));
+Route::post('/desk-reference/acknowledge', [DeskReferenceController::class, 'acknowledge'])
+    ->middleware('auth')
+    ->name('desk-reference.acknowledge');
+
+Route::fallback(fn () => view('errors.404'));

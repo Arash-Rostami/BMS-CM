@@ -8,7 +8,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Builder;
 
-
 trait Filters
 {
     public static function getBuyerFilter(): SelectFilter
@@ -25,18 +24,18 @@ trait Filters
         return Filter::make('created_at')
             ->schema([
                 DatePicker::make('created_from')
-                    ->label(__('resources/purchaseOrder/strings.filters.created_from'))
+                    ->label(__('resources/registeredOrder/strings.filters.created_from'))
                     ->native(false)
                     ->adaptive(),
                 DatePicker::make('created_until')
-                    ->label(__('resources/purchaseOrder/strings.filters.created_until'))
+                    ->label(__('resources/registeredOrder/strings.filters.created_until'))
                     ->native(false)
                     ->adaptive(),
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
-                    ->when($data['created_from'], fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
-                    ->when($data['created_until'], fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date));
+                    ->when($data['created_from'], fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
+                    ->when($data['created_until'], fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date));
             });
     }
 
@@ -53,7 +52,7 @@ trait Filters
     {
         return SelectFilter::make('incoterms')
             ->label(__('resources/registeredOrder/strings.filters.incoterms'))
-            ->options(fn() => __('resources/registeredOrder/strings.general.delivery_terms'));
+            ->options(fn () => __('resources/registeredOrder/strings.general.delivery_terms'));
     }
 
     public static function getStatusFilter(): SelectFilter
@@ -64,7 +63,6 @@ trait Filters
             ->searchable()
             ->preload();
     }
-
 
     public static function getSellerFilter(): SelectFilter
     {

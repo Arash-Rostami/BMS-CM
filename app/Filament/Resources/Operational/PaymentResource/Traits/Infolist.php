@@ -2,12 +2,8 @@
 
 namespace App\Filament\Resources\Operational\PaymentResource\Traits;
 
-use App\Models\BankProfile;
-use App\Models\PurchaseOrder;
-use App\Models\RegisteredOrder;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 trait Infolist
@@ -28,11 +24,11 @@ trait Infolist
             ->schema([
                 TextEntry::make('path')
                     ->hiddenLabel()
-                    ->formatStateUsing(fn(string $state): string => basename($state))
-                    ->tooltip(fn($record) => $record->name ?? '')
+                    ->formatStateUsing(fn (string $state): string => basename($state))
+                    ->tooltip(fn ($record) => $record->name ?? '')
                     ->icon('heroicon-m-paper-clip')
                     ->color('primary')
-                    ->url(fn($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
+                    ->url(fn ($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
             ])
             ->columns(1);
     }
@@ -41,7 +37,7 @@ trait Infolist
     {
         return TextEntry::make('bank.name')
             ->label(__('resources/payment/strings.form.bank_name'))
-            ->formatStateUsing(fn($record): ?string => $record->bank?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->bank?->getLocalizedNameAttribute())
             ->icon('heroicon-m-building-library')
             ->placeholder('-');
     }
@@ -60,7 +56,7 @@ trait Infolist
         return TextEntry::make('bank_charges')
             ->label(__('resources/payment/strings.form.bank_charges'))
             ->color('success')
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->placeholder('-');
     }
 
@@ -87,7 +83,7 @@ trait Infolist
             ->label(__('resources/payment/strings.form.summary_calculated_total'))
             ->icon('heroicon-m-calculator')
             ->color('success')
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->placeholder('-');
     }
 
@@ -104,7 +100,7 @@ trait Infolist
     public static function viewCreator(): TextEntry
     {
         return TextEntry::make('creator.name')
-            ->label(__('resources/payment/strings.table.created_by'))
+            ->label(__('resources/payment/strings.infolist.creator'))
             ->icon('heroicon-m-user-circle')
             ->placeholder('-');
     }
@@ -113,7 +109,7 @@ trait Infolist
     {
         return TextEntry::make('currency.name')
             ->label(__('resources/payment/strings.form.currency'))
-            ->formatStateUsing(fn($record): ?string => $record->currency?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->currency?->getLocalizedNameAttribute())
             ->icon('heroicon-m-banknotes')
             ->placeholder('-');
     }
@@ -122,7 +118,7 @@ trait Infolist
     {
         return TextEntry::make('exchange_rate')
             ->label(__('resources/payment/strings.form.exchange_rate'))
-            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 5) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 5) : '-')
             ->icon('heroicon-m-arrow-path-rounded-square')
             ->placeholder('-');
     }
@@ -151,7 +147,7 @@ trait Infolist
         return TextEntry::make('payable_amount')
             ->label(__('resources/payment/strings.form.payable_amount'))
             ->color('success')
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->placeholder('-');
     }
 
@@ -159,7 +155,7 @@ trait Infolist
     {
         return TextEntry::make('payee.name')
             ->label(__('resources/payment/strings.form.payee'))
-            ->formatStateUsing(fn($record): ?string => $record->payee?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->payee?->getLocalizedNameAttribute())
             ->icon('heroicon-m-user')
             ->placeholder('-');
     }
@@ -196,7 +192,7 @@ trait Infolist
     {
         return TextEntry::make('payor.name')
             ->label(__('resources/payment/strings.form.payor'))
-            ->formatStateUsing(fn($record): ?string => $record->payor?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->payor?->getLocalizedNameAttribute())
             ->icon('heroicon-m-building-office')
             ->placeholder('-');
     }
@@ -206,7 +202,7 @@ trait Infolist
         return TextEntry::make('status.name')
             ->label(__('resources/payment/strings.form.status'))
             ->badge()
-            ->formatStateUsing(fn($record): ?string => $record->status?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->status?->getLocalizedNameAttribute())
             ->placeholder('-');
     }
 
@@ -235,7 +231,7 @@ trait Infolist
         return TextEntry::make('total_amount')
             ->label(__('resources/payment/strings.form.total_amount_entered'))
             ->color('success')
-            ->formatStateUsing(fn($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
             ->placeholder('-');
     }
 
@@ -243,7 +239,7 @@ trait Infolist
     {
         return TextEntry::make('total_ratio')
             ->label(__('resources/payment/strings.form.summary_total_ratio'))
-            ->formatStateUsing(fn($state) => $state !== null ? number_format($state * 100, 2) . '%' : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state * 100, 2).'%' : '-')
             ->icon('heroicon-m-percent-badge')
             ->placeholder('-');
     }

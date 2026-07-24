@@ -21,7 +21,6 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait Relationships
 {
-
     public function attachments(): MorphMany
     {
         return $this->morphMany(Attachment::class, 'attachable');

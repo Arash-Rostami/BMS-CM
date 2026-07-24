@@ -13,7 +13,10 @@ trait Filters
             ->label(__('resources/permission/strings.filters.module'))
             ->options(PermissionLabeler::getModuleOptions())
             ->query(function ($query, array $data) {
-                if (empty($data['value'])) return $query;
+                if (empty($data['value'])) {
+                    return $query;
+                }
+
                 return $query->where('name', 'like', "{$data['value']}.%");
             })
             ->searchable();

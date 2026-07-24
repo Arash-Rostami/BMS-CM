@@ -3,7 +3,6 @@
 namespace App\Models\Traits\Role;
 
 use App\Models\Permission;
-use Illuminate\Support\Collection;
 
 trait HasPermissionGrouping
 {
@@ -11,7 +10,7 @@ trait HasPermissionGrouping
     {
         return Permission::whereIn('id', $permissionIds)
             ->pluck('name')
-            ->map(fn($name) => strstr($name, '.', true))
+            ->map(fn ($name) => strstr($name, '.', true))
             ->unique()
             ->values()
             ->all();
@@ -35,6 +34,7 @@ trait HasPermissionGrouping
     {
         $permissions = self::getPermissionsForModules($modules);
         $this->syncPermissions($permissions);
+
         return $this;
     }
 

@@ -10,19 +10,21 @@ use App\Models\Traits\PurchaseOrder\Accessors;
 use App\Models\Traits\PurchaseOrder\HasFormattedName;
 use App\Models\Traits\PurchaseOrder\HasSearchableRelations;
 use App\Models\Traits\PurchaseOrder\Relationships as ExclusiveRelationships;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PurchaseOrder extends Model
 {
-    use SoftDeletes,
-        Relationships,
+    use Accessors,
         ExclusiveRelationships,
-        SellerEntity,
-        Accessors,
+        HasCustomAttributes,
+        HasFactory,
         HasFormattedName,
         HasSearchableRelations,
-        HasCustomAttributes,
+        Relationships,
+        SellerEntity,
+        SoftDeletes,
         UserStamps;
 
     const SCANNABLE_TABLE = 'purchase_orders';
@@ -30,7 +32,6 @@ class PurchaseOrder extends Model
     public const TYPE_PURCHASE_ORDER = 'Purchase Order Status';
 
     protected $appends = ['total_amount', 'total_quantity'];
-
 
     protected $fillable = [
         'po_number',

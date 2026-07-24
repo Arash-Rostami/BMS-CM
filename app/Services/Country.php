@@ -7,10 +7,11 @@ use App;
 class Country
 {
     private array $nameIndexByLocale = [];
+
     private array $sortedListByLocale = [];
+
     /**
      * Internal array of country data.
-     * @var array
      */
     private array $countries = [
         ['code' => 'AF', 'name' => 'افغانستان', 'name_english' => 'Afghanistan'],
@@ -263,8 +264,7 @@ class Country
     ];
 
     /**
-     *
-     * @param string $code The 2-letter ISO country code.
+     * @param  string  $code  The 2-letter ISO country code.
      * @return string|null The localized country name, or English name, or null if not found.
      */
     public function getCountryNameByCode(string $code): ?string
@@ -272,7 +272,7 @@ class Country
         $code = strtoupper($code);
         $locale = App::getLocale();
 
-        if (!isset($this->nameIndexByLocale[$locale])) {
+        if (! isset($this->nameIndexByLocale[$locale])) {
             $this->buildLocaleCache($locale);
         }
 
@@ -280,14 +280,13 @@ class Country
     }
 
     /**
-     *
      * @return array An associative array where key is ISO code and value is localized name.
      */
     public function getCountriesList(): array
     {
         $locale = App::getLocale();
 
-        if (!isset($this->sortedListByLocale[$locale])) {
+        if (! isset($this->sortedListByLocale[$locale])) {
             $this->buildLocaleCache($locale);
         }
 
@@ -295,9 +294,7 @@ class Country
     }
 
     /**
-     *
-     * @param string $locale The locale for which to build the cache.
-     * @return void
+     * @param  string  $locale  The locale for which to build the cache.
      */
     private function buildLocaleCache(string $locale): void
     {

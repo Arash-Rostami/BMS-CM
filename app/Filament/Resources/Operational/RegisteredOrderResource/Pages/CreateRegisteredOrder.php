@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\Pages;
 
+use App\Filament\Pages\CreateRecord;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\PrepareRegisteredOrderFromProformaInvoice;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\PrepareRegisteredOrderFromPurchaseOrder;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\PrepareRegisteredOrderFromPurchaseRequest;
 use App\Filament\Resources\RegisteredOrderResource;
-use App\Filament\Pages\CreateRecord;
 
 class CreateRegisteredOrder extends CreateRecord
 {

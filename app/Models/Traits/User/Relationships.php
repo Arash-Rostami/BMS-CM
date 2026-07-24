@@ -4,6 +4,7 @@ namespace App\Models\Traits\User;
 
 use App\Models\Attachment;
 use App\Models\Correspondence;
+use App\Models\CorrespondenceRecipient;
 use App\Models\Department;
 use App\Models\ProformaInvoice;
 use App\Models\PurchaseRequest;
@@ -49,6 +50,7 @@ trait Relationships
             Correspondence::class,
             'correspondence_recipients'
         )
+            ->using(CorrespondenceRecipient::class)
             ->withPivot(['type', 'read_at'])
             ->withTimestamps();
     }

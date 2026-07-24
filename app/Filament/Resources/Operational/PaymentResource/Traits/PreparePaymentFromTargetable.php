@@ -28,7 +28,7 @@ trait PreparePaymentFromTargetable
 
             $model = $class::find($id);
 
-            if (!$model) {
+            if (! $model) {
                 continue;
             }
 
@@ -44,7 +44,7 @@ trait PreparePaymentFromTargetable
 
     protected function prepareData($targetModel, array $dataToFill): array
     {
-        if (!$targetModel) {
+        if (! $targetModel) {
             return $dataToFill;
         }
 

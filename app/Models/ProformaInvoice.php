@@ -8,23 +8,24 @@ use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\ProformaInvoice\HasFormattedName;
 use App\Models\Traits\ProformaInvoice\HasSearchableRelations;
 use App\Models\Traits\ProformaInvoice\Relationships as ExclusiveRelationships;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProformaInvoice extends Model
 {
-    use SoftDeletes,
-        Relationships,
+    use ExclusiveRelationships,
+        HasCustomAttributes,
+        HasFactory,
         HasFormattedName,
         HasSearchableRelations,
-        HasCustomAttributes,
-        ExclusiveRelationships,
+        Relationships,
+        SoftDeletes,
         UserStamps;
 
-
     public const SCANNABLE_TABLE = 'proforma_invoices';
-    public const SCANNABLE_IDENTIFIER = 'invoice_no';
 
+    public const SCANNABLE_IDENTIFIER = 'invoice_no';
 
     protected $fillable = [
         'invoice_no',

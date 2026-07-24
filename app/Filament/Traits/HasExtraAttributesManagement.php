@@ -3,8 +3,8 @@
 namespace App\Filament\Traits;
 
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -37,7 +37,7 @@ trait HasExtraAttributesManagement
     {
         return Tab::make(__('resources/entityAttribute/strings.general.plural_model_label'))
             ->icon('heroicon-o-puzzle-piece')
-            ->badge(fn($record) => $record?->extraAttributes->count() ?: null)
+            ->badge(fn ($record) => $record?->extraAttributes->count() ?: null)
             ->badgeColor('primary')
             ->schema([
                 Section::make()->schema([
@@ -45,13 +45,13 @@ trait HasExtraAttributesManagement
                         ->hiddenLabel()
                         ->schema([
                             TextEntry::make('key')
-                                ->label(__('resources/entityAttribute/strings.form.key'))
+                                ->label(__('resources/general/strings.extra_attributes.key'))
                                 ->badge()
                                 ->color('gray')
                                 ->icon('heroicon-m-key'),
                             TextEntry::make('value')
-                                ->label(__('resources/entityAttribute/strings.form.value'))
-                                ->formatStateUsing(fn($state): string => is_string($state) ? $state : json_encode($state, JSON_UNESCAPED_UNICODE))
+                                ->label(__('resources/general/strings.extra_attributes.value'))
+                                ->formatStateUsing(fn ($state): string => is_string($state) ? $state : json_encode($state, JSON_UNESCAPED_UNICODE))
                                 ->icon('heroicon-m-document-text')
                                 ->placeholder('-'),
                         ])
@@ -67,18 +67,18 @@ trait HasExtraAttributesManagement
             ->relationship()
             ->schema([
                 TextInput::make('key')
-                    ->label(__('resources/entityAttribute/strings.form.key'))
+                    ->label(__('resources/general/strings.extra_attributes.key'))
                     ->required()
                     ->maxLength(255),
                 Textarea::make('value')
-                    ->label(__('resources/entityAttribute/strings.form.value'))
+                    ->label(__('resources/general/strings.extra_attributes.value'))
                     ->required()
                     ->rows(2)
-                    ->formatStateUsing(fn($state): string => is_string($state) ? $state : json_encode($state, JSON_UNESCAPED_UNICODE)),
+                    ->formatStateUsing(fn ($state): string => is_string($state) ? $state : json_encode($state, JSON_UNESCAPED_UNICODE)),
             ])
             ->columns(2)
             ->defaultItems(0)
-            ->addActionLabel(__('resources/entityAttribute/strings.form.add_attribute_action'))
+            ->addActionLabel(__('resources/general/strings.extra_attributes.add_action'))
             ->reorderableWithButtons();
     }
 }

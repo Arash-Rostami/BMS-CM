@@ -35,7 +35,7 @@ trait Table
         return TextColumn::make('id')
             ->label(__('resources/payment/strings.table.id'))
             ->sortable()
-            ->searchable(query: fn(Builder $query, string $search): Builder => $query->where('payments.id', 'like', "%{$search}%"))
+            ->searchable(query: fn (Builder $query, string $search): Builder => $query->where('payments.id', 'like', "%{$search}%"))
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -45,9 +45,9 @@ trait Table
             ->label(__('resources/payment/strings.table.payee'))
             ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas('payee', fn($q) => $q->searchCompany($search))
+                query: fn (Builder $query, string $search) => $query->whereHas('payee', fn ($q) => $q->searchCompany($search))
             )
-            ->formatStateUsing(fn($record): ?string => $record->payee?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->payee?->getLocalizedNameAttribute())
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -56,7 +56,7 @@ trait Table
         return TextColumn::make('payment_date')
             ->label(__('resources/payment/strings.table.payment_date'))
             ->date()
-            ->formatStateUsing(fn($record) => app()->getLocale() === 'fa' ? toPersianDate($record->payment_date) : toGregorianDate($record->payment_date))
+            ->formatStateUsing(fn ($record) => app()->getLocale() === 'fa' ? toPersianDate($record->payment_date) : toGregorianDate($record->payment_date))
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -69,7 +69,7 @@ trait Table
             ->badge()
             ->copyable()
             ->sortable()
-            ->tooltip(fn($record) => $record->payment_date?->format('Y-m-d'));
+            ->tooltip(fn ($record) => $record->payment_date?->format('Y-m-d'));
     }
 
     public static function showPayor(): TextColumn
@@ -78,9 +78,9 @@ trait Table
             ->label(__('resources/payment/strings.table.payor'))
             ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas('payor', fn($q) => $q->searchCompany($search))
+                query: fn (Builder $query, string $search) => $query->whereHas('payor', fn ($q) => $q->searchCompany($search))
             )
-            ->formatStateUsing(fn($record): ?string => $record->payor?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->payor?->getLocalizedNameAttribute())
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -91,23 +91,23 @@ trait Table
             ->badge()
             ->sortable()
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->orWhereHas('status', fn($q) => $q->searchStatus($search))
+                query: fn (Builder $query, string $search) => $query->orWhereHas('status', fn ($q) => $q->searchStatus($search))
             )
-            ->formatStateUsing(fn($record): ?string => $record->status?->getLocalizedNameAttribute())
+            ->formatStateUsing(fn ($record): ?string => $record->status?->getLocalizedNameAttribute())
             ->color('gray');
     }
 
     public static function showTargetable(): TextColumn
     {
         return TextColumn::make('targetable')
-            ->label(__('resources/payment/strings.form.targetable'))
+            ->label(__('resources/payment/strings.table.targetable'))
             ->badge()
-            ->getStateUsing(fn($record) => Target::getFromRecord($record))
-            ->formatStateUsing(fn(Target $state): ?string => $state->getLabel())
-            ->tooltip(fn(Target $state): ?string => $state->getTooltip())
+            ->getStateUsing(fn ($record) => Target::getFromRecord($record))
+            ->formatStateUsing(fn (Target $state): ?string => $state->getLabel())
+            ->tooltip(fn (Target $state): ?string => $state->getTooltip())
             ->iconPosition(IconPosition::Before)
-            ->icon(fn(Target $state): ?string => $state->getIcon())
-            ->color(fn(Target $state): string => $state->getColor())
+            ->icon(fn (Target $state): ?string => $state->getIcon())
+            ->color(fn (Target $state): string => $state->getColor())
             ->searchable(false)
             ->toggleable();
     }
@@ -117,20 +117,23 @@ trait Table
         return TextColumn::make('targetable_type')
             ->label(__('resources/payment/strings.table.targetable_type'))
             ->badge()
-            ->getStateUsing(fn($record) => Target::getFromRecord($record))
+            ->getStateUsing(fn ($record) => Target::getFromRecord($record))
             ->formatStateUsing(function (Target $state, Model $record) {
                 $name = $record->getTargetableDisplay(false);
-                if ($state === Target::None || $name === '-') return $state->getLabel();
+                if ($state === Target::None || $name === '-') {
+                    return $state->getLabel();
+                }
+
                 return $name;
             })
             ->icon(false)
-            ->color(fn(Target $state): string => $state->getColor())
+            ->color(fn (Target $state): string => $state->getColor())
             ->searchable(
                 query: function (Builder $query, string $search): Builder {
                     return $query->whereHasMorph(
                         'targetable',
                         [PurchaseOrder::class, RegisteredOrder::class],
-                        fn(Builder $q) => $q->searchAll($search)
+                        fn (Builder $q) => $q->searchAll($search)
                     );
                 },
                 isIndividual: true
@@ -141,7 +144,7 @@ trait Table
     {
         return TextColumn::make('total_amount')
             ->label(__('resources/payment/strings.table.total_amount'))
-            ->formatStateUsing(fn($state, $record) => delimiter($state))
+            ->formatStateUsing(fn ($state, $record) => delimiter($state))
             ->sortable()
             ->toggleable();
     }
@@ -149,7 +152,7 @@ trait Table
     public static function showUpdateTime(): TextColumn
     {
         return TextColumn::make('updated_at')
-            ->label(__('resources/payment/strings.infolist.updated_at'))
+            ->label(__('resources/payment/strings.table.updated_at'))
             ->dateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
@@ -158,7 +161,7 @@ trait Table
     public static function showUpdater(): TextColumn
     {
         return TextColumn::make('updater.name')
-            ->label(__('resources/payment/strings.infolist.updater'))
+            ->label(__('resources/payment/strings.table.updater'))
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

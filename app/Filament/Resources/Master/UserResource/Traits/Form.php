@@ -35,7 +35,7 @@ trait Form
             ->label(__('resources/user/strings.form.department'))
             ->relationship(
                 name: 'department',
-                titleAttribute: fn() => app()->getLocale() === 'fa' ? ('name' ?? 'english_name') : 'english_name')
+                titleAttribute: fn () => app()->getLocale() === 'fa' ? ('name' ?? 'english_name') : 'english_name')
             ->nullable()
             ->searchable()
             ->preload()
@@ -63,7 +63,7 @@ trait Form
     {
         return TextInput::make('ip')
             ->label(__('resources/user/strings.form.ip'))
-            ->formatStateUsing(fn($state, ?Model $record): string => ($state && $record) ? $record->user_country : '🌎')
+            ->formatStateUsing(fn ($state, ?Model $record): string => ($state && $record) ? $record->user_country : '🌎')
             ->disabled()
             ->hiddenOn('create')
             ->visibleOn('view');
@@ -84,8 +84,13 @@ trait Form
             ->imageEditor()
             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'])
             ->nullable()
+            ->validationAttribute(__('resources/user/strings.form.image'))
+            ->validationMessages([
+                'max' => __('resources/user/strings.form.validation_image_max'),
+                'mimetypes' => __('resources/user/strings.form.validation_image_mimetypes'),
+            ])
             ->getUploadedFileNameForStorageUsing(
-                fn(TemporaryUploadedFile $file): string => 'BMS-' . Str::uuid() . '.' . $file->getClientOriginalExtension()
+                fn (TemporaryUploadedFile $file): string => 'BMS-'.Str::uuid().'.'.$file->getClientOriginalExtension()
             );
     }
 
@@ -126,8 +131,8 @@ trait Form
             ->password()
             ->revealable()
             ->copyable(copyMessage: __('resources/user/strings.form.password_copy'), copyMessageDuration: 1500)
-            ->dehydrated(fn(?string $state): bool => filled($state))
-            ->required(fn(string $operation): bool => $operation === 'create')
+            ->dehydrated(fn (?string $state): bool => filled($state))
+            ->required(fn (string $operation): bool => $operation === 'create')
             ->minLength(8)
             ->maxLength(255)
             ->helperText(__('resources/user/strings.form.helper_password'))
@@ -149,7 +154,7 @@ trait Form
             ->minLength(8)
             ->maxLength(255)
             ->same('password')
-            ->required(fn(string $operation): bool => $operation === 'create')
+            ->required(fn (string $operation): bool => $operation === 'create')
             ->helperText(__('resources/user/strings.form.helper_password_confirmation'))
             ->validationAttribute(__('resources/user/strings.form.password_confirmation'))
             ->validationMessages([
@@ -166,7 +171,7 @@ trait Form
         return PhoneInput::make('phone')
             ->label(__('resources/user/strings.form.phone'))
             ->unique(ignoreRecord: true)
-            ->ipLookup(fn() => rescue(fn() => Http::get('http://ip-api.com/json/')->json('country'), null, report: false))
+            ->ipLookup(fn () => rescue(fn () => Http::get('http://ip-api.com/json/')->json('country'), null, report: false))
             ->defaultCountry('IR')
             ->showFlags(true)
             ->autoPlaceholder('polite')
@@ -192,7 +197,7 @@ trait Form
         return Select::make('roles')
             ->label(__('resources/user/strings.form.role'))
             ->relationship('roles', 'name')
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
             ->multiple()
             ->preload()
             ->searchable()

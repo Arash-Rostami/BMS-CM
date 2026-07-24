@@ -2,13 +2,12 @@
 
 namespace App\Models\Traits\General;
 
-
 trait Localization
 {
     public function newQuery()
     {
         return parent::newQuery();
-//            ->orderBy($this->localeColumn());
+        //            ->orderBy($this->localeColumn());
     }
 
     public function getLocalizedNameAttribute(): string

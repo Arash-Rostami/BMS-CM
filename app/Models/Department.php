@@ -5,14 +5,17 @@ namespace App\Models;
 use App\Models\Traits\Department\HasSearchableRelations;
 use App\Models\Traits\Department\Relationships;
 use App\Models\Traits\General\Localization;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Department extends Model
 {
-    use Relationships,
+    use HasSearchableRelations,
+        HasFactory,
         Localization,
-        HasSearchableRelations;
+        Relationships;
 
+    public $timestamps = false;
 
     protected $fillable = [
         'name',

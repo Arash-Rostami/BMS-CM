@@ -10,7 +10,6 @@ use App\Filament\Resources\Master\PermissionResource\Traits\Table as PermissionT
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Permission;
 use App\Services\PermissionLabeler;
-use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -27,7 +26,7 @@ use Illuminate\Support\Str;
 
 class PermissionResource extends Resource
 {
-    use PermissionForm, PermissionTable, PermissionInfolist, PermissionFilters, HasResourcePermissions;
+    use HasResourcePermissions, PermissionFilters, PermissionForm, PermissionInfolist, PermissionTable;
 
     protected static ?string $model = Permission::class;
 
@@ -58,18 +57,6 @@ class PermissionResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/permission/strings.general.model_label');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'Permission',
-            ['type' => 'total_count'],
-            3600,
-            fn() => static::getModel()::count()
-        );
-
-        return $count > 0 ? (string)$count : null;
     }
 
     public static function getNavigationGroup(): ?string
@@ -120,20 +107,21 @@ class PermissionResource extends Resource
             ->groups([
                 Group::make('name')
                     ->label(__('resources/permission/strings.grouping.module'))
-                    ->getKeyFromRecordUsing(fn(Permission $record) => Str::before($record->name, '.'))
+                    ->getKeyFromRecordUsing(fn (Permission $record) => Str::before($record->name, '.'))
                     ->getTitleFromRecordUsing(function (Permission $record) {
                         $module = Str::before($record->name, '.');
                         $options = PermissionLabeler::getModuleOptions();
+
                         return $options[$module] ?? Str::title(str_replace('_', ' ', $module));
                     })
-                    ->orderQueryUsing(fn(Builder $query, string $direction) => $query->orderBy('name', $direction)),
+                    ->orderQueryUsing(fn (Builder $query, string $direction) => $query->orderBy('name', $direction)),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])])
             ->striped()

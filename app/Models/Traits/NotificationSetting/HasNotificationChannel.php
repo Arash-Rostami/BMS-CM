@@ -5,20 +5,23 @@ namespace App\Models\Traits\NotificationSetting;
 trait HasNotificationChannel
 {
     public const NOTIFICATION_CHANNEL_IN_APP = 'in_app';
+
     public const NOTIFICATION_CHANNEL_EMAIL = 'email';
+
     public const NOTIFICATION_CHANNEL_ALL = 'all';
 
     public function getNotificationChannelAttribute(): string
     {
-        return self::notificationChannel()[$this->notification_type] ?? 'Unknown';
+        return self::notificationChannel()[$this->notification_type]
+            ?? __('resources/notificationSetting/strings.channels.unknown');
     }
 
     public static function notificationChannel(): array
     {
         return [
-            self::NOTIFICATION_CHANNEL_IN_APP => 'In-App 💻',
-            self::NOTIFICATION_CHANNEL_EMAIL => 'Email 📧',
-            self::NOTIFICATION_CHANNEL_ALL => 'Both 🔔',
+            self::NOTIFICATION_CHANNEL_IN_APP => __('resources/notificationSetting/strings.channels.in_app'),
+            self::NOTIFICATION_CHANNEL_EMAIL => __('resources/notificationSetting/strings.channels.email'),
+            self::NOTIFICATION_CHANNEL_ALL => __('resources/notificationSetting/strings.channels.all'),
         ];
     }
 

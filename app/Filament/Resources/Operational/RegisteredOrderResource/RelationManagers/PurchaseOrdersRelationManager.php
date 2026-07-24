@@ -6,7 +6,6 @@ use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrd
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Filters as PurchaseOrderFilters;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as PurchaseOrderTable;
 use App\Filament\Resources\PurchaseOrderResource;
-use App\Filament\Resources\PurchaseRequestResource;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -20,13 +19,11 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
-
 class PurchaseOrdersRelationManager extends RelationManager
 {
-    use PurchaseOrderTable, PurchaseOrderFilters;
+    use PurchaseOrderFilters, PurchaseOrderTable;
 
     protected static string $relationship = 'purchaseOrders';
-
 
     public static function getModelLabel(): string
     {
@@ -45,7 +42,7 @@ class PurchaseOrdersRelationManager extends RelationManager
 
     public function infolist(Schema $schema): Schema
     {
-        return PurchaseRequestResource::infolist($schema);
+        return PurchaseOrderResource::infolist($schema);
     }
 
     public function table(Table $table): Table
@@ -78,15 +75,15 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->filtersFormColumns(3)
             ->headerActions([
                 Action::make('create')
-                    ->label(__('resources/proformaInvoice/strings.general.add_record'))
-                    ->visible(fn(): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Submitted']))
-                    ->url(fn(): string => PurchaseOrderResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()]))
+                    ->label(__('resources/general/strings.actions.add_record'))
+                    ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Submitted']))
+                    ->url(fn (): string => PurchaseOrderResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record) => PurchaseOrderResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record) => PurchaseOrderResource::getUrl('edit', ['record' => $record])),
                     DetachAction::make(),
                 ]),
             ])
@@ -99,10 +96,10 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->groups([
                 Group::make('buyer.name')
                     ->label(__('resources/purchaseOrder/strings.filters.buyer'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'buyer')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'buyer')),
                 Group::make('supplier.name')
                     ->label(__('resources/purchaseOrder/strings.filters.supplier'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'supplier')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'supplier')),
             ])
             ->striped()
             ->recordUrl(null)

@@ -1,11 +1,20 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'Devise',
         'plural_model_label' => 'Devises',
-        'navigation_group' => 'Données de base',
+    ],
+    'export' => [
+        'id' => 'ID',
+        'name' => 'Nom (Persan)',
+        'english_name' => 'Nom (Anglais)',
+        'description' => 'Symbole',
+        'is_active' => 'Actif',
+        'creator' => 'Créateur',
+        'updater' => 'Modificateur',
+        'created_at' => 'Date de création',
+        'updated_at' => 'Dernière mise à jour',
     ],
     'form' => [
         'name' => 'Nom (Persan)',
@@ -13,8 +22,9 @@ return [
         'description' => 'Symbole',
         'is_active' => 'Est actif ?',
         'helper_is_active' => 'Indique le statut actif/inactif de cet enregistrement.',
-        'creator' => 'Créé par',
-        'updater' => 'Dernière mise à jour par',
+        'helper_name' => 'Saisissez le nom de la devise en persan.',
+        'helper_english_name' => 'Saisissez le nom de la devise en anglais.',
+        'helper_description' => 'Saisissez le symbole de la devise (ex. $, €, ﷼) ou une note courte.',
         'validation_name_required' => 'Veuillez saisir le nom en persan.',
         'validation_name' => 'Seuls les caractères persans sont autorisés.',
         'validation_name_max' => 'Le nom persan ne peut pas dépasser 255 caractères.',
@@ -23,6 +33,7 @@ return [
         'validation_english_name' => 'Seuls les caractères anglais sont autorisés.',
         'validation_english_name_max' => 'Le nom anglais ne peut pas dépasser 255 caractères.',
         'validation_english_name_unique' => 'Ce nom anglais existe déjà.',
+        'validation_description_max' => 'La description ne doit pas dépasser 65535 caractères.',
     ],
     'table' => [
         'name' => 'Nom (Persan)',
@@ -35,6 +46,22 @@ return [
         'updater' => 'Dernière mise à jour par',
         'created_at' => 'Date de création',
         'updated_at' => 'Dernière mise à jour',
-        'deleted_at' => 'Date de suppression',
+    ],
+    'filters' => [
+        'creator' => 'Créé par',
+        'updater' => 'Dernière mise à jour par',
+        'is_active' => 'Statut',
+        'only_active' => 'Seulement actifs',
+        'only_inactive' => 'Seulement inactifs',
+    ],
+    'infolist' => [
+        'name' => 'Nom (Persan)',
+        'english_name' => 'Nom (Anglais)',
+        'description' => 'Symbole',
+        'is_active' => 'Est actif ?',
+        'creator' => 'Créé par',
+        'updater' => 'Dernière mise à jour par',
+        'created_at' => 'Date de création',
+        'updated_at' => 'Dernière mise à jour',
     ],
 ];

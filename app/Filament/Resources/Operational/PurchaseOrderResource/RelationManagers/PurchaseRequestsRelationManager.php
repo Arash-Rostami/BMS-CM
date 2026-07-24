@@ -2,33 +2,30 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\RelationManagers;
 
-use Filament\Schemas\Schema;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DetachAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ExportBulkAction;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Enums\Status;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Exports\PurchaseRequestExporter;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Filters as PurchaseRequestFilters;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as PurchaseRequestTable;
-use App\Filament\Resources\PurchaseOrderResource;
 use App\Filament\Resources\PurchaseRequestResource;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DetachAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
-
 class PurchaseRequestsRelationManager extends RelationManager
 {
-    use  PurchaseRequestTable, PurchaseRequestFilters;
+    use PurchaseRequestFilters, PurchaseRequestTable;
 
     protected static string $relationship = 'purchaseRequests';
 
@@ -104,10 +101,10 @@ class PurchaseRequestsRelationManager extends RelationManager
                     ->label(__('resources/purchaseRequest/strings.filters.requester')),
                 Group::make('department.name')
                     ->label(__('resources/purchaseRequest/strings.filters.department'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'department')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'department')),
                 Group::make('status.english_name')
                     ->label(__('resources/purchaseRequest/strings.filters.status'))
-                    ->getTitleFromRecordUsing(fn($record): ?string => Status::tryFrom($record->status?->english_name)?->getLabel() ?? $record->status?->name),
+                    ->getTitleFromRecordUsing(fn ($record): ?string => Status::tryFrom($record->status?->english_name)?->getLabel() ?? $record->status?->name),
             ])
             ->striped()
             ->recordUrl(null)

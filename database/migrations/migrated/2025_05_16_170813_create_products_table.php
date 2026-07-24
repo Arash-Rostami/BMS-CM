@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
@@ -24,23 +21,22 @@ return new class extends Migration
             $table->boolean('in_stock')->default(true);
             $table->boolean('is_active')->default(true)->comment('true = active, false = inactive');
 
-
             $table->foreignId('user_id')->nullable();
             $table->foreignId('updated_by_id')->nullable();
             $table->foreignId('category_id')->nullable();
-
 
             $table->softDeletes();
             $table->timestamps();
 
             $table->index(['category_id', 'deleted_at']);
             $table->index(['is_active', 'deleted_at']);
+            $table->index('user_id', 'idx_products_user_id');
+            $table->index('updated_by_id', 'idx_products_updated_by_id');
+            $table->index('slug', 'idx_products_slug');
+            $table->index(['in_stock', 'is_active'], 'idx_products_stock_active');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('products');

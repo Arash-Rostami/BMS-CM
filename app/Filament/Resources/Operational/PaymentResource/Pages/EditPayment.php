@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\Operational\PaymentResource\Pages;
 
+use App\Filament\Pages\EditRecord;
 use App\Filament\Resources\PaymentResource;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
-use App\Filament\Pages\EditRecord;
 
 class EditPayment extends EditRecord
 {

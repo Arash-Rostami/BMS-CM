@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Traits;
 
-
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\UpdatesFromProformaInvoice;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\UpdatesFromPurchaseRequests;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\UpdatesFromRegisteredOrders;
@@ -20,10 +19,9 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Database\Eloquent\Model;
 
-
 trait Form
 {
-    use TotalCalculation, UpdatesFromPurchaseRequests, UpdatesFromRegisteredOrders, UpdatesFromProformaInvoice;
+    use TotalCalculation, UpdatesFromProformaInvoice, UpdatesFromPurchaseRequests, UpdatesFromRegisteredOrders;
 
     public static function getBuyerField(): Select
     {
@@ -70,6 +68,7 @@ trait Form
             ->afterOrEqual('order_date')
             ->helperText(__('resources/purchaseOrder/strings.form.helper_expected_delivery_date'))
             ->validationMessages([
+                'date' => __('resources/purchaseOrder/strings.form.validation_date'),
                 'after_or_equal' => __('resources/purchaseOrder/strings.form.validation_after_or_equal_order_date'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.expected_delivery_date'));
@@ -79,7 +78,7 @@ trait Form
     {
         return Select::make('incoterms')
             ->label(__('resources/purchaseOrder/strings.form.incoterms'))
-            ->options(__('resources/proformaInvoice/strings.general.delivery_terms'))
+            ->options(__('resources/purchaseOrder/strings.general.delivery_terms'))
             ->validationAttribute(__('resources/purchaseOrder/strings.form.incoterms'));
     }
 
@@ -89,11 +88,12 @@ trait Form
             ->hiddenLabel()
             ->maxLength(65535)
             ->live()
-            ->extraAttributes(fn(Get $get) => ['style' => !$get('show_notes') ? 'display: none;' : ''])
+            ->extraAttributes(fn (Get $get) => ['style' => ! $get('show_notes') ? 'display: none;' : ''])
             ->columnSpan('full')
             ->rules(['nullable', 'string', 'max:65535'])
             ->validationMessages([
                 'max' => __('resources/purchaseOrder/strings.form.validation_max_string'),
+                'string' => __('resources/purchaseOrder/strings.form.validation_string'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.item_description'));
     }
@@ -110,7 +110,8 @@ trait Form
                 'numeric' => __('resources/purchaseOrder/strings.form.validation_numeric'),
                 'min' => __('resources/purchaseOrder/strings.form.validation_min_numeric_zero'),
             ])
-            ->validationAttribute(__('resources/purchaseOrder/strings.form.gross_weight'));
+            ->validationAttribute(__('resources/purchaseOrder/strings.form.gross_weight'))
+            ->helperText(__('resources/purchaseOrder/strings.form.helper_gross_weight'));
     }
 
     public static function getItemNetWeightField(): TextInput
@@ -138,9 +139,9 @@ trait Form
             ->offColor('danger')
             ->live()
             ->columnSpanFull()
-            ->default(fn(Get $get) => filled($get('description')))
-            ->afterStateHydrated(fn(Set $set, Get $get) => $set('show_notes', filled($get('description'))))
-            ->afterStateUpdated(fn(?bool $state, Set $set) => !$state ? $set('description', null) : null);
+            ->default(fn (Get $get) => filled($get('description')))
+            ->afterStateHydrated(fn (Set $set, Get $get) => $set('show_notes', filled($get('description'))))
+            ->afterStateUpdated(fn (?bool $state, Set $set) => ! $state ? $set('description', null) : null);
     }
 
     public static function getItemProductIdField(): Select
@@ -152,7 +153,7 @@ trait Form
             ->relationship(
                 name: 'product',
                 titleAttribute: $titleAttribute,
-                modifyQueryUsing: fn($query) => $query->whereNotNull($titleAttribute)
+                modifyQueryUsing: fn ($query) => $query->whereNotNull($titleAttribute)
             )
             ->searchable(['name', 'english_name', 'code'])
             ->preload()
@@ -186,7 +187,7 @@ trait Form
     {
         return Select::make('unit')
             ->label(__('resources/purchaseOrder/strings.form.unit'))
-            ->options(__('resources/target/strings.metrics'))
+            ->options(__('resources/general/strings.metrics'))
             ->required()
             ->columnSpan(3)
             ->validationMessages([
@@ -237,9 +238,11 @@ trait Form
             ->native(false)
             ->adaptive()
             ->validationMessages([
+                'date' => __('resources/purchaseOrder/strings.form.validation_date'),
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
             ])
-            ->validationAttribute(__('resources/purchaseOrder/strings.form.order_date'));
+            ->validationAttribute(__('resources/purchaseOrder/strings.form.order_date'))
+            ->helperText(__('resources/purchaseOrder/strings.form.helper_order_date'));
     }
 
     public static function getPackingDetailsField(): Textarea
@@ -263,7 +266,7 @@ trait Form
             ->readOnly()
             ->unique(ignoreRecord: true)
             ->maxLength(255)
-            ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('po_number') : null)
+            ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('po_number') : null)
             ->helperText(__('resources/purchaseOrder/strings.form.helper_po_number'))
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
@@ -278,7 +281,7 @@ trait Form
         return Select::make('proformaInvoices')
             ->label(__('resources/general/strings.relevant_module.form.proforma_invoices'))
             ->relationship(name: 'proformaInvoices')
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name)
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->formatted_name)
             ->columnSpanFull()
             ->multiple()
             ->preload()
@@ -288,7 +291,7 @@ trait Form
                 self::populateFromPI($state, $set);
                 self::updateTotal($get, $set);
             })
-            ->visible(fn(Get $get): bool => $get('source_type') === 'pi')
+            ->visible(fn (Get $get): bool => $get('source_type') === 'pi' || filled($get('proformaInvoices')))
             ->validationAttribute(__('resources/general/strings.relevant_module.form.proforma_invoices'));
     }
 
@@ -298,8 +301,8 @@ trait Form
             ->label(__('resources/general/strings.relevant_module.form.purchase_requests'))
             ->relationship(
                 name: 'purchaseRequests',
-                modifyQueryUsing: fn($query) => $query->whereHas('status', fn($statusQuery) => $statusQuery->whereIn('english_name', ['Authorized', 'Conditional']))->latest())
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name)
+                modifyQueryUsing: fn ($query) => $query->whereHas('status', fn ($statusQuery) => $statusQuery->whereIn('english_name', ['Authorized', 'Conditional']))->latest())
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->formatted_name)
             ->columnSpanFull()
             ->multiple()
             ->preload()
@@ -309,7 +312,7 @@ trait Form
                 static::populateFromPR($state, $set);
                 self::updateTotal($get, $set);
             })
-            ->visible(fn(Get $get): bool => $get('source_type') === 'pr')
+            ->visible(fn (Get $get): bool => $get('source_type') === 'pr' || filled($get('purchaseRequests')))
             ->validationAttribute(__('resources/general/strings.relevant_module.form.purchase_requests'));
     }
 
@@ -319,8 +322,8 @@ trait Form
             ->label(__('resources/general/strings.relevant_module.form.registered_orders'))
             ->relationship(
                 name: 'registeredOrders',
-                modifyQueryUsing: fn($query) => $query->whereHas('status', fn($statusQuery) => $statusQuery->whereIn('english_name', ['Submitted']))->latest())
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name)
+                modifyQueryUsing: fn ($query) => $query->whereHas('status', fn ($statusQuery) => $statusQuery->whereIn('english_name', ['Submitted']))->latest())
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->formatted_name)
             ->columnSpanFull()
             ->multiple()
             ->preload()
@@ -330,7 +333,7 @@ trait Form
                 self::populateFromRO($state, $set);
                 self::updateTotal($get, $set);
             })
-            ->visible(fn(Get $get): bool => $get('source_type') === 'ro')
+            ->visible(fn (Get $get): bool => $get('source_type') === 'ro' || filled($get('registeredOrders')))
             ->validationAttribute(__('resources/general/strings.relevant_module.form.registered_orders'));
     }
 
@@ -378,7 +381,19 @@ trait Form
             ])
             ->columnSpanFull()
             ->default(null)
-            ->live();
+            ->live()
+            ->afterStateHydrated(function (Set $set, Get $get, ?Model $record) {
+                if (filled($get('source_type'))) {
+                    return;
+                }
+
+                $set('source_type', match (true) {
+                    $record?->purchaseRequests()->exists() => 'pr',
+                    $record?->proformaInvoices()->exists() => 'pi',
+                    $record?->registeredOrders()->exists() => 'ro',
+                    default => null,
+                });
+            });
     }
 
     public static function getStatusField(): Select
@@ -389,7 +404,7 @@ trait Form
                 name: 'status',
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
             )
-            ->default(fn($operation): ?int => $operation === 'create' ? Status::findBy('Purchase Order Status', 'Submitted')?->id : null)
+            ->default(fn ($operation): ?int => $operation === 'create' ? Status::findBy('Purchase Order Status', 'Submitted')?->id : null)
             ->searchable()
             ->preload()
             ->required()
@@ -405,7 +420,7 @@ trait Form
         return TextEntry::make('total_amount')
             ->label(__('resources/purchaseOrder/strings.form.total_amount'))
             ->columnSpan(2)
-            ->formatStateUsing(fn(Get $get) => is_numeric($get('total_amount')) ? '💰 ' . number_format($get('total_amount'), 2) : $get('total_amount'));
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_amount')) ? '💰 '.number_format($get('total_amount'), 2) : $get('total_amount'));
     }
 
     public static function getTotalQuantityField(): TextEntry
@@ -413,7 +428,7 @@ trait Form
         return TextEntry::make('total_quantity')
             ->label(__('resources/purchaseOrder/strings.form.total_quantity'))
             ->columnSpan(2)
-            ->formatStateUsing(fn(Get $get) => is_numeric($get('total_quantity')) ? '📦 ' . number_format($get('total_quantity'), 2) : $get('total_quantity'));
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_quantity')) ? '📦 '.number_format($get('total_quantity'), 2) : $get('total_quantity'));
     }
 
     public static function getValidityDateField(): DatePicker
@@ -426,6 +441,7 @@ trait Form
             ->afterOrEqual('order_date')
             ->helperText(__('resources/purchaseOrder/strings.form.helper_validity_date'))
             ->validationMessages([
+                'date' => __('resources/purchaseOrder/strings.form.validation_date'),
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
                 'after_or_equal' => __('resources/purchaseOrder/strings.form.validation_after_or_equal_order_date'),
             ])

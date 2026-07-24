@@ -4,42 +4,34 @@ return [
     'general' => [
         'model_label' => 'Notification',
         'plural_model_label' => 'Notification',
-        'navigation_group' => 'Notifications',
-        'add_record' => '˙⋆✮ Create New Notification Setting',
     ],
 
     'form' => [
-        'tabs' => [
-            'general' => 'General Info',
-            'filters' => 'Filters & Columns',
-            'notifications' => 'Notification Settings',
-        ],
-
-        'section_general' => 'Notification Details',
-        'section_filters' => 'Table & Column Selection',
-        'section_notifications' => 'Notification Preferences',
-
         'tables' => 'Select Tables to Monitor',
         'columns' => 'Select Columns to Track',
         'column_values' => 'Select Column Values',
         'users' => 'Select Users to Notify',
         'notification_type' => 'Channel',
-        'description' => 'Description',
         'is_active' => 'Is Active',
         'notes' => 'Additional Notes',
         'actions' => 'Actions',
 
         'tables_description' => '⚡ Select one or more resources. The available columns and values will update dynamically based on your choice.',
 
-        'validation_required' => 'This field is required.',
-        'validation_numeric' => 'This field must be a number.',
-        'validation_date' => 'Please enter a valid date.',
         'validation_notes_max' => 'Please keep your notes to 500 characters or fewer.',
 
         'helper_notes' => 'Use this space for quick context, but keep it under 500 characters.',
-            'helper_actions' => 'Select which database actions trigger this notification.',
-            'helper_columns' => 'Trigger notification only when these specific columns change.',
-            'helper_column_values' => 'Trigger notification only when columns change to these specific values.',
+        'helper_actions' => 'Select which database actions trigger this notification.',
+        'helper_columns' => 'Trigger notification only when these specific columns change.',
+        'helper_column_values' => 'Trigger notification only when columns change to these specific values.',
+        'helper_notification_type' => 'Choose how recipients are notified. "Both" sends an in-app alert and an email.',
+    ],
+
+    'channels' => [
+        'in_app' => 'In-App 💻',
+        'email' => 'Email 📧',
+        'all' => 'Both 🔔',
+        'unknown' => 'Unknown',
     ],
 
     'table' => [
@@ -59,22 +51,15 @@ return [
     'filters' => [
         'actions' => 'Actions',
         'tables' => 'Tables',
-        'columns' => 'Columns',
-        'users' => 'Users',
         'notification_type' => 'Channel',
         'is_active' => 'Active Status',
         'active' => 'Active',
         'inactive' => 'Inactive',
         'creator' => 'Created By',
         'updater' => 'Updated By',
-        'created_from' => 'Created From',
-        'created_until' => 'Created Until',
     ],
 
     'infolist' => [
-        'tab_general' => 'General Info',
-        'tab_filters' => 'Filters & Columns',
-        'tab_notifications' => 'Notifications',
         'tables' => 'Tables',
         'actions' => 'Actions',
         'columns' => 'Columns',
@@ -83,10 +68,14 @@ return [
         'notification_type' => 'Channel',
         'is_active' => 'Active',
         'notes' => 'Notes',
-        'description' => 'Description',
         'created_by' => 'Created By',
         'updated_by' => 'Updated By',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
+    ],
+    'action_types' => [
+        'create' => '🟢 Create',
+        'update' => '🟡 Update',
+        'delete' => '🔴 Delete',
     ],
 ];

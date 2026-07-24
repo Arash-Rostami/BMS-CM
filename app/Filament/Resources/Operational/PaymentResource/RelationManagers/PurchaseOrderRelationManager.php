@@ -7,7 +7,6 @@ use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrd
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Filters as PurchaseOrderFilters;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as PurchaseOrderTable;
 use App\Filament\Resources\PurchaseOrderResource;
-use App\Filament\Resources\RegisteredOrderResource;
 use App\Models\PurchaseOrder;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -23,14 +22,18 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 
 class PurchaseOrderRelationManager extends RelationManager
 {
-    use PurchaseOrderTable, PurchaseOrderFilters;
+    use PurchaseOrderFilters, PurchaseOrderTable;
 
     protected static string $relationship = 'purchaseOrder';
 
     protected bool $canAssociate = false;
+
     protected bool $canCreate = false;
+
     protected bool $canDelete = false;
+
     protected bool $canDissociate = false;
+
     protected bool $canEdit = false;
 
     public static function getModelLabel(): string
@@ -62,11 +65,10 @@ class PurchaseOrderRelationManager extends RelationManager
         return PurchaseOrderResource::infolist($schema);
     }
 
-
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn() => $this->getRelationship())
+            ->query(fn () => $this->getRelationship())
             ->recordTitleAttribute('po_number')
             ->columns([
                 static::showSource(),
@@ -100,7 +102,7 @@ class PurchaseOrderRelationManager extends RelationManager
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record) => PurchaseOrderResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record) => PurchaseOrderResource::getUrl('edit', ['record' => $record])),
 
                 ]),
             ])

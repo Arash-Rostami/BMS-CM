@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'navigation_group' => [
         'base' => '【#】 Master Data Management',
@@ -8,5 +7,109 @@ return [
         'operational_second' => '【2】 Order Registration Files',
         'operational_third' => '【3】 Files Financial Management',
         'operational_fourth' => '【4】 Logistics & Clearance',
+    ],
+    'widgets' => [
+        'tabs' => [
+            'risk' => 'Risk Overview',
+            'performance' => 'Performance',
+            'exposure' => 'Exposure',
+        ],
+        'cycle_time' => [
+            'heading' => 'Trade Cycle Time',
+            'description' => 'Median and 90th-percentile days per pipeline stage',
+            'p50' => 'Median (P50)',
+            'p90' => 'P90',
+            'stages' => [
+                'request_to_order' => 'Request → Order',
+                'order_to_payment' => 'Order → Payment',
+                'payment_to_shipment' => 'Payment → Shipment',
+                'shipment_to_clearance' => 'Shipment → Clearance',
+            ],
+        ],
+        'concentration' => [
+            'heading' => 'Concentration Risk',
+            'supplier' => 'Supplier Concentration (HHI)',
+            'currency' => 'Currency Concentration (HHI)',
+            'risk_high' => 'High dependency risk',
+            'risk_moderate' => 'Moderate dependency risk',
+            'risk_low' => 'Well diversified',
+        ],
+        'punctuality' => [
+            'heading' => 'Shipment Punctuality',
+            'description' => 'Actual exit date vs estimated arrival (ETA)',
+            'on_time' => 'On Time',
+            'late_1_3' => '1-3 Days Late',
+            'late_4_7' => '4-7 Days Late',
+            'late_8_plus' => '8+ Days Late',
+            'currently_overdue' => 'Currently Overdue',
+        ],
+        'exposure_aging' => [
+            'heading' => 'Overdue Payment Aging',
+            'description' => 'Unpaid amounts past their deadline, by currency',
+            'bucket_0_30' => '0-30 Days',
+            'bucket_31_60' => '31-60 Days',
+            'bucket_61_90' => '61-90 Days',
+            'bucket_90_plus' => '90+ Days',
+        ],
+        'open_exposure' => [
+            'heading' => 'Open Currency Exposure',
+            'description' => 'Committed order value still unpaid, by currency',
+        ],
+        'pipeline_stalls' => [
+            'heading' => 'Stalled Files',
+            'description' => 'Open records already past their own target date',
+            'days_overdue' => 'Days Overdue',
+            'empty' => 'Nothing is stalled — every file is on track',
+            'record_types' => [
+                'purchase_request' => 'Purchase Request',
+                'registered_order' => 'Registered Order',
+                'payment' => 'Payment',
+                'shipment' => 'Shipment',
+            ],
+        ],
+        'legend' => [
+            'toggle_show' => 'About this metric',
+            'toggle_hide' => 'Hide details',
+            'what_label' => 'What this shows',
+            'data_label' => 'Data used',
+            'why_label' => 'Why it matters',
+            'technical_label' => 'Technical',
+            'cycle_time' => [
+                'what' => 'Days it typically takes to move through each stage of the buying process — approval, ordering, payment, shipping, customs — shown as both a typical (median) and worst-case (90th percentile) duration.',
+                'data' => 'Purchase Requests, Registered Orders, Payments, Shipments, and Customs, matched by their date columns at each stage (approval date, order date, payment date, ETA, exit date, clearance date).',
+                'why' => 'Shows exactly which stage of the pipeline is the bottleneck, instead of guessing.',
+                'technical' => 'purchase_requests.approval_date → registered_orders.order_date (via registered_order_purchase_request); registered_orders.order_date → payments.payment_date (payments.targetable_type = RegisteredOrder, targetable_id = registered_orders.id); earliest payments.payment_date → shipments.eta (via shipments.registered_order_id); shipments.exit_date → customs.clearance_date (via customs.shipment_id). Each stage computes DATEDIFF(), SQL-sorted ascending; PHP only picks the median/P90 index, no PHP-side sort.',
+            ],
+            'concentration' => [
+                'what' => 'How dependent the business is on a small number of suppliers or a single currency, scored with the Herfindahl-Hirschman Index (HHI).',
+                'data' => 'Payments, summed by supplier (payee) and separately by currency.',
+                'why' => 'A score above 2,500 is an early warning of risk concentration, before a supplier or currency shock happens.',
+                'technical' => 'SUM(payments.total_amount) grouped by payments.payee_id, and separately by payments.currency_id. HHI = SUM((group_spend / total_spend)^2) * 10000, computed in SQL (a CTE on MySQL 8+/MariaDB 10.2+, a subquery otherwise — detected via PDO::ATTR_SERVER_VERSION).',
+            ],
+            'punctuality' => [
+                'what' => "Compares each shipment's estimated arrival date (ETA) to when it actually left the origin (exit date), sorted into on-time, late, and currently-overdue.",
+                'data' => 'Shipments — the eta and exit_date columns.',
+                'why' => "Surfaces logistics reliability at a glance and flags what's overdue right now.",
+                'technical' => 'shipments.eta and shipments.exit_date, filtered to eta IS NOT NULL. DATEDIFF(exit_date, eta) buckets rows via CASE WHEN into on-time (<=0), 1-3, 4-7, 8+ days late. currently_overdue = exit_date IS NULL AND eta < CURDATE().',
+            ],
+            'exposure_aging' => [
+                'what' => 'Every unpaid payment past its deadline, grouped by how overdue it is — 0-30, 31-60, 61-90, 90+ days — by currency.',
+                'data' => 'Payments — payment deadline, payment date, payable amount, and currency.',
+                'why' => 'Shows exactly how much is overdue and for how long, per currency, instead of one hidden total.',
+                'technical' => 'payments where payment_date IS NULL AND payment_deadline < CURDATE(), grouped by currency_id. DATEDIFF(CURDATE(), payment_deadline) buckets payable_amount via CASE WHEN into 0-30/31-60/61-90/90+, joined to currencies for the display label.',
+            ],
+            'open_exposure' => [
+                'what' => "How much of the total committed order value hasn't been paid yet, per currency.",
+                'data' => 'Registered Order line items (line total) minus matching Payments (total amount), grouped by currency.',
+                'why' => 'Tells treasury how much foreign currency still needs to be purchased, ahead of time.',
+                'technical' => 'SUM(registered_order_items.line_total) per registered_order_id, left-joined against SUM(payments.total_amount) per matching targetable_id (RegisteredOrder only). GREATEST(committed - paid, 0) summed per registered_orders.currency_id, HAVING open_exposure > 0.',
+            ],
+            'pipeline_stalls' => [
+                'what' => "Specific records that are overdue against their own target date and haven't moved forward — a list, not a chart.",
+                'data' => 'Purchase Requests, Registered Orders, Payments, and Shipments, each compared against its own deadline or target-date column.',
+                'why' => "The \"what needs attention today\" list, ranked by days overdue.",
+                'technical' => 'Four queries unioned: purchase_requests (approval_date IS NULL AND required_by_date < CURDATE()); registered_orders (expected_delivery_date < CURDATE() and no matching shipments.registered_order_id); payments (payment_date IS NULL AND payment_deadline < CURDATE()); shipments (exit_date IS NULL AND eta < CURDATE()). Each computes DATEDIFF(CURDATE(), target_date); combined result ORDER BY that value DESC LIMIT 15.',
+            ],
+        ],
     ],
 ];

@@ -7,8 +7,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
-//Route::get('/get-roles', function () {
+// Route::get('/get-roles', function () {
 //    set_time_limit(0);
 //
 //    $wsdl = 'https://pub-cix.ntsw.ir/services/InternalTradeServices?wsdl';
@@ -47,9 +46,9 @@ Route::get('/user', function (Request $request) {
 //            'trace' => isset($client) ? $client->__getLastResponse() : 'Client init failed'
 //        ], 500);
 //    }
-//});
+// });
 //
-//Route::get('/test-auth', function () {
+// Route::get('/test-auth', function () {
 //    $client = new \SoapClient('https://pub-cix.ntsw.ir/services/InternalTradeServices?wsdl', [
 //        'login' => 'internalservice',
 //        'password' => 'ESBesb12?',
@@ -75,9 +74,9 @@ Route::get('/user', function (Request $request) {
 //    } catch (\Exception $e) {
 //        return response()->json(['error' => $e->getMessage()], 500);
 //    }
-//});
+// });
 //
-//Route::get('/find-working-combo', function () {
+// Route::get('/find-working-combo', function () {
 //    set_time_limit(600);
 //
 //    $client = new \SoapClient('https://pub-cix.ntsw.ir/services/InternalTradeServices?wsdl', [
@@ -181,9 +180,9 @@ Route::get('/user', function (Request $request) {
 //        'found' => count($working),
 //        'working_combinations' => $working,
 //    ]);
-//});
+// });
 //
-//Route::get('/simple-query', function () {
+// Route::get('/simple-query', function () {
 //    set_time_limit(0);
 //
 //    $options = [
@@ -282,6 +281,5 @@ Route::get('/user', function (Request $request) {
 //        'successful_combinations' => $withData,
 //        'all_results' => $results,
 //    ]);
-//});
+// });
 //
-

@@ -10,20 +10,22 @@ use App\Models\Traits\General\HasScope;
 use App\Models\Traits\General\Localization;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Company extends Model
 {
-    use SoftDeletes,
-        Relationships,
-        UserStamps,
-        Localization,
-        HasScope,
-        TypeScopes,
-        HasCustomSorts,
+    use HasCustomSorts,
+        HasFactory,
         HasNameSearch,
-        HasSearchableRelations;
+        HasScope,
+        HasSearchableRelations,
+        Localization,
+        Relationships,
+        SoftDeletes,
+        TypeScopes,
+        UserStamps;
 
     protected $fillable = [
         'name',

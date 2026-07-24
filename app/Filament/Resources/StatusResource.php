@@ -29,9 +29,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class StatusResource extends Resource
 {
-    use StatusForm, StatusTable, StatusInfolist, StatusFilters, HasResourcePermissions;
+    use HasResourcePermissions, StatusFilters, StatusForm, StatusInfolist, StatusTable;
 
     protected static ?string $model = Status::class;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-tag';
 
     protected static ?int $navigationSort = 6;
@@ -73,7 +74,10 @@ class StatusResource extends Resource
         $date = toYmdDate($record);
         $name = $record->getLocalizedNameAttribute() ?? '-';
 
-        return "🏷️   {$name} (📆 {$date})";
+        return __('resources/status/strings.general.global_search_title', [
+            'name' => $name,
+            'date' => $date,
+        ]);
     }
 
     public static function getGlobalSearchResultUrl(Model $record): ?string
@@ -89,11 +93,6 @@ class StatusResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/status/strings.general.model_label');
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
     }
 
     public static function getNavigationGroup(): ?string
@@ -165,7 +164,7 @@ class StatusResource extends Resource
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
-                        ->exporter(StatusExporter::class)
+                        ->exporter(StatusExporter::class),
                 ]),
             ])
             ->striped()

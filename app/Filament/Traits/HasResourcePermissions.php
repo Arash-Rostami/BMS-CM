@@ -16,17 +16,56 @@ trait HasResourcePermissions
 
     private static function allows(string $action): bool
     {
-        return auth()->user()?->can(static::getPermissionPrefix() . '.' . $action) ?? false;
+        return auth()->user()?->can(static::getPermissionPrefix().'.'.$action) ?? false;
     }
 
-    public static function canViewAny(): bool       { return static::allows('view'); }
-    public static function canView($record): bool   { return static::allows('view'); }
-    public static function canCreate(): bool        { return static::allows('create'); }
-    public static function canEdit($record): bool   { return static::allows('edit'); }
-    public static function canDelete($record): bool { return static::allows('delete'); }
-    public static function canDeleteAny(): bool     { return static::allows('delete'); }
-    public static function canForceDelete($record): bool { return static::allows('delete'); }
-    public static function canForceDeleteAny(): bool     { return static::allows('delete'); }
-    public static function canRestore($record): bool     { return static::allows('edit'); }
-    public static function canRestoreAny(): bool         { return static::allows('edit'); }
+    public static function canViewAny(): bool
+    {
+        return static::allows('view');
+    }
+
+    public static function canView($record): bool
+    {
+        return static::allows('view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::allows('create');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return static::allows('edit');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return static::allows('delete');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return static::allows('delete');
+    }
+
+    public static function canForceDelete($record): bool
+    {
+        return static::allows('delete');
+    }
+
+    public static function canForceDeleteAny(): bool
+    {
+        return static::allows('delete');
+    }
+
+    public static function canRestore($record): bool
+    {
+        return static::allows('edit');
+    }
+
+    public static function canRestoreAny(): bool
+    {
+        return static::allows('edit');
+    }
 }

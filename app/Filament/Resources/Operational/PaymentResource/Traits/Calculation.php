@@ -25,23 +25,26 @@ trait Calculation
     private static function computeCalculatedTotal(Get $get): float
     {
         $payable = static::computeDefaultTotal($get);
-        $charges = (float)$get('bank_charges') ?? 0.0;
+        $charges = (float) $get('bank_charges') ?? 0.0;
+
         return $payable + $charges;
     }
 
     private static function computeDefaultTotal(Get $get): float
     {
-        return (float)$get('payable_amount') ?? 0.0;
+        return (float) $get('payable_amount') ?? 0.0;
     }
 
     private static function computeTotal(Get $get): float
     {
-        return (float)$get('total_amount') ?? 0.0;
+        return (float) $get('total_amount') ?? 0.0;
     }
 
     private static function computeTotalRatio(float $calculatedTotal, $total): ?float
     {
-        if ($total == 0) return null;
+        if ($total == 0) {
+            return null;
+        }
 
         return $calculatedTotal / $total;
     }

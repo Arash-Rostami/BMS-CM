@@ -10,23 +10,24 @@ use App\Models\Traits\General\HasSlug;
 use App\Models\Traits\General\Localization;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model
 {
-    use SoftDeletes,
-        HasSlug,
-        Scopables,
-        UserStamps,
-        Localization,
+    use BreadCrumbs,
         ExclusiveRelationships,
+        HasFactory,
+        HasSlug,
+        Localization,
+        NestedOptions,
         Relationships,
-        BreadCrumbs,
-        NestedOptions;
+        Scopables,
+        SoftDeletes,
+        UserStamps;
 
     protected $table = 'categories';
-
 
     protected $fillable = [
         'name',

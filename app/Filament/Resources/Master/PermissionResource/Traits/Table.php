@@ -11,7 +11,7 @@ trait Table
     {
         return TextColumn::make('name')
             ->label(__('resources/permission/strings.table.name'))
-            ->formatStateUsing(fn(string $state): string => PermissionLabeler::getLabel($state))
+            ->formatStateUsing(fn (string $state): string => PermissionLabeler::getLabel($state))
             ->searchable(isIndividual: true, isGlobal: false)
             ->sortable();
     }

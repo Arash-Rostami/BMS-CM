@@ -2,25 +2,16 @@
 
 namespace App\Models;
 
-use App\Models\Traits\General\HasLocalizedAttributes;
-use App\Models\Traits\General\Localization;
 use App\Models\Traits\ProformaInvoiceItem\Relationships;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProformaInvoiceItem extends Model
 {
-    use SoftDeletes,
+    use HasFactory,
         Relationships,
-        Localization,
-        HasLocalizedAttributes;
-
-    protected array $localizedAttributesMap = [
-        'description' => [
-            'fa' => 'description',
-            'en' => 'english_description',
-        ],
-    ];
+        SoftDeletes;
 
     protected $fillable = [
         'proforma_invoice_id',

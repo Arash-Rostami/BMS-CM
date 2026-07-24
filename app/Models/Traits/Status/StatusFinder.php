@@ -12,6 +12,7 @@ trait StatusFinder
 
         if ($name) {
             $query->where('english_name', $name);
+
             return $query->first();
         }
 

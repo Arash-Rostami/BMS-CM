@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum Status: string implements HasColor, HasLabel, HasIcon
+enum Status: string implements HasColor, HasIcon, HasLabel
 {
     case Allocated = 'Allocated';
     case AwaitingSupply = 'Awaiting Supply';
@@ -62,6 +62,6 @@ enum Status: string implements HasColor, HasLabel, HasIcon
 
         $key = $cases[$key] ?? $key;
 
-        return __('resources/bankProfile/strings.general.status.' . $key);
+        return __('resources/bankProfile/strings.general.status.'.$key);
     }
 }

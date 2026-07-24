@@ -18,10 +18,10 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Form as Pu
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Infolist as PurchaseRequestInfolist;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as PurchaseRequestTable;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\TotalCostCalculation;
+use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\PurchaseRequest;
-use App\Services\SmartCacheManager;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -46,10 +46,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-
 class PurchaseRequestResource extends Resource
 {
-    use PurchaseRequestForm, TotalCostCalculation, PurchaseRequestTable, PurchaseRequestFilters, PurchaseRequestInfolist, HasResourcePermissions, HasExtraAttributesManagement;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, PurchaseRequestFilters, PurchaseRequestForm, PurchaseRequestInfolist, PurchaseRequestTable, TotalCostCalculation;
 
     protected static ?string $model = PurchaseRequest::class;
 
@@ -95,15 +94,15 @@ class PurchaseRequestResource extends Resource
                                                                 static::getItemNotesToggle(),
                                                                 static::getItemNotesField(),
                                                             ]
-                                                        )->columns(3)
+                                                        )->columns(3),
                                                     ])
                                                     ->live(true)
                                                     ->defaultItems(0)
-                                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotalCost($get, $set))
-                                                    ->afterStateHydrated(fn(Get $get, Set $set) => static::updateTotalCost($get, $set))
-                                                    ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => self::updateTotalCost($get, $set)))
+                                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateTotalCost($get, $set))
+                                                    ->afterStateHydrated(fn (Get $get, Set $set) => static::updateTotalCost($get, $set))
+                                                    ->deleteAction(fn ($action) => $action->after(fn (Get $get, Set $set) => self::updateTotalCost($get, $set)))
                                                     ->addActionLabel(__('resources/purchaseRequest/strings.form.add_purchase_item'))
-                                                    ->label(false)
+                                                    ->label(false),
                                             ]),
                                     ])
                                     ->columnSpan(['lg' => 2]),
@@ -117,7 +116,7 @@ class PurchaseRequestResource extends Resource
                                                 static::getApproverIdField(),
                                                 static::getApprovalDateField(),
                                                 static::getNotesField(),
-                                                FormComponents::getAttachmentsField()
+                                                FormComponents::getAttachmentsField(),
                                             ]),
                                     ])
                                     ->columnSpan(['lg' => 1]),
@@ -177,7 +176,7 @@ class PurchaseRequestResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return '🛒 ' . ($record->pr_number ?? '—');
+        return '🛒 '.($record->pr_number ?? '—');
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -185,28 +184,9 @@ class PurchaseRequestResource extends Resource
         return ['pr_number', 'rejection_reason'];
     }
 
-
     public static function getModelLabel(): string
     {
         return __('resources/purchaseRequest/strings.general.model_label');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'PurchaseRequest',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            150,
-            fn() => static::getModel()::count()
-        );
-
-
-        return $count > 0 ? (string)$count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
     }
 
     public static function getNavigationGroup(): ?string
@@ -273,14 +253,14 @@ class PurchaseRequestResource extends Resource
                             ->label(__('resources/purchaseRequest/strings.infolist.tab_items'))
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
-                                Section::make()->schema([static::viewPurchaseItems()])
+                                Section::make()->schema([static::viewPurchaseItems()]),
                             ]),
                         Tab::make('Documents')
                             ->icon('heroicon-o-paper-clip')
                             ->schema([
-                                Section::make()->schema([static::viewAttachments()])
+                                Section::make()->schema([static::viewAttachments()]),
                             ])
-                            ->label(fn($record) => tabBadge(
+                            ->label(fn ($record) => tabBadge(
                                 __('resources/purchaseRequest/strings.infolist.tab_documents'),
                                 $record?->attachments->count() ?? 0,
                                 'info'
@@ -344,10 +324,10 @@ class PurchaseRequestResource extends Resource
                     ->label(__('resources/purchaseRequest/strings.filters.requester')),
                 Group::make('department.name')
                     ->label(__('resources/purchaseRequest/strings.filters.department'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'department')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'department')),
                 Group::make('status.english_name')
                     ->label(__('resources/purchaseRequest/strings.filters.status'))
-                    ->getTitleFromRecordUsing(fn($record): ?string => Status::tryFrom($record->status?->english_name)?->getLabel() ?? $record->status?->name),
+                    ->getTitleFromRecordUsing(fn ($record): ?string => Status::tryFrom($record->status?->english_name)?->getLabel() ?? $record->status?->name),
             ])
             ->striped()
             ->searchDebounce('1000ms')

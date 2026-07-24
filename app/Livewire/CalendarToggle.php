@@ -16,7 +16,7 @@ class CalendarToggle extends Component
 
     public function toggle(): void
     {
-        $this->isJalali = !$this->isJalali;
+        $this->isJalali = ! $this->isJalali;
         session(['calendar_type' => $this->isJalali ? 'jalali' : 'gregorian']);
         $this->dispatch('calendar-toggled');
     }

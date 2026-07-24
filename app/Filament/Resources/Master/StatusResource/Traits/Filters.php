@@ -12,7 +12,7 @@ trait Filters
     public static function getCreatorFilter(): SelectFilter
     {
         return SelectFilter::make('created_by_id')
-            ->label(__('resources/status/strings.table.creator'))
+            ->label(__('resources/status/strings.filters.creator'))
             ->relationship('creator', 'name')
             ->searchable()
             ->preload();
@@ -28,14 +28,14 @@ trait Filters
         $column = app()->getLocale() === 'fa' ? 'type' : 'english_type';
 
         return SelectFilter::make($column)
-            ->label(__('resources/status/strings.table.' . $column))
+            ->label(__('resources/status/strings.filters.'.$column))
             ->multiple()
             ->searchable()
-            ->options(fn(): array => SmartCacheManager::remember(
+            ->options(fn (): array => SmartCacheManager::remember(
                 'Status',
                 ['filter' => 'type', 'locale' => app()->getLocale()],
                 150,
-                fn() => Status::query()
+                fn () => Status::query()
                     ->distinct($column)
                     ->orderBy($column)
                     ->pluck($column, $column)
@@ -46,7 +46,7 @@ trait Filters
     public static function getUpdaterFilter(): SelectFilter
     {
         return SelectFilter::make('updated_by_id')
-            ->label(__('resources/status/strings.table.updater'))
+            ->label(__('resources/status/strings.filters.updater'))
             ->relationship('updater', 'name')
             ->searchable()
             ->preload();

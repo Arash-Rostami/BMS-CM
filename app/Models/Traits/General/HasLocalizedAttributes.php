@@ -2,8 +2,6 @@
 
 namespace App\Models\Traits\General;
 
-use Illuminate\Support\Facades\App;
-
 trait HasLocalizedAttributes
 {
     public function getLocalizedAttribute(string $attributeBaseName): string
@@ -11,7 +9,7 @@ trait HasLocalizedAttributes
         $locale = app()->getLocale();
         $columnName = $this->localizedAttributesMap[$attributeBaseName][$locale] ?? null;
 
-        if (!$columnName) {
+        if (! $columnName) {
             $columnName = $this->localizedAttributesMap[$attributeBaseName]['en'] ?? $attributeBaseName;
         }
 

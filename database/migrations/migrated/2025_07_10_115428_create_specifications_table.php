@@ -6,13 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         if (! Schema::hasTable('specifications')) {
-
             Schema::create('specifications', function (Blueprint $table) {
                 $table->id();
                 $table->morphs('specifiable');
@@ -23,14 +19,11 @@ return new class extends Migration
                 $table->boolean('vat_exempt')->default(false);
                 $table->string('tax_id')->nullable();
                 $table->string('manufacturer')->nullable();
-                // ["ministry_quota", "food_drug_license" , ...]
                 $table->json('import_licenses')->nullable();
-                // Extensible JSON store
                 $table->json('extra')->nullable();
 
                 $table->unsignedBigInteger('user_id')->nullable();
                 $table->unsignedBigInteger('updated_by_id')->nullable();
-                $table->index(['specifiable_type', 'specifiable_id'], 'specifiable_index');
                 $table->softDeletes();
                 $table->timestamps();
 
@@ -41,13 +34,12 @@ return new class extends Migration
                 $table->index('hs_code');
                 $table->index('tax_id');
                 $table->index('manufacturer');
+                $table->index('user_id', 'idx_specifications_user_id');
+                $table->index('updated_by_id', 'idx_specifications_updated_by_id');
             });
         }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('specifications');

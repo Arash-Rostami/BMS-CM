@@ -2,14 +2,13 @@
 
 namespace App\Filament\Resources\Master\ProductResource\Traits;
 
-use Filament\Support\Enums\TextSize;
 use App\Filament\Resources\Master\ProductResource\Enums\InStockStatus;
 use App\Models\Product;
+use Filament\Support\Enums\TextSize;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
-
 
 trait Table
 {
@@ -44,15 +43,14 @@ trait Table
     {
         return TextColumn::make('category.name')
             ->label(__('resources/product/strings.table.category'))
-            ->formatStateUsing(fn($state, $record) => $record->category
+            ->formatStateUsing(fn ($state, $record) => $record->category
                 ? $record->category->sortAncestors()
                 : __('resources/product/strings.table.no_category') ?? '-')
-            ->tooltip(fn($record): ?string => $record->determineRollOrSheetType())
+            ->tooltip(fn ($record): ?string => $record->determineRollOrSheetType())
             ->size(TextSize::Small)
             ->toggleable()
             ->sortable();
     }
-
 
     public static function showProductAttributes(): TextColumn
     {
@@ -70,8 +68,8 @@ trait Table
             ->boolean()
             ->label(__('resources/product/strings.table.in_stock'))
             ->toggleable(isToggledHiddenByDefault: true)
-            ->icon(fn(bool $state): string => InStockStatus::tryFrom((int)$state)?->getIcon() ?? 'heroicon-o-question-mark-circle')
-            ->color(fn(bool $state): string => InStockStatus::tryFrom((int)$state)?->getColor() ?? 'gray');
+            ->icon(fn (bool $state): string => InStockStatus::tryFrom((int) $state)?->getIcon() ?? 'heroicon-o-question-mark-circle')
+            ->color(fn (bool $state): string => InStockStatus::tryFrom((int) $state)?->getColor() ?? 'gray');
     }
 
     public static function showIsActive(): ToggleColumn
@@ -90,14 +88,14 @@ trait Table
     {
         return TextColumn::make('roll_sheet_type')
             ->label(__('resources/product/strings.table.roll_sheet_type'))
-            ->getStateUsing(fn($record) => $record->determineRollOrSheetType())
+            ->getStateUsing(fn ($record) => $record->determineRollOrSheetType())
             ->badge()
-            ->color(fn($state) => match ($state) {
+            ->color(fn ($state) => match ($state) {
                 'Roll' => 'success',
                 'Sheet' => 'info',
                 default => 'gray',
             })
-            ->searchable(query: fn(Builder $query, string $search) => Product::applyRollSheetSearch($query, $search))
+            ->searchable(query: fn (Builder $query, string $search) => Product::applyRollSheetSearch($query, $search))
             ->toggleable(isToggledHiddenByDefault: true);
     }
 

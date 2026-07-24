@@ -2,8 +2,8 @@
 
 namespace App\Filament\Pages;
 
-use Livewire\Attributes\On;
 use Filament\Resources\Pages\ListRecords as BaseListRecords;
+use Livewire\Attributes\On;
 
 class ListRecords extends BaseListRecords
 {

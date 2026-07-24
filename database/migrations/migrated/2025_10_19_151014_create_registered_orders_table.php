@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('registered_orders', function (Blueprint $table) {
@@ -29,21 +26,15 @@ return new class extends Migration
             $table->string('insurance_provider')->nullable();
             $table->date('insurance_date')->nullable();
             $table->text('notes')->nullable();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('updated_by_id')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
+            $table->foreignId('updated_by_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('contract_no');
             $table->index(['status_id', 'deleted_at']);
-            $table->index('buyer_id');
-            $table->index('seller_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('registered_orders');

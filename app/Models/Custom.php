@@ -14,18 +14,23 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Custom extends Model
 {
-    use SoftDeletes,
-        Relationships,
-        ExclusiveRelationships,
+    use ExclusiveRelationships,
+        HasCustomAttributes,
+        HasFactory,
         HasFormattedName,
         HasSearchableRelations,
-        HasCustomAttributes,
+        Relationships,
+        SoftDeletes,
         UserStamps;
 
     const SCANNABLE_TABLE = 'customs';
+
     public const SCANNABLE_IDENTIFIER = 'custom_no';
+
     public const TYPE_CLEARANCE_STATUS = 'Clearance Status';
+
     public const TYPE_BANK_GUARANTEE_STATUS = 'Guarantee Status';
+
     public const TYPE_COMMITMENT_STATUS = 'Commitment Fulfillment Status';
 
     protected $table = 'customs';

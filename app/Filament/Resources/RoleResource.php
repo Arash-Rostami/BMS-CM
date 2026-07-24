@@ -9,7 +9,6 @@ use App\Filament\Resources\Master\RoleResource\Traits\Infolist as RoleInfolist;
 use App\Filament\Resources\Master\RoleResource\Traits\Table as RoleTable;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Role;
-use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -26,7 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RoleResource extends Resource
 {
-    use RoleForm, RoleTable, RoleInfolist, RoleFilters, HasResourcePermissions;
+    use HasResourcePermissions, RoleFilters, RoleForm, RoleInfolist, RoleTable;
 
     protected static ?string $model = Role::class;
 
@@ -63,18 +62,6 @@ class RoleResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/role/strings.general.model_label');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'Role',
-            ['type' => 'total_count'],
-            3600,
-            fn() => static::getModel()::count()
-        );
-
-        return $count > 0 ? (string)$count : null;
     }
 
     public static function getNavigationGroup(): ?string
@@ -128,19 +115,19 @@ class RoleResource extends Resource
             ->filtersFormColumns(2)
             ->groups([
                 Group::make('name')
-                    ->label(__('resources/role/strings.grouping.base_name'))
-                    ->getKeyFromRecordUsing(fn(Role $record) => $record->base_name)
-                    ->getTitleFromRecordUsing(fn(Role $record) => Str::title(str_replace('_', ' ', $record->base_name)))
-                    ->orderQueryUsing(fn(Builder $query, string $direction) => $query->orderBy('name', $direction)),
+                    ->label(__('resources/role/strings.filters.group_base_name'))
+                    ->getKeyFromRecordUsing(fn (Role $record) => $record->base_name)
+                    ->getTitleFromRecordUsing(fn (Role $record) => Str::title(str_replace('_', ' ', $record->base_name)))
+                    ->orderQueryUsing(fn (Builder $query, string $direction) => $query->orderBy('name', $direction)),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->mutateDataUsing(fn(array $data): array => [...$data, 'name' => Role::combineName($data['name'], $data['grade'])])
-                        ->after(fn(Role $record, array $data) => $record->syncPermissions($data['permissions'] ?? [])),
+                        ->mutateDataUsing(fn (array $data): array => [...$data, 'name' => Role::combineName($data['name'], $data['grade'])])
+                        ->after(fn (Role $record, array $data) => $record->syncPermissions($data['permissions'] ?? [])),
                     DeleteAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])])
             ->striped()

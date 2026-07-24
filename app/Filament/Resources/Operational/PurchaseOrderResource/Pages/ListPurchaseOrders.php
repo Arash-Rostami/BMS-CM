@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Pages;
 
-use Filament\Actions\CreateAction;
-use App\Filament\Resources\PurchaseOrderResource;
-use Filament\Actions;
 use App\Filament\Pages\ListRecords;
+use App\Filament\Resources\PurchaseOrderResource;
+use Filament\Actions\CreateAction;
 
 class ListPurchaseOrders extends ListRecords
 {
@@ -14,8 +13,9 @@ class ListPurchaseOrders extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ...array_filter([PurchaseOrderResource::getDeskReferenceHeaderAction()]),
             CreateAction::make()
-                ->icon('heroicon-o-sparkles')
+                ->icon('heroicon-o-sparkles'),
         ];
     }
 }

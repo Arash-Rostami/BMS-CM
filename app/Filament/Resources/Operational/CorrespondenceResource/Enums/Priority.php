@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum Priority: string implements HasLabel, HasIcon, HasColor
+enum Priority: string implements HasColor, HasIcon, HasLabel
 {
     case LOW = 'low';
     case NORMAL = 'normal';
@@ -35,6 +35,6 @@ enum Priority: string implements HasLabel, HasIcon, HasColor
 
     public function getLabel(): string
     {
-        return __('resources/correspondence/strings.enums.priority.' . $this->value);
+        return __('resources/correspondence/strings.enums.priority.'.$this->value);
     }
 }

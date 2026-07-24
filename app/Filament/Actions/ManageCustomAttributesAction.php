@@ -10,17 +10,17 @@ class ManageCustomAttributesAction
     public static function make(): Action
     {
         return Action::make('manageCustomAttributes')
-            ->label(__('actions/manageCustomAttributes.label'))
+            ->label(__('resources/general/strings.manage_custom_attributes.label'))
             ->icon('heroicon-o-adjustments-horizontal')
             ->color('gray')
-            ->modalHeading(__('actions/manageCustomAttributes.modal_heading'))
-            ->modalSubmitActionLabel(__('actions/manageCustomAttributes.save'))
-            ->form([
+            ->modalHeading(__('resources/general/strings.manage_custom_attributes.modal_heading'))
+            ->modalSubmitActionLabel(__('resources/general/strings.manage_custom_attributes.save'))
+            ->schema([
                 KeyValue::make('attributes')
                     ->label(false)
-                    ->keyLabel(__('actions/manageCustomAttributes.key_label'))
-                    ->valueLabel(__('actions/manageCustomAttributes.value_label'))
-                    ->addActionLabel(__('actions/manageCustomAttributes.add_row'))
+                    ->keyLabel(__('resources/general/strings.manage_custom_attributes.key_label'))
+                    ->valueLabel(__('resources/general/strings.manage_custom_attributes.value_label'))
+                    ->addActionLabel(__('resources/general/strings.manage_custom_attributes.add_row'))
                     ->columnSpanFull(),
             ])
             ->fillForm(fn ($record): array => [

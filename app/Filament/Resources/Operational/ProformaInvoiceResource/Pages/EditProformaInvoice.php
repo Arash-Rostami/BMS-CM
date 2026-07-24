@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Operational\ProformaInvoiceResource\Pages;
 
-use Filament\Actions\DeleteAction;
-use App\Filament\Resources\ProformaInvoiceResource;
-use Filament\Actions;
 use App\Filament\Pages\EditRecord;
+use App\Filament\Resources\ProformaInvoiceResource;
+use Filament\Actions\DeleteAction;
 
 class EditProformaInvoice extends EditRecord
 {

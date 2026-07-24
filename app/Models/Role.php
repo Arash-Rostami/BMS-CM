@@ -1,14 +1,16 @@
 <?php
+
 namespace App\Models;
 
 use App\Models\Traits\Role\HasGradeParsing;
 use App\Models\Traits\Role\HasPermissionGrouping;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
-    use HasGradeParsing, HasPermissionGrouping;
+    use HasFactory, HasGradeParsing, HasPermissionGrouping;
 
     public function users(): BelongsToMany
     {

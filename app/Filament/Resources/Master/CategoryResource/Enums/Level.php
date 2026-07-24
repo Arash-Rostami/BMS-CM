@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Master\CategoryResource\Enums;
 
-use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum Level: string implements HasLabel, HasIcon, HasColor
+enum Level: string implements HasColor, HasIcon, HasLabel
 {
     case BASE = 'base';
     case SUB = 'sub';

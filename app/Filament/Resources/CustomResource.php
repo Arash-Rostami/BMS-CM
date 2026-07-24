@@ -14,10 +14,10 @@ use App\Filament\Resources\Operational\CustomResource\Traits\Form as CustomForm;
 use App\Filament\Resources\Operational\CustomResource\Traits\Infolist as CustomInfolist;
 use App\Filament\Resources\Operational\CustomResource\Traits\Table as CustomTable;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\CorrespondenceRelationManager;
+use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Custom;
-use App\Services\SmartCacheManager;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -43,7 +43,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomResource extends Resource
 {
-    use CustomForm, CustomTable, CustomFilters, CustomInfolist, HasResourcePermissions, HasExtraAttributesManagement;
+    use CustomFilters, CustomForm, CustomInfolist, CustomTable, HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions;
 
     protected static ?string $model = Custom::class;
 
@@ -57,7 +57,7 @@ class CustomResource extends Resource
             ->components([
                 Tabs::make('Customs Tabs')
                     ->tabs([
-                        Tab::make(__('resources/custom/strings.form.tabs.general'))
+                        Tab::make(__('resources/custom/strings.form.tab_general'))
                             ->icon('heroicon-o-document-text')
                             ->schema([
                                 Group::make()
@@ -92,7 +92,7 @@ class CustomResource extends Resource
                                     ])->columnSpan(['lg' => 1]),
                             ])->columns(3),
 
-                        Tab::make(__('resources/custom/strings.form.tabs.status_financial'))
+                        Tab::make(__('resources/custom/strings.form.tab_status_financial'))
                             ->icon('heroicon-o-banknotes')
                             ->schema([
                                 Section::make(__('resources/custom/strings.form.section_financial'))
@@ -126,7 +126,7 @@ class CustomResource extends Resource
                 'bankGuaranteeStatus',
                 'commitmentStatus',
                 'attachments',
-                'shipment'
+                'shipment',
             ])
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
@@ -150,7 +150,7 @@ class CustomResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return '🛃 ' . ($record->declaration_no ?? $record->custom_no ?? '—');
+        return '🛃 '.($record->declaration_no ?? $record->custom_no ?? '—');
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -161,23 +161,6 @@ class CustomResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/custom/strings.general.model_label');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'Custom',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            150,
-            fn() => static::getModel()::count()
-        );
-
-        return $count > 0 ? (string)$count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
     }
 
     public static function getNavigationGroup(): ?string
@@ -204,7 +187,7 @@ class CustomResource extends Resource
         return [
             CorrespondenceRelationManager::class,
             RegisteredOrderRelationManager::class,
-            ShipmentRelationManager::class
+            ShipmentRelationManager::class,
         ];
     }
 
@@ -259,9 +242,9 @@ class CustomResource extends Resource
                         Tab::make(__('resources/custom/strings.infolist.tab_documents'))
                             ->icon('heroicon-o-paper-clip')
                             ->schema([
-                                Section::make()->schema([static::viewAttachments()])
+                                Section::make()->schema([static::viewAttachments()]),
                             ])
-                            ->label(fn($record) => tabBadge(
+                            ->label(fn ($record) => tabBadge(
                                 __('resources/custom/strings.infolist.tab_documents'),
                                 $record?->attachments->count() ?? 0,
                                 'info'
@@ -314,16 +297,16 @@ class CustomResource extends Resource
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
-                        ->exporter(CustomExporter::class)
+                        ->exporter(CustomExporter::class),
                 ]),
             ])
             ->groups([
                 TableGroup::make('clearanceStatus.name')
                     ->label(__('resources/custom/strings.filters.clearance_status'))
-                    ->getTitleFromRecordUsing(fn(Model $record) => $record->clearanceStatus?->getLocalizedNameAttribute()),
+                    ->getTitleFromRecordUsing(fn (Model $record) => $record->clearanceStatus?->getLocalizedNameAttribute()),
                 TableGroup::make('registeredOrder.ro_number')
-                    ->label(__('resources/custom/strings.form.registered_order'))
-                    ->getTitleFromRecordUsing(fn(Model $record) => $record->registeredOrder?->formatted_name_without_date),
+                    ->label(__('resources/custom/strings.filters.registered_order'))
+                    ->getTitleFromRecordUsing(fn (Model $record) => $record->registeredOrder?->formatted_name_without_date),
             ])
             ->striped()
             ->searchDebounce('1000ms')

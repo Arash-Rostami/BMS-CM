@@ -19,7 +19,7 @@ class FileUploadManager
                 'Status',
                 ['type' => 'Attachment Status', 'name' => 'Uploaded'],
                 1440,
-                fn() => Status::findBy('Attachment Status', 'Uploaded')
+                fn () => Status::findBy('Attachment Status', 'Uploaded')
             ) ?? throw new Exception("Default status 'Uploaded' not found.");
 
             $finalPaths = [];
@@ -27,7 +27,7 @@ class FileUploadManager
 
             foreach ($paths as $path) {
                 if (str_starts_with($path, $tempDir)) {
-                    list($newPath, $newName) = $this->makeNameAndPath($tempDir, $path, $record);
+                    [$newPath, $newName] = $this->makeNameAndPath($tempDir, $path, $record);
                     Storage::disk('public')->move($path, $newPath);
                     $finalPaths[] = $newPath;
 
@@ -48,7 +48,7 @@ class FileUploadManager
             return $this;
         } catch (Exception $e) {
             Notification::make()
-                ->title('⚠️')
+                ->title(__('resources/general/strings.attachments.error_title'))
                 ->body(__('resources/general/strings.attachments.validation.processing_failed'))
                 ->danger()
                 ->persistent()
@@ -84,9 +84,9 @@ class FileUploadManager
         $ext = pathinfo($path, PATHINFO_EXTENSION);
         $original = rawurldecode(Str::before($base, '__')) ?: 'file';
         $unique = Str::after($base, '__');
-        $folder = 'attachments/' . Str::camel(class_basename($record));
+        $folder = 'attachments/'.Str::camel(class_basename($record));
 
-        $newPath = "{$folder}/" . (Str::slug($original) ?: 'file') . "-{$unique}.{$ext}";
+        $newPath = "{$folder}/".(Str::slug($original) ?: 'file')."-{$unique}.{$ext}";
 
         return [$newPath, "{$original}.{$ext}"];
     }
@@ -102,7 +102,7 @@ class FileUploadManager
 
         $stale = $attachments->pluck('path')->diff($paths);
 
-        $stale->each(fn($path) => Storage::disk('public')->delete($path));
+        $stale->each(fn ($path) => Storage::disk('public')->delete($path));
         $attachments->whereIn('path', $stale)->forceDelete();
     }
 }

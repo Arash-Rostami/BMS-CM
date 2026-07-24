@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
@@ -45,15 +42,9 @@ return new class extends Migration
 
             $table->index(['targetable_type', 'targetable_id', 'deleted_at'], 'idx_payments_targetable_deleted');
             $table->index(['status_id', 'deleted_at']);
-            $table->index('payor_id');
-            $table->index('payee_id');
-            $table->index('bank_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('payments');

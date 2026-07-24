@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\Master\CategoryResource\Exports;
 
 use App\Filament\Traits\ExportDefaults;
@@ -12,20 +13,34 @@ class CategoryExporter extends Exporter
 
     protected static ?string $model = Category::class;
 
+    protected static function eagerLoadRelations(): array
+    {
+        return ['parent'];
+    }
+
     public static function getColumns(): array
     {
         return [
             ExportColumn::make('id')
-                ->label('ID'),
-            ExportColumn::make('name'),
-            ExportColumn::make('english_name'),
-            ExportColumn::make('level'),
-            ExportColumn::make('parent.name'),
-            ExportColumn::make('active'),
-            ExportColumn::make('creator.name'),
-            ExportColumn::make('updater.name'),
-            ExportColumn::make('created_at'),
-            ExportColumn::make('updated_at'),
+                ->label(__('resources/category/strings.export.id')),
+            ExportColumn::make('name')
+                ->label(__('resources/category/strings.export.name')),
+            ExportColumn::make('english_name')
+                ->label(__('resources/category/strings.export.english_name')),
+            ExportColumn::make('level')
+                ->label(__('resources/category/strings.export.level')),
+            ExportColumn::make('parent.name')
+                ->label(__('resources/category/strings.export.parent')),
+            ExportColumn::make('active')
+                ->label(__('resources/category/strings.export.active')),
+            ExportColumn::make('creator.name')
+                ->label(__('resources/category/strings.export.creator')),
+            ExportColumn::make('updater.name')
+                ->label(__('resources/category/strings.export.updater')),
+            ExportColumn::make('created_at')
+                ->label(__('resources/category/strings.export.created_at')),
+            ExportColumn::make('updated_at')
+                ->label(__('resources/category/strings.export.updated_at')),
         ];
     }
 }

@@ -7,17 +7,19 @@ use App\Models\Traits\General\HasScope;
 use App\Models\Traits\General\Localization;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bank extends Model
 {
-    use SoftDeletes,
-        Relationships,
-        UserStamps,
+    use HasNameSearch,
+        HasFactory,
+        HasScope,
         Localization,
-        HasNameSearch,
-        HasScope;
+        Relationships,
+        SoftDeletes,
+        UserStamps;
 
     protected $fillable = [
         'name',
@@ -27,7 +29,6 @@ class Bank extends Model
         'user_id',
         'updated_by_id',
     ];
-
 
     protected $casts = [
         'is_active' => 'boolean',

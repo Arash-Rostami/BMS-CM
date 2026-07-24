@@ -23,10 +23,12 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EntityAttributeResource extends Resource
 {
-    use EntityAttributeTable, EntityAttributeInfolist, EntityAttributeFilters;
+    use EntityAttributeFilters, EntityAttributeInfolist, EntityAttributeTable;
 
     protected static ?string $model = EntityAttribute::class;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-puzzle-piece';
+
     protected static ?int $navigationSort = 99;
 
     public static function getEloquentQuery(): Builder

@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Master\NotificationSettingResource\Traits;
 use App\Models\NotificationSetting;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
-use Illuminate\Support\Arr;
 
 trait Infolist
 {
@@ -15,10 +14,10 @@ trait Infolist
             ->label(__('resources/notificationSetting/strings.infolist.actions'))
             ->badge()
             ->listWithLineBreaks()
-            ->getStateUsing(fn($record) => collect($record->getActions())->map(fn($action) => match ($action) {
-                'create' => '🟢 Create',
-                'update' => '🟡 Update',
-                'delete' => '🔴 Delete',
+            ->getStateUsing(fn ($record) => collect($record->getActions())->map(fn ($action) => match ($action) {
+                'create' => __('resources/notificationSetting/strings.action_types.create'),
+                'update' => __('resources/notificationSetting/strings.action_types.update'),
+                'delete' => __('resources/notificationSetting/strings.action_types.delete'),
                 default => $action,
             })->all())
             ->placeholder('-');
@@ -43,7 +42,7 @@ trait Infolist
             ->wrap()
             ->html()
             ->listWithLineBreaks()
-            ->state(fn($record) => array_keys(
+            ->state(fn ($record) => array_keys(
                 NotificationSetting::getColumnValuesForSelectedColumns(
                     $record->getColumns() ?? [], $record->getTables() ?? [])
             ))
@@ -64,7 +63,6 @@ trait Infolist
             ->label(__('resources/notificationSetting/strings.infolist.created_by'))
             ->placeholder('-');
     }
-
 
     public static function viewIsActive(): IconEntry
     {
@@ -89,7 +87,7 @@ trait Infolist
     {
         return TextEntry::make('notification_type')
             ->label(__('resources/notificationSetting/strings.infolist.notification_type'))
-            ->getStateUsing(fn($record) => $record->notification_channel)
+            ->getStateUsing(fn ($record) => $record->notification_channel)
             ->badge()
             ->placeholder('-');
     }

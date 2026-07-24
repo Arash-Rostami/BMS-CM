@@ -10,9 +10,7 @@ class PurchaseRequestObserver
     /**
      * Handle the PurchaseRequest "created" event.
      */
-    public function created(PurchaseRequest $purchaseRequest): void
-    {
-    }
+    public function created(PurchaseRequest $purchaseRequest): void {}
 
     /**
      * Handle the PurchaseRequest "updated" event.
@@ -39,21 +37,15 @@ class PurchaseRequestObserver
     /**
      * Handle the PurchaseRequest "deleted" event.
      */
-    public function deleted(PurchaseRequest $purchaseRequest): void
-    {
-    }
+    public function deleted(PurchaseRequest $purchaseRequest): void {}
 
     /**
      * Handle the PurchaseRequest "restored" event.
      */
-    public function restored(PurchaseRequest $purchaseRequest): void
-    {
-    }
+    public function restored(PurchaseRequest $purchaseRequest): void {}
 
     /**
      * Handle the PurchaseRequest "force deleted" event.
      */
-    public function forceDeleted(PurchaseRequest $purchaseRequest): void
-    {
-    }
+    public function forceDeleted(PurchaseRequest $purchaseRequest): void {}
 }

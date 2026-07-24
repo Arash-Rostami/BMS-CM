@@ -30,13 +30,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CurrencyResource extends Resource
 {
-    use CurrencyForm, CurrencyTable, CurrencyInfolist, CurrencyFilters, HandleActivation, HasResourcePermissions;
+    use CurrencyFilters, CurrencyForm, CurrencyInfolist, CurrencyTable, HandleActivation, HasResourcePermissions;
 
     protected static ?string $model = Currency::class;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-currency-dollar';
 
     protected static ?int $navigationSort = 5;
-
 
     public static function form(Schema $schema): Schema
     {
@@ -151,7 +151,7 @@ class CurrencyResource extends Resource
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -160,7 +160,7 @@ class CurrencyResource extends Resource
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
-                        ->exporter(CurrencyExporter::class)
+                        ->exporter(CurrencyExporter::class),
                 ]),
             ])
             ->striped()

@@ -5,16 +5,15 @@ return [
         'model_label' => 'Attribut personnalisé',
         'plural_model_label' => 'Attributs personnalisés',
     ],
-    'form' => [
-        'entity_type' => 'Type d\'entité',
+    'infolist' => [
+        'entity_type' => 'Entité',
         'entity_id' => 'ID de l\'enregistrement',
         'key' => 'Clé',
         'value' => 'Valeur',
-        'add_attribute_action' => 'Ajouter un attribut',
-    ],
-    'infolist' => [
-        'key' => 'Clé',
-        'value' => 'Valeur',
+        'created_by' => 'Créateur',
+        'updated_by' => 'Modificateur',
+        'created_at' => 'Date de création',
+        'updated_at' => 'Date de mise à jour',
     ],
     'table' => [
         'entity_type' => 'Entité',
@@ -28,5 +27,7 @@ return [
     ],
     'filters' => [
         'entity_type' => 'Type d\'entité',
+        'creator' => 'Créateur',
+        'key' => 'Clé',
     ],
 ];

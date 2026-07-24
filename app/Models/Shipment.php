@@ -10,16 +10,18 @@ use App\Models\Traits\Shipment\HasFormattedName;
 use App\Models\Traits\Shipment\HasPartSelection;
 use App\Models\Traits\Shipment\HasSearchableRelations;
 use App\Models\Traits\Shipment\Relationships as ExclusiveRelationships;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Shipment extends Model implements HasDocumentChecklist
 {
     use ExclusiveRelationships,
+        HasCustomAttributes,
+        HasFactory,
         HasFormattedName,
         HasPartSelection,
         HasSearchableRelations,
-        HasCustomAttributes,
         Relationships,
         SoftDeletes,
         UserStamps;
@@ -93,7 +95,7 @@ class Shipment extends Model implements HasDocumentChecklist
     {
         $track = collect($this->documentChecklist())->firstWhere('name', 'track');
 
-        return $track === null ? true : (bool)($track['received'] ?? false);
+        return $track === null ? true : (bool) ($track['received'] ?? false);
     }
 
     public function setDocumentChecklist(array $rows): void

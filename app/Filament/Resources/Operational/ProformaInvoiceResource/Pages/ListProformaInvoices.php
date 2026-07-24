@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Operational\ProformaInvoiceResource\Pages;
 
-use Filament\Actions\CreateAction;
-use App\Filament\Resources\ProformaInvoiceResource;
-use Filament\Actions;
 use App\Filament\Pages\ListRecords;
+use App\Filament\Resources\ProformaInvoiceResource;
+use Filament\Actions\CreateAction;
 
 class ListProformaInvoices extends ListRecords
 {
@@ -14,8 +13,9 @@ class ListProformaInvoices extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ...array_filter([ProformaInvoiceResource::getDeskReferenceHeaderAction()]),
             CreateAction::make()
-                ->icon('heroicon-o-sparkles')
+                ->icon('heroicon-o-sparkles'),
         ];
     }
 }

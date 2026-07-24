@@ -3,12 +3,11 @@
 namespace App\Filament\Resources\Operational\BankProfileResource\Pages;
 
 use App\Filament\Actions\ManageCustomAttributesAction;
+use App\Filament\Pages\EditRecord;
 use App\Filament\Resources\BankProfileResource;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
-use App\Filament\Pages\EditRecord;
 
 class EditBankProfile extends EditRecord
 {
@@ -33,6 +32,7 @@ class EditBankProfile extends EditRecord
             $data['commission_amount_purchased'] = null;
         }
         unset($data['commission_input_mode']);
+
         return $data;
     }
 }

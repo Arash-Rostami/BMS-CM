@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('registered_order_items', function (Blueprint $table) {
@@ -30,13 +27,9 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index(['registered_order_id', 'deleted_at']);
-            $table->index('product_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('registered_order_items');

@@ -11,8 +11,8 @@ trait Table
     {
         return TextColumn::make('name')
             ->label(__('resources/role/strings.table.name'))
-            ->formatStateUsing(fn(string $state): string => UserRole::tryFrom($state)?->getLabel() ?? $state)
-            ->color(fn(string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray')
+            ->formatStateUsing(fn (string $state): string => UserRole::tryFrom($state)?->getLabel() ?? $state)
+            ->color(fn (string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray')
             ->badge()
             ->sortable();
     }

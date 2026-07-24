@@ -2,17 +2,17 @@
 
 namespace App\Filament\Resources\Operational\ProformaInvoiceResource\Pages;
 
+use App\Filament\Pages\CreateRecord;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\PreparesProformaFromPurchaseOrder;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\PreparesProformaFromPurchaseRequest;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\PreparesProformaFromRegisteredOrder;
 use App\Filament\Resources\ProformaInvoiceResource;
-use App\Filament\Pages\CreateRecord;
 
 class CreateProformaInvoice extends CreateRecord
 {
+    use PreparesProformaFromPurchaseOrder;
     use PreparesProformaFromPurchaseRequest;
     use PreparesProformaFromRegisteredOrder;
-    use PreparesProformaFromPurchaseOrder;
 
     protected static string $resource = ProformaInvoiceResource::class;
 

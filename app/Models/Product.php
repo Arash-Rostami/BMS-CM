@@ -12,22 +12,24 @@ use App\Models\Traits\Product\HasScope as HasExclusiveScope;
 use App\Models\Traits\Product\Relationships as ExclusiveRelationships;
 use App\Models\Traits\Product\RollSheetEstimator;
 use App\Models\Traits\Product\ValueTypeEstimator;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use SoftDeletes,
-        Relationships,
+    use CustomizedLabel,
         ExclusiveRelationships,
-        HasSlug,
-        HasScope,
         HasExclusiveScope,
-        UserStamps,
+        HasFactory,
+        HasScope,
+        HasSlug,
         Localization,
-        ValueTypeEstimator,
+        Relationships,
         RollSheetEstimator,
-        CustomizedLabel;
+        SoftDeletes,
+        UserStamps,
+        ValueTypeEstimator;
 
     protected $table = 'products';
 

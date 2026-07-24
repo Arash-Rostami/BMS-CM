@@ -19,7 +19,7 @@ class ModelEventEmail extends BaseModelEventNotification
             ->greeting("Hello {$notifiable->name},")
             ->line($this->getIntroLine($modelName, $identifier));
 
-        if ($this->action === 'update' && !empty($this->changes)) {
+        if ($this->action === 'update' && ! empty($this->changes)) {
             $mail->line('**Changes:**');
             foreach ($this->changes as $column => $change) {
                 $columnName = Str::headline($column);
@@ -29,11 +29,11 @@ class ModelEventEmail extends BaseModelEventNotification
             }
         }
 
-        if (!empty($this->setting->notes)) {
+        if (! empty($this->setting->notes)) {
             $mail->line('')->line('**Additional Notes:**')->line($this->setting->notes);
         }
 
-        $url = config('app.url') . "/dashboard/{$tableName}/{$recordId}/edit";
+        $url = config('app.url')."/dashboard/{$tableName}/{$recordId}/edit";
         $mail->action('View Record', $url);
 
         return $mail->line('This notification was sent based on your notification settings.');
@@ -46,10 +46,16 @@ class ModelEventEmail extends BaseModelEventNotification
 
     private function formatValue($value): string
     {
-        if (is_null($value)) return '(empty)';
-        if (is_bool($value)) return $value ? 'Yes' : 'No';
-        if ($value instanceof \DateTime) return $value->format('Y-m-d H:i');
+        if (is_null($value)) {
+            return '(empty)';
+        }
+        if (is_bool($value)) {
+            return $value ? 'Yes' : 'No';
+        }
+        if ($value instanceof \DateTime) {
+            return $value->format('Y-m-d H:i');
+        }
 
-        return (string)$value;
+        return (string) $value;
     }
 }

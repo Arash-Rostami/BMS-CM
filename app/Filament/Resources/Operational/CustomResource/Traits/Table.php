@@ -17,8 +17,8 @@ trait Table
         return TextColumn::make('bankGuaranteeStatus.name')
             ->label(__('resources/custom/strings.form.bank_guarantee_status'))
             ->badge()
-            ->formatStateUsing(fn($record): ?string => $record->bankGuaranteeStatus?->getLocalizedNameAttribute())
-            ->color(fn($record): string => GuaranteeStatus::tryFrom($record->bankGuaranteeStatus?->english_name)?->getColor() ?? 'gray')
+            ->formatStateUsing(fn ($record): ?string => $record->bankGuaranteeStatus?->getLocalizedNameAttribute())
+            ->color(fn ($record): string => GuaranteeStatus::tryFrom($record->bankGuaranteeStatus?->english_name)?->getColor() ?? 'gray')
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -27,7 +27,7 @@ trait Table
         return TextColumn::make('clearance_date')
             ->label(__('resources/custom/strings.form.clearance_date'))
             ->date()
-            ->formatStateUsing(fn($record) => app()->getLocale() === 'fa' ? toPersianDate($record->clearance_date) : toGregorianDate($record->clearance_date))
+            ->formatStateUsing(fn ($record) => app()->getLocale() === 'fa' ? toPersianDate($record->clearance_date) : toGregorianDate($record->clearance_date))
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -38,11 +38,11 @@ trait Table
             ->label(__('resources/custom/strings.form.clearance_status'))
             ->badge()
             ->sortable()
-            ->searchable(query: fn(Builder $query, string $search) => $query->orWhereHas('clearanceStatus', fn($q) => $q->searchStatus($search)))
-            ->formatStateUsing(fn($record): ?string => $record->clearanceStatus?->getLocalizedNameAttribute())
+            ->searchable(query: fn (Builder $query, string $search) => $query->orWhereHas('clearanceStatus', fn ($q) => $q->searchStatus($search)))
+            ->formatStateUsing(fn ($record): ?string => $record->clearanceStatus?->getLocalizedNameAttribute())
             ->iconPosition(IconPosition::Before)
-            ->icon(fn($record): ?string => ClearanceStatus::tryFrom($record->clearanceStatus?->english_name)?->getIcon() ?? 'heroicon-o-question-mark-circle')
-            ->color(fn($record): string => ClearanceStatus::tryFrom($record->clearanceStatus?->english_name)?->getColor() ?? 'gray')
+            ->icon(fn ($record): ?string => ClearanceStatus::tryFrom($record->clearanceStatus?->english_name)?->getIcon() ?? 'heroicon-o-question-mark-circle')
+            ->color(fn ($record): string => ClearanceStatus::tryFrom($record->clearanceStatus?->english_name)?->getColor() ?? 'gray')
             ->toggleable();
 
     }
@@ -51,13 +51,13 @@ trait Table
     {
         return TextColumn::make('clearance_type')
             ->label(__('resources/custom/strings.form.clearance_type'))
-            ->formatStateUsing(fn(string $state) => match ($state) {
+            ->formatStateUsing(fn (string $state) => match ($state) {
                 '90_percent' => '90%',
                 '10_percent' => '10%',
                 default => '-'
             })
             ->badge()
-            ->color(fn(string $state) => match ($state) {
+            ->color(fn (string $state) => match ($state) {
                 '90_percent' => 'success',
                 '10_percent' => 'warning',
                 default => 'gray'
@@ -71,8 +71,8 @@ trait Table
         return TextColumn::make('commitmentStatus.name')
             ->label(__('resources/custom/strings.form.commitment_status'))
             ->badge()
-            ->formatStateUsing(fn($record): ?string => $record->commitmentStatus?->getLocalizedNameAttribute())
-            ->color(fn($record): string => CommitmentStatus::tryFrom($record->commitmentStatus?->english_name)?->getColor() ?? 'gray')
+            ->formatStateUsing(fn ($record): ?string => $record->commitmentStatus?->getLocalizedNameAttribute())
+            ->color(fn ($record): string => CommitmentStatus::tryFrom($record->commitmentStatus?->english_name)?->getColor() ?? 'gray')
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -111,7 +111,7 @@ trait Table
             ->badge()
             ->copyable()
             ->sortable()
-            ->tooltip(fn(Custom $record) => $record->contract_no);
+            ->tooltip(fn (Custom $record) => $record->contract_no);
     }
 
     public static function showDeclarationNo(): TextColumn
@@ -129,13 +129,13 @@ trait Table
         return TextColumn::make('shipment.shipment_no')
             ->label(__('resources/custom/strings.table.shipment'))
             ->searchable(
-                query: fn(Builder $query, string $search) => $query->whereHas('shipment', fn($q) => $q->searchAll($search)),
+                query: fn (Builder $query, string $search) => $query->whereHas('shipment', fn ($q) => $q->searchAll($search)),
                 isIndividual: true
             )
             ->badge()
             ->sortable()
-            ->formatStateUsing(fn(Custom $record) => $record->shipment?->shipment_no)
-            ->tooltip(fn(Custom $record) => $record->registeredOrder?->ro_number)
+            ->formatStateUsing(fn (Custom $record) => $record->shipment?->shipment_no)
+            ->tooltip(fn (Custom $record) => $record->registeredOrder?->ro_number)
             ->icon('heroicon-o-truck')
             ->color('info')
             ->toggleable();

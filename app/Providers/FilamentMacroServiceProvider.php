@@ -9,18 +9,16 @@ use Illuminate\Support\ServiceProvider;
 
 class FilamentMacroServiceProvider extends ServiceProvider
 {
-
-    public function register()
-    {}
+    public function register() {}
 
     public function boot(): void
     {
-        Field::macro("tooltip", function (string $tooltip) {
+        Field::macro('tooltip', function (string $tooltip) {
             return $this->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-information-circle')
-                    ->extraAttributes(["class" => "text-gray-500 cursor-help"])
-                    ->label("")
+                    ->extraAttributes(['class' => 'text-gray-500 cursor-help'])
+                    ->label('')
                     ->tooltip($tooltip)
             );
         });

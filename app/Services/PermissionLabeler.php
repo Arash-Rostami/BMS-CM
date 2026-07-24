@@ -21,7 +21,9 @@ class PermissionLabeler
     {
         [$module, $action] = self::parsePermissionName($permissionName);
 
-        if ($action === '') return self::prettifyModuleName($module);
+        if ($action === '') {
+            return self::prettifyModuleName($module);
+        }
 
         $actionLabel = self::getActionLabel($action);
         $moduleLabel = self::getModuleLabel($module);
@@ -30,15 +32,16 @@ class PermissionLabeler
         $moduleKeyString = "resources/{$moduleKey}/strings.general.model_label";
 
         return $moduleLabel === $moduleKeyString
-            ? "{$actionLabel} " . self::prettifyModuleName($module)
+            ? "{$actionLabel} ".self::prettifyModuleName($module)
             : "{$actionLabel} {$moduleLabel}";
     }
 
     public static function getModuleOptions(): array
     {
         static $cache = null;
+
         return $cache ??= Permission::pluck('name')
-            ->map(fn($p) => Str::before($p, '.'))
+            ->map(fn ($p) => Str::before($p, '.'))
             ->unique()
             ->mapWithKeys(function ($module) {
                 $label = self::getModuleLabel($module);
@@ -46,7 +49,7 @@ class PermissionLabeler
                 return [
                     $module => $label === self::moduleTranslationKeyString($module)
                         ? self::prettifyModuleName($module)
-                        : $label
+                        : $label,
                 ];
             })
             ->sort(SORT_NATURAL | SORT_FLAG_CASE)
@@ -55,12 +58,12 @@ class PermissionLabeler
 
     private static function getActionLabel(string $action): string
     {
-        return __('resources/general/strings.actions.' . $action);
+        return __('resources/general/strings.actions.'.$action);
     }
 
     private static function getModuleLabel(string $module): string
     {
-        return __("resources/" . self::moduleTranslationKey($module) . "/strings.general.model_label");
+        return __('resources/'.self::moduleTranslationKey($module).'/strings.general.model_label');
     }
 
     private static function moduleTranslationKey(string $module): string
@@ -70,7 +73,7 @@ class PermissionLabeler
 
     private static function moduleTranslationKeyString(string $module): string
     {
-        return "resources/" . self::moduleTranslationKey($module) . "/strings.general.model_label";
+        return 'resources/'.self::moduleTranslationKey($module).'/strings.general.model_label';
     }
 
     private static function parsePermissionName(string $permissionName): array

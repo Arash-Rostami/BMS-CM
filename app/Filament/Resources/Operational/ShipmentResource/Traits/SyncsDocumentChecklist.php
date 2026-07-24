@@ -6,7 +6,6 @@ use App\Contracts\HasDocumentChecklist;
 use App\Services\DocChecklistMatcher;
 use Filament\Resources\Pages\EditRecord;
 
-
 trait SyncsDocumentChecklist
 {
     protected function afterCreate(): void
@@ -21,7 +20,7 @@ trait SyncsDocumentChecklist
 
     private function syncDocumentChecklist(): void
     {
-        if (!$this->record instanceof HasDocumentChecklist) {
+        if (! $this->record instanceof HasDocumentChecklist) {
             return;
         }
 

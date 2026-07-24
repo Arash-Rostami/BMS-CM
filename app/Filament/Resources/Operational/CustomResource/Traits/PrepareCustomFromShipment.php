@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Operational\CustomResource\Traits;
 
-use App\Models\Shipment;
 use App\Models\Custom;
+use App\Models\Shipment;
 use App\Models\Status;
 use App\Services\CodeGenerator;
 

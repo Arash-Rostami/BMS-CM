@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('attachments', function (Blueprint $table) {
@@ -29,12 +26,10 @@ return new class extends Migration
             );
             $table->index('user_id');
             $table->index('type');
+            $table->index('updated_by_id', 'idx_attachments_updated_by_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('attachments');

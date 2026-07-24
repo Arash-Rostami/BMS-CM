@@ -19,7 +19,7 @@ class ModelEventNotification extends BaseModelEventNotification
                     'label' => 'View Record',
                     'url' => "/dashboard/{$tableName}/{$recordId}/edit",
                     'shouldMarkAsRead' => true,
-                ]
+                ],
             ],
             'icon' => $this->getIcon(),
             'iconColor' => $this->getIconColor(),

@@ -15,17 +15,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payment extends Model
 {
-    use HasFactory,
-        SoftDeletes,
-        Relationships,
-        ExclusiveRelationship,
-        HasSearchableRelations,
+    use ExclusiveRelationship,
         HasComputedAttributes,
-        HasTargetableDisplay,
         HasCustomAttributes,
+        HasFactory,
+        HasSearchableRelations,
+        HasTargetableDisplay,
+        Relationships,
+        SoftDeletes,
         UserStamps;
 
     const SCANNABLE_TABLE = 'payments';
+
     public const SCANNABLE_IDENTIFIER = 'payment_no';
 
     public const TYPE_PAYMENT = 'Payment Status';
@@ -55,6 +56,7 @@ class Payment extends Model
         'user_id',
         'updated_by_id',
     ];
+
     protected $appends = [
         'calculated_total',
         'total_ratio',

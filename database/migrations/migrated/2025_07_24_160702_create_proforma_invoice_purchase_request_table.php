@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('proforma_invoice_purchase_request', function (Blueprint $table) {
@@ -17,13 +14,9 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['proforma_invoice_id', 'purchase_request_id'], 'uidx_pi_pr');
-            $table->index('purchase_request_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('proforma_invoice_purchase_request');

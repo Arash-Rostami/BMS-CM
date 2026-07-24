@@ -19,10 +19,9 @@ trait NestedOptions
                 ->select('id', 'parent_id', $nameCol)
                 ->whereNotNull($nameCol)
                 ->get()
-                ->groupBy(fn($item) => $item->parent_id ?? 0)
-                ->map(fn($group) => $group->pluck($nameCol, 'id')->toArray())
+                ->groupBy(fn ($item) => $item->parent_id ?? 0)
+                ->map(fn ($group) => $group->pluck($nameCol, 'id')->toArray())
                 ->all();
         });
     }
-
 }

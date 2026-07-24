@@ -25,11 +25,12 @@ trait HandlesDocumentChecklistForm
 
         $received = $rows->mapWithKeys(function ($row) use ($keyOf) {
             $key = $keyOf($row['name'] ?? null);
+
             return $key ? [$key => (bool) ($row['received'] ?? false)] : [];
         });
 
         $merged = $options->map(fn ($label, $key) => [
-            'name'     => $key,
+            'name' => $key,
             'received' => (bool) $received->get($key, false),
         ])->values();
 

@@ -4,6 +4,7 @@ namespace App\Models\Traits\Correspondence;
 
 use App\Models\Attachment;
 use App\Models\Correspondence;
+use App\Models\CorrespondenceRecipient;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,6 +42,7 @@ trait Relationships
     public function recipients(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'correspondence_recipients')
+            ->using(CorrespondenceRecipient::class)
             ->withPivot(['type', 'read_at'])
             ->withTimestamps();
     }

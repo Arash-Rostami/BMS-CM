@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('proforma_invoice_items', function (Blueprint $table) {
@@ -29,15 +26,11 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index(['proforma_invoice_id', 'deleted_at']);
-            $table->index('product_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('invoice_items');
+        Schema::dropIfExists('proforma_invoice_items');
     }
 };

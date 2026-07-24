@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum Status: string implements HasColor, HasLabel, HasIcon
+enum Status: string implements HasColor, HasIcon, HasLabel
 {
     case Submitted = 'Submitted';
     case Draft = 'Draft';
@@ -29,6 +29,6 @@ enum Status: string implements HasColor, HasLabel, HasIcon
 
     public function getLabel(): ?string
     {
-        return __('resources/registeredOrder/strings.general.status.' . $this->name);
+        return __('resources/registeredOrder/strings.general.status.'.$this->name);
     }
 }

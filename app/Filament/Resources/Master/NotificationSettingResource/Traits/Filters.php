@@ -13,9 +13,9 @@ trait Filters
         return SelectFilter::make('actions')
             ->label(__('resources/notificationSetting/strings.filters.actions'))
             ->options([
-                'create' => '🟢 Create',
-                'update' => '🟡 Update',
-                'delete' => '🔴 Delete',
+                'create' => __('resources/notificationSetting/strings.action_types.create'),
+                'update' => __('resources/notificationSetting/strings.action_types.update'),
+                'delete' => __('resources/notificationSetting/strings.action_types.delete'),
             ])
             ->query(function ($query, array $data) {
                 if (filled($data['values'])) {
@@ -59,7 +59,7 @@ trait Filters
     {
         return SelectFilter::make('tables')
             ->label(__('resources/notificationSetting/strings.filters.tables'))
-            ->options(fn() => NotificationSetting::query()
+            ->options(fn () => NotificationSetting::query()
                 ->whereNotNull('settings')
                 ->get()
                 ->pluck('settings')
@@ -68,7 +68,7 @@ trait Filters
                 ->flatten()
                 ->unique()
                 ->sort()
-                ->mapWithKeys(fn($table) => [$table => $table])
+                ->mapWithKeys(fn ($table) => [$table => $table])
             )
             ->query(function ($query, array $data) {
                 if (filled($data['values'])) {

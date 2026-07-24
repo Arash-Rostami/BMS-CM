@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Operational\PurchaseRequestResource\Pages;
 
+use App\Filament\Pages\CreateRecord;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\HandleStatusMutation;
 use App\Filament\Resources\PurchaseRequestResource;
-use App\Filament\Pages\CreateRecord;
-use Illuminate\Database\Eloquent\Model;
 
 class CreatePurchaseRequest extends CreateRecord
 {
@@ -22,8 +21,6 @@ class CreatePurchaseRequest extends CreateRecord
             $data['department_id'] = $user->department->id;
         }
 
-
         return $this->mutateStatusData($data);
     }
-
 }

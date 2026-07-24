@@ -14,7 +14,7 @@ trait PreparesPurchaseOrderFromRegisteredOrder
             $registeredOrder = RegisteredOrder::with(['items.product.specifications'])->find($registeredOrderId);
 
             if ($registeredOrder) {
-                $items = $registeredOrder->items->map(fn($item) => [
+                $items = $registeredOrder->items->map(fn ($item) => [
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity ?? 0,
                     'unit' => $item->unit ?? null,
@@ -22,7 +22,6 @@ trait PreparesPurchaseOrderFromRegisteredOrder
                     'net_weight' => $item->net_weight ?? null,
                     'gross_weight' => $item->gross_weight ?? null,
                 ])->toArray();
-
 
                 $this->form->fill([
                     'source_type' => 'ro',

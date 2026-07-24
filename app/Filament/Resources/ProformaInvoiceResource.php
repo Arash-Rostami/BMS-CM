@@ -17,10 +17,10 @@ use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Form as Pr
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Infolist as ProformaInvoiceInfolist;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Table as ProformaInvoiceTable;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\TotalAmountCalculation;
+use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\ProformaInvoice;
-use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -46,7 +46,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProformaInvoiceResource extends Resource
 {
-    use ProformaInvoiceForm, TotalAmountCalculation, ProformaInvoiceTable, ProformaInvoiceFilters, ProformaInvoiceInfolist, HasResourcePermissions, HasExtraAttributesManagement;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, ProformaInvoiceFilters, ProformaInvoiceForm, ProformaInvoiceInfolist, ProformaInvoiceTable, TotalAmountCalculation;
 
     protected static ?string $model = ProformaInvoice::class;
 
@@ -60,7 +60,7 @@ class ProformaInvoiceResource extends Resource
             ->components([
                 Tabs::make('Proforma Invoice')
                     ->tabs([
-                        Tab::make(__('resources/proformaInvoice/strings.form.tabs.general'))
+                        Tab::make(__('resources/proformaInvoice/strings.form.tab_general'))
                             ->icon('heroicon-o-clipboard-document-list')
                             ->schema([
                                 \Filament\Schemas\Components\Group::make()
@@ -101,10 +101,10 @@ class ProformaInvoiceResource extends Resource
                                                     ->defaultItems(0)
                                                     ->live(true)
                                                     ->addActionLabel(__('resources/proformaInvoice/strings.form.add_invoice_item'))
-                                                    ->afterStateUpdated(fn(Get $get, Set $set) => static::updateTotalAmount($get, $set))
-                                                    ->afterStateHydrated(fn(Get $get, Set $set) => static::updateTotalAmount($get, $set))
-                                                    ->deleteAction(fn($action) => $action->after(fn(Get $get, Set $set) => static::updateTotalAmount($get, $set)))
-                                                    ->addAction(fn($action) => $action->after(fn(Get $get, Set $set) => static::updateTotalAmount($get, $set))),
+                                                    ->afterStateUpdated(fn (Get $get, Set $set) => static::updateTotalAmount($get, $set))
+                                                    ->afterStateHydrated(fn (Get $get, Set $set) => static::updateTotalAmount($get, $set))
+                                                    ->deleteAction(fn ($action) => $action->after(fn (Get $get, Set $set) => static::updateTotalAmount($get, $set)))
+                                                    ->addAction(fn ($action) => $action->after(fn (Get $get, Set $set) => static::updateTotalAmount($get, $set))),
                                             ]),
                                     ])->columnSpan(['lg' => 2]),
 
@@ -113,10 +113,10 @@ class ProformaInvoiceResource extends Resource
                                         Section::make(__('resources/proformaInvoice/strings.form.shipment_and_charges'))
                                             ->schema([
                                                 static::getDiscountField()
-                                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotalAmount($get, $set)),
+                                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateTotalAmount($get, $set)),
                                                 static::getFreightChargesField(),
                                                 static::getOtherChargesField()
-                                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::updateTotalAmount($get, $set)),
+                                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateTotalAmount($get, $set)),
                                                 static::getTotalAmountField(),
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
@@ -124,7 +124,7 @@ class ProformaInvoiceResource extends Resource
                                     ])->columnSpan(['lg' => 1]),
                             ])->columns(3),
 
-                        Tab::make(__('resources/proformaInvoice/strings.form.tabs.details'))
+                        Tab::make(__('resources/proformaInvoice/strings.form.tab_details'))
                             ->icon('heroicon-o-cog-6-tooth')
                             ->schema([
                                 Section::make(__('resources/proformaInvoice/strings.form.additional_details'))
@@ -192,7 +192,7 @@ class ProformaInvoiceResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return '📝 ' . ($record->invoice_no ?? $record->contract_no ?? '—');
+        return '📝 '.($record->invoice_no ?? $record->contract_no ?? '—');
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -203,23 +203,6 @@ class ProformaInvoiceResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/proformaInvoice/strings.general.model_label');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'ProformaInvoice',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            150,
-            fn() => static::getModel()::count()
-        );
-
-        return $count > 0 ? (string)$count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
     }
 
     public static function getNavigationGroup(): ?string
@@ -301,16 +284,16 @@ class ProformaInvoiceResource extends Resource
                             ->label(__('resources/proformaInvoice/strings.infolist.tab_items'))
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
-                                Section::make()->schema([static::viewInvoiceItems()])
+                                Section::make()->schema([static::viewInvoiceItems()]),
                             ])
-                            ->badge(fn($record) => $record->items->count())
+                            ->badge(fn ($record) => $record->items->count())
                             ->badgeColor('success'),
                         Tab::make('Documents')
                             ->icon('heroicon-o-paper-clip')
                             ->schema([
-                                Section::make()->schema([static::viewAttachments()])
+                                Section::make()->schema([static::viewAttachments()]),
                             ])
-                            ->label(fn($record) => tabBadge(
+                            ->label(fn ($record) => tabBadge(
                                 __('resources/proformaInvoice/strings.infolist.tab_documents'),
                                 $record?->attachments->count() ?? 0,
                                 'info'
@@ -373,10 +356,10 @@ class ProformaInvoiceResource extends Resource
             ->groups([
                 Group::make('sellerCompany.name')
                     ->label(__('resources/proformaInvoice/strings.filters.seller_company'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'sellerCompany')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'sellerCompany')),
                 Group::make('buyerCompany.name')
                     ->label(__('resources/proformaInvoice/strings.filters.buyer_company'))
-                    ->getTitleFromRecordUsing(fn(Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => getLocalizedName($record, 'buyerCompany')),
             ])
             ->striped()
             ->searchDebounce('1000ms')

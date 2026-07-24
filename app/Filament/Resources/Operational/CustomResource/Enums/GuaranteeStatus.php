@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum GuaranteeStatus: string implements HasColor, HasLabel, HasIcon
+enum GuaranteeStatus: string implements HasColor, HasIcon, HasLabel
 {
     case Returned = 'Returned';
     case NotReturned = 'Not Returned';
@@ -29,6 +29,6 @@ enum GuaranteeStatus: string implements HasColor, HasLabel, HasIcon
 
     public function getLabel(): ?string
     {
-        return __('resources/custom/strings.general.bank_guarantee_status.' . str($this->name)->snake());
+        return __('resources/custom/strings.general.bank_guarantee_status.'.str($this->name)->snake());
     }
 }

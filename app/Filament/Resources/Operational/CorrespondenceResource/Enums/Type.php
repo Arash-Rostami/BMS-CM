@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum Type: string implements HasLabel, HasIcon, HasColor
+enum Type: string implements HasColor, HasIcon, HasLabel
 {
     case REPORT = 'report';
     case INQUIRY = 'inquiry';
@@ -16,7 +16,7 @@ enum Type: string implements HasLabel, HasIcon, HasColor
 
     public function getLabel(): string
     {
-        return __('resources/correspondence/strings.enums.type.' . $this->value);
+        return __('resources/correspondence/strings.enums.type.'.$this->value);
     }
 
     public function getIcon(): ?string

@@ -14,11 +14,11 @@ trait Table
             ->label(__('resources/notificationSetting/strings.table.actions'))
             ->badge()
             ->listWithLineBreaks()
-            ->getStateUsing(fn($record) => collect($record->getActions())
-                ->map(fn($action) => match ($action) {
-                    'create' => '🟢 Create',
-                    'update' => '🟡 Update',
-                    'delete' => '🔴 Delete',
+            ->getStateUsing(fn ($record) => collect($record->getActions())
+                ->map(fn ($action) => match ($action) {
+                    'create' => __('resources/notificationSetting/strings.action_types.create'),
+                    'update' => __('resources/notificationSetting/strings.action_types.update'),
+                    'delete' => __('resources/notificationSetting/strings.action_types.delete'),
                     default => $action,
                 })->all())
             ->sortable()
@@ -46,7 +46,7 @@ trait Table
             ->badge()
             ->listWithLineBreaks()
             ->toggleable(isToggledHiddenByDefault: true)
-            ->getStateUsing(fn($record) => array_keys(
+            ->getStateUsing(fn ($record) => array_keys(
                 NotificationSetting::getColumnValuesForSelectedColumns(
                     $record->getColumns() ?? [], $record->getTables() ?? [])
             ));
@@ -87,7 +87,7 @@ trait Table
         return TextColumn::make('notification_type')
             ->label(__('resources/notificationSetting/strings.table.notification_type'))
             ->sortable()
-            ->getStateUsing(fn($record) => $record->notification_channel)
+            ->getStateUsing(fn ($record) => $record->notification_channel)
             ->toggleable(isToggledHiddenByDefault: false);
     }
 

@@ -11,8 +11,8 @@ trait Filters
     {
         return SelectFilter::make('base_name')
             ->label(__('resources/role/strings.filters.name'))
-            ->options(fn() => Role::getUniqueBaseNames())
-            ->query(fn($query, array $data) => empty($data['value']) ? $query : $query->whereBaseName($data['value']))
+            ->options(fn () => Role::getUniqueBaseNames())
+            ->query(fn ($query, array $data) => empty($data['value']) ? $query : $query->whereBaseName($data['value']))
             ->searchable();
     }
 
@@ -21,6 +21,6 @@ trait Filters
         return SelectFilter::make('grade')
             ->label(__('resources/role/strings.filters.grade'))
             ->options(Role::getGradeOptions())
-            ->query(fn($query, array $data) => empty($data['value']) ? $query : $query->whereGrade($data['value']));
+            ->query(fn ($query, array $data) => empty($data['value']) ? $query : $query->whereGrade($data['value']));
     }
 }

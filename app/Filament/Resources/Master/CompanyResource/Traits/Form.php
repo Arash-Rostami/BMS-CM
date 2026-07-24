@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Master\CompanyResource\Traits;
 
-
 use App\Models\Company;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Textarea;
@@ -31,7 +30,10 @@ trait Form
             ->maxLength(65535)
             ->columnSpanFull()
             ->nullable()
-            ->helperText(__('resources/company/strings.form.helper_description'));
+            ->helperText(__('resources/company/strings.form.helper_description'))
+            ->validationMessages([
+                'max' => __('resources/company/strings.form.validation_description_max'),
+            ]);
     }
 
     public static function getEnglishName(): TextInput
@@ -42,12 +44,12 @@ trait Form
             ->maxLength(255)
             ->rule('regex:/^[A-Za-z\s\p{P}\d\*]+$/')
             ->unique(column: 'english_name', ignoreRecord: true)
-            ->placeholder(__('resources/company/strings.form.validation_english_name'))
+            ->placeholder(__('resources/company/strings.form.english_name_placeholder'))
             ->validationMessages([
                 'required' => __('resources/company/strings.form.validation_english_name_required'),
                 'max' => __('resources/company/strings.form.validation_english_name_max'),
                 'regex' => __('resources/company/strings.form.validation_english_name'),
-                'unique' => __('resources/company/strings.form.validation_english_name_unique')
+                'unique' => __('resources/company/strings.form.validation_english_name_unique'),
             ])
             ->validationAttribute(__('resources/company/strings.form.english_name'))
             ->helperText(__('resources/company/strings.form.helper_english_name'));
@@ -74,12 +76,12 @@ trait Form
             ->maxLength(255)
             ->rule('regex:/^[\x{0600}-\x{06FF}\s\p{P}\d\*]+$/u')
             ->unique(column: 'name', ignoreRecord: true)
-            ->placeholder(__('resources/company/strings.form.validation_name'))
+            ->placeholder(__('resources/company/strings.form.name_placeholder'))
             ->validationMessages([
                 'required' => __('resources/company/strings.form.validation_name_required'),
                 'max' => __('resources/company/strings.form.validation_name_max'),
                 'regex' => __('resources/company/strings.form.validation_name'),
-                'unique' => __('resources/company/strings.form.validation_name_unique')
+                'unique' => __('resources/company/strings.form.validation_name_unique'),
             ])
             ->validationAttribute(__('resources/company/strings.form.name'))
             ->helperText(__('resources/company/strings.form.helper_name'));

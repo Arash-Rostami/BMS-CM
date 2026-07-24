@@ -10,12 +10,9 @@ use App\Filament\Resources\Master\UserResource\Traits\Infolist as UserInfolist;
 use App\Filament\Resources\Master\UserResource\Traits\Table as TableTrait;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\User;
-use App\Services\SmartCacheManager;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
@@ -31,9 +28,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
 {
-    use UserForm, TableTrait, UserInfolist, Filters, HasResourcePermissions;
+    use Filters, HasResourcePermissions, TableTrait, UserForm, UserInfolist;
 
     protected static ?string $model = User::class;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
     protected static ?int $navigationSort = 8;
@@ -101,23 +99,6 @@ class UserResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/user/strings.general.model_label');
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'User',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            3600,
-            fn() => static::getModel()::count()
-        );
-
-        return $count > 0 ? (string)$count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
     }
 
     public static function getNavigationGroup(): ?string
@@ -189,22 +170,20 @@ class UserResource extends Resource
                 static::getRoleFilter(),
                 static::getPositionFilter(),
                 static::getStatusFilter(),
-                static::getThrashedFilter()
+                static::getThrashedFilter(),
             ])->filtersFormColumns(2)
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    DeleteAction::make(),
                     RestoreAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
-                        ->exporter(UserExporter::class)
+                        ->exporter(UserExporter::class),
                 ]),
             ])
             ->striped()

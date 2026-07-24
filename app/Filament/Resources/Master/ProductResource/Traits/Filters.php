@@ -9,7 +9,6 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Builder;
 
-
 trait Filters
 {
     public static function getTrashedFilter(): TrashedFilter
@@ -32,7 +31,7 @@ trait Filters
 
                 $category = Category::with(['ancestors:id', 'descendants:id'])->find($data['value']);
 
-                if (!$category) {
+                if (! $category) {
                     return $query;
                 }
 
@@ -85,7 +84,7 @@ trait Filters
     {
         return SelectFilter::make('roll_sheet_type')
             ->label(__('resources/product/strings.table.roll_sheet_type'))
-            ->options(['Roll' => 'Roll', 'Sheet' => 'Sheet'])
+            ->options(['Roll' => __('resources/product/strings.filters.roll'), 'Sheet' => __('resources/product/strings.filters.sheet')])
             ->query(function (Builder $query, array $data): Builder {
                 return Product::applyRollSheetSearch(
                     $query,

@@ -22,10 +22,10 @@ use Illuminate\Database\Eloquent\Model;
 
 trait Form
 {
-    use UpdatesFromPurchaseRequests;
-    use UpdatesFromPurchaseOrders;
-    use UpdatesFromRegisteredOrders;
     use ItemAmountCalculation;
+    use UpdatesFromPurchaseOrders;
+    use UpdatesFromPurchaseRequests;
+    use UpdatesFromRegisteredOrders;
 
     // Main Form Fields
 
@@ -33,9 +33,10 @@ trait Form
     {
         return Select::make('beneficiary_country')
             ->label(__('resources/proformaInvoice/strings.form.beneficiary_country'))
-            ->options(fn() => (new Country())->getCountriesList())
+            ->options(fn () => (new Country)->getCountriesList())
             ->searchable()
-            ->validationAttribute(__('resources/proformaInvoice/strings.form.beneficiary_country'));
+            ->validationAttribute(__('resources/proformaInvoice/strings.form.beneficiary_country'))
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_beneficiary_country'));
     }
 
     public static function getBuyerCommCardNumField(): TextInput
@@ -47,7 +48,8 @@ trait Form
             ->validationMessages([
                 'max' => __('resources/proformaInvoice/strings.form.validation_buyer_comm_card_num_max'),
             ])
-            ->validationAttribute(__('resources/proformaInvoice/strings.form.buyer_comm_card_num'));
+            ->validationAttribute(__('resources/proformaInvoice/strings.form.buyer_comm_card_num'))
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_buyer_comm_card_num'));
     }
 
     public static function getBuyerCompanyIdField(): Select
@@ -94,7 +96,7 @@ trait Form
     {
         return Select::make('destination_country')
             ->label(__('resources/proformaInvoice/strings.form.destination_country'))
-            ->options(fn() => (new Country())->getCountriesList())
+            ->options(fn () => (new Country)->getCountriesList())
             ->searchable()
             ->validationAttribute(__('resources/proformaInvoice/strings.form.destination_country'));
     }
@@ -106,7 +108,7 @@ trait Form
         return TextInput::make('discount')
             ->label(__('resources/proformaInvoice/strings.form.discount'))
             ->numeric()
-            ->hint(fn(Get $get) => delimiter($get('discount')))
+            ->hint(fn (Get $get) => delimiter($get('discount')))
             ->live(onBlur: true)
             ->prefix('💰')
             ->minValue(0)
@@ -128,6 +130,10 @@ trait Form
             ->live(onBlur: true)
             ->prefix('💰')
             ->readOnly()
+            ->validationMessages([
+                'numeric' => __('resources/proformaInvoice/strings.form.validation_freight_charges_numeric'),
+                'min' => __('resources/proformaInvoice/strings.form.validation_freight_charges_min'),
+            ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.freight_charges'));
     }
 
@@ -139,8 +145,9 @@ trait Form
             ->adaptive()
             ->default('today')
             ->required()
-            ->rules(['before_or_equal:' . now()->addDay()->toDateString()])
+            ->rules(['before_or_equal:'.now()->addDay()->toDateString()])
             ->validationMessages([
+                'date' => __('resources/proformaInvoice/strings.form.validation_date'),
                 'required' => __('resources/proformaInvoice/strings.form.validation_invoice_date_required'),
                 'before_or_equal' => __('resources/proformaInvoice/strings.form.validation_invoice_date_before_or_equal'),
             ])
@@ -153,7 +160,7 @@ trait Form
         return TextInput::make('invoice_no')
             ->label(__('resources/proformaInvoice/strings.form.invoice_no'))
             ->required()
-            ->default(fn($operation) => $operation == 'create' ? CodeGenerator::generate('invoice_no') : null)
+            ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('invoice_no') : null)
             ->unique(ignoreRecord: true)
             ->maxLength(255)
             ->validationMessages([
@@ -171,7 +178,7 @@ trait Form
             ->hiddenLabel()
             ->maxLength(65535)
             ->live()
-            ->extraAttributes(fn(Get $get) => ['style' => !$get('show_notes') ? 'display: none;' : ''])
+            ->extraAttributes(fn (Get $get) => ['style' => ! $get('show_notes') ? 'display: none;' : ''])
             ->columnSpan('full')
             ->rules(['nullable', 'string', 'max:65535'])
             ->validationMessages([
@@ -185,13 +192,13 @@ trait Form
         return TextInput::make('freight_charges')
             ->label(__('resources/proformaInvoice/strings.form.item_freight_charges'))
             ->numeric()
-            ->hint(fn(Get $get) => delimiter($get('freight_charges')))
+            ->hint(fn (Get $get) => delimiter($get('freight_charges')))
             ->minValue(0)
             ->default(0)
             ->live(onBlur: true)
             ->prefix('💰')
             ->rules(['nullable', 'numeric', 'min:0'])
-            ->afterStateUpdated(fn(Get $get, Set $set) => static::itemAfterStateUpdated($get, $set))
+            ->afterStateUpdated(fn (Get $get, Set $set) => static::itemAfterStateUpdated($get, $set))
             ->validationMessages([
                 'numeric' => __('resources/proformaInvoice/strings.form.validation_item_freight_charges_numeric'),
                 'min' => __('resources/proformaInvoice/strings.form.validation_item_freight_charges_min'),
@@ -204,7 +211,7 @@ trait Form
         return TextInput::make('gross_weight')
             ->label(__('resources/proformaInvoice/strings.form.gross_weight'))
             ->numeric()
-            ->hint(fn(Get $get) => delimiter($get('gross_weight')))
+            ->hint(fn (Get $get) => delimiter($get('gross_weight')))
             ->minValue(0)
             ->prefix('⏲️')
             ->rules(['nullable', 'numeric', 'min:0'])
@@ -225,7 +232,8 @@ trait Form
             ->validationMessages([
                 'max' => __('resources/proformaInvoice/strings.form.validation_hs_code_max'),
             ])
-            ->validationAttribute(__('resources/proformaInvoice/strings.form.hs_code'));
+            ->validationAttribute(__('resources/proformaInvoice/strings.form.hs_code'))
+            ->helperText(__('resources/proformaInvoice/strings.form.helper_hs_code'));
     }
 
     public static function getItemNetWeightField(): TextInput
@@ -233,7 +241,7 @@ trait Form
         return TextInput::make('net_weight')
             ->label(__('resources/proformaInvoice/strings.form.net_weight'))
             ->numeric()
-            ->hint(fn(Get $get) => delimiter($get('net_weight')))
+            ->hint(fn (Get $get) => delimiter($get('net_weight')))
             ->minValue(0)
             ->prefix('⏲️')
             ->rules(['nullable', 'numeric', 'min:0'])
@@ -254,16 +262,16 @@ trait Form
             ->offColor('danger')
             ->columnSpan(3)
             ->live()
-            ->default(fn(Get $get) => filled($get('description')))
-            ->afterStateHydrated(fn(Set $set, Get $get) => $set('show_notes', filled($get('description'))))
-            ->afterStateUpdated(fn(?bool $state, Set $set) => !$state ? $set('description', null) : null);
+            ->default(fn (Get $get) => filled($get('description')))
+            ->afterStateHydrated(fn (Set $set, Get $get) => $set('show_notes', filled($get('description'))))
+            ->afterStateUpdated(fn (?bool $state, Set $set) => ! $state ? $set('description', null) : null);
     }
 
     public static function getItemOriginField(): Select
     {
         return Select::make('origin')
             ->label(__('resources/proformaInvoice/strings.form.origin'))
-            ->options(fn() => (new Country())->getCountriesList())
+            ->options(fn () => (new Country)->getCountriesList())
             ->placeholder('')
             ->searchable()
             ->validationAttribute(__('resources/proformaInvoice/strings.form.origin'));
@@ -274,14 +282,14 @@ trait Form
         return Select::make('product_id')
             ->label(__('resources/proformaInvoice/strings.form.product'))
             ->relationship('product', app()->getLocale() === 'fa' ? 'name' : 'english_name')
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->getCustomizedLabelAttribute() ?? $record->slug ?? '-')
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->getCustomizedLabelAttribute() ?? $record->slug ?? '-')
             ->searchable(['name', 'english_name', 'code'])
             ->preload()
             ->live()
             ->columnSpan(2)
             ->required()
             ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-            ->afterStateUpdated(fn($state, Set $set) => $set('hs_code', Product::find($state)?->specifications?->first()?->hs_code))
+            ->afterStateUpdated(fn ($state, Set $set) => $set('hs_code', Product::find($state)?->specifications?->first()?->hs_code))
             ->rules(['exists:products,id'])
             ->validationMessages([
                 'required' => __('resources/proformaInvoice/strings.form.validation_product_required'),
@@ -295,9 +303,9 @@ trait Form
         return TextInput::make('quantity')
             ->label(__('resources/proformaInvoice/strings.form.quantity'))
             ->live(onBlur: true)
-            ->afterStateUpdated(fn(Get $get, Set $set) => static::itemAfterStateUpdated($get, $set))
+            ->afterStateUpdated(fn (Get $get, Set $set) => static::itemAfterStateUpdated($get, $set))
             ->numeric()
-            ->hint(fn(Get $get) => delimiter($get('quantity')))
+            ->hint(fn (Get $get) => delimiter($get('quantity')))
             ->minValue(0.01)
             ->rules(['nullable', 'numeric', 'min:0.01'])
             ->validationMessages([
@@ -314,8 +322,8 @@ trait Form
             ->label(__('resources/proformaInvoice/strings.form.item_total_amount'))
             ->readOnly()
             ->live()
-            ->dehydrateStateUsing(fn($state) => is_string($state) ? (float)str_replace(['💰', ',', ' '], '', $state) : $state)
-            ->formatStateUsing(fn(Get $get) => is_numeric($get('total_amount')) ? '💰 ' . number_format($get('total_amount'), 2) : $get('total_amount'));
+            ->dehydrateStateUsing(fn ($state) => is_string($state) ? (float) str_replace(['💰', ',', ' '], '', $state) : $state)
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_amount')) ? '💰 '.number_format($get('total_amount'), 2) : $get('total_amount'));
 
     }
 
@@ -323,7 +331,7 @@ trait Form
     {
         return Select::make('unit')
             ->label(__('resources/proformaInvoice/strings.form.unit'))
-            ->options(__('resources/target/strings.metrics'))
+            ->options(__('resources/general/strings.metrics'))
             ->required()
             ->columnSpan(1)
             ->validationMessages([
@@ -337,10 +345,10 @@ trait Form
         return TextInput::make('unit_price')
             ->label(__('resources/proformaInvoice/strings.form.unit_price'))
             ->live(onBlur: true)
-            ->afterStateUpdated(fn(Get $get, Set $set) => static::itemAfterStateUpdated($get, $set))
+            ->afterStateUpdated(fn (Get $get, Set $set) => static::itemAfterStateUpdated($get, $set))
             ->prefix('💰')
             ->numeric()
-            ->hint(fn(Get $get) => delimiter($get('unit_price')))
+            ->hint(fn (Get $get) => delimiter($get('unit_price')))
             ->minValue(0)
             ->rules(['nullable', 'numeric', 'min:0'])
             ->validationMessages([
@@ -349,7 +357,6 @@ trait Form
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.unit_price'));
     }
-
 
     // Invoice Item Fields (for Repeater)
 
@@ -384,7 +391,7 @@ trait Form
     {
         return Select::make('origin_country')
             ->label(__('resources/proformaInvoice/strings.form.origin_country'))
-            ->options(fn() => (new Country())->getCountriesList())
+            ->options(fn () => (new Country)->getCountriesList())
             ->searchable()
             ->validationAttribute(__('resources/proformaInvoice/strings.form.origin_country'));
     }
@@ -394,7 +401,7 @@ trait Form
         return TextInput::make('other_charges')
             ->label(__('resources/proformaInvoice/strings.form.other_charges'))
             ->numeric()
-            ->hint(fn(Get $get) => delimiter($get('other_charges')))
+            ->hint(fn (Get $get) => delimiter($get('other_charges')))
             ->minValue(0)
             ->live(onBlur: true)
             ->prefix('💰')
@@ -436,8 +443,8 @@ trait Form
             ->label(__('resources/general/strings.relevant_module.form.purchase_orders'))
             ->relationship(
                 name: 'purchaseOrders',
-                modifyQueryUsing: fn($query) => $query->whereHas('status', fn($statusQuery) => $statusQuery->whereIn('english_name', ['Approved']))->latest())
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name)
+                modifyQueryUsing: fn ($query) => $query->whereHas('status', fn ($statusQuery) => $statusQuery->whereIn('english_name', ['Approved']))->latest())
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->formatted_name)
             ->columnSpanFull()
             ->multiple()
             ->preload()
@@ -447,7 +454,7 @@ trait Form
                 self::populateFromPO($state, $set);
                 self::updateTotalAmount($get, $set);
             })
-            ->visible(fn(Get $get): bool => $get('source_type') === 'po')
+            ->visible(fn (Get $get): bool => $get('source_type') === 'po' || filled($get('purchaseOrders')))
             ->validationAttribute(__('resources/general/strings.relevant_module.form.purchase_orders'));
     }
 
@@ -457,8 +464,8 @@ trait Form
             ->label(__('resources/general/strings.relevant_module.form.purchase_requests'))
             ->relationship(
                 name: 'purchaseRequests',
-                modifyQueryUsing: fn($query) => $query->whereHas('status', fn($statusQuery) => $statusQuery->whereIn('english_name', ['Authorized', 'Conditional']))->latest())
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name)
+                modifyQueryUsing: fn ($query) => $query->whereHas('status', fn ($statusQuery) => $statusQuery->whereIn('english_name', ['Authorized', 'Conditional']))->latest())
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->formatted_name)
             ->columnSpanFull()
             ->multiple()
             ->preload()
@@ -468,7 +475,7 @@ trait Form
                 self::populateFromPR($state, $set);
                 self::updateTotalAmount($get, $set);
             })
-            ->visible(fn(Get $get): bool => $get('source_type') === 'pr')
+            ->visible(fn (Get $get): bool => $get('source_type') === 'pr' || filled($get('purchaseRequests')))
             ->validationAttribute(__('resources/general/strings.relevant_module.form.purchase_requests'));
     }
 
@@ -478,8 +485,8 @@ trait Form
             ->label(__('resources/general/strings.relevant_module.form.registered_orders'))
             ->relationship(
                 name: 'registeredOrders',
-                modifyQueryUsing: fn($query) => $query->whereHas('status', fn($statusQuery) => $statusQuery->whereIn('english_name', ['Submitted']))->latest())
-            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name)
+                modifyQueryUsing: fn ($query) => $query->whereHas('status', fn ($statusQuery) => $statusQuery->whereIn('english_name', ['Submitted']))->latest())
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->formatted_name)
             ->columnSpanFull()
             ->multiple()
             ->preload()
@@ -489,7 +496,7 @@ trait Form
                 self::populateFromRO($state, $set);
                 self::updateTotalAmount($get, $set);
             })
-            ->visible(fn(Get $get): bool => $get('source_type') === 'ro')
+            ->visible(fn (Get $get): bool => $get('source_type') === 'ro' || filled($get('registeredOrders')))
             ->validationAttribute(__('resources/general/strings.relevant_module.form.registered_orders'));
     }
 
@@ -537,14 +544,26 @@ trait Form
             ])
             ->columnSpanFull()
             ->default(null)
-            ->live();
+            ->live()
+            ->afterStateHydrated(function (Set $set, Get $get, ?Model $record) {
+                if (filled($get('source_type'))) {
+                    return;
+                }
+
+                $set('source_type', match (true) {
+                    $record?->purchaseRequests()->exists() => 'pr',
+                    $record?->registeredOrders()->exists() => 'ro',
+                    $record?->purchaseOrders()->exists() => 'po',
+                    default => null,
+                });
+            });
     }
 
     public static function getTotalAmountField(): TextEntry
     {
         return TextEntry::make('total_amount')
             ->label(__('resources/proformaInvoice/strings.form.total_amount'))
-            ->formatStateUsing(fn(Get $get) => is_numeric($get('total_amount')) ? '💰 ' . number_format($get('total_amount'), 2) : $get('total_amount'));
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_amount')) ? '💰 '.number_format($get('total_amount'), 2) : $get('total_amount'));
     }
 
     public static function getTransportModeField(): Select
@@ -561,10 +580,11 @@ trait Form
             ->label(__('resources/proformaInvoice/strings.form.validity_date'))
             ->native(false)
             ->adaptive()
-            ->default(fn(): string => now()->addWeek()->toDateString())
+            ->default(fn (): string => now()->addWeek()->toDateString())
             ->afterOrEqual('invoice_date')
             ->rules(['nullable'])
             ->validationMessages([
+                'date' => __('resources/proformaInvoice/strings.form.validation_date'),
                 'after_or_equal' => __('resources/proformaInvoice/strings.form.validation_validity_date_after'),
             ])
             ->helperText(__('resources/proformaInvoice/strings.form.helper_validity_date'))

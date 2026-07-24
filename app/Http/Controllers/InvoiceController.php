@@ -18,7 +18,7 @@ class InvoiceController extends Controller
             ->where('key', 'commercial_invoice')
             ->first();
 
-        if (!$attr || !is_array($attr->value)) {
+        if (! $attr || ! is_array($attr->value)) {
             abort(404, 'No saved invoice for this shipment.');
         }
 

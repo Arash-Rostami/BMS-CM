@@ -9,19 +9,21 @@ use App\Models\Traits\Target\HasTargetableLabel;
 use App\Models\Traits\Target\HasYearAttribute;
 use App\Models\Traits\Target\Relationships as ExclusiveRelationships;
 use App\Models\Traits\Target\SearchTargetable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Target extends Model
 {
-    use SoftDeletes,
-        Relationships,
-        ExclusiveRelationships,
-        UserStamps,
+    use ExclusiveRelationships,
+        HasFactory,
         HasMetricAttribute,
         HasTargetableLabel,
         HasYearAttribute,
-        SearchTargetable;
+        Relationships,
+        SearchTargetable,
+        SoftDeletes,
+        UserStamps;
 
     protected $fillable = [
         'targetable_type',

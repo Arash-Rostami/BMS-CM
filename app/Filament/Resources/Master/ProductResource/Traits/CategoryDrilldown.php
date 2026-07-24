@@ -11,7 +11,7 @@ trait CategoryDrilldown
 {
     public static function getAllFields(): array
     {
-        $options  = app(Category::class)->getCachedHierarchy();
+        $options = app(Category::class)->getCachedHierarchy();
         $maxLevel = static::maxDepth($options);
 
         return array_merge(
@@ -29,12 +29,11 @@ trait CategoryDrilldown
         $deepest = 0;
         foreach (array_keys($map[$parent]) as $childId) {
             $depthViaChild = 1 + static::maxDepth($map, $childId);
-            $deepest       = max($deepest, $depthViaChild);
+            $deepest = max($deepest, $depthViaChild);
         }
 
         return $deepest;
     }
-
 
     protected static function buildHiddenFields(int $maxLevel): array
     {
@@ -49,12 +48,12 @@ trait CategoryDrilldown
                 ->live()
                 ->afterStateHydrated(function ($component, $state, $set) use ($maxLevel) {
                     $record = $component->getRecord();
-                    if (!$record?->category_id) {
+                    if (! $record?->category_id) {
                         return;
                     }
 
                     $category = Category::find($record->category_id);
-                    if (!$category) {
+                    if (! $category) {
                         return;
                     }
 
@@ -91,14 +90,14 @@ trait CategoryDrilldown
     {
         return Select::make("categories.{$level}")
             ->label(Level::fromLevel($level)->getLabel())
-            ->options(fn($get) => // If level 0, show top‑level (parent_id = 0), else children of selected parent
-                $options[$get("categories." . ($level - 1)) ?? 0] ?? []
+            ->options(fn ($get) => // If level 0, show top‑level (parent_id = 0), else children of selected parent
+                $options[$get('categories.'.($level - 1)) ?? 0] ?? []
             )
             ->required()
-            ->visible(fn($get) =>
+            ->visible(fn ($get) =>
                 // Always show level 0; for others only if parent has children
                 $level === 0
-                || ! empty($options[$get("categories." . ($level - 1))] ?? [])
+                || ! empty($options[$get('categories.'.($level - 1))] ?? [])
             )
             ->live()
             ->afterStateUpdated(function ($state, $set) use ($options, $level, $maxLevel) {
@@ -112,7 +111,7 @@ trait CategoryDrilldown
                 }
             })
             ->validationMessages([
-                'required' => __('resources/product/strings.form.validation_required')
+                'required' => __('resources/product/strings.form.validation_required'),
             ])
             ->validationAttribute(__('resources/product/strings.form.category'));
     }

@@ -11,14 +11,15 @@ trait UpdatesFromRegisteredOrders
     {
         if (empty($state)) {
             $set('items', []);
+
             return;
         }
 
-        $registeredOrders = RegisteredOrder::whereIn('id', (array)$state)
+        $registeredOrders = RegisteredOrder::whereIn('id', (array) $state)
             ->with(['items.product.specifications'])
             ->get();
 
-        $items = $registeredOrders->flatMap(fn($ro) => $ro->items->map(fn($item) => [
+        $items = $registeredOrders->flatMap(fn ($ro) => $ro->items->map(fn ($item) => [
             'product_id' => $item->product_id,
             'quantity' => $item->quantity ?? 0,
             'unit' => $item->unit ?? null,
@@ -37,7 +38,7 @@ trait UpdatesFromRegisteredOrders
                 '.',
                 ''
             ),
-            'show_notes' => true
+            'show_notes' => true,
         ]))->toArray();
 
         $set('items', $items);
@@ -46,7 +47,7 @@ trait UpdatesFromRegisteredOrders
             $ro = $registeredOrders->first();
 
             $set('source_type', 'ro');
-            $set('registeredOrders', [(int)$ro->id]);
+            $set('registeredOrders', [(int) $ro->id]);
             $set('incoterms', $ro->incoterms ?? null);
             $set('seller_id', $ro->seller_id ?? null);
             $set('buyer_id', $ro->buyer_id ?? null);

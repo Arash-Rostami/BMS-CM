@@ -4,7 +4,6 @@ namespace App\Models\Traits\Correspondence;
 
 trait HasCorrespondenceBodyField
 {
-
     protected static function extraAttributes(): array
     {
         $isRtl = static::isRtl();

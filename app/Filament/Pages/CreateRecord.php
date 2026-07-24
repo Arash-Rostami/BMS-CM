@@ -2,8 +2,8 @@
 
 namespace App\Filament\Pages;
 
-use Livewire\Attributes\On;
 use Filament\Resources\Pages\CreateRecord as BaseCreateRecord;
+use Livewire\Attributes\On;
 
 class CreateRecord extends BaseCreateRecord
 {

@@ -14,6 +14,7 @@ class PersianCalendar
     {
         if (app()->isLocale('fa') && ($gregorianYear > 2000)) {
             $carbon = Carbon::create($gregorianYear, 3, 21, 0, 0, 0, config('app.timezone'));
+
             return Jalalian::fromCarbon($carbon)->getYear();
         }
 
@@ -32,7 +33,7 @@ class PersianCalendar
         $opts = [];
 
         for ($g = $startG; $g <= $endG; $g++) {
-            $opts[$g] = (string)$this->convertYear($g);
+            $opts[$g] = (string) $this->convertYear($g);
         }
 
         return $opts;
@@ -40,15 +41,13 @@ class PersianCalendar
 
     /**
      * Convert a Jalali year (e.g. 1403) to Gregorian.
-     *
-     * @param int $jalaliYear
-     * @return int
      */
     public function jalaliToGregorian(int $jalaliYear): int
     {
         $jalaliDate = "{$jalaliYear}-01-01";
         $carbon = Jalalian::fromFormat('Y-m-d', $jalaliDate)
             ->toCarbon();
+
         return $carbon->year;
     }
 }

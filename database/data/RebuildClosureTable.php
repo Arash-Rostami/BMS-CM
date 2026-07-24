@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Models\Category;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -8,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 class RebuildClosureTable extends Command
 {
     protected $signature = 'closure:rebuild';
+
     protected $description = 'Rebuild the category_closure table';
 
     public function handle()
@@ -31,7 +31,7 @@ class RebuildClosureTable extends Command
 
             while ($current->parent_id && isset($categories[$current->parent_id])) {
                 if (in_array($current->parent_id, $visited)) {
-                    throw new \Exception("Cycle detected: " . implode(' -> ', $visited) . " -> {$current->parent_id}");
+                    throw new \Exception('Cycle detected: '.implode(' -> ', $visited)." -> {$current->parent_id}");
                 }
                 $visited[] = $current->parent_id;
 

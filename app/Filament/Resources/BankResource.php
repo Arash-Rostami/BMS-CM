@@ -30,13 +30,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BankResource extends Resource
 {
-    use BankForm, BankTable, BankInfolist, BankFilters, HandleActivation, HasResourcePermissions;
+    use BankFilters, BankForm, BankInfolist, BankTable, HandleActivation, HasResourcePermissions;
 
     protected static ?string $model = Bank::class;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-library';
 
     protected static ?int $navigationSort = 4;
-
 
     public static function form(Schema $schema): Schema
     {
@@ -151,7 +151,7 @@ class BankResource extends Resource
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -160,7 +160,7 @@ class BankResource extends Resource
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
-                        ->exporter(BankExporter::class)
+                        ->exporter(BankExporter::class),
                 ]),
             ])
             ->striped()

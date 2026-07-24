@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CustomsRelationManager extends RelationManager
 {
-    use CustomTable, CustomFilters;
+    use CustomFilters, CustomTable;
 
     protected static string $relationship = 'customs';
 
@@ -76,7 +76,7 @@ class CustomsRelationManager extends RelationManager
             ])
             ->headerActions([
                 Action::make('create')
-                    ->label(__('resources/custom/strings.general.add_record'))
+                    ->label(__('resources/general/strings.actions.add_record'))
                     ->modalWidth('md')
                     ->schema([
                         Select::make('shipment_id')
@@ -84,22 +84,26 @@ class CustomsRelationManager extends RelationManager
                             ->relationship(
                                 name: 'shipment',
                                 titleAttribute: 'shipment_no',
-                                modifyQueryUsing: fn($query) => $query->where('registered_order_id', $this->getOwnerRecord()->getKey())
+                                modifyQueryUsing: fn ($query) => $query->where('registered_order_id', $this->getOwnerRecord()->getKey())
                             )
-                            ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->formatted_name ?? $record->shipment_no)
+                            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->formatted_name ?? $record->shipment_no)
                             ->required()
                             ->searchable()
                             ->preload()
+                            ->validationAttribute(__('resources/custom/strings.form.shipment'))
+                            ->validationMessages([
+                                'required' => __('resources/custom/strings.form.validation_required'),
+                            ]),
                     ])
                     ->modalSubmitActionLabel('✔')
                     ->modalCancelActionLabel('✘')
-                    ->action(fn(array $data) => redirect(CustomResource::getUrl('create', ['shipment_id' => $data['shipment_id']])))
+                    ->action(fn (array $data) => redirect(CustomResource::getUrl('create', ['shipment_id' => $data['shipment_id']]))),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->url(fn($record) => CustomResource::getUrl('edit', ['record' => $record])),
+                        ->url(fn ($record) => CustomResource::getUrl('edit', ['record' => $record])),
                     DeleteAction::make(),
                 ]),
             ])

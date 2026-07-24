@@ -25,22 +25,26 @@ class ValidAttachment implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$value instanceof TemporaryUploadedFile) return;
+        if (! $value instanceof TemporaryUploadedFile) {
+            return;
+        }
 
         try {
             $filename = $value->getClientOriginalName();
 
             // Filename must use Latin/Arabic chars, numbers, common punctuation only
-            if (!preg_match('/^[\p{Latin}\p{Arabic}\p{N}\s.\-_()\[\],&]{1,185}$/u', $filename)) {
+            if (! preg_match('/^[\p{Latin}\p{Arabic}\p{N}\s.\-_()\[\],&]{1,185}$/u', $filename)) {
                 $this->sendWarningNotification(__('resources/general/strings.attachments.validation.invalid_filename_chars_hint'));
                 $fail(__('resources/general/strings.attachments.validation.invalid_filename_chars'));
+
                 return;
             }
 
             // File must still exist (not expired)
-            if (!$value->exists()) {
+            if (! $value->exists()) {
                 $this->sendWarningNotification(__('resources/general/strings.attachments.validation.file_not_available_hint'));
                 $fail(__('resources/general/strings.attachments.validation.file_not_available'));
+
                 return;
             }
 
@@ -49,14 +53,16 @@ class ValidAttachment implements ValidationRule
             if ($size > self::MAX_SIZE_KB * 1024) {
                 $this->sendWarningNotification(__('resources/general/strings.attachments.validation.attachments_size'));
                 $fail(__('resources/general/strings.attachments.validation.attachments_size'));
+
                 return;
             }
 
             // Enforcing type whitelist
             $mimeType = $value->getMimeType();
-            if (!in_array($mimeType, self::ALLOWED_TYPES, true)) {
+            if (! in_array($mimeType, self::ALLOWED_TYPES, true)) {
                 $this->sendWarningNotification(__('resources/general/strings.attachments.validation.attachments_type'));
                 $fail(__('resources/general/strings.attachments.validation.attachments_type'));
+
                 return;
             }
 
@@ -69,7 +75,7 @@ class ValidAttachment implements ValidationRule
     public function sendWarningNotification(string $body): void
     {
         Notification::make()
-            ->title('⚠️')
+            ->title(__('resources/general/strings.attachments.warning_title'))
             ->body($body)
             ->warning()
             ->persistent()

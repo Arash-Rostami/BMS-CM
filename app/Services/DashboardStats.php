@@ -23,7 +23,7 @@ class DashboardStats
             return static::compute();
         }
 
-        return Cache::remember($cacheKey, $ttlSeconds, fn() => static::compute());
+        return Cache::remember($cacheKey, $ttlSeconds, fn () => static::compute());
     }
 
     protected static function compute(): array

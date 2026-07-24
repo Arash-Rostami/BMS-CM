@@ -1,11 +1,9 @@
 <?php
 
-
 return [
     'general' => [
         'model_label' => 'Banque',
         'plural_model_label' => 'Banques',
-        'navigation_group' => 'Données de base',
     ],
     'form' => [
         'name' => 'Nom (Persan)',
@@ -13,8 +11,6 @@ return [
         'description' => 'Description',
         'is_active' => 'Est actif ?',
         'helper_is_active' => 'Indique le statut actif/inactif de cet enregistrement.',
-        'creator' => 'Créé par',
-        'updater' => 'Dernière mise à jour par',
         'validation_name_required' => 'Veuillez saisir le nom en persan.',
         'validation_name' => 'Seuls les caractères persans sont autorisés.',
         'validation_name_max' => 'Le nom persan ne peut pas dépasser 255 caractères.',
@@ -23,20 +19,46 @@ return [
         'validation_english_name' => 'Seuls les caractères anglais sont autorisés.',
         'validation_english_name_max' => 'Le nom anglais ne peut pas dépasser 255 caractères.',
         'validation_english_name_unique' => 'Ce nom anglais existe déjà.',
-            'helper_name' => 'Saisissez le nom officiel de la banque.',
-            'helper_english_name' => 'Saisissez le nom anglais officiel pour les registres internationaux.',
+        'helper_name' => 'Saisissez le nom officiel de la banque.',
+        'helper_english_name' => 'Saisissez le nom anglais officiel pour les registres internationaux.',
+        'validation_description_max' => 'La description ne doit pas dépasser 65535 caractères.',
     ],
     'table' => [
         'name' => 'Nom (Persan)',
         'english_name' => 'Nom (Anglais)',
         'description' => 'Description',
         'is_active' => 'Statut',
-        'only_active' => 'Seulement actifs',
-        'only_inactive' => 'Seulement inactifs',
         'creator' => 'Créé par',
         'updater' => 'Dernière mise à jour par',
         'created_at' => 'Date de création',
         'updated_at' => 'Dernière mise à jour',
-        'deleted_at' => 'Date de suppression',
+    ],
+    'infolist' => [
+        'name' => 'Nom (Persan)',
+        'english_name' => 'Nom (Anglais)',
+        'description' => 'Description',
+        'is_active' => 'Statut',
+        'creator' => 'Créé par',
+        'updater' => 'Dernière mise à jour par',
+        'created_at' => 'Date de création',
+        'updated_at' => 'Dernière mise à jour',
+    ],
+    'filters' => [
+        'is_active' => 'Statut',
+        'only_active' => 'Seulement actifs',
+        'only_inactive' => 'Seulement inactifs',
+        'creator' => 'Créé par',
+        'updater' => 'Dernière mise à jour par',
+    ],
+    'export' => [
+        'id' => 'ID',
+        'name' => 'Nom (Persan)',
+        'english_name' => 'Nom (Anglais)',
+        'description' => 'Description',
+        'is_active' => 'Statut',
+        'creator' => 'Créé par',
+        'updater' => 'Dernière mise à jour par',
+        'created_at' => 'Date de création',
+        'updated_at' => 'Dernière mise à jour',
     ],
 ];

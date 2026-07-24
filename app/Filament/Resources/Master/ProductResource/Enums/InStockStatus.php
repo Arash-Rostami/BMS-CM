@@ -1,13 +1,12 @@
 <?php
 
-
 namespace App\Filament\Resources\Master\ProductResource\Enums;
 
-use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum InStockStatus: int implements HasLabel, HasIcon, HasColor
+enum InStockStatus: int implements HasColor, HasIcon, HasLabel
 {
     case IN_STOCK = 1;
     case OUT_OF_STOCK = 0;
