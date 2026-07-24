@@ -48,3 +48,7 @@ storage/*.key
 temp/
 /tests
 auth.json
+
+public/audio/music/
+resources/audio/music/
+*.zip
