@@ -83,13 +83,13 @@ class BankProfile extends Model
         'delivery_date' => 'date',
         'payment_due_date' => 'date',
         'commitment_payment_date' => 'date',
-        'requested_amount' => 'decimal:2',
-        'purchased_equivalent' => 'decimal:2',
+        'requested_amount' => 'decimal:5',
+        'purchased_equivalent' => 'decimal:5',
         'commission_rate' => 'decimal:5',
-        'commission_amount_purchased' => 'decimal:2',
+        'commission_amount_purchased' => 'decimal:5',
         'exchange_rate' => 'decimal:5',
         'final_rate' => 'decimal:5',
         'conversion_rate' => 'decimal:5',
-        'documents_amount' => 'decimal:2',
+        'documents_amount' => 'decimal:5',
     ];
 }

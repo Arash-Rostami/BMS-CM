@@ -96,7 +96,8 @@ trait Infolist
                     ->formatStateUsing(fn ($record) => $record->product?->getLocalizedNameAttribute())
                     ->columnSpan(2),
                 TextEntry::make('quantity')
-                    ->label(__('resources/purchaseRequest/strings.infolist.item_quantity')),
+                    ->label(__('resources/purchaseRequest/strings.infolist.item_quantity'))
+                    ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-'),
                 TextEntry::make('unit')
                     ->label(__('resources/purchaseRequest/strings.infolist.item_unit'))
                     ->badge()
@@ -104,7 +105,7 @@ trait Infolist
                     ->formatStateUsing(fn ($state) => __('resources/general/strings.metrics.'.$state) ?? $state),
                 TextEntry::make('estimated_cost')
                     ->label(__('resources/purchaseRequest/strings.infolist.item_estimated_cost'))
-                    ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+                    ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
                     ->color('success'),
                 TextEntry::make('status.name')
                     ->label(__('resources/purchaseRequest/strings.infolist.item_status'))
@@ -158,7 +159,7 @@ trait Infolist
             ->label(__('resources/purchaseRequest/strings.form.total_estimated_cost'))
             ->formatStateUsing(
                 fn ($state, $record): string => isset($record->total_estimated_cost)
-                    ? number_format($record->total_estimated_cost, 2, '.', ',')
+                    ? preciseNumber($record->total_estimated_cost)
                     : ''
             );
     }

@@ -57,7 +57,7 @@ class Custom extends Model
     ];
 
     protected $casts = [
-        'commitment_balance' => 'decimal:2',
+        'commitment_balance' => 'decimal:5',
         'clearance_date' => 'date',
         'doc_submission_date' => 'date',
         'ten_percent_exit_date' => 'date',

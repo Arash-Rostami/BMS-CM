@@ -34,15 +34,16 @@ class PurchaseOrderExporter extends Exporter
             ExportColumn::make('expected_delivery_date')->label(__('resources/purchaseOrder/strings.export.expected_delivery_date')),
             ExportColumn::make('currency.name')->label(__('resources/purchaseOrder/strings.export.currency')),
             ExportColumn::make('currency.english_name')->label(__('resources/purchaseOrder/strings.export.currency_english')),
-            ExportColumn::make('total_amount')->label(__('resources/purchaseOrder/strings.export.total_amount')),
+            ExportColumn::make('total_amount')->label(__('resources/purchaseOrder/strings.export.total_amount'))
+                ->formatStateUsing(fn ($state) => preciseNumber($state)),
             ExportColumn::make('items')
                 ->label(__('resources/purchaseOrder/strings.export.items'))
                 ->state(function (PurchaseOrder $record): string {
                     return $record->items->map(function ($item) {
                         $product = $item->product?->getLocalizedNameAttribute() ?? 'N/A';
-                        $quantity = $item->quantity;
+                        $quantity = preciseNumber($item->quantity);
                         $unit = $item->unit;
-                        $price = number_format($item->unit_price, 2);
+                        $price = preciseNumber($item->unit_price);
 
                         return "Product: {$product}, Qty: {$quantity} {$unit}, Price: {$price}";
                     })->implode("\n");

@@ -49,6 +49,6 @@ class PurchaseRequest extends Model
     protected $casts = [
         'required_by_date' => 'date',
         'approval_date' => 'datetime',
-        'total_estimated_cost' => 'decimal:2',
+        'total_estimated_cost' => 'decimal:5',
     ];
 }

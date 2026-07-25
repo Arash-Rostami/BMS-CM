@@ -12,11 +12,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('purchase_order_id')->constrained('purchase_orders')->cascadeOnDelete();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
-            $table->integer('quantity');
+            $table->decimal('quantity', 15, 5);
             $table->string('unit')->comment('e.g., pcs, kg, ltr');
-            $table->decimal('unit_price', 10, 2)->comment('Price per single unit');
-            $table->decimal('net_weight', 10, 2)->nullable()->comment('Weight of the product itself, without packaging');
-            $table->decimal('gross_weight', 10, 2)->nullable()->comment('Total weight including packaging');
+            $table->decimal('unit_price', 15, 5)->comment('Price per single unit');
+            $table->decimal('net_weight', 15, 5)->nullable()->comment('Weight of the product itself, without packaging');
+            $table->decimal('gross_weight', 15, 5)->nullable()->comment('Total weight including packaging');
             $table->timestamps();
             $table->softDeletes();
 

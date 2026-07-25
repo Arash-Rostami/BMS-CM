@@ -14,7 +14,7 @@ trait ItemCalculation
         $shipping = isset($item['shipping_cost']) && is_numeric($item['shipping_cost']) ? (float) $item['shipping_cost'] : 0.0;
         $extra = isset($item['extra_cost']) && is_numeric($item['extra_cost']) ? (float) $item['extra_cost'] : 0.0;
 
-        return round(($quantity * $unitPrice) + $shipping + $extra, 2);
+        return round(($quantity * $unitPrice) + $shipping + $extra, 5);
     }
 
     protected static function recalcAllItems(Get $get, Set $set): void
@@ -23,7 +23,7 @@ trait ItemCalculation
 
         foreach ($items as $index => $item) {
             $computed = static::computeItemLineTotalFromState(is_array($item) ? $item : []);
-            $set("items.{$index}.line_total", number_format($computed, 2, '.', ''));
+            $set("items.{$index}.line_total", number_format($computed, 5, '.', ''));
         }
 
         static::updateTotal($get, $set);
@@ -38,7 +38,7 @@ trait ItemCalculation
 
         $lineTotal = ($quantity * $unitPrice) + $shipping + $extra;
 
-        $set('line_total', number_format($lineTotal, 2, '.', ''));
+        $set('line_total', number_format($lineTotal, 5, '.', ''));
 
         static::updateTotal($get, $set);
     }

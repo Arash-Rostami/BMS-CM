@@ -56,7 +56,7 @@ trait Infolist
         return TextEntry::make('bank_charges')
             ->label(__('resources/payment/strings.form.bank_charges'))
             ->color('success')
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->placeholder('-');
     }
 
@@ -83,7 +83,7 @@ trait Infolist
             ->label(__('resources/payment/strings.form.summary_calculated_total'))
             ->icon('heroicon-m-calculator')
             ->color('success')
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->placeholder('-');
     }
 
@@ -118,7 +118,7 @@ trait Infolist
     {
         return TextEntry::make('exchange_rate')
             ->label(__('resources/payment/strings.form.exchange_rate'))
-            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 5) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->icon('heroicon-m-arrow-path-rounded-square')
             ->placeholder('-');
     }
@@ -147,7 +147,7 @@ trait Infolist
         return TextEntry::make('payable_amount')
             ->label(__('resources/payment/strings.form.payable_amount'))
             ->color('success')
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->placeholder('-');
     }
 
@@ -231,7 +231,7 @@ trait Infolist
         return TextEntry::make('total_amount')
             ->label(__('resources/payment/strings.form.total_amount_entered'))
             ->color('success')
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->placeholder('-');
     }
 
@@ -239,7 +239,7 @@ trait Infolist
     {
         return TextEntry::make('total_ratio')
             ->label(__('resources/payment/strings.form.summary_total_ratio'))
-            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state * 100, 2).'%' : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state * 100).'%' : '-')
             ->icon('heroicon-m-percent-badge')
             ->placeholder('-');
     }

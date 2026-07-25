@@ -70,7 +70,7 @@ trait Infolist
     {
         return TextEntry::make('commitment_balance')
             ->label(__('resources/custom/strings.form.commitment_balance'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }

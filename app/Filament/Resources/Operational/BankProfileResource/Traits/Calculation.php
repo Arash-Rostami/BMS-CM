@@ -23,11 +23,11 @@ trait Calculation
         }
 
         $finalRate = static::computeFinalRate($get);
-        $set('final_rate', number_format($finalRate, 2, '.', ''));
-        $set('final_rate_display', number_format($finalRate, 2, '.', ''));
+        $set('final_rate', number_format($finalRate, 5, '.', ''));
+        $set('final_rate_display', number_format($finalRate, 5, '.', ''));
 
         $conversionRate = static::computeConversionRate($get);
-        $set('conversion_rate', number_format($conversionRate, 2, '.', ''));
+        $set('conversion_rate', number_format($conversionRate, 5, '.', ''));
 
         $set('commission_equivalent', static::computeCommissionEquivalent($get));
         $set('final_equivalent', static::computeFinalEquivalent($get, $finalRate));

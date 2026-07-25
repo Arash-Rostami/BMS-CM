@@ -89,7 +89,7 @@ trait Form
                     ->hiddenLabel()
                     ->tooltip(__('resources/bankProfile/strings.form.tooltips.commission_amount_purchased'))
             )
-            ->hint(fn (Get $get) => is_numeric($get('commission_amount_purchased')) ? delimiter($get('commission_amount_purchased')) : $get('commission_amount_purchased'))
+            ->hint(fn (Get $get) => is_numeric($get('commission_amount_purchased')) ? preciseNumber($get('commission_amount_purchased')) : $get('commission_amount_purchased'))
             ->helperText(__('resources/bankProfile/strings.form.helper_commission_amount_purchased'))
             ->validationAttribute(__('resources/bankProfile/strings.form.summary_commission_amount'));
     }
@@ -135,7 +135,7 @@ trait Form
                     ->hiddenLabel()
                     ->tooltip(__('resources/bankProfile/strings.form.tooltips.commission_rate'))
             )
-            ->hint(fn (Get $get) => is_numeric($get('commission_rate')) ? delimiter($get('commission_rate')) : $get('commission_rate'))
+            ->hint(fn (Get $get) => is_numeric($get('commission_rate')) ? preciseNumber($get('commission_rate')) : $get('commission_rate'))
             ->helperText(__('resources/bankProfile/strings.form.helper_commission_rate'))
             ->validationAttribute(__('resources/bankProfile/strings.form.commission_rate'));
     }
@@ -231,7 +231,7 @@ trait Form
                 'numeric' => __('resources/bankProfile/strings.form.validation_numeric'),
                 'min' => __('resources/bankProfile/strings.form.validation_min_numeric_zero'),
             ])
-            ->hint(fn (Get $get) => is_numeric($get('documents_amount')) ? delimiter($get('documents_amount')) : $get('documents_amount'))
+            ->hint(fn (Get $get) => is_numeric($get('documents_amount')) ? preciseNumber($get('documents_amount')) : $get('documents_amount'))
             ->afterStateUpdated(fn (Get $get, Set $set) => static::updateComputations($get, $set))
             ->validationAttribute(__('resources/bankProfile/strings.form.documents_amount'))
             ->helperText(__('resources/bankProfile/strings.form.helper_documents_amount'));
@@ -273,7 +273,7 @@ trait Form
                     ->hiddenLabel()
                     ->tooltip(__('resources/bankProfile/strings.form.tooltips.exchange_rate'))
             )
-            ->hint(fn (Get $get) => is_numeric($get('exchange_rate')) ? delimiter($get('exchange_rate')) : $get('exchange_rate'))
+            ->hint(fn (Get $get) => is_numeric($get('exchange_rate')) ? preciseNumber($get('exchange_rate')) : $get('exchange_rate'))
             ->validationAttribute(__('resources/bankProfile/strings.form.exchange_rate'));
     }
 
@@ -369,7 +369,7 @@ trait Form
                 'numeric' => __('resources/bankProfile/strings.form.validation_numeric'),
                 'min' => __('resources/bankProfile/strings.form.validation_min_numeric_zero'),
             ])
-            ->hint(fn (Get $get) => is_numeric($get('purchased_equivalent')) ? delimiter($get('purchased_equivalent')) : $get('purchased_equivalent'))
+            ->hint(fn (Get $get) => is_numeric($get('purchased_equivalent')) ? preciseNumber($get('purchased_equivalent')) : $get('purchased_equivalent'))
             ->validationAttribute(__('resources/bankProfile/strings.form.purchased_equivalent'));
     }
 
@@ -408,7 +408,7 @@ trait Form
                 'min' => __('resources/bankProfile/strings.form.validation_min_numeric_zero'),
                 'required' => __('resources/bankProfile/strings.form.validation_required'),
             ])
-            ->hint(fn (Get $get) => is_numeric($get('requested_amount')) ? delimiter($get('requested_amount')) : $get('requested_amount'))
+            ->hint(fn (Get $get) => is_numeric($get('requested_amount')) ? preciseNumber($get('requested_amount')) : $get('requested_amount'))
             ->helperText(__('resources/bankProfile/strings.form.helper_requested_amount'))
             ->validationAttribute(__('resources/bankProfile/strings.form.requested_amount'));
     }
@@ -437,29 +437,29 @@ trait Form
         return [
             TextEntry::make('commission_amount_purchased')
                 ->label(__('resources/bankProfile/strings.form.summary_commission_amount'))
-                ->formatStateUsing(fn (Get $get) => '💰 '.number_format(static::computeCommissionAmount($get), 2)),
+                ->formatStateUsing(fn (Get $get) => '💰 '.preciseNumber(static::computeCommissionAmount($get))),
             TextEntry::make('commission_equivalent')
                 ->label(__('resources/bankProfile/strings.form.summary_commission_equivalent'))
-                ->formatStateUsing(fn (Get $get) => '💶 '.number_format(static::computeCommissionEquivalent($get), 2)),
+                ->formatStateUsing(fn (Get $get) => '💶 '.preciseNumber(static::computeCommissionEquivalent($get))),
             TextEntry::make('total_purchased_remittance')
                 ->label(__('resources/bankProfile/strings.form.summary_total_purchased'))
-                ->formatStateUsing(fn (Get $get) => '💵 '.number_format(static::computeTotalPurchasedRemittance($get), 2)),
+                ->formatStateUsing(fn (Get $get) => '💵 '.preciseNumber(static::computeTotalPurchasedRemittance($get))),
             TextEntry::make('total_requested_remittance')
                 ->label(__('resources/bankProfile/strings.form.summary_total_requested'))
-                ->formatStateUsing(fn (Get $get) => '💶 '.number_format(static::computeTotalRequestedRemittance($get), 2)),
+                ->formatStateUsing(fn (Get $get) => '💶 '.preciseNumber(static::computeTotalRequestedRemittance($get))),
             TextEntry::make('final_rate_display')
                 ->label(__('resources/bankProfile/strings.form.final_rate'))
-                ->formatStateUsing(fn (Get $get) => '💹 '.number_format((float) $get('final_rate'), 2)),
+                ->formatStateUsing(fn (Get $get) => '💹 '.preciseNumber((float) $get('final_rate'))),
             TextEntry::make('final_equivalent')
                 ->label(__('resources/bankProfile/strings.form.summary_final_equivalent'))
-                ->formatStateUsing(fn (Get $get) => '💶 '.number_format(static::computeFinalEquivalent($get), 2)),
+                ->formatStateUsing(fn (Get $get) => '💶 '.preciseNumber(static::computeFinalEquivalent($get))),
             TextEntry::make('total_rial_remittance')
                 ->label(__('resources/bankProfile/strings.form.summary_total_rial'))
                 ->columnSpanFull()
-                ->formatStateUsing(fn (Get $get) => '🇮🇷 '.number_format(static::computeTotalRialRemittance($get), 2)),
+                ->formatStateUsing(fn (Get $get) => '🇮🇷 '.preciseNumber(static::computeTotalRialRemittance($get))),
             TextEntry::make('remaining_commitment')
                 ->label(__('resources/bankProfile/strings.form.summary_remaining'))
-                ->formatStateUsing(fn (Get $get) => '📦 '.number_format(static::computeRemaining($get), 2)),
+                ->formatStateUsing(fn (Get $get) => '📦 '.preciseNumber(static::computeRemaining($get))),
         ];
     }
 

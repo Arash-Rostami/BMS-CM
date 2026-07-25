@@ -47,10 +47,10 @@ class Target extends Model
         'year' => 'integer',
         'start_from' => 'date',
         'end_in' => 'date',
-        'quantity' => 'decimal:2',
-        'amount' => 'decimal:2',
-        'achieved_quantity' => 'decimal:2',
-        'achieved_amount' => 'decimal:2',
+        'quantity' => 'decimal:5',
+        'amount' => 'decimal:5',
+        'achieved_quantity' => 'decimal:5',
+        'achieved_amount' => 'decimal:5',
         'tags' => 'array',
     ];
 }

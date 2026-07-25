@@ -38,7 +38,10 @@ Gregorian display date. Null → `'-'`. String dates coerced via `new DateTime()
 ISO `Y-m-d` for export/PDF/sort. Omitted `$date` falls back to `$record->created_at` (or `'—'` em-dash if that's also null — intentionally different from the other date helpers' `'-'` hyphen fallback; don't normalize).
 
 ### `delimiter($value, ?string $currency = null, int $decimals = 2): string`
-Single money formatter — never call `number_format()` directly for a money column. Null/`''` value → `'-'`. No currency → plain `number_format` (dot decimals, comma thousands). Currency present: a 1–4 letter alphabetic string (regex `/^[A-Za-z]{1,4}$/`, not real ISO-4217 validation — e.g. `Rial` matches) is appended uppercased (`1,234.50 USD`); anything else (symbol or 5+ letter word, e.g. `$`, `Toman`) is prepended (`$ 1,234.50`). No current call site passes `$currency` — the branch exists but is unexercised in practice.
+Single money formatter — never call `number_format()` directly for a money column. Null/`''` value → `'-'`. No currency → plain `number_format` (dot decimals, comma thousands). Currency present: a 1–4 letter alphabetic string (regex `/^[A-Za-z]{1,4}$/`, not real ISO-4217 validation — e.g. `Rial` matches) is appended uppercased (`1,234.50 USD`); anything else (symbol or 5+ letter word, e.g. `$`, `Toman`) is prepended (`$ 1,234.50`). No current call site passes `$currency` — the branch exists but is unexercised in practice. Use this specifically for **Filament Table columns**, where a fixed decimal count is desirable for column alignment — the one place fixed rounding is acceptable project-wide (see the precision standard below).
+
+### `preciseNumber($value, ?string $currency = null, int $maxDecimals = 5): string`
+Same currency-prefix/suffix logic as `delimiter()`, but formats to `$maxDecimals` and then `rtrim`s trailing zeros (and a trailing bare `.`) — `4` stays `4`, `4.56` stays `4.56`, `4.56000` never appears. Use this for **every non-table display** of a price/quantity/rate/weight metric (Infolist entries, form `hint()`s, `_display` companion fields) — see the precision standard below for why table vs. everywhere-else is the split.
 
 ### `maybeJalali($component)`
 The Jalali gate for Filament date components: calls `->jalali(true)` when in Jalali mode, else returns the component unchanged. The gate expression is the load-bearing literal — see §2. Never inline the `session(...)` check in a resource; always route through this helper or `->adaptive()` (§2).
@@ -54,6 +57,14 @@ Runs `config:cache`, `route:cache`, `view:cache`, `filament:cache-components`. B
 
 ### `resetApplicationCache(): void`
 `clearApplicationCaches()` → `sleep(1)` → `cacheApplicationConfig()`. The 1s pause is deliberate breathing room between clear and rebuild. Backs the `/reset` route and the panel user-menu "Reset Cache" action (the latter wraps the call in `dispatch(fn () => resetApplicationCache())->afterResponse()` — running it synchronously mid-Livewire-request breaks the rendering component, since it invalidates compiled views/Filament registry the current render depends on).
+
+## 1b. Numeric precision standard (price/quantity/rate/weight)
+
+Every column carrying real calculation precision — price, quantity, amount, rate, weight — is stored and computed at **up to 5 decimal places**, never 2. This applies at all layers: migration column scale (`decimal(15,5)`), Eloquent `$casts` (`'decimal:5'`), and Filament calculation traits (`TotalXxxCalculation`/`Calculation` traits must never `round()`/`number_format()` a computed total down to 2dp before `$set()`-ing it back into form state — that silently discards precision before it ever reaches the DB).
+
+**The only place a fixed, rounded display is acceptable is a Filament Table column** (`showXxx()` via `delimiter()`) — rounding there is a readability/alignment choice, not a precision bug, since the underlying stored value is untouched. Everywhere else (Infolist entries, form hints, `_display` fields) must show the value's actual meaningful precision — use `preciseNumber()`, not `delimiter()` or a raw `number_format()`, so `4` renders as `4` and `3.64583` renders in full rather than as `3.65` or `4.56000`.
+
+Don't confuse this with `HasComputedAttributes`' unrounded float accessors (`app/Models/modelsPattern.md` §4) — those already return full-precision floats; the fix this standard targets is calculation traits that explicitly truncate before persisting, and display code that reformats to fewer/more decimals than the value actually has.
 
 ## 2. The `calendar_type` literal contract
 
@@ -109,7 +120,8 @@ This `files` entry is what makes every function globally available without `use`
 | Format a date for export/PDF/sort | `toYmdDate($record, $date)` | ISO `Y-m-d`; falls back to `$record->created_at`. |
 | Show a relation's localized name | `getLocalizedName($record, 'relation')` | Helper form of `Localization::localeColumn()`; null-safe. |
 | Show a localized field on the model itself | `Localization` trait's `getLocalizedNameAttribute` | Don't re-implement the `fa`/`else` gate inline. |
-| Format money ± currency | `delimiter($value, $currency, $decimals)` | Single money formatter — §1. |
+| Format money ± currency in a Table column | `delimiter($value, $currency, $decimals)` | Fixed rounding is acceptable only in Tables — §1b. |
+| Format a price/quantity/rate/weight value anywhere else (Infolist, hint, `_display` field) | `preciseNumber($value, $currency, $maxDecimals)` | Shows meaningful precision, no padded/truncated zeros — §1/§1b. |
 | Make a date picker respect Jalali | `maybeJalali(DatePicker::make(...))` or `->adaptive()` | Keeps the `calendar_type` literal in one place — §2. |
 | Add a count badge to a Tab/infolist header | `tabBadge($label, $count, $color)` | Only producer of `.tb-badge` markup — §1/§4. |
 | Clear all caches | `clearApplicationCaches()` | Backs `/clear`; also the first half of `resetApplicationCache()`. |
@@ -122,7 +134,8 @@ This `files` entry is what makes every function globally available without `use`
 
 - ❌ Inlining `session('calendar_type', ...)` in a resource or view — duplicates the load-bearing literal (§2); route through `maybeJalali()`/`->adaptive()`.
 - ❌ Letting the `calendar_type` default differ between the three sites in §2.
-- ❌ Calling `number_format()` directly for a money column — use `delimiter()`.
+- ❌ Calling `number_format()` directly for a money column — use `delimiter()` in a Table column, `preciseNumber()` everywhere else.
+- ❌ Rounding/truncating a price/quantity/rate/weight value to 2 decimals anywhere outside a Table column — the standard is up to 5 decimals at DB/model/computation layers; only Table display may round for readability (§1b).
 - ❌ Hand-writing `<span class="tb-badge tb-info">N</span>` — use `tabBadge()`.
 - ❌ Branching per-`en`/per-`fr` — the contract is binary, `fa` vs everything-else.
 - ❌ Reading `$record->name`/`$record->english_name` directly in a Filament column — use `getLocalizedName()` or the trait accessor.
@@ -137,7 +150,8 @@ This `files` entry is what makes every function globally available without `use`
 - **Functions:** `snake_case` or `camelCase` per existing name, no namespace, each wrapped in `if (!function_exists('name'))`.
 - **Date helpers:** `toPersianDate` / `toGregorianDate` / `toYmdDate` — the `to…Date` family.
 - **Locale helper:** `getLocalizedName` (relation form); on-model accessor is `getLocalizedNameAttribute` (`Localization` trait).
-- **Money helper:** `delimiter($value, $currency, $decimals)`.
+- **Money helper (Table columns):** `delimiter($value, $currency, $decimals)`.
+- **Precision helper (everywhere else):** `preciseNumber($value, $currency, $maxDecimals)` — trims trailing zeros, default cap 5 decimals.
 - **Calendar gate:** `maybeJalali($component)`.
 - **Badge helper:** `tabBadge($label, $count, $color)` — 4-color map, §1/§4.
 - **Cache helpers:** `clearApplicationCaches` / `cacheApplicationConfig` / `resetApplicationCache` — all no-arg, void-return, `Artisan::call()`-based.

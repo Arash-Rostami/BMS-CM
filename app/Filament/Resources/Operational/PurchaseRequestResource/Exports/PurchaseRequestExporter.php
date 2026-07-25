@@ -28,7 +28,8 @@ class PurchaseRequestExporter extends Exporter
             ExportColumn::make('costCenter.name')->label(__('resources/purchaseRequest/strings.export.cost_center')),
             ExportColumn::make('costCenter.english_name')->label(__('resources/purchaseRequest/strings.export.cost_center_english')),
             ExportColumn::make('required_by_date')->label(__('resources/purchaseRequest/strings.export.required_by_date')),
-            ExportColumn::make('total_estimated_cost')->label(__('resources/purchaseRequest/strings.export.total_estimated_cost')),
+            ExportColumn::make('total_estimated_cost')->label(__('resources/purchaseRequest/strings.export.total_estimated_cost'))
+                ->formatStateUsing(fn ($state) => preciseNumber($state)),
             ExportColumn::make('urgency_level')->label(__('resources/purchaseRequest/strings.export.urgency_level')),
             ExportColumn::make('status.name')->label(__('resources/purchaseRequest/strings.export.status')),
             ExportColumn::make('status.english_name')->label(__('resources/purchaseRequest/strings.export.status_english')),
@@ -39,9 +40,9 @@ class PurchaseRequestExporter extends Exporter
                 ->state(function (PurchaseRequest $record): string {
                     return $record->items->map(function ($item) {
                         $product = $item->product?->getLocalizedNameAttribute() ?? 'N/A';
-                        $quantity = $item->quantity;
+                        $quantity = preciseNumber($item->quantity);
                         $unit = __('resources/general/strings.metrics.'.$item->unit) ?? $item->unit;
-                        $cost = number_format($item->estimated_cost, 2);
+                        $cost = preciseNumber($item->estimated_cost);
                         $status = $item->status?->getLocalizedNameAttribute() ?? 'N/A';
                         $notesContent = str_replace(["\r\n", "\r", "\n"], ' ', $item->notes ?? '');
                         $notes = $notesContent ? " - Notes: {$notesContent}" : '';

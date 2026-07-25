@@ -26,7 +26,7 @@ class PurchaseRequestItem extends Model
     ];
 
     protected $casts = [
-        'estimated_unit_cost' => 'decimal:2',
-        'estimated_line_total' => 'decimal:2',
+        'quantity' => 'decimal:5',
+        'estimated_cost' => 'decimal:5',
     ];
 }

@@ -71,7 +71,7 @@ trait Form
             ->numeric()
             ->live()
             ->prefix('💰')
-            ->hint(fn (Get $get) => delimiter($get('commitment_balance')))
+            ->hint(fn (Get $get) => preciseNumber($get('commitment_balance')))
             ->validationAttribute(__('resources/custom/strings.form.commitment_balance'))
             ->validationMessages([
                 'numeric' => __('resources/custom/strings.form.validation_numeric'),

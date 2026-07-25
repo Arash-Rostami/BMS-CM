@@ -70,9 +70,9 @@ class Payment extends Model
     protected $casts = [
         'payment_date' => 'date',
         'payment_deadline' => 'date',
-        'payable_amount' => 'decimal:2',
-        'total_amount' => 'decimal:2',
+        'payable_amount' => 'decimal:5',
+        'total_amount' => 'decimal:5',
         'exchange_rate' => 'decimal:5',
-        'bank_charges' => 'decimal:2',
+        'bank_charges' => 'decimal:5',
     ];
 }

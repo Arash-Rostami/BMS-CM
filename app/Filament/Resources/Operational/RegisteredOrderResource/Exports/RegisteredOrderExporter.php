@@ -48,15 +48,15 @@ class RegisteredOrderExporter extends Exporter
                 ->state(function (RegisteredOrder $record): string {
                     return $record->items->map(function ($item) {
                         $product = $item->product?->getLocalizedNameAttribute() ?? 'N/A';
-                        $quantity = $item->quantity ?? 0;
+                        $quantity = is_numeric($item->quantity) ? preciseNumber($item->quantity) : ($item->quantity ?? 0);
                         $unit = $item->unit ?? '';
-                        $unitPrice = is_numeric($item->unit_price) ? number_format($item->unit_price, 2) : '0.00';
-                        $netWeight = $item->net_weight ?? '';
-                        $grossWeight = $item->gross_weight ?? '';
-                        $entrance = is_numeric($item->entrance_fee) ? number_format($item->entrance_fee, 2) : '0.00';
-                        $shipping = is_numeric($item->shipping_cost) ? number_format($item->shipping_cost, 2) : '0.00';
-                        $extra = is_numeric($item->extra_cost) ? number_format($item->extra_cost, 2) : '0.00';
-                        $line = is_numeric($item->line_total) ? number_format($item->line_total, 2) : '0.00';
+                        $unitPrice = is_numeric($item->unit_price) ? preciseNumber($item->unit_price) : '0';
+                        $netWeight = is_numeric($item->net_weight) ? preciseNumber($item->net_weight) : ($item->net_weight ?? '');
+                        $grossWeight = is_numeric($item->gross_weight) ? preciseNumber($item->gross_weight) : ($item->gross_weight ?? '');
+                        $entrance = is_numeric($item->entrance_fee) ? preciseNumber($item->entrance_fee) : '0';
+                        $shipping = is_numeric($item->shipping_cost) ? preciseNumber($item->shipping_cost) : '0';
+                        $extra = is_numeric($item->extra_cost) ? preciseNumber($item->extra_cost) : '0';
+                        $line = is_numeric($item->line_total) ? preciseNumber($item->line_total) : '0';
                         $packing = $item->packing_details ? str_replace(["\r\n", "\n"], ' ', $item->packing_details) : '';
                         $desc = $item->description ? str_replace(["\r\n", "\n"], ' ', $item->description) : '';
 

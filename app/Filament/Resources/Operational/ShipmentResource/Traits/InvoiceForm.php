@@ -95,10 +95,10 @@ trait InvoiceForm
                                         $discount = (float) ($pi->discount ?? 0);
                                         $freight = (float) ($pi->freight_charges ?? 0);
                                         $other = (float) ($pi->other_charges ?? 0);
-                                        $set('_inv_subtotal', round($subtotal, 2));
-                                        $set('_inv_grand_total', round($subtotal - $discount + $freight + $other, 2));
-                                        $set('_inv_total_net_weight', round($pi->items->sum(fn ($i) => (float) ($i->net_weight ?? 0)), 2));
-                                        $set('_inv_total_gross_weight', round($pi->items->sum(fn ($i) => (float) ($i->gross_weight ?? 0)), 2));
+                                        $set('_inv_subtotal', round($subtotal, 5));
+                                        $set('_inv_grand_total', round($subtotal - $discount + $freight + $other, 5));
+                                        $set('_inv_total_net_weight', round($pi->items->sum(fn ($i) => (float) ($i->net_weight ?? 0)), 5));
+                                        $set('_inv_total_gross_weight', round($pi->items->sum(fn ($i) => (float) ($i->gross_weight ?? 0)), 5));
                                     }),
                             ]),
 
@@ -171,7 +171,7 @@ trait InvoiceForm
                                             ->validationAttribute(__('resources/shipment/strings.invoice.item_qty'))
                                             ->live(onBlur: true)
                                             ->afterStateUpdated(function (Get $get, Set $set) {
-                                                $set('total_amount', round((float) ($get('quantity') ?? 0) * (float) ($get('unit_price') ?? 0), 2));
+                                                $set('total_amount', round((float) ($get('quantity') ?? 0) * (float) ($get('unit_price') ?? 0), 5));
                                             })
                                             ->columnSpan(2),
                                         TextInput::make('unit')
@@ -186,7 +186,7 @@ trait InvoiceForm
                                             ->validationAttribute(__('resources/shipment/strings.invoice.item_unit_price'))
                                             ->live(onBlur: true)
                                             ->afterStateUpdated(function (Get $get, Set $set) {
-                                                $set('total_amount', round((float) ($get('quantity') ?? 0) * (float) ($get('unit_price') ?? 0), 2));
+                                                $set('total_amount', round((float) ($get('quantity') ?? 0) * (float) ($get('unit_price') ?? 0), 5));
                                             })
                                             ->columnSpan(2),
                                         TextInput::make('total_amount')
@@ -284,7 +284,7 @@ trait InvoiceForm
                                     ->validationAttribute(__('resources/shipment/strings.invoice.subtotal'))
                                     ->readOnly()
                                     ->dehydrated(false)
-                                    ->hint(fn (Get $get) => delimiter($get('_inv_subtotal'))),
+                                    ->hint(fn (Get $get) => preciseNumber($get('_inv_subtotal'))),
                                 TextInput::make('_inv_discount')
                                     ->label(__('resources/shipment/strings.invoice.discount'))
                                     ->numeric()
@@ -294,7 +294,7 @@ trait InvoiceForm
                                     ->validationAttribute(__('resources/shipment/strings.invoice.discount'))
                                     ->dehydrated(false)
                                     ->default(0)
-                                    ->hint(fn (Get $get) => delimiter($get('_inv_discount'))),
+                                    ->hint(fn (Get $get) => preciseNumber($get('_inv_discount'))),
                                 TextInput::make('_inv_freight_charges')
                                     ->label(__('resources/shipment/strings.invoice.freight_charges'))
                                     ->numeric()
@@ -304,7 +304,7 @@ trait InvoiceForm
                                     ->validationAttribute(__('resources/shipment/strings.invoice.freight_charges'))
                                     ->dehydrated(false)
                                     ->default(0)
-                                    ->hint(fn (Get $get) => delimiter($get('_inv_freight_charges'))),
+                                    ->hint(fn (Get $get) => preciseNumber($get('_inv_freight_charges'))),
                                 TextInput::make('_inv_other_charges')
                                     ->label(__('resources/shipment/strings.invoice.other_charges'))
                                     ->numeric()
@@ -314,7 +314,7 @@ trait InvoiceForm
                                     ->validationAttribute(__('resources/shipment/strings.invoice.other_charges'))
                                     ->dehydrated(false)
                                     ->default(0)
-                                    ->hint(fn (Get $get) => delimiter($get('_inv_other_charges'))),
+                                    ->hint(fn (Get $get) => preciseNumber($get('_inv_other_charges'))),
                                 TextInput::make('_inv_grand_total')
                                     ->label(__('resources/shipment/strings.invoice.grand_total'))
                                     ->numeric()
@@ -324,7 +324,7 @@ trait InvoiceForm
                                     ->validationAttribute(__('resources/shipment/strings.invoice.grand_total'))
                                     ->readOnly()
                                     ->dehydrated(false)
-                                    ->hint(fn (Get $get) => delimiter($get('_inv_grand_total'))),
+                                    ->hint(fn (Get $get) => preciseNumber($get('_inv_grand_total'))),
                                 TextInput::make('_inv_total_net_weight')
                                     ->label(__('resources/shipment/strings.invoice.total_net_weight'))
                                     ->numeric()
@@ -440,11 +440,11 @@ trait InvoiceForm
             'etd' => $get('_inv_etd'),
             'eta' => $get('_inv_eta'),
             'items' => $items,
-            'subtotal' => round($subtotal, 2),
+            'subtotal' => round($subtotal, 5),
             'discount' => $discount,
             'freight_charges' => $freight,
             'other_charges' => $other,
-            'grand_total' => round($subtotal - $discount + $freight + $other, 2),
+            'grand_total' => round($subtotal - $discount + $freight + $other, 5),
             'total_net_weight' => (float) ($get('_inv_total_net_weight') ?? 0),
             'total_gross_weight' => (float) ($get('_inv_total_gross_weight') ?? 0),
             'notes' => $get('_inv_notes'),

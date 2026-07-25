@@ -58,9 +58,9 @@ class ProformaInvoice extends Model
         'validity_date' => 'date',
         'allow_trans_shipment' => 'boolean',
         'allow_partial_shipment' => 'boolean',
-        'discount' => 'decimal:2',
-        'freight_charges' => 'decimal:2',
-        'other_charges' => 'decimal:2',
-        'total_cfr_amount' => 'decimal:2',
+        'discount' => 'decimal:5',
+        'freight_charges' => 'decimal:5',
+        'other_charges' => 'decimal:5',
+        'total_amount' => 'decimal:5',
     ];
 }

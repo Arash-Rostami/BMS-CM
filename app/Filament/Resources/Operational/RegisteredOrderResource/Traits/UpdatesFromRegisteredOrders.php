@@ -40,7 +40,7 @@ trait UpdatesFromRegisteredOrders
                 + ($item->entrance_fee ?? 0)
                 + ($item->shipping_cost ?? 0)
                 + ($item->extra_cost ?? 0),
-                2,
+                5,
                 '.',
                 ''
             ),
@@ -51,7 +51,7 @@ trait UpdatesFromRegisteredOrders
                 + ($item->entrance_fee ?? 0)
                 + ($item->shipping_cost ?? 0)
                 + ($item->extra_cost ?? 0),
-                2,
+                5,
                 '.',
                 ''
             ),

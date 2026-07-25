@@ -61,7 +61,7 @@ trait Form
                     ->hiddenLabel()
                     ->tooltip(__('resources/payment/strings.form.tooltips.bank_charges'))
             )
-            ->hint(fn (Get $get) => is_numeric($get('bank_charges')) ? delimiter($get('bank_charges')) : $get('bank_charges'))
+            ->hint(fn (Get $get) => is_numeric($get('bank_charges')) ? preciseNumber($get('bank_charges')) : $get('bank_charges'))
             ->validationAttribute(__('resources/payment/strings.form.bank_charges'));
     }
 
@@ -134,7 +134,7 @@ trait Form
                     ->hiddenLabel()
                     ->tooltip(__('resources/payment/strings.form.tooltips.exchange_rate'))
             )
-            ->hint(fn (Get $get) => is_numeric($get('exchange_rate')) ? delimiter($get('exchange_rate')) : $get('exchange_rate'))
+            ->hint(fn (Get $get) => is_numeric($get('exchange_rate')) ? preciseNumber($get('exchange_rate')) : $get('exchange_rate'))
             ->validationAttribute(__('resources/payment/strings.form.exchange_rate'));
     }
 
@@ -164,7 +164,7 @@ trait Form
         return TextInput::make('payable_amount')
             ->label(__('resources/payment/strings.form.payable_amount'))
             ->numeric()
-            ->hint(fn (Get $get) => is_numeric($get('payable_amount')) ? delimiter($get('payable_amount')) : $get('payable_amount'))
+            ->hint(fn (Get $get) => is_numeric($get('payable_amount')) ? preciseNumber($get('payable_amount')) : $get('payable_amount'))
             ->hintAction(
                 Action::make('help')
                     ->icon('heroicon-o-question-mark-circle')
@@ -291,18 +291,18 @@ trait Form
         return [
             TextEntry::make('calculated_total_display')
                 ->label(__('resources/payment/strings.form.summary_calculated_total'))
-                ->state(fn (Get $get) => '💰 '.delimiter(static::computeCalculatedTotal($get))),
+                ->state(fn (Get $get) => '💰 '.preciseNumber(static::computeCalculatedTotal($get))),
 
             TextEntry::make('total_display')
                 ->label(__('resources/payment/strings.form.total_amount_entered'))
-                ->state(fn (Get $get) => is_numeric($get('total_amount')) ? '📝 '.delimiter((float) $get('total_amount')) : '-'),
+                ->state(fn (Get $get) => is_numeric($get('total_amount')) ? '📝 '.preciseNumber((float) $get('total_amount')) : '-'),
 
             TextEntry::make('total_ratio_display')
                 ->label(__('resources/payment/strings.form.summary_total_ratio'))
                 ->state(function (Get $get) {
                     $ratio = static::computeTotalRatio(static::computeCalculatedTotal($get), static::computeTotal($get));
 
-                    return $ratio !== null ? delimiter($ratio * 100).'%' : '-';
+                    return $ratio !== null ? preciseNumber($ratio * 100).'%' : '-';
                 }),
         ];
     }
@@ -361,7 +361,7 @@ trait Form
                     ->hiddenLabel()
                     ->tooltip(__('resources/payment/strings.form.tooltips.total_amount'))
             )
-            ->hint(fn (Get $get) => is_numeric($get('total_amount')) ? delimiter($get('total_amount')) : $get('total_amount'))
+            ->hint(fn (Get $get) => is_numeric($get('total_amount')) ? preciseNumber($get('total_amount')) : $get('total_amount'))
             ->validationAttribute(__('resources/payment/strings.form.total_amount'));
     }
 }

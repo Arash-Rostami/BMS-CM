@@ -29,9 +29,11 @@ class ProformaInvoiceItem extends Model
     ];
 
     protected $casts = [
-        'unit_net_weight' => 'decimal:3',
-        'unit_gross_weight' => 'decimal:3',
-        'unit_price' => 'decimal:2',
-        'total_fob_amount' => 'decimal:2',
+        'quantity' => 'decimal:5',
+        'net_weight' => 'decimal:5',
+        'gross_weight' => 'decimal:5',
+        'unit_price' => 'decimal:5',
+        'freight_charges' => 'decimal:5',
+        'total_amount' => 'decimal:5',
     ];
 }

@@ -22,9 +22,9 @@ class PurchaseOrderItem extends Model
     ];
 
     protected $casts = [
-        'quantity' => 'integer',
-        'unit_price' => 'decimal:2',
-        'net_weight' => 'decimal:2',
-        'gross_weight' => 'decimal:2',
+        'quantity' => 'decimal:5',
+        'unit_price' => 'decimal:5',
+        'net_weight' => 'decimal:5',
+        'gross_weight' => 'decimal:5',
     ];
 }

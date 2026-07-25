@@ -374,7 +374,7 @@ trait Form
             ->label(__('resources/registeredOrder/strings.form.total_amount'))
             ->columnSpan(1)
             ->live()
-            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_amount')) ? '💰 '.number_format($get('total_amount'), 2) : $get('total_amount'));
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_amount')) ? '💰 '.preciseNumber($get('total_amount')) : $get('total_amount'));
     }
 
     public static function getTotalQuantityField(): TextEntry
@@ -383,7 +383,7 @@ trait Form
             ->label(__('resources/registeredOrder/strings.form.total_quantity'))
             ->columnSpan(1)
             ->live()
-            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_quantity')) ? '📦 '.number_format($get('total_quantity'), 2) : $get('total_quantity'));
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_quantity')) ? '📦 '.preciseNumber($get('total_quantity')) : $get('total_quantity'));
     }
 
     public static function getValidityDateField()
@@ -458,7 +458,7 @@ trait Form
             ->columnSpan(4)
             ->live()
             ->dehydrateStateUsing(fn ($state) => is_numeric($state) ? $state : (float) preg_replace('/[^0-9.]/', '', $state))
-            ->formatStateUsing(fn (Get $get) => is_numeric($get('line_total')) ? '💰 '.number_format($get('line_total'), 2) : $get('line_total'));
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('line_total')) ? '💰 '.preciseNumber($get('line_total')) : $get('line_total'));
     }
 
     protected static function getItemNetWeightField(): TextInput

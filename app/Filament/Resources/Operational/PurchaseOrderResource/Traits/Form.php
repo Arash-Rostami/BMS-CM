@@ -420,7 +420,7 @@ trait Form
         return TextEntry::make('total_amount')
             ->label(__('resources/purchaseOrder/strings.form.total_amount'))
             ->columnSpan(2)
-            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_amount')) ? '💰 '.number_format($get('total_amount'), 2) : $get('total_amount'));
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_amount')) ? '💰 '.preciseNumber($get('total_amount')) : $get('total_amount'));
     }
 
     public static function getTotalQuantityField(): TextEntry
@@ -428,7 +428,7 @@ trait Form
         return TextEntry::make('total_quantity')
             ->label(__('resources/purchaseOrder/strings.form.total_quantity'))
             ->columnSpan(2)
-            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_quantity')) ? '📦 '.number_format($get('total_quantity'), 2) : $get('total_quantity'));
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_quantity')) ? '📦 '.preciseNumber($get('total_quantity')) : $get('total_quantity'));
     }
 
     public static function getValidityDateField(): DatePicker

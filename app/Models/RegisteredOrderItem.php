@@ -30,13 +30,13 @@ class RegisteredOrderItem extends Model
     ];
 
     protected $casts = [
-        'quantity' => 'decimal:2',
-        'unit_price' => 'decimal:2',
-        'net_weight' => 'decimal:2',
-        'gross_weight' => 'decimal:2',
-        'entrance_fee' => 'decimal:2',
-        'shipping_cost' => 'decimal:2',
-        'extra_cost' => 'decimal:2',
-        'line_total' => 'decimal:2',
+        'quantity' => 'decimal:5',
+        'unit_price' => 'decimal:5',
+        'net_weight' => 'decimal:5',
+        'gross_weight' => 'decimal:5',
+        'entrance_fee' => 'decimal:5',
+        'shipping_cost' => 'decimal:5',
+        'extra_cost' => 'decimal:5',
+        'line_total' => 'decimal:5',
     ];
 }

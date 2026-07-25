@@ -112,7 +112,7 @@ trait Form
                 'min' => __('resources/shipment/strings.form.validation.min_numeric_zero'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.customs_quantity'))
-            ->hint(fn ($get) => delimiter($get('customs_quantity')));
+            ->hint(fn ($get) => preciseNumber($get('customs_quantity')));
     }
 
     public static function getDocStatusField(): Select
@@ -310,7 +310,7 @@ trait Form
             ->dehydrated()
             ->prefix('💰')
             ->helperText(__('resources/shipment/strings.form.helper_remittance_amount'))
-            ->hint(fn ($get) => delimiter($get('remittance_amount')));
+            ->hint(fn ($get) => preciseNumber($get('remittance_amount')));
     }
 
     public static function getShipmentNoField(): TextInput
@@ -353,7 +353,7 @@ trait Form
                 'min' => __('resources/shipment/strings.form.validation.min_numeric_zero'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.shipped_quantity'))
-            ->hint(fn ($get) => delimiter($get('shipped_quantity')));
+            ->hint(fn ($get) => preciseNumber($get('shipped_quantity')));
     }
 
     public static function getSmartTracerField(): Toggle

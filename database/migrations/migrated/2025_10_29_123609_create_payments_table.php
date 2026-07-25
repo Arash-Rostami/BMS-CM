@@ -21,10 +21,10 @@ return new class extends Migration
 
             $table->morphs('targetable');
 
-            $table->decimal('payable_amount', 15, 2)->default(0);
-            $table->decimal('total_amount', 15, 2)->nullable()->default(0);
+            $table->decimal('payable_amount', 15, 5)->default(0);
+            $table->decimal('total_amount', 15, 5)->nullable()->default(0);
             $table->decimal('exchange_rate', 15, 5)->nullable()->default(0);
-            $table->decimal('bank_charges', 15, 2)->nullable()->default(0);
+            $table->decimal('bank_charges', 15, 5)->nullable()->default(0);
             $table->string('beneficiary_name')->nullable();
             $table->text('beneficiary_address')->nullable();
             $table->foreignId('bank_id')->nullable()->constrained('banks')->nullOnDelete();

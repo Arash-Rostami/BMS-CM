@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained('departments');
             $table->unsignedBigInteger('cost_center_id')->nullable();
             $table->date('required_by_date')->nullable()->comment('Date by which items are needed');
-            $table->decimal('total_estimated_cost', 15, 2)->default(0);
+            $table->decimal('total_estimated_cost', 15, 5)->default(0);
             $table->string('urgency_level')->default('low')->comment('Urgency: low, medium, high');
             $table->foreignId('status_id')->nullable()->constrained('statuses');
             $table->foreignId('approver_id')->nullable()->constrained('users');

@@ -74,7 +74,7 @@ trait Infolist
     {
         return TextEntry::make('commission_amount_purchased')
             ->label(__('resources/bankProfile/strings.form.summary_commission_amount'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -83,7 +83,7 @@ trait Infolist
     {
         return TextEntry::make('commission_equivalent')
             ->label(__('resources/bankProfile/strings.form.summary_commission_equivalent'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -92,7 +92,7 @@ trait Infolist
     {
         return TextEntry::make('commission_rate')
             ->label(__('resources/bankProfile/strings.form.commission_rate'))
-            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 2).'%' : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state).'%' : '-')
             ->icon('heroicon-m-percent-badge')
             ->placeholder('-');
     }
@@ -110,7 +110,7 @@ trait Infolist
     {
         return TextEntry::make('conversion_rate')
             ->label(__('resources/bankProfile/strings.form.conversion_rate'))
-            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 5) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->icon('heroicon-m-calculator')
             ->placeholder('-');
     }
@@ -163,7 +163,7 @@ trait Infolist
     {
         return TextEntry::make('documents_amount')
             ->label(__('resources/bankProfile/strings.form.documents_amount'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -172,7 +172,7 @@ trait Infolist
     {
         return TextEntry::make('eur_equivalent_rate')
             ->label(__('resources/bankProfile/strings.form.eur_equivalent_rate'))
-            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 5) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->icon('heroicon-m-calculator')
             ->placeholder('-');
     }
@@ -181,7 +181,7 @@ trait Infolist
     {
         return TextEntry::make('exchange_rate')
             ->label(__('resources/bankProfile/strings.form.exchange_rate'))
-            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 5) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->icon('heroicon-m-calculator')
             ->placeholder('-');
     }
@@ -190,7 +190,7 @@ trait Infolist
     {
         return TextEntry::make('final_equivalent')
             ->label(__('resources/bankProfile/strings.form.summary_final_equivalent'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -209,7 +209,7 @@ trait Infolist
     {
         return TextEntry::make('final_rate')
             ->label(__('resources/bankProfile/strings.form.final_rate'))
-            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 5) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->icon('heroicon-m-calculator')
             ->placeholder('-');
     }
@@ -255,7 +255,7 @@ trait Infolist
     {
         return TextEntry::make('purchased_equivalent')
             ->label(__('resources/bankProfile/strings.form.purchased_equivalent'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -276,7 +276,7 @@ trait Infolist
     {
         return TextEntry::make('remaining_commitment')
             ->label(__('resources/bankProfile/strings.form.summary_remaining'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -285,7 +285,7 @@ trait Infolist
     {
         return TextEntry::make('requested_amount')
             ->label(__('resources/bankProfile/strings.form.requested_amount'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -350,7 +350,7 @@ trait Infolist
     {
         return TextEntry::make('total_purchased_remittance')
             ->label(__('resources/bankProfile/strings.form.summary_total_purchased'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -359,7 +359,7 @@ trait Infolist
     {
         return TextEntry::make('total_requested_remittance')
             ->label(__('resources/bankProfile/strings.form.summary_total_requested'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -368,7 +368,7 @@ trait Infolist
     {
         return TextEntry::make('total_rial_remittance')
             ->label(__('resources/bankProfile/strings.form.summary_total_rial'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }

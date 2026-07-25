@@ -25,7 +25,7 @@ trait TotalCalculation
             return $carry + (($quantity * $unitPrice) + $shipping + $extra);
         }, 0.0);
 
-        $set('total_quantity', number_format($totalQuantity, 2, '.', ''));
-        $set('total_amount', number_format($totalAmount, 2, '.', ''));
+        $set('total_quantity', number_format($totalQuantity, 5, '.', ''));
+        $set('total_amount', number_format($totalAmount, 5, '.', ''));
     }
 }

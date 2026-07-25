@@ -113,7 +113,7 @@ trait Infolist
     {
         return TextEntry::make('customs_quantity')
             ->label(__('resources/shipment/strings.form.customs_quantity'))
-            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->icon('heroicon-m-scale')
             ->placeholder('-');
     }
@@ -222,7 +222,7 @@ trait Infolist
     {
         return TextEntry::make('remittance_amount')
             ->label(__('resources/shipment/strings.form.remittance_amount'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->color('success')
             ->placeholder('-');
     }
@@ -241,7 +241,7 @@ trait Infolist
     {
         return TextEntry::make('shipped_quantity')
             ->label(__('resources/shipment/strings.form.shipped_quantity'))
-            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->icon('heroicon-m-cube')
             ->placeholder('-');
     }

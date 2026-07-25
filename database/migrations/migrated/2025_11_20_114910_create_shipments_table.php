@@ -15,9 +15,9 @@ return new class extends Migration
             $table->string('part')->nullable();
             $table->string('contract_no')->nullable();
 
-            $table->decimal('remittance_amount', 15, 2)->nullable();
-            $table->decimal('customs_quantity', 15, 2)->nullable();
-            $table->decimal('shipped_quantity', 15, 2)->nullable();
+            $table->decimal('remittance_amount', 15, 5)->nullable();
+            $table->decimal('customs_quantity', 15, 5)->nullable();
+            $table->decimal('shipped_quantity', 15, 5)->nullable();
 
             $table->string('bl_number')->nullable();
             $table->string('booking_no')->nullable();

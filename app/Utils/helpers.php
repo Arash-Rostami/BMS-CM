@@ -69,6 +69,28 @@ if (! function_exists('delimiter')) {
         return $currency.' '.$formatted;
     }
 }
+if (! function_exists('preciseNumber')) {
+
+    function preciseNumber($value, ?string $currency = null, int $maxDecimals = 5): string
+    {
+        if ($value === null || $value === '') {
+            return '-';
+        }
+        $formatted = number_format((float) $value, $maxDecimals, '.', ',');
+        $formatted = rtrim(rtrim($formatted, '0'), '.');
+
+        if (! $currency) {
+            return $formatted;
+        }
+        $currency = (string) $currency;
+
+        if (preg_match('/^[A-Za-z]{1,4}$/', $currency)) {
+            return $formatted.' '.strtoupper($currency);
+        }
+
+        return $currency.' '.$formatted;
+    }
+}
 if (! function_exists('maybeJalali')) {
     function maybeJalali($component)
     {

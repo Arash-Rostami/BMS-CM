@@ -21,7 +21,7 @@ trait TotalCalculation
             return $quantity * $price;
         });
 
-        $set('total_quantity', $totalQuantity);
-        $set('total_amount', $totalAmount);
+        $set('total_quantity', number_format($totalQuantity, 5, '.', ''));
+        $set('total_amount', number_format($totalAmount, 5, '.', ''));
     }
 }

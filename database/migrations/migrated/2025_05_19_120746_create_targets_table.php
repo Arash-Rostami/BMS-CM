@@ -15,10 +15,10 @@ return new class extends Migration
             $table->integer('year');
             $table->date('start_from');
             $table->date('end_in');
-            $table->decimal('quantity', 10, 2)->nullable();
-            $table->decimal('amount', 10, 2)->nullable();
-            $table->decimal('achieved_quantity', 10, 2)->nullable();
-            $table->decimal('achieved_amount', 10, 2)->nullable();
+            $table->decimal('quantity', 15, 5)->nullable();
+            $table->decimal('amount', 15, 5)->nullable();
+            $table->decimal('achieved_quantity', 15, 5)->nullable();
+            $table->decimal('achieved_amount', 15, 5)->nullable();
             $table->string('metrics')->nullable();
             $table->text('description')->nullable();
             $table->json('tags')->nullable();

@@ -108,7 +108,7 @@ trait Form
         return TextInput::make('discount')
             ->label(__('resources/proformaInvoice/strings.form.discount'))
             ->numeric()
-            ->hint(fn (Get $get) => delimiter($get('discount')))
+            ->hint(fn (Get $get) => preciseNumber($get('discount')))
             ->live(onBlur: true)
             ->prefix('💰')
             ->minValue(0)
@@ -192,7 +192,7 @@ trait Form
         return TextInput::make('freight_charges')
             ->label(__('resources/proformaInvoice/strings.form.item_freight_charges'))
             ->numeric()
-            ->hint(fn (Get $get) => delimiter($get('freight_charges')))
+            ->hint(fn (Get $get) => preciseNumber($get('freight_charges')))
             ->minValue(0)
             ->default(0)
             ->live(onBlur: true)
@@ -211,7 +211,7 @@ trait Form
         return TextInput::make('gross_weight')
             ->label(__('resources/proformaInvoice/strings.form.gross_weight'))
             ->numeric()
-            ->hint(fn (Get $get) => delimiter($get('gross_weight')))
+            ->hint(fn (Get $get) => preciseNumber($get('gross_weight')))
             ->minValue(0)
             ->prefix('⏲️')
             ->rules(['nullable', 'numeric', 'min:0'])
@@ -241,7 +241,7 @@ trait Form
         return TextInput::make('net_weight')
             ->label(__('resources/proformaInvoice/strings.form.net_weight'))
             ->numeric()
-            ->hint(fn (Get $get) => delimiter($get('net_weight')))
+            ->hint(fn (Get $get) => preciseNumber($get('net_weight')))
             ->minValue(0)
             ->prefix('⏲️')
             ->rules(['nullable', 'numeric', 'min:0'])
@@ -305,7 +305,7 @@ trait Form
             ->live(onBlur: true)
             ->afterStateUpdated(fn (Get $get, Set $set) => static::itemAfterStateUpdated($get, $set))
             ->numeric()
-            ->hint(fn (Get $get) => delimiter($get('quantity')))
+            ->hint(fn (Get $get) => preciseNumber($get('quantity')))
             ->minValue(0.01)
             ->rules(['nullable', 'numeric', 'min:0.01'])
             ->validationMessages([
@@ -323,7 +323,7 @@ trait Form
             ->readOnly()
             ->live()
             ->dehydrateStateUsing(fn ($state) => is_string($state) ? (float) str_replace(['💰', ',', ' '], '', $state) : $state)
-            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_amount')) ? '💰 '.number_format($get('total_amount'), 2) : $get('total_amount'));
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_amount')) ? '💰 '.preciseNumber($get('total_amount')) : $get('total_amount'));
 
     }
 
@@ -348,7 +348,7 @@ trait Form
             ->afterStateUpdated(fn (Get $get, Set $set) => static::itemAfterStateUpdated($get, $set))
             ->prefix('💰')
             ->numeric()
-            ->hint(fn (Get $get) => delimiter($get('unit_price')))
+            ->hint(fn (Get $get) => preciseNumber($get('unit_price')))
             ->minValue(0)
             ->rules(['nullable', 'numeric', 'min:0'])
             ->validationMessages([
@@ -401,7 +401,7 @@ trait Form
         return TextInput::make('other_charges')
             ->label(__('resources/proformaInvoice/strings.form.other_charges'))
             ->numeric()
-            ->hint(fn (Get $get) => delimiter($get('other_charges')))
+            ->hint(fn (Get $get) => preciseNumber($get('other_charges')))
             ->minValue(0)
             ->live(onBlur: true)
             ->prefix('💰')
@@ -563,7 +563,7 @@ trait Form
     {
         return TextEntry::make('total_amount')
             ->label(__('resources/proformaInvoice/strings.form.total_amount'))
-            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_amount')) ? '💰 '.number_format($get('total_amount'), 2) : $get('total_amount'));
+            ->formatStateUsing(fn (Get $get) => is_numeric($get('total_amount')) ? '💰 '.preciseNumber($get('total_amount')) : $get('total_amount'));
     }
 
     public static function getTransportModeField(): Select

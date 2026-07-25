@@ -23,7 +23,7 @@ trait PreparesPurchaseOrderFromProforma
                     'gross_weight' => $item->gross_weight ?? null,
                     'total_amount' => number_format(
                         (($item->quantity ?? 0) * ($item->unit_price ?? 0)) + ($item->entrance_fee ?? 0) + ($item->shipping_cost ?? 0) + ($item->extra_cost ?? 0),
-                        2,
+                        5,
                         '.',
                         ''
                     ),

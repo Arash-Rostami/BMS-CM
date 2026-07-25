@@ -11,7 +11,7 @@ trait Infolist
     {
         return TextEntry::make('achieved_amount')
             ->label(__('resources/target/strings.infolist.achieved_amount'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->icon('heroicon-m-currency-dollar')
             ->color('success')
             ->placeholder('-');
@@ -21,7 +21,7 @@ trait Infolist
     {
         return TextEntry::make('achieved_quantity')
             ->label(__('resources/target/strings.infolist.achieved_quantity'))
-            ->numeric()
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->icon('heroicon-m-chart-pie')
             ->color('success')
             ->placeholder('-');
@@ -31,7 +31,7 @@ trait Infolist
     {
         return TextEntry::make('amount')
             ->label(__('resources/target/strings.infolist.amount'))
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
             ->icon('heroicon-m-currency-dollar')
             ->color('success')
             ->placeholder('-');
@@ -87,7 +87,7 @@ trait Infolist
     {
         return TextEntry::make('quantity')
             ->label(__('resources/target/strings.infolist.quantity'))
-            ->numeric()
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->icon('heroicon-m-cube')
             ->placeholder('-');
     }

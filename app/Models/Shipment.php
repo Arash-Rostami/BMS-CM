@@ -73,9 +73,9 @@ class Shipment extends Model implements HasDocumentChecklist
         'exit_date' => 'date',
         'eta' => 'date',
         'etd' => 'date',
-        'remittance_amount' => 'decimal:2',
-        'customs_quantity' => 'decimal:2',
-        'shipped_quantity' => 'decimal:2',
+        'remittance_amount' => 'decimal:5',
+        'customs_quantity' => 'decimal:5',
+        'shipped_quantity' => 'decimal:5',
         'docs' => 'array',
     ];
 

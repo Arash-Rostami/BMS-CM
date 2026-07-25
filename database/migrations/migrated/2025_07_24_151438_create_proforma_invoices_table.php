@@ -28,10 +28,10 @@ return new class extends Migration
             $table->string('delivery_terms')->nullable();
             $table->foreignId('main_currency_id')->constrained('currencies');
             $table->foreignId('secondary_currency_id')->nullable()->constrained('currencies');
-            $table->decimal('discount', 15, 2)->nullable();
-            $table->decimal('freight_charges', 15, 2)->nullable();
-            $table->decimal('other_charges', 15, 2)->nullable()->comment('Additional miscellaneous charges');
-            $table->decimal('total_amount', 15, 2)->nullable();
+            $table->decimal('discount', 15, 5)->nullable();
+            $table->decimal('freight_charges', 15, 5)->nullable();
+            $table->decimal('other_charges', 15, 5)->nullable()->comment('Additional miscellaneous charges');
+            $table->decimal('total_amount', 15, 5)->nullable();
             $table->text('notes')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('updated_by_id')->nullable();

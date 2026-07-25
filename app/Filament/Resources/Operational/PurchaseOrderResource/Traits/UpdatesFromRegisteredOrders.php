@@ -28,13 +28,13 @@ trait UpdatesFromRegisteredOrders
             'gross_weight' => $item->gross_weight ?? null,
             'total_amount' => number_format(
                 ($item->quantity ?? 0) * ($item->unit_price ?? 0),
-                2,
+                5,
                 '.',
                 ''
             ),
             'line_total' => number_format(
                 ($item->quantity ?? 0) * ($item->unit_price ?? 0),
-                2,
+                5,
                 '.',
                 ''
             ),

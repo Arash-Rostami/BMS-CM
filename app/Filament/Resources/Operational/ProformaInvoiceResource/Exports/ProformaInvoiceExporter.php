@@ -29,10 +29,14 @@ class ProformaInvoiceExporter extends Exporter
             ExportColumn::make('sellerCompany.english_name')->label(__('resources/proformaInvoice/strings.export.seller_english')),
             ExportColumn::make('buyerCompany.name')->label(__('resources/proformaInvoice/strings.export.buyer')),
             ExportColumn::make('buyerCompany.english_name')->label(__('resources/proformaInvoice/strings.export.buyer_english')),
-            ExportColumn::make('discount')->label(__('resources/proformaInvoice/strings.export.discount')),
-            ExportColumn::make('freight_charges')->label(__('resources/proformaInvoice/strings.export.freight_charges')),
-            ExportColumn::make('other_charges')->label(__('resources/proformaInvoice/strings.export.other_charges')),
-            ExportColumn::make('total_amount')->label(__('resources/proformaInvoice/strings.export.total_amount')),
+            ExportColumn::make('discount')->label(__('resources/proformaInvoice/strings.export.discount'))
+                ->formatStateUsing(fn ($state) => preciseNumber($state)),
+            ExportColumn::make('freight_charges')->label(__('resources/proformaInvoice/strings.export.freight_charges'))
+                ->formatStateUsing(fn ($state) => preciseNumber($state)),
+            ExportColumn::make('other_charges')->label(__('resources/proformaInvoice/strings.export.other_charges'))
+                ->formatStateUsing(fn ($state) => preciseNumber($state)),
+            ExportColumn::make('total_amount')->label(__('resources/proformaInvoice/strings.export.total_amount'))
+                ->formatStateUsing(fn ($state) => preciseNumber($state)),
             ExportColumn::make('mainCurrency.name')->label(__('resources/proformaInvoice/strings.export.main_currency')),
             ExportColumn::make('mainCurrency.english_name')->label(__('resources/proformaInvoice/strings.export.main_currency_english')),
             ExportColumn::make('secondaryCurrency.name')->label(__('resources/proformaInvoice/strings.export.secondary_currency')),
@@ -52,9 +56,9 @@ class ProformaInvoiceExporter extends Exporter
                 ->state(function (ProformaInvoice $record): string {
                     return $record->items->map(function ($item) {
                         $product = $item->product?->getLocalizedNameAttribute() ?? 'N/A';
-                        $quantity = $item->quantity;
-                        $price = number_format($item->unit_price, 2);
-                        $total = number_format($item->total_amount, 2);
+                        $quantity = preciseNumber($item->quantity);
+                        $price = preciseNumber($item->unit_price);
+                        $total = preciseNumber($item->total_amount);
                         $hsCode = $item->hs_code ? " (HS: {$item->hs_code})" : '';
 
                         return "- {$product}, Qty: {$quantity}, Price: {$price}, Total: {$total}{$hsCode}";

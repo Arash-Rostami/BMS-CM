@@ -78,6 +78,7 @@ trait Infolist
     {
         return TextEntry::make('gross_weight')
             ->label(__('resources/purchaseOrder/strings.infolist.item_gross_weight'))
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->icon('heroicon-m-scale');
     }
 
@@ -85,6 +86,7 @@ trait Infolist
     {
         return TextEntry::make('net_weight')
             ->label(__('resources/purchaseOrder/strings.infolist.item_net_weight'))
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->icon('heroicon-m-scale');
     }
 
@@ -99,7 +101,8 @@ trait Infolist
     public static function viewItemQuantity(): TextEntry
     {
         return TextEntry::make('quantity')
-            ->label(__('resources/purchaseOrder/strings.infolist.item_quantity'));
+            ->label(__('resources/purchaseOrder/strings.infolist.item_quantity'))
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-');
     }
 
     public static function viewItemUnit(): TextEntry
@@ -115,7 +118,7 @@ trait Infolist
         return TextEntry::make('unit_price')
             ->label(__('resources/purchaseOrder/strings.infolist.item_unit_price'))
             ->color('success')
-            ->formatStateUsing(fn ($state) => $state ? delimiter($state) : '-');
+            ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-');
     }
 
     public static function viewNotes(): TextEntry
@@ -187,7 +190,7 @@ trait Infolist
         return TextEntry::make('total_amount')
             ->label(__('resources/purchaseOrder/strings.infolist.total_amount'))
             ->color('success')
-            ->formatStateUsing(fn ($state) => $state !== null ? delimiter($state) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->placeholder('0.00');
     }
 
@@ -195,7 +198,7 @@ trait Infolist
     {
         return TextEntry::make('total_quantity')
             ->label(__('resources/purchaseOrder/strings.form.total_quantity'))
-            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 0) : '-')
+            ->formatStateUsing(fn ($state) => $state !== null ? preciseNumber($state) : '-')
             ->placeholder('-');
     }
 

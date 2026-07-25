@@ -16,7 +16,7 @@ trait ItemAmountCalculation
         $itemFreight = $quantity * $freightPerUnit;
 
         $set('total_amount', number_format(($quantity * $unitPrice) + $itemFreight,
-            2,
+            5,
             '.',
             ''));
     }

@@ -193,6 +193,10 @@ Verified `PurchaseRequest` declares both. `SCANNABLE_TABLE` is the model's table
 
 Only two General traits define `boot*` methods: `UserStamps` (`bootUserStamps` → creating/updating) and `HasSlug` (`bootHasSlug` → saving). No other trait boots lifecycle hooks, and models do not define `boot()` themselves. Side effects (cascade status, closure-table sync) live in `app/Observers/` and are registered manually in `AppServiceProvider::boot()` — see `filamentPattern.md` §1.26 for the manual-vs-`SCANNABLE_TABLE`-auto split. Keep new behavior in scopes/accessors or observers, not in model `boot`.
 
+## 8b. Numeric precision on price/quantity/rate/weight columns
+
+Any column carrying real calculation precision (price, quantity, amount, rate, weight) is `decimal(15,5)` at the migration layer and `'decimal:5'` in `$casts` — never `decimal(x,2)`/`'decimal:2'`. Full standard (including the "Tables may round for display, nothing else may" rule and the `preciseNumber()` display helper) lives in `app/Utils/helpersPattern.md` §1b — don't duplicate it here.
+
 ## 9. Migration skeleton (operational tables)
 
 Verified `database/migrations/migrated/2025_07_24_150031_create_purchase_requests_table.php`:
@@ -214,7 +218,7 @@ Schema::create('purchase_requests', function (Blueprint $table) {
 Rules for every operational table:
 - `$table->id()` PK → a business identifier (`pr_number`, `po_number`, `bp_number`, `shipment_no`) as `->unique()`.
 - Foreign keys via `foreignId('x_id')->constrained('table')`. An explicit delete policy is the exception, not the rule, on non-pivot tables — the `purchase_requests` example above has none. `->cascadeOnDelete()` is the norm only on **pivot** FKs (§10); on regular operational FKs it's added ad hoc where the domain requires it. Nullable FKs use `->nullable()->constrained()` (status FK is always nullable).
-- Money: `decimal('...', 15, 2)`. Rates/percentages: `decimal('...', 15, 5)` (or `(5,5)`).
+- Money/quantity/weight: `decimal('...', 15, 5)`. Rates/percentages: `decimal('...', 15, 5)` (see §8b — both now share the same 5-decimal precision standard).
 - **`user_id` and `updated_by_id` are `unsignedBigInteger(...)->nullable()` with NO foreign-key constraint** — not `foreignId`. Deliberate: it lets a `User` be deleted without cascading into every stamped record. Reproduce exactly; do not "fix" by adding `->constrained('users')`.
 - `timestamps()` + `softDeletes()` on every operational table.
 - A composite index `['{fk}_id', 'deleted_at']` for every foreign key used in filtered/sorted queries; standalone `->index('{fk}_id')` for FKs not paired with `deleted_at`.

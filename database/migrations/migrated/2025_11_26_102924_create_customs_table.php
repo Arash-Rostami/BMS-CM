@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('declaration_no')->nullable();
             $table->string('clearance_type')->nullable();
 
-            $table->decimal('commitment_balance', 15, 2)->nullable();
+            $table->decimal('commitment_balance', 15, 5)->nullable();
 
             $table->date('clearance_date')->nullable();
             $table->date('doc_submission_date')->nullable();

@@ -92,7 +92,7 @@ trait Infolist
         return TextEntry::make('discount')
             ->label(__('resources/proformaInvoice/strings.form.discount'))
             ->color('success')
-            ->formatStateUsing(fn ($state): string => isset($state) ? delimiter($state) : '');
+            ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : '');
     }
 
     public static function viewFreightCharges(): TextEntry
@@ -100,7 +100,7 @@ trait Infolist
         return TextEntry::make('freight_charges')
             ->label(__('resources/proformaInvoice/strings.form.freight_charges'))
             ->color('success')
-            ->formatStateUsing(fn ($state): string => isset($state) ? delimiter($state) : '');
+            ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : '');
     }
 
     public static function viewInvoiceDate(): TextEntry
@@ -121,7 +121,8 @@ trait Infolist
                     ->formatStateUsing(fn ($record) => $record->product?->getLocalizedNameAttribute())
                     ->columnSpan(2),
                 TextEntry::make('quantity')
-                    ->label(__('resources/proformaInvoice/strings.form.quantity')),
+                    ->label(__('resources/proformaInvoice/strings.form.quantity'))
+                    ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : ''),
                 TextEntry::make('unit')
                     ->label(__('resources/proformaInvoice/strings.form.unit'))
                     ->badge()
@@ -130,19 +131,21 @@ trait Infolist
                 TextEntry::make('unit_price')
                     ->label(__('resources/proformaInvoice/strings.form.unit_price'))
                     ->color('success')
-                    ->formatStateUsing(fn ($state): string => isset($state) ? delimiter($state) : ''),
+                    ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : ''),
                 TextEntry::make('total_amount')
                     ->label(__('resources/proformaInvoice/strings.form.item_total_amount'))
                     ->color('success')
-                    ->formatStateUsing(fn ($state): string => isset($state) ? delimiter($state) : ''),
+                    ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : ''),
                 TextEntry::make('origin')
                     ->label(__('resources/proformaInvoice/strings.form.origin')),
                 TextEntry::make('hs_code')
                     ->label(__('resources/proformaInvoice/strings.form.hs_code')),
                 TextEntry::make('net_weight')
-                    ->label(__('resources/proformaInvoice/strings.form.net_weight')),
+                    ->label(__('resources/proformaInvoice/strings.form.net_weight'))
+                    ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : ''),
                 TextEntry::make('gross_weight')
-                    ->label(__('resources/proformaInvoice/strings.form.gross_weight')),
+                    ->label(__('resources/proformaInvoice/strings.form.gross_weight'))
+                    ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : ''),
                 TextEntry::make('description')
                     ->label(__('resources/proformaInvoice/strings.form.item_description'))
                     ->columnSpanFull()
@@ -182,7 +185,7 @@ trait Infolist
         return TextEntry::make('other_charges')
             ->label(__('resources/proformaInvoice/strings.form.other_charges'))
             ->color('success')
-            ->formatStateUsing(fn ($state): string => isset($state) ? delimiter($state) : '');
+            ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : '');
     }
 
     public static function viewPortOfDischarge(): TextEntry
@@ -236,7 +239,7 @@ trait Infolist
         return TextEntry::make('total_amount')
             ->label(__('resources/proformaInvoice/strings.form.total_amount'))
             ->color('success')
-            ->formatStateUsing(fn ($state): string => isset($state) ? delimiter($state) : '');
+            ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : '');
     }
 
     public static function viewTransportMode(): TextEntry

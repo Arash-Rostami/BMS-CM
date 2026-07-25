@@ -9,6 +9,6 @@ trait TotalCostCalculation
         $total = collect($get('items') ?? [])
             ->sum(fn ($i) => ((float) $i['quantity'] ?? 0) * ((float) $i['estimated_cost'] ?? 0));
 
-        $set('total_estimated_cost', number_format($total, 2, '.', ''));
+        $set('total_estimated_cost', number_format($total, 5, '.', ''));
     }
 }
