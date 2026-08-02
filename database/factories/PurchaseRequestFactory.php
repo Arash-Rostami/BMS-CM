@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Department;
-use App\Models\PurchaseRequest;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;

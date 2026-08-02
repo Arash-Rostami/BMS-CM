@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Correspondence;
 use App\Models\RegisteredOrder;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;

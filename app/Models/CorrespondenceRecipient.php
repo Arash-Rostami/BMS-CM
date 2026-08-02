@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class CorrespondenceRecipient extends Pivot
 {
     use HasFactory;
+
     protected $table = 'correspondence_recipients';
 
     protected $casts = [

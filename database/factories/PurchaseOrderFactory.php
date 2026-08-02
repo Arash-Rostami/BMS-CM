@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Company;
 use App\Models\Currency;
-use App\Models\PurchaseOrder;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;

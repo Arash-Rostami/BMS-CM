@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Department extends Model
 {
-    use HasSearchableRelations,
-        HasFactory,
+    use HasFactory,
+        HasSearchableRelations,
         Localization,
         Relationships;
 

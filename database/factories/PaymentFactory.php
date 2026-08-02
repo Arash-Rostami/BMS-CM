@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\Bank;
 use App\Models\Company;
 use App\Models\Currency;
-use App\Models\Payment;
 use App\Models\RegisteredOrder;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;
