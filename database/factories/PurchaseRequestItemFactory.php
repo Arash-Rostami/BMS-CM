@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Product;
 use App\Models\PurchaseRequest;
-use App\Models\PurchaseRequestItem;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

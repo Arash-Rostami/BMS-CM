@@ -20,6 +20,7 @@ use App\Observers\AttachmentObserver;
 use App\Observers\CategoryObserver;
 use App\Observers\CodeGeneratingObserver;
 use App\Observers\PurchaseRequestObserver;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -37,6 +38,13 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Gate::guessPolicyNamesUsing(function (string $modelClass) {
+            if (str_starts_with($modelClass, 'App\Models\\')) {
+                return 'App\Policies\FilamentResourcePolicy';
+            }
+
+            return null;
+        });
         $this->configureFilament();
         $this->registerObservers();
     }

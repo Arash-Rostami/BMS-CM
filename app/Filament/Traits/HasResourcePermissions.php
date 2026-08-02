@@ -61,11 +61,11 @@ trait HasResourcePermissions
 
     public static function canRestore($record): bool
     {
-        return static::allows('edit');
+        return static::allows('restore');
     }
 
     public static function canRestoreAny(): bool
     {
-        return static::allows('edit');
+        return static::allows('restore');
     }
 }

@@ -56,8 +56,8 @@ class AnalyticsService
             }
 
             return [
-                'supplier_hhi' => (float)($result->supplier_hhi ?? 0),
-                'currency_hhi' => (float)($result->currency_hhi ?? 0),
+                'supplier_hhi' => (float) ($result->supplier_hhi ?? 0),
+                'currency_hhi' => (float) ($result->currency_hhi ?? 0),
             ];
         });
     }
@@ -134,9 +134,9 @@ class AnalyticsService
                 foreach ($stages as $stage) {
                     if (isset($byStage[$stage])) {
                         $result[$stage] = [
-                            'count' => (int)$byStage[$stage]->count,
-                            'p50' => $byStage[$stage]->p50 !== null ? (int)$byStage[$stage]->p50 : null,
-                            'p90' => $byStage[$stage]->p90 !== null ? (int)$byStage[$stage]->p90 : null,
+                            'count' => (int) $byStage[$stage]->count,
+                            'p50' => $byStage[$stage]->p50 !== null ? (int) $byStage[$stage]->p50 : null,
+                            'p90' => $byStage[$stage]->p90 !== null ? (int) $byStage[$stage]->p90 : null,
                         ];
                     } else {
                         $result[$stage] = ['count' => 0, 'p50' => null, 'p90' => null];
@@ -195,7 +195,7 @@ class AnalyticsService
             ];
 
             foreach ($rows as $row) {
-                $stages[$row->stage][] = (int)$row->duration;
+                $stages[$row->stage][] = (int) $row->duration;
             }
 
             foreach ($stages as &$durations) {
@@ -203,7 +203,7 @@ class AnalyticsService
             }
             unset($durations);
 
-            return array_map(fn(array $durations) => [
+            return array_map(fn (array $durations) => [
                 'count' => count($durations),
                 'p50' => static::percentile($durations, 0.5),
                 'p90' => static::percentile($durations, 0.9),
@@ -213,7 +213,7 @@ class AnalyticsService
 
     public static function exposureAging(): array
     {
-        return Cache::remember('analytics:exposure_aging', static::TTL, fn() => DB::table(function ($query) {
+        return Cache::remember('analytics:exposure_aging', static::TTL, fn () => DB::table(function ($query) {
             $query->from('payments')
                 ->select('currency_id')
                 ->selectRaw('sum(case when payment_deadline >= curdate() - interval 30 day then payable_amount else 0 end) as bucket_0_30')
@@ -226,7 +226,7 @@ class AnalyticsService
                 ->where('payment_deadline', '<', DB::raw('curdate()'))
                 ->groupBy('currency_id');
         }, 'p')
-            ->join('currencies as c', fn($j) => $j->on('c.id', '=', 'p.currency_id')->whereNull('c.deleted_at'))
+            ->join('currencies as c', fn ($j) => $j->on('c.id', '=', 'p.currency_id')->whereNull('c.deleted_at'))
             ->select('c.id', 'c.name', 'c.english_name', 'p.bucket_0_30', 'p.bucket_31_60', 'p.bucket_61_90', 'p.bucket_90_plus')
             ->get()
             ->toArray());
@@ -234,7 +234,7 @@ class AnalyticsService
 
     public static function openCurrencyExposure(): array
     {
-        return Cache::remember('analytics:open_exposure', static::TTL, fn() => DB::table(function ($query) {
+        return Cache::remember('analytics:open_exposure', static::TTL, fn () => DB::table(function ($query) {
             $items = DB::table('registered_order_items')
                 ->select('registered_order_id', DB::raw('sum(line_total) as total'))
                 ->whereNull('deleted_at')
@@ -255,7 +255,7 @@ class AnalyticsService
                 ->selectRaw('sum(greatest(coalesce(items.total, 0) - coalesce(paid.total, 0), 0)) as open_exposure')
                 ->havingRaw('open_exposure > 0');
         }, 'e')
-            ->join('currencies as c', fn($j) => $j->on('c.id', '=', 'e.currency_id')->whereNull('c.deleted_at'))
+            ->join('currencies as c', fn ($j) => $j->on('c.id', '=', 'e.currency_id')->whereNull('c.deleted_at'))
             ->select('c.id', 'c.name', 'c.english_name', 'e.open_exposure')
             ->get()
             ->toArray());
@@ -277,7 +277,7 @@ class AnalyticsService
                 ->whereNull('ro.deleted_at')
                 ->whereNotNull('ro.expected_delivery_date')
                 ->where('ro.expected_delivery_date', '<', DB::raw('curdate()'))
-                ->whereNotExists(fn($q) => $q->select(DB::raw(1))->from('shipments')->whereColumn('shipments.registered_order_id', 'ro.id')->whereNull('shipments.deleted_at'))
+                ->whereNotExists(fn ($q) => $q->select(DB::raw(1))->from('shipments')->whereColumn('shipments.registered_order_id', 'ro.id')->whereNull('shipments.deleted_at'))
                 ->selectRaw("'registered_order' as record_type, ro.ro_number as record_number, datediff(curdate(), ro.expected_delivery_date) as days_overdue, ro.id")
                 ->orderBy('ro.expected_delivery_date', 'asc')
                 ->limit(15);
@@ -311,7 +311,7 @@ class AnalyticsService
 
     public static function shipmentPunctuality(): array
     {
-        return Cache::remember('analytics:shipment_punctuality', static::TTL, fn() => (array)DB::selectOne('
+        return Cache::remember('analytics:shipment_punctuality', static::TTL, fn () => (array) DB::selectOne('
             select
                 sum(case when exit_date <= eta then 1 else 0 end) as on_time,
                 sum(case when diff between 1 and 3 then 1 else 0 end) as late_1_3,
@@ -328,11 +328,11 @@ class AnalyticsService
 
     protected static function percentile(array $sortedDurations, float $percent): ?int
     {
-        if (!$sortedDurations) {
+        if (! $sortedDurations) {
             return null;
         }
 
-        return $sortedDurations[(int)floor((count($sortedDurations) - 1) * $percent)];
+        return $sortedDurations[(int) floor((count($sortedDurations) - 1) * $percent)];
     }
 
     protected static function supportsCte(): bool
@@ -344,7 +344,7 @@ class AnalyticsService
         }
 
         try {
-            $version = (string)DB::getPdo()->getAttribute(\PDO::ATTR_SERVER_VERSION);
+            $version = (string) DB::getPdo()->getAttribute(\PDO::ATTR_SERVER_VERSION);
             $isMaria = stripos($version, 'mariadb') !== false;
 
             if (preg_match('/^5\.5\.5-(\d+\.\d+\.\d+)-MariaDB/i', $version, $matches)) {

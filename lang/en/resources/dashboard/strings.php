@@ -107,7 +107,7 @@ return [
             'pipeline_stalls' => [
                 'what' => "Specific records that are overdue against their own target date and haven't moved forward — a list, not a chart.",
                 'data' => 'Purchase Requests, Registered Orders, Payments, and Shipments, each compared against its own deadline or target-date column.',
-                'why' => "The \"what needs attention today\" list, ranked by days overdue.",
+                'why' => 'The "what needs attention today" list, ranked by days overdue.',
                 'technical' => 'Four queries unioned: purchase_requests (approval_date IS NULL AND required_by_date < CURDATE()); registered_orders (expected_delivery_date < CURDATE() and no matching shipments.registered_order_id); payments (payment_date IS NULL AND payment_deadline < CURDATE()); shipments (exit_date IS NULL AND eta < CURDATE()). Each computes DATEDIFF(CURDATE(), target_date); combined result ORDER BY that value DESC LIMIT 15.',
             ],
         ],

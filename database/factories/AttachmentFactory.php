@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Attachment;
 use App\Models\Model;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -16,8 +15,8 @@ class AttachmentFactory extends Factory
         return [
             'attachable_id' => null,
             'attachable_type' => null,
-            'name' => fake()->word() . '.pdf',
-            'path' => 'attachments/' . fake()->word() . '.pdf',
+            'name' => fake()->word().'.pdf',
+            'path' => 'attachments/'.fake()->word().'.pdf',
             'type' => fake()->randomElement(['application/pdf', 'image/png', 'image/jpeg', 'text/plain']),
             'status_id' => null,
             'user_id' => null,

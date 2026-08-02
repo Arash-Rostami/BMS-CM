@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Custom;
 use App\Models\RegisteredOrder;
 use App\Models\Shipment;
 use App\Models\Status;

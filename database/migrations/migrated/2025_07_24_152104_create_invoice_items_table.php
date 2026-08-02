@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('description')->nullable()->comment('Item description in local language');
             $table->string('origin')->nullable()->comment('Country of origin (ISO code)');
             $table->string('hs_code')->nullable()->comment('Harmonized System code for customs');
-            $table->unsignedDecimal('quantity', 15, 5)->nullable()->comment('Number of units');
+            $table->decimal('quantity', 15, 5)->nullable()->comment('Number of units');
             $table->decimal('net_weight', 15, 5)->nullable()->comment('Weight per unit (kg), net');
             $table->decimal('gross_weight', 15, 5)->nullable()->comment('Weight per unit (kg), gross');
             $table->string('unit')->comment('e.g., pcs, kg, ltr');
