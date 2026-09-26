@@ -5,17 +5,21 @@ namespace App\Filament\Resources\Operational\BankProfileResource\Pages;
 use App\Filament\Actions\ManageCustomAttributesAction;
 use App\Filament\Pages\EditRecord;
 use App\Filament\Resources\BankProfileResource;
+use App\Filament\Resources\Operational\BankProfileResource\Traits\HandleStatusMutation;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
 
 class EditBankProfile extends EditRecord
 {
+    use HandleStatusMutation;
+
     protected static string $resource = BankProfileResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
+            BankProfileResource::getStatusWorkflowPipelineAction(),
             ViewAction::make(),
             ManageCustomAttributesAction::make(),
             DeleteAction::make(),
@@ -33,6 +37,6 @@ class EditBankProfile extends EditRecord
         }
         unset($data['commission_input_mode']);
 
-        return $data;
+        return $this->mutateStatusData($data, $this->getRecord());
     }
 }

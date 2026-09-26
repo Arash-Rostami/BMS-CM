@@ -46,7 +46,6 @@ Thumbs.db
 storage/*.key
 /.vagrant
 temp/
-/tests
 auth.json
 
 public/audio/music/

@@ -5,13 +5,11 @@ namespace App\Filament\Resources\Operational\ShipmentResource\Traits;
 use App\Models\EntityAttribute;
 use App\Models\ProformaInvoice;
 use App\Models\Shipment;
-use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -222,6 +220,15 @@ trait InvoiceForm
                                     ->collapsible()
                                     ->itemLabel(fn (array $state): ?string => ($state['english_description'] ?? $state['description'] ?? null)),
                             ]),
+
+                        Section::make(__('resources/shipment/strings.invoice.section_notes'))
+                            ->schema([
+                                Textarea::make('_inv_notes')
+                                    ->hiddenLabel()
+                                    ->rows(4)
+                                    ->dehydrated(false)
+                                    ->columnSpanFull(),
+                            ]),
                     ])->columnSpan(['lg' => 2]),
 
                 Group::make()
@@ -342,66 +349,13 @@ trait InvoiceForm
                                     ->validationAttribute(__('resources/shipment/strings.invoice.total_gross_weight'))
                                     ->dehydrated(false),
                             ])->columns(1),
-
-                        Section::make(__('resources/shipment/strings.invoice.section_notes'))
-                            ->schema([
-                                Textarea::make('_inv_notes')
-                                    ->hiddenLabel()
-                                    ->rows(4)
-                                    ->dehydrated(false)
-                                    ->columnSpanFull(),
-                            ])
-                            ->footerActions([
-                                Action::make('saveInvoice')
-                                    ->label(__('resources/shipment/strings.invoice.action_save'))
-                                    ->icon('heroicon-o-cloud-arrow-up')
-                                    ->color('success')
-                                    ->tooltip(__('resources/shipment/strings.invoice.action_save_tooltip'))
-                                    ->action(function (Get $get, $record) {
-                                        if (! $record?->id) {
-                                            Notification::make()
-                                                ->title(__('resources/shipment/strings.invoice.no_record_notification'))
-                                                ->warning()
-                                                ->send();
-
-                                            return;
-                                        }
-                                        static::persistInvoiceToEav($get, $record);
-                                        Notification::make()
-                                            ->title(__('resources/shipment/strings.invoice.saved_notification'))
-                                            ->success()
-                                            ->send();
-                                    }),
-
-                                Action::make('printInvoice')
-                                    ->label(__('resources/shipment/strings.invoice.action_print'))
-                                    ->icon('heroicon-o-arrow-down-tray')
-                                    ->color('info')
-                                    ->tooltip(__('resources/shipment/strings.invoice.action_print_tooltip'))
-                                    ->action(function (Get $get, $record) {
-                                        if (! $record?->id) {
-                                            Notification::make()
-                                                ->title(__('resources/shipment/strings.invoice.no_record_notification'))
-                                                ->warning()
-                                                ->send();
-
-                                            return;
-                                        }
-                                        static::persistInvoiceToEav($get, $record);
-                                    })
-                                    ->url(fn ($record) => $record?->id
-                                        ? route('shipments.invoice.pdf', ['shipment' => $record->id])
-                                        : null
-                                    )
-                                    ->openUrlInNewTab(),
-                            ]),
                     ])->columnSpan(['lg' => 1]),
             ])->columns(3);
     }
 
-    public static function persistInvoiceToEav(Get $get, $record): void
+    public static function persistInvoiceToEav(array $formData, $record): void
     {
-        $items = collect($get('_inv_items') ?? [])->map(fn ($item) => [
+        $items = collect($formData['_inv_items'] ?? [])->map(fn ($item) => [
             'description' => $item['description'] ?? null,
             'english_description' => $item['english_description'] ?? null,
             'hs_code' => $item['hs_code'] ?? null,
@@ -415,39 +369,39 @@ trait InvoiceForm
         ])->values()->all();
 
         $subtotal = array_sum(array_column($items, 'total_amount'));
-        $discount = (float) ($get('_inv_discount') ?? 0);
-        $freight = (float) ($get('_inv_freight_charges') ?? 0);
-        $other = (float) ($get('_inv_other_charges') ?? 0);
+        $discount = (float) ($formData['_inv_discount'] ?? 0);
+        $freight = (float) ($formData['_inv_freight_charges'] ?? 0);
+        $other = (float) ($formData['_inv_other_charges'] ?? 0);
 
         $data = [
-            'proforma_invoice_id' => $get('_inv_pi_id'),
-            'invoice_no' => $get('_inv_invoice_no'),
-            'invoice_date' => $get('_inv_invoice_date'),
-            'seller_name' => $get('_inv_seller_name'),
-            'seller_address' => $get('_inv_seller_address'),
-            'buyer_name' => $get('_inv_buyer_name'),
-            'buyer_address' => $get('_inv_buyer_address'),
-            'buyer_comm_card_no' => $get('_inv_buyer_comm_card_no'),
-            'currency' => $get('_inv_currency'),
-            'payment_terms' => $get('_inv_payment_terms'),
-            'transport_mode' => $get('_inv_transport_mode'),
-            'incoterms' => $get('_inv_incoterms'),
-            'port_of_loading' => $get('_inv_port_of_loading'),
-            'port_of_discharge' => $get('_inv_port_of_discharge'),
-            'origin_country' => $get('_inv_origin_country'),
-            'destination_country' => $get('_inv_destination_country'),
-            'bl_number' => $get('_inv_bl_number'),
-            'etd' => $get('_inv_etd'),
-            'eta' => $get('_inv_eta'),
+            'proforma_invoice_id' => $formData['_inv_pi_id'] ?? null,
+            'invoice_no' => $formData['_inv_invoice_no'] ?? null,
+            'invoice_date' => $formData['_inv_invoice_date'] ?? null,
+            'seller_name' => $formData['_inv_seller_name'] ?? null,
+            'seller_address' => $formData['_inv_seller_address'] ?? null,
+            'buyer_name' => $formData['_inv_buyer_name'] ?? null,
+            'buyer_address' => $formData['_inv_buyer_address'] ?? null,
+            'buyer_comm_card_no' => $formData['_inv_buyer_comm_card_no'] ?? null,
+            'currency' => $formData['_inv_currency'] ?? null,
+            'payment_terms' => $formData['_inv_payment_terms'] ?? null,
+            'transport_mode' => $formData['_inv_transport_mode'] ?? null,
+            'incoterms' => $formData['_inv_incoterms'] ?? null,
+            'port_of_loading' => $formData['_inv_port_of_loading'] ?? null,
+            'port_of_discharge' => $formData['_inv_port_of_discharge'] ?? null,
+            'origin_country' => $formData['_inv_origin_country'] ?? null,
+            'destination_country' => $formData['_inv_destination_country'] ?? null,
+            'bl_number' => $formData['_inv_bl_number'] ?? null,
+            'etd' => $formData['_inv_etd'] ?? null,
+            'eta' => $formData['_inv_eta'] ?? null,
             'items' => $items,
             'subtotal' => round($subtotal, 5),
             'discount' => $discount,
             'freight_charges' => $freight,
             'other_charges' => $other,
             'grand_total' => round($subtotal - $discount + $freight + $other, 5),
-            'total_net_weight' => (float) ($get('_inv_total_net_weight') ?? 0),
-            'total_gross_weight' => (float) ($get('_inv_total_gross_weight') ?? 0),
-            'notes' => $get('_inv_notes'),
+            'total_net_weight' => (float) ($formData['_inv_total_net_weight'] ?? 0),
+            'total_gross_weight' => (float) ($formData['_inv_total_gross_weight'] ?? 0),
+            'notes' => $formData['_inv_notes'] ?? null,
         ];
 
         $attr = EntityAttribute::where('entity_type', Shipment::class)

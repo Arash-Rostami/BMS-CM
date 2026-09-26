@@ -17,6 +17,14 @@ class Attachment extends Model
         SoftDeletes,
         UserStamps;
 
+    public const TYPE_ATTACHMENT = 'Attachment Status';
+
+    public const STATUS_UPLOADED = 'Uploaded';
+
+    public const STATUS_SUPERSEDED = 'Superseded';
+
+    public const STATUS_ARCHIVED = 'Archived';
+
     protected $fillable = [
         'attachable_id',
         'attachable_type',
@@ -27,4 +35,19 @@ class Attachment extends Model
         'user_id',
         'updated_by_id',
     ];
+
+    public function isUploaded(): bool
+    {
+        return $this->status?->english_name === self::STATUS_UPLOADED;
+    }
+
+    public function isSuperseded(): bool
+    {
+        return $this->status?->english_name === self::STATUS_SUPERSEDED;
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->status?->english_name === self::STATUS_ARCHIVED;
+    }
 }

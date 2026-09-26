@@ -2,15 +2,70 @@
 
 namespace App\Filament\Resources\Operational\BankProfileResource\Traits;
 
+use App\Filament\Actions\ImportAction;
+use App\Filament\Resources\BankProfileResource;
 use App\Filament\Resources\Operational\BankProfileResource\Enums\Status;
+use App\Filament\Resources\Operational\BankProfileResource\Imports\BankProfileImporter;
+use App\Jobs\ExportBankProfiles;
+use App\Models\Category;
 use App\Models\Product;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getImportAction(): ImportAction
+    {
+        return ImportAction::make('importBankProfiles')
+            ->label(__('resources/bankProfile/strings.import.import_bank_profiles'))
+            ->modalHeading(__('resources/bankProfile/strings.import.import_bank_profiles'))
+            ->icon('heroicon-o-arrow-up-tray')
+            ->importer(BankProfileImporter::class)
+            ->resourceGate(BankProfileResource::class);
+    }
+
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportBankProfiles')
+            ->label(__('resources/bankProfile/strings.export.export_bank_profiles'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => BankProfileResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportBankProfiles::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
+    private static function sortByTargetableName(): \Closure
+    {
+        return function (Builder $query, string $direction): Builder {
+            $nameColumn = app()->getLocale() === 'fa' ? 'name' : 'english_name';
+
+            $productQuery = Product::select($nameColumn)
+                ->whereColumn('products.id', 'bank_profiles.targetable_id')
+                ->where('bank_profiles.targetable_type', Product::class);
+
+            $categoryQuery = Category::select($nameColumn)
+                ->whereColumn('categories.id', 'bank_profiles.targetable_id')
+                ->where('bank_profiles.targetable_type', Category::class);
+
+            return $query->orderByRaw(
+                "COALESCE(({$productQuery->toSql()}), ({$categoryQuery->toSql()})) {$direction}",
+                [...$productQuery->getBindings(), ...$categoryQuery->getBindings()]
+            );
+        };
+    }
+
     public static function showBank(): TextColumn
     {
         return TextColumn::make('bank.name')
@@ -25,7 +80,10 @@ trait Table
     {
         return TextColumn::make('bp_number')
             ->label(__('resources/bankProfile/strings.table.bp_number'))
-            ->searchable()
+            ->searchable(query: fn (Builder $query, string $search): Builder => BankProfileResource::orWhereExtraAttributesMatch(
+                $query->where('bp_number', 'like', "%{$search}%"),
+                $search
+            ))
             ->badge()
             ->copyable()
             ->sortable()
@@ -42,12 +100,34 @@ trait Table
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
+    private static function isSettledStatus($record): bool
+    {
+        return in_array(Status::tryFrom($record?->status?->english_name), [Status::Received, Status::Rejected], true);
+    }
+
+    public static function isCommitmentOverdue($record): bool
+    {
+        return $record?->commitment_payment_date
+            && $record->commitment_payment_date->isPast()
+            && ! static::isSettledStatus($record);
+    }
+
+    public static function isPaymentOverdue($record): bool
+    {
+        return $record?->payment_due_date
+            && $record->payment_due_date->isPast()
+            && ! static::isSettledStatus($record);
+    }
+
     public static function showCommitmentPaymentDate(): TextColumn
     {
         return TextColumn::make('commitment_payment_date')
             ->label(__('resources/bankProfile/strings.table.commitment_payment_date'))
-            ->date()
+            ->adaptiveDate()
             ->sortable()
+            ->badge(fn ($record): bool => static::isCommitmentOverdue($record))
+            ->color(fn ($record): ?string => static::isCommitmentOverdue($record) ? 'danger' : null)
+            ->icon(fn ($record): ?string => static::isCommitmentOverdue($record) ? 'heroicon-o-exclamation-triangle' : null)
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -55,16 +135,19 @@ trait Table
     {
         return TextColumn::make('payment_due_date')
             ->label(__('resources/bankProfile/strings.table.payment_due_date'))
-            ->date()
+            ->adaptiveDate()
             ->sortable()
+            ->badge(fn ($record): bool => static::isPaymentOverdue($record))
+            ->color(fn ($record): ?string => static::isPaymentOverdue($record) ? 'danger' : null)
+            ->icon(fn ($record): ?string => static::isPaymentOverdue($record) ? 'heroicon-o-exclamation-triangle' : null)
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
     public static function showCreationTime(): TextColumn
     {
         return TextColumn::make('created_at')
-            ->label(__('resources/bankProfile/strings.table.created_at'))->dateTime()
-            ->dateTime()
+            ->label(__('resources/bankProfile/strings.table.created_at'))->adaptiveDateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -84,6 +167,25 @@ trait Table
             ->label(__('resources/bankProfile/strings.table.id'))
             ->sortable()
             ->searchable(query: fn (Builder $query, string $search): Builder => $query->where('bank_profiles.id', 'like', "%{$search}%"))
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function showRequestedAmount(): TextColumn
+    {
+        return TextColumn::make('requested_amount')
+            ->label(__('resources/bankProfile/strings.table.requested_amount'))
+            ->formatStateUsing(fn ($state) => delimiter($state))
+            ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function showRequestedCurrency(): TextColumn
+    {
+        return TextColumn::make('requestedCurrency.name')
+            ->label(__('resources/bankProfile/strings.table.requested_currency'))
+            ->sortable()
+            ->searchable()
+            ->formatStateUsing(fn ($record): ?string => $record->requestedCurrency?->getLocalizedNameAttribute())
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -111,7 +213,7 @@ trait Table
             ->label(__('resources/bankProfile/strings.table.status'))
             ->badge()
             ->sortable()
-            ->searchable(query: fn (Builder $query, string $search) => $query->orWhereHas('status', fn ($q) => fn ($q) => $q->searchByName($search)))
+            ->searchable(query: fn (Builder $query, string $search) => $query->orWhereHas('status', fn ($q) => $q->searchByName($search)))
             ->formatStateUsing(fn ($record): ?string => $record->status?->getLocalizedNameAttribute())
             ->iconPosition(IconPosition::Before)
             ->icon(fn ($record): ?string => Status::tryFrom($record->status?->english_name)?->getIcon() ?? 'heroicon-o-question-mark-circle')
@@ -122,7 +224,7 @@ trait Table
     {
         return TextColumn::make('targetable.name')
             ->label(__('resources/bankProfile/strings.table.targetable'))
-            ->sortable(['targetable_type', 'targetable_id'])
+            ->sortable(query: static::sortByTargetableName())
             ->searchable(true, fn ($query, string $search) => $query->SearchTargetable($search), false)
             ->formatStateUsing(function (Model $record) {
                 if (! $record->targetable) {
@@ -140,7 +242,7 @@ trait Table
     {
         return TextColumn::make('updated_at')
             ->label(__('resources/bankProfile/strings.table.updated_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

@@ -1,0 +1,34 @@
+# Purchase Request — what changed for you
+
+- Sorting the list by Department or Cost Center works now — it used to crash the page.
+- Leaving a custom field blank no longer shows the word "null" — it just stays blank.
+- You can now search by a custom field's name or value — in this list, the top navbar search, and the main spotlight search.
+- Requests that are overdue or due soon are now flagged right in the list.
+- You now have to give a reason when declining a request.
+- You can't submit a request with no items on it anymore.
+- If you submit a request very similar to one you already made recently, you'll get a warning — it still goes through, it just flags it.
+- Filter and column menus close on their own after you click Apply, instead of sitting open over the table.
+- The record view no longer visibly shrinks or jumps when you switch tabs.
+- Exported files now come out complete and correctly capped, instead of silently missing data.
+- Bulk import and export now use a single button each, in the table toolbar — one file per direction, with each request's items grouped automatically right under it, instead of separate parent/item files and buttons.
+- The import modal's "download example" button used to give you an empty, header-only file — it's now correctly labeled as a blank template.
+- A new "Download filled example" button gives you a realistic sample file with several items per request and custom fields already filled in, so you have something to copy from.
+- The import modal now has a "How to fill this file" guide explaining which columns match automatically, how custom field pairs work, and that unrecognized values get rejected with a clear error.
+- Opening the import modal no longer crashes.
+- The import modal's title no longer shows a stray extra "s" stuck on the end when viewed in Farsi.
+- Columns that fill in automatically, like requester and department, are hidden from the import mapping step since you never need to set them — they still work if your file happens to include them.
+- The request number column is visible and fillable again when importing — leave it blank and one is generated for you, or provide your own and it's used as given, including to match an existing request when you re-upload a file to update it.
+- The import date fields now show a note next to the calendar toggle confirming whether it's set to Persian or Gregorian.
+- Dates typed in Persian digits/calendar and dates typed in English digits/Gregorian calendar both import correctly, and a badly formatted date is now cleanly rejected with a clear error instead of crashing the import.
+- Removed the bulk import button from the Purchase Requests tab inside Registered Order, Purchase Order, and Proforma Invoice records — it could silently update an unrelated purchase request elsewhere in the system without showing up in the tab you were working in. Bulk import is now only on the main Purchase Requests list. Attaching an existing request to those tabs still works as before.
+- The "Estimated Cost" item field is now called "Approximate Selling Price."
+- Unit of Measurement is now required on every item — existing items left blank keep working, only new/edited items need it filled in.
+- The approval flow now has real stages: Submitted → Under Review → Sales Manager Approval → Commercial Manager Approval (Final) → Conditional/Declined. A request starts as "Submitted" automatically. Stages you can't move to yet show up locked in the dropdown instead of disappearing.
+- A "Return for Revision" action sends a request back to the start with a required reason, for whoever is approving its current stage.
+- A "Resubmit" action lets the original requester send a Conditional/Declined request back through the approval flow from the start.
+- The record view has a new "History" tab showing every status change: from, to, who, and when.
+- Bulk import can no longer be used to sneak a request past approval — new requests imported from a file now always start at "Submitted," no matter what status the file says.
+- Side bonus of the approval pipeline: next to the status field, a collapsed "Approval Pipeline" panel lists every stage in order, showing which ones are done, which one you're on, which are still locked, and exactly who needs to approve each locked one. This panel now reads correctly in Farsi too — it was displaying in the wrong visual order by default.
+- Once a request reaches its final stage, its attached files are automatically archived and can no longer be deleted, keeping closed cases' paperwork permanent.
+- You can mark an attachment as "Superseded" when uploading a newer version of the same document, so both stay visible — old and current, side by side.
+- The list now shows a small progress badge (e.g. "50%") next to each request's stage count, with the exact "2/4" shown on hover.

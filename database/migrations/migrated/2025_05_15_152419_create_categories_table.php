@@ -11,9 +11,9 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
 
-            $table->text('name');
+            $table->text('name')->nullable();
             $table->string('slug')->unique();
-            $table->text('english_name')->comment('Name of the category in English');
+            $table->text('english_name')->nullable()->comment('Name of the category in English');
             $table->text('description')->nullable()->comment('Description of the category');
 
             $table->foreignId('parent_id')

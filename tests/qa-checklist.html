@@ -1,0 +1,456 @@
+<title>BMS-CM QA Manifest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#F4F6F3;
+  --surface:#FFFFFF;
+  --surface-2:#EBEFE9;
+  --line:#D6DCD2;
+  --ink:#1B2321;
+  --ink-soft:#4B564F;
+  --ink-faint:#7C877E;
+  --accent:#0F6B5C;
+  --accent-ink:#FFFFFF;
+  --accent-soft:#E3F0EB;
+  --brass:#A06B2A;
+  --brass-soft:#F3E7D4;
+  --ok:#2E7D4F;
+  --ok-soft:#E1F2E7;
+  --warn:#A87A12;
+  --warn-soft:#F6EBD3;
+  --bad:#B23B3B;
+  --bad-soft:#F8E5E3;
+  --shadow: 0 1px 2px rgba(27,35,33,.06), 0 8px 24px rgba(27,35,33,.06);
+  --radius: 10px;
+  --font-display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101615; --surface:#17201D; --surface-2:#1E2925; --line:#2B3833;
+    --ink:#EAEFEA; --ink-soft:#AEBBB3; --ink-faint:#7C8A82;
+    --accent:#4FC2A6; --accent-ink:#0B1613; --accent-soft:#1B332D;
+    --brass:#D9A35C; --brass-soft:#2E2618;
+    --ok:#63C98B; --ok-soft:#153323;
+    --warn:#E0B24E; --warn-soft:#332A13;
+    --bad:#E07A72; --bad-soft:#3A1E1C;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101615; --surface:#17201D; --surface-2:#1E2925; --line:#2B3833;
+  --ink:#EAEFEA; --ink-soft:#AEBBB3; --ink-faint:#7C8A82;
+  --accent:#4FC2A6; --accent-ink:#0B1613; --accent-soft:#1B332D;
+  --brass:#D9A35C; --brass-soft:#2E2618;
+  --ok:#63C98B; --ok-soft:#153323;
+  --warn:#E0B24E; --warn-soft:#332A13;
+  --bad:#E07A72; --bad-soft:#3A1E1C;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+.shell{max-width:1180px;margin:0 auto;padding:28px 24px 64px;}
+
+.masthead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px;}
+.masthead h1{font-family:var(--font-display);font-weight:800;font-size:clamp(26px,4vw,38px);letter-spacing:.01em;margin:0;text-wrap:balance;}
+.masthead .sub{color:var(--ink-soft);font-size:13px;margin-top:2px;}
+.masthead .tag{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);background:var(--brass-soft);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap;}
+
+.grouptabs{display:flex;gap:6px;margin:20px 0 18px;border-bottom:1px solid var(--line);}
+.grouptabs button{
+  all:unset;cursor:pointer;
+  font-family:var(--font-display);font-weight:700;font-size:16px;letter-spacing:.01em;
+  padding:9px 16px 11px;color:var(--ink-faint);border-bottom:3px solid transparent;
+}
+.grouptabs button:hover{color:var(--ink);}
+.grouptabs button.active{color:var(--accent);border-bottom-color:var(--accent);}
+.grouptabs .n{font-family:var(--font-mono);font-size:11px;margin-left:6px;color:var(--ink-faint);}
+
+.stepper{margin:0 0 26px;display:flex;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);overflow-x:auto;}
+.step{flex:1 1 0;min-width:92px;position:relative;padding:12px 8px 10px;text-align:center;cursor:pointer;border-right:1px solid var(--line);background:transparent;transition:background .15s ease;}
+.step:last-child{border-right:none;}
+.step:hover{background:var(--surface-2);}
+.step.active{background:var(--accent-soft);}
+.step .n{font-family:var(--font-mono);font-size:10.5px;color:var(--ink-faint);}
+.step .lbl{font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.01em;margin-top:2px;}
+.step .bar{margin-top:7px;height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;}
+.step .bar i{display:block;height:100%;background:var(--accent);width:0%;transition:width .2s ease;}
+.step.done .bar i{background:var(--ok);}
+.step.issue .bar i{background:var(--bad);}
+
+.grid{display:grid;grid-template-columns:230px 1fr;gap:20px;align-items:start;}
+@media (max-width:800px){.grid{grid-template-columns:1fr;}}
+
+.rail{position:sticky;top:20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px;display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 40px);overflow-y:auto;}
+@media (max-width:800px){.rail{position:static;flex-direction:row;overflow-x:auto;max-height:none;}}
+.rail button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:7px;font-size:13.5px;color:var(--ink-soft);white-space:nowrap;}
+.rail button:hover{background:var(--surface-2);color:var(--ink);}
+.rail button.active{background:var(--accent-soft);color:var(--ink);font-weight:600;}
+.rail .dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none;}
+.rail .dot.ok{background:var(--ok);}
+.rail .dot.bad{background:var(--bad);}
+.rail .dot.partial{background:var(--warn);}
+.rail .cnt{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.panel-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+.panel-head h2{font-family:var(--font-display);font-weight:700;font-size:26px;margin:0 0 2px;}
+.panel-head .path{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);}
+.panel-head .summary{text-align:right;}
+.panel-head .summary .num{font-family:var(--font-mono);font-size:22px;font-weight:600;}
+.panel-head .summary .lbl{font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;}
+.resetbtn{all:unset;cursor:pointer;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--ink-faint);border:1px solid var(--line);border-radius:6px;padding:5px 9px;margin-top:6px;}
+.resetbtn:hover{color:var(--bad);border-color:var(--bad);}
+
+.items{padding:6px 10px 18px;}
+.item{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:start;padding:13px 12px;border-bottom:1px solid var(--line);}
+.item:last-child{border-bottom:none;}
+.item .code{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);padding-top:3px;}
+.item .txt{font-size:14.5px;}
+.item .txt .h{font-weight:500;}
+.item .txt .d{color:var(--ink-faint);font-size:12.5px;margin-top:2px;}
+
+.tri{display:flex;gap:4px;}
+.tri button{all:unset;cursor:pointer;width:30px;height:30px;border-radius:7px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink-faint);}
+.tri button[data-v="pass"].on{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);}
+.tri button[data-v="fail"].on{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);}
+.tri button:hover{filter:brightness(0.97);}
+@media (prefers-color-scheme:dark){.tri button:hover{filter:brightness(1.15);}}
+:root[data-theme="dark"] .tri button:hover{filter:brightness(1.15);}
+
+.note{grid-column:2 / span 2;margin-top:8px;}
+.note textarea{width:100%;min-height:54px;resize:vertical;background:var(--bad-soft);border:1px solid var(--bad);border-radius:7px;padding:8px 10px;font-family:var(--font-body);font-size:13px;color:var(--ink);}
+.note textarea::placeholder{color:var(--ink-faint);}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:14px 22px 20px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-faint);}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.legend i{width:9px;height:9px;border-radius:50%;display:inline-block;}
+.legend .ok i{background:var(--ok);}
+.legend .bad i{background:var(--bad);}
+.legend .un i{background:var(--line);}
+
+.footer-note{margin-top:22px;font-size:12px;color:var(--ink-faint);text-align:center;}
+
+.exportbtn{all:unset;cursor:pointer;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:6px 12px;white-space:nowrap;}
+.exportbtn:hover{background:var(--accent-soft);}
+</style>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div>
+      <h1>BMS-CM QA Manifest</h1>
+      <div class="sub">Filament admin panel · module-by-module browser checklist</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="exportbtn" id="exportJson">⬇️ Export JSON</button>
+      <div class="tag" id="overallTag">0 / 0 cleared</div>
+    </div>
+  </div>
+
+  <div class="grouptabs" id="groupTabs"></div>
+
+  <div class="stepper" id="stepper"></div>
+
+  <div class="grid">
+    <nav class="rail" id="rail"></nav>
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 id="moduleName">—</h2>
+          <div class="path" id="modulePath">—</div>
+        </div>
+        <div class="summary">
+          <div class="num"><span id="moduleDone">0</span><span style="color:var(--ink-faint);font-weight:400;"> / 12</span></div>
+          <div class="lbl">checked</div>
+          <button class="exportbtn" id="copyModule">⬇️ Copy this module</button>
+          <button class="resetbtn" id="resetModule">Reset module</button>
+        </div>
+      </div>
+      <div class="items" id="items"></div>
+      <div class="legend">
+        <span class="ok"><i></i> pass</span>
+        <span class="bad"><i></i> fail — note required</span>
+        <span class="un"><i></i> untested</span>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer-note">State saves to this browser automatically. Click Export JSON to save a real file you (and Claude) can look at directly.</div>
+</div>
+
+<script>
+(function(){
+  var GROUPS = [
+    {
+      key:'operational', label:'Operational Pipeline',
+      modules:[
+        {key:'purchase_request', name:'Purchase Request', path:'app/Filament/Resources/Operational/PurchaseRequestResource'},
+        {key:'proforma_invoice', name:'Proforma Invoice', path:'app/Filament/Resources/Operational/ProformaInvoiceResource'},
+        {key:'registered_order', name:'Registered Order', path:'app/Filament/Resources/Operational/RegisteredOrderResource'},
+        {key:'purchase_order', name:'Purchase Order', path:'app/Filament/Resources/Operational/PurchaseOrderResource'},
+        {key:'payment', name:'Payment', path:'app/Filament/Resources/Operational/PaymentResource'},
+        {key:'shipment', name:'Shipment', path:'app/Filament/Resources/Operational/ShipmentResource'},
+        {key:'custom', name:'Custom (Clearance)', path:'app/Filament/Resources/Operational/CustomResource'},
+        {key:'correspondence', name:'Correspondence', path:'app/Filament/Resources/Operational/CorrespondenceResource'},
+        {key:'bank_profile', name:'Bank Profile', path:'app/Filament/Resources/BankProfileResource.php'}
+      ]
+    },
+    {
+      key:'master', label:'Master Data',
+      modules:[
+        {key:'currency', name:'Currency', path:'app/Filament/Resources/CurrencyResource.php'},
+        {key:'bank', name:'Bank', path:'app/Filament/Resources/BankResource.php'},
+        {key:'company', name:'Company', path:'app/Filament/Resources/CompanyResource.php'},
+        {key:'category', name:'Category', path:'app/Filament/Resources/CategoryResource.php'},
+        {key:'product', name:'Product', path:'app/Filament/Resources/ProductResource.php'},
+        {key:'status', name:'Status', path:'app/Filament/Resources/StatusResource.php'},
+        {key:'entity_attribute', name:'Entity Attribute', path:'app/Filament/Resources/EntityAttributeResource.php'},
+        {key:'permission', name:'Permission', path:'app/Filament/Resources/PermissionResource.php'},
+        {key:'role', name:'Role', path:'app/Filament/Resources/RoleResource.php'},
+        {key:'department', name:'Department', path:'app/Filament/Resources/DepartmentResource.php'},
+        {key:'user', name:'User', path:'app/Filament/Resources/UserResource.php'},
+        {key:'notification_setting', name:'Notification Setting', path:'app/Filament/Resources/NotificationSettingResource.php'},
+        {key:'target', name:'Target', path:'app/Filament/Resources/Operational/TargetResource.php'}
+      ]
+    }
+  ];
+
+  var ITEMS = [
+    {code:'L01', h:'List loads & search', d:'Table renders, search box filters by the expected columns.'},
+    {code:'L02', h:'Filters apply', d:'Every SelectFilter/date filter narrows the table correctly and clears cleanly.'},
+    {code:'L03', h:'Sort & pagination', d:'Column sort toggles asc/desc; page size + navigation work at the edges.'},
+    {code:'C01', h:'Create — happy path', d:'A full valid submission saves and redirects/notifies as expected.'},
+    {code:'C02', h:'Create — validation', d:'Required/format errors surface inline in the right language, submission blocked.'},
+    {code:'E01', h:'Edit — loads & relations', d:'Existing record hydrates every field, including selects/relations, without drift.'},
+    {code:'I01', h:'Infolist tabs render', d:'General + Items + Documents (and any resource-specific tab) all render with real data.'},
+    {code:'A01', h:'EAV custom attributes', d:'Add, edit, and remove a custom attribute via both entry points; value persists.'},
+    {code:'P01', h:'Role permissions', d:'A permitted role can act; a role without the permission is correctly blocked.'},
+    {code:'B01', h:'Bulk actions', d:'Multi-select bulk action (activate/deactivate/export/delete) applies to every selected row.'},
+    {code:'X01', h:'Export', d:'Export produces a file with the standardised filename and expected row set.'},
+    {code:'N01', h:'Badge & locale', d:'Nav badge count is correct; EN/FA/FR strings all display, RTL layout intact in FA.'}
+  ];
+
+  var STORE_KEY = 'bms_cm_qa_manifest_v1';
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e) { state = {}; }
+
+  function save(){
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e) {}
+  }
+
+  function exportJson(){
+    var payload = JSON.stringify(state, null, 2);
+    if(typeof window.claude !== 'undefined' && typeof window.claude.use === 'function'){
+      window.claude.use('downloads').then(function(dl){
+        if(!dl){ fallbackCopy(payload); return; }
+        dl.save({filename: 'bms-cm-qa-checklist.json', data: payload}).catch(function(){
+          fallbackCopy(payload);
+        });
+      }).catch(function(){ fallbackCopy(payload); });
+    } else {
+      fallbackCopy(payload);
+    }
+  }
+
+  function copyModuleJson(){
+    var mod = currentGroup().modules.find(function(m){ return m.key===activeModule; });
+    var payload = JSON.stringify({module: mod.key, name: mod.name, items: state[mod.key] || {}}, null, 2);
+    fallbackCopy(payload);
+  }
+
+  function fallbackCopy(payload){
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(payload).then(function(){
+        alert('Downloads unavailable here — the JSON was copied to your clipboard instead. Paste it into a .json file.');
+      }).catch(function(){
+        window.prompt('Copy this JSON manually:', payload);
+      });
+    } else {
+      window.prompt('Copy this JSON manually:', payload);
+    }
+  }
+
+  function getItemState(modKey, idx){
+    var m = state[modKey];
+    if(!m) return {v:'untested', note:''};
+    var it = m[idx];
+    if(!it) return {v:'untested', note:''};
+    return it;
+  }
+
+  function setItemState(modKey, idx, v, note){
+    if(!state[modKey]) state[modKey] = {};
+    state[modKey][idx] = {v:v, note: note || ''};
+    save();
+  }
+
+  function moduleCounts(modKey){
+    var pass=0, fail=0, un=0;
+    for(var i=0;i<ITEMS.length;i++){
+      var s = getItemState(modKey, i).v;
+      if(s==='pass') pass++; else if(s==='fail') fail++; else un++;
+    }
+    return {pass:pass, fail:fail, un:un, total:ITEMS.length};
+  }
+
+  var activeGroup = GROUPS[0].key;
+  var activeModule = GROUPS[0].modules[0].key;
+
+  function currentGroup(){
+    return GROUPS.find(function(g){ return g.key===activeGroup; });
+  }
+
+  function render(){
+    renderGroupTabs();
+    renderStepper();
+    renderRail();
+    renderPanel();
+    renderOverall();
+  }
+
+  function renderOverall(){
+    var cleared=0, total=0;
+    GROUPS.forEach(function(g){
+      g.modules.forEach(function(m){
+        var c = moduleCounts(m.key);
+        cleared += c.pass;
+        total += c.total;
+      });
+    });
+    document.getElementById('overallTag').textContent = cleared + ' / ' + total + ' cleared';
+  }
+
+  function renderGroupTabs(){
+    var el = document.getElementById('groupTabs');
+    el.innerHTML = '';
+    GROUPS.forEach(function(g){
+      var cleared = 0, total = 0;
+      g.modules.forEach(function(m){ var c = moduleCounts(m.key); cleared += c.pass; total += c.total; });
+      var btn = document.createElement('button');
+      btn.className = g.key===activeGroup ? 'active' : '';
+      btn.innerHTML = g.label + '<span class="n">' + cleared + '/' + total + '</span>';
+      btn.addEventListener('click', function(){
+        activeGroup = g.key;
+        activeModule = g.modules[0].key;
+        render();
+      });
+      el.appendChild(btn);
+    });
+  }
+
+  function renderStepper(){
+    var el = document.getElementById('stepper');
+    el.innerHTML = '';
+    currentGroup().modules.forEach(function(m, i){
+      var c = moduleCounts(m.key);
+      var pct = Math.round((c.pass / c.total) * 100);
+      var div = document.createElement('div');
+      div.className = 'step' + (m.key===activeModule ? ' active' : '') + (c.pass===c.total ? ' done' : '') + (c.fail>0 ? ' issue' : '');
+      div.innerHTML = '<div class="n">' + String(i+1).padStart(2,'0') + '</div>' +
+        '<div class="lbl">' + m.name + '</div>' +
+        '<div class="bar"><i style="width:' + pct + '%"></i></div>';
+      div.addEventListener('click', function(){ activeModule = m.key; render(); });
+      el.appendChild(div);
+    });
+  }
+
+  function renderRail(){
+    var el = document.getElementById('rail');
+    el.innerHTML = '';
+    currentGroup().modules.forEach(function(m){
+      var c = moduleCounts(m.key);
+      var dotClass = 'dot';
+      if(c.fail>0) dotClass += ' bad';
+      else if(c.pass===c.total) dotClass += ' ok';
+      else if(c.pass>0) dotClass += ' partial';
+      var btn = document.createElement('button');
+      btn.className = m.key===activeModule ? 'active' : '';
+      btn.innerHTML = '<span class="' + dotClass + '"></span><span>' + m.name + '</span><span class="cnt">' + c.pass + '/' + c.total + '</span>';
+      btn.addEventListener('click', function(){ activeModule = m.key; render(); });
+      el.appendChild(btn);
+    });
+  }
+
+  function renderPanel(){
+    var mod = currentGroup().modules.find(function(m){ return m.key===activeModule; });
+    document.getElementById('moduleName').textContent = mod.name;
+    document.getElementById('modulePath').textContent = mod.path;
+    var c = moduleCounts(mod.key);
+    document.getElementById('moduleDone').textContent = c.pass;
+
+    var itemsEl = document.getElementById('items');
+    itemsEl.innerHTML = '';
+    ITEMS.forEach(function(item, idx){
+      var s = getItemState(mod.key, idx);
+      var row = document.createElement('div');
+      row.className = 'item';
+
+      var code = document.createElement('div');
+      code.className = 'code';
+      code.textContent = item.code;
+
+      var txt = document.createElement('div');
+      txt.className = 'txt';
+      txt.innerHTML = '<div class="h">' + item.h + '</div><div class="d">' + item.d + '</div>';
+
+      var tri = document.createElement('div');
+      tri.className = 'tri';
+      ['pass','fail'].forEach(function(v){
+        var b = document.createElement('button');
+        b.setAttribute('data-v', v);
+        b.setAttribute('aria-label', v + ' — ' + item.h);
+        b.textContent = v==='pass' ? '✓' : '✕';
+        if(s.v===v) b.classList.add('on');
+        b.addEventListener('click', function(){
+          var next = s.v===v ? 'untested' : v;
+          setItemState(mod.key, idx, next, s.note);
+          render();
+        });
+        tri.appendChild(b);
+      });
+
+      row.appendChild(code);
+      row.appendChild(txt);
+      row.appendChild(tri);
+
+      if(s.v === 'fail'){
+        var noteWrap = document.createElement('div');
+        noteWrap.className = 'note';
+        var ta = document.createElement('textarea');
+        ta.placeholder = 'What broke, and where (steps, role, locale)…';
+        ta.value = s.note || '';
+        ta.addEventListener('input', function(){
+          if(!state[mod.key]) state[mod.key] = {};
+          state[mod.key][idx] = {v:'fail', note: ta.value};
+          save();
+        });
+        noteWrap.appendChild(ta);
+        row.appendChild(noteWrap);
+      }
+
+      itemsEl.appendChild(row);
+    });
+  }
+
+  document.getElementById('resetModule').addEventListener('click', function(){
+    if(!confirm('Reset all checklist items for this module?')) return;
+    delete state[activeModule];
+    save();
+    render();
+  });
+
+  document.getElementById('exportJson').addEventListener('click', exportJson);
+  document.getElementById('copyModule').addEventListener('click', copyModuleJson);
+
+  render();
+})();
+</script>

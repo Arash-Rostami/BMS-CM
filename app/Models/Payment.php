@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
+use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\Payment\HasComputedAttributes;
 use App\Models\Traits\Payment\HasSearchableRelations;
@@ -23,6 +24,7 @@ class Payment extends Model
         HasTargetableDisplay,
         Relationships,
         SoftDeletes,
+        TracksStatusHistory,
         UserStamps;
 
     const SCANNABLE_TABLE = 'payments';

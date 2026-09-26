@@ -11,13 +11,13 @@ return new class extends Migration
         Schema::create('shipments', function (Blueprint $table) {
             $table->id();
 
-            $table->string('shipment_no')->unique();
+            $table->string('shipment_no');
             $table->string('part')->nullable();
             $table->string('contract_no')->nullable();
 
-            $table->decimal('remittance_amount', 15, 5)->nullable();
-            $table->decimal('customs_quantity', 15, 5)->nullable();
-            $table->decimal('shipped_quantity', 15, 5)->nullable();
+            $table->decimal('remittance_amount', 65, 5)->nullable();
+            $table->decimal('customs_quantity', 65, 5)->nullable();
+            $table->decimal('shipped_quantity', 65, 5)->nullable();
 
             $table->string('bl_number')->nullable();
             $table->string('booking_no')->nullable();
@@ -50,6 +50,8 @@ return new class extends Migration
             $table->index('bl_number');
             $table->index('container_no');
             $table->index(['registered_order_id', 'deleted_at']);
+            $table->index(['deleted_at', 'eta', 'exit_date'], 'idx_shipments_deleted_eta_exit');
+            $table->index(['deleted_at', 'created_at'], 'idx_shipments_deleted_created');
         });
     }
 

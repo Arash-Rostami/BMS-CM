@@ -11,12 +11,11 @@ return new class extends Migration
         Schema::create('statuses', function (Blueprint $table) {
             $table->id();
             $table->string('type');
-            $table->string('english_type')->nullable();
+            $table->string('english_type');
             $table->string('name');
             $table->string('english_name')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('updated_by_id')->nullable();
-            $table->unique(['type', 'name']);
             $table->softDeletes();
             $table->timestamps();
 

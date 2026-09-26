@@ -91,24 +91,45 @@ if (! function_exists('preciseNumber')) {
         return $currency.' '.$formatted;
     }
 }
+if (! function_exists('isJalaliCalendar')) {
+    function isJalaliCalendar(): bool
+    {
+        return session('calendar_type', app()->isLocale('fa') ? 'jalali' : 'gregorian') === 'jalali';
+    }
+}
+
 if (! function_exists('maybeJalali')) {
     function maybeJalali($component)
     {
-        return session('calendar_type', app()->isLocale('fa') ? 'jalali' : 'gregorian') === 'jalali'
+        return isJalaliCalendar()
             ? $component->jalali(true)
             : $component;
+    }
+}
+
+if (! function_exists('adaptiveDate')) {
+    function adaptiveDate($date, bool $withTime = false): string
+    {
+        return isJalaliCalendar()
+            ? toPersianDate($date, $withTime)
+            : toGregorianDate($date, $withTime);
     }
 }
 
 if (! function_exists('clearApplicationCaches')) {
     function clearApplicationCaches(): void
     {
+        if (function_exists('opcache_reset')) {
+            opcache_reset();
+        }
+
         Artisan::call('cache:clear');
         Artisan::call('config:clear');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('optimize:clear');
         Artisan::call('filament:clear-cached-components');
+        Artisan::call('permission:cache-reset');
     }
 }
 
@@ -128,6 +149,13 @@ if (! function_exists('resetApplicationCache')) {
         clearApplicationCaches();
         sleep(1);
         cacheApplicationConfig();
+    }
+}
+
+if (! function_exists('userCan')) {
+    function userCan(string $modelClass, string $action = 'view'): bool
+    {
+        return auth()->user()?->can(\Illuminate\Support\Str::snake(class_basename($modelClass)).'.'.$action) ?? false;
     }
 }
 

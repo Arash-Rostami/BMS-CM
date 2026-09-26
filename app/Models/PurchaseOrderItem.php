@@ -19,6 +19,7 @@ class PurchaseOrderItem extends Model
         'unit_price',
         'net_weight',
         'gross_weight',
+        'description',
     ];
 
     protected $casts = [

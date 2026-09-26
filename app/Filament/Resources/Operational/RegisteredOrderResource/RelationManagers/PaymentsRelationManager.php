@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\PaymentResource\Exports\PaymentExporter;
 use App\Filament\Resources\Operational\PaymentResource\Traits\Filters as PaymentFilters;
 use App\Filament\Resources\Operational\PaymentResource\Traits\Table as PaymentTable;
 use App\Filament\Resources\PaymentResource;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -13,6 +15,8 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -21,9 +25,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentsRelationManager extends RelationManager
 {
+    use HandlesActionExceptions;
     use PaymentFilters, PaymentTable;
 
     protected static string $relationship = 'payments';
+
+    protected static ?string $relatedResource = PaymentResource::class;
 
     public static function getModelLabel(): string
     {
@@ -47,7 +54,8 @@ class PaymentsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return TableComponents::gatedEmptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(PaymentResource::eagerRelations()))
             ->recordTitleAttribute('payment_no')
             ->columns([
                 static::showId(),
@@ -72,6 +80,8 @@ class PaymentsRelationManager extends RelationManager
             ->headerActions([
                 Action::make('create')
                     ->label(__('resources/general/strings.actions.add_record'))
+                    ->tooltip(__('resources/general/strings.actions.add_record_tooltip'))
+                    ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Submitted']))
                     ->url(fn (): string => PaymentResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
@@ -80,17 +90,19 @@ class PaymentsRelationManager extends RelationManager
                     EditAction::make()
                         ->url(fn ($record): string => PaymentResource::getUrl('edit', ['record' => $record])),
                     DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(PaymentExporter::class),
                 ]),
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('payments.id', 'desc');
+            ->defaultSort('payments.id', 'desc'));
     }
 }

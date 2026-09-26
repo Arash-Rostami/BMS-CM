@@ -163,10 +163,16 @@ trait Form
             ->searchable()
             ->columnSpan(2)
             ->required()
-            ->validationAttribute(__('resources/target/strings.form.targetable'))
-            ->validationMessages([
-                'required' => __('resources/target/strings.form.validation_required'),
-            ]);
+            ->modifyTypeSelectUsing(fn (Select $select): Select => $select
+                ->validationAttribute(__('resources/target/strings.form.targetable'))
+                ->validationMessages([
+                    'required' => __('resources/target/strings.form.validation_required'),
+                ]))
+            ->modifyKeySelectUsing(fn (Select $select): Select => $select
+                ->validationAttribute(__('resources/target/strings.form.targetable'))
+                ->validationMessages([
+                    'required' => __('resources/target/strings.form.validation_required'),
+                ]));
     }
 
     public static function getYearField(): Select

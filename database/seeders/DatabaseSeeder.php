@@ -16,30 +16,26 @@ class DatabaseSeeder extends Seeder
     {
         // 1. Define Permissions — singular snake_case prefix matching Eloquent model names
         $permissions = [
-            'attachment.view', 'attachment.create', 'attachment.edit', 'attachment.delete',
-            'bank.view', 'bank.create', 'bank.edit', 'bank.delete',
-            'bank_profile.view', 'bank_profile.create', 'bank_profile.edit', 'bank_profile.delete',
-            'category.view', 'category.create', 'category.edit', 'category.delete',
-            'company.view', 'company.create', 'company.edit', 'company.delete',
-            'correspondence.view', 'correspondence.create', 'correspondence.edit', 'correspondence.delete',
-            'correspondence_recipient.view', 'correspondence_recipient.create', 'correspondence_recipient.edit', 'correspondence_recipient.delete',
-            'currency.view', 'currency.create', 'currency.edit', 'currency.delete',
-            'custom.view', 'custom.create', 'custom.edit', 'custom.delete',
-            'department.view', 'department.create', 'department.edit', 'department.delete',
-            'payment.view', 'payment.create', 'payment.edit', 'payment.delete',
-            'product.view', 'product.create', 'product.edit', 'product.delete',
-            'proforma_invoice.view', 'proforma_invoice.create', 'proforma_invoice.edit', 'proforma_invoice.delete',
-            'proforma_invoice_item.view', 'proforma_invoice_item.create', 'proforma_invoice_item.edit', 'proforma_invoice_item.delete',
-            'purchase_order.view', 'purchase_order.create', 'purchase_order.edit', 'purchase_order.delete',
-            'purchase_request.view', 'purchase_request.create', 'purchase_request.edit', 'purchase_request.delete',
-            'permission.view', 'permission.create', 'permission.edit', 'permission.delete',
-            'registered_order.view', 'registered_order.create', 'registered_order.edit', 'registered_order.delete',
-            'role.view', 'role.create', 'role.edit', 'role.delete',
-            'shipment.view', 'shipment.create', 'shipment.edit', 'shipment.delete',
-            'specification.view', 'specification.create', 'specification.edit', 'specification.delete',
-            'status.view', 'status.create', 'status.edit', 'status.delete',
-            'target.view', 'target.create', 'target.edit', 'target.delete',
-            'user.view', 'user.create', 'user.edit', 'user.delete',
+            'bank.view', 'bank.create', 'bank.edit', 'bank.delete', 'bank.restore',
+            'bank_profile.view', 'bank_profile.create', 'bank_profile.edit', 'bank_profile.delete', 'bank_profile.restore',
+            'category.view', 'category.create', 'category.edit', 'category.delete', 'category.restore',
+            'company.view', 'company.create', 'company.edit', 'company.delete', 'company.restore',
+            'correspondence.view', 'correspondence.create', 'correspondence.edit', 'correspondence.delete', 'correspondence.restore',
+            'currency.view', 'currency.create', 'currency.edit', 'currency.delete', 'currency.restore',
+            'custom.view', 'custom.create', 'custom.edit', 'custom.delete', 'custom.restore',
+            'department.view', 'department.create', 'department.edit', 'department.delete', 'department.restore',
+            'payment.view', 'payment.create', 'payment.edit', 'payment.delete', 'payment.restore',
+            'product.view', 'product.create', 'product.edit', 'product.delete', 'product.restore',
+            'proforma_invoice.view', 'proforma_invoice.create', 'proforma_invoice.edit', 'proforma_invoice.delete', 'proforma_invoice.restore',
+            'purchase_order.view', 'purchase_order.create', 'purchase_order.edit', 'purchase_order.delete', 'purchase_order.restore',
+            'purchase_request.view', 'purchase_request.create', 'purchase_request.edit', 'purchase_request.delete', 'purchase_request.restore',
+            'permission.view', 'permission.create', 'permission.edit', 'permission.delete', 'permission.restore',
+            'registered_order.view', 'registered_order.create', 'registered_order.edit', 'registered_order.delete', 'registered_order.restore',
+            'role.view', 'role.create', 'role.edit', 'role.delete', 'role.restore',
+            'shipment.view', 'shipment.create', 'shipment.edit', 'shipment.delete', 'shipment.restore',
+            'status.view', 'status.create', 'status.edit', 'status.delete', 'status.restore',
+            'target.view', 'target.create', 'target.edit', 'target.delete', 'target.restore',
+            'user.view', 'user.create', 'user.edit', 'user.delete', 'user.restore',
         ];
 
         foreach ($permissions as $permissionName) {
@@ -70,6 +66,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Test User',
                 'password' => bcrypt('password'), // Ensure you set a password
+                'status' => 'active',
                 // 'role' column is deprecated but if you still have it in DB, you might want to fill it or ignore it.
             ]
         );

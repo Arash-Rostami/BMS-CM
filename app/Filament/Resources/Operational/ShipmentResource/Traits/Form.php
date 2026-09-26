@@ -69,15 +69,15 @@ trait Form
 
     public static function getContainerStatusField(): Select
     {
-        return Select::make('container_status_id')
-            ->label(__('resources/shipment/strings.form.container_status'))
-            ->relationship(
-                name: 'containerStatus',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', Shipment::TYPE_CONTAINER_STATUS)
-            )
-            ->searchable()
-            ->preload();
+        return static::getStatusWorkflowField(
+            'container_status_id',
+            fn (Select $field) => $field
+                ->label(__('resources/shipment/strings.form.container_status'))
+                ->searchable()
+                ->preload()
+                ->required(false),
+            Shipment::TYPE_CONTAINER_STATUS
+        );
     }
 
     public static function getContainerTypeField(): Select
@@ -117,15 +117,15 @@ trait Form
 
     public static function getDocStatusField(): Select
     {
-        return Select::make('doc_status_id')
-            ->label(__('resources/shipment/strings.form.doc_status'))
-            ->relationship(
-                name: 'docStatus',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', Shipment::TYPE_DOC_STATUS)
-            )
-            ->searchable()
-            ->preload();
+        return static::getStatusWorkflowField(
+            'doc_status_id',
+            fn (Select $field) => $field
+                ->label(__('resources/shipment/strings.form.doc_status'))
+                ->searchable()
+                ->preload()
+                ->required(false),
+            Shipment::TYPE_DOC_STATUS
+        );
     }
 
     public static function getDocsField(): Repeater
@@ -229,15 +229,15 @@ trait Form
 
     public static function getOperationStatusField(): Select
     {
-        return Select::make('operation_status_id')
-            ->label(__('resources/shipment/strings.form.operation_status'))
-            ->relationship(
-                name: 'operationStatus',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', Shipment::TYPE_OPERATION_STATUS)
-            )
-            ->searchable()
-            ->preload();
+        return static::getStatusWorkflowField(
+            'operation_status_id',
+            fn (Select $field) => $field
+                ->label(__('resources/shipment/strings.form.operation_status'))
+                ->searchable()
+                ->preload()
+                ->required(false),
+            Shipment::TYPE_OPERATION_STATUS
+        );
     }
 
     public static function getPartField(): Select
@@ -318,7 +318,7 @@ trait Form
         return TextInput::make('shipment_no')
             ->label(__('resources/shipment/strings.form.shipment_no'))
             ->required()
-            ->unique(ignoreRecord: true)
+            ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('shipment_no') : null)
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
@@ -329,15 +329,15 @@ trait Form
 
     public static function getShipmentStatusField(): Select
     {
-        return Select::make('shipment_status_id')
-            ->label(__('resources/shipment/strings.form.shipment_status'))
-            ->relationship(
-                name: 'trackingStatus',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', Shipment::TYPE_TRACKING_STATUS)
-            )
-            ->searchable()
-            ->preload();
+        return static::getStatusWorkflowField(
+            'shipment_status_id',
+            fn (Select $field) => $field
+                ->label(__('resources/shipment/strings.form.shipment_status'))
+                ->searchable()
+                ->preload()
+                ->required(false),
+            Shipment::TYPE_TRACKING_STATUS
+        );
     }
 
     public static function getShippedQuantityField(): TextInput
@@ -373,22 +373,21 @@ trait Form
 
     public static function getStatusField(): Select
     {
-        return Select::make('status_id')
-            ->label(__('resources/shipment/strings.form.status'))
-            ->relationship(
-                name: 'status',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', Shipment::TYPE_SHIPMENT_STATUS)
-            )
-            ->default(fn ($operation): ?int => $operation === 'create' ? Status::findBy(Shipment::TYPE_SHIPMENT_STATUS, 'Processing')?->id : null)
-            ->searchable()
-            ->preload()
-            ->required()
-            ->validationMessages([
-                'required' => __('resources/shipment/strings.form.validation.required'),
-            ])
-            ->validationAttribute(__('resources/shipment/strings.form.status'))
-            ->helperText(__('resources/shipment/strings.form.helper_status'));
+        return static::getStatusWorkflowField(
+            'status_id',
+            fn (Select $field) => $field
+                ->label(__('resources/shipment/strings.form.status'))
+                ->searchable()
+                ->preload()
+                ->validationMessages([
+                    'required' => __('resources/shipment/strings.form.validation.required'),
+                ])
+                ->validationAttribute(__('resources/shipment/strings.form.status'))
+                ->helperText(fn (?Model $record) => static::statusWorkflowLockedHelperText('status_id', $record)
+                    ?? __('resources/shipment/strings.form.helper_status')),
+            Shipment::TYPE_SHIPMENT_STATUS,
+            fn () => Status::findBy(Shipment::TYPE_SHIPMENT_STATUS, 'Processing')?->id
+        );
     }
 
     public static function getWarehouseDateField()

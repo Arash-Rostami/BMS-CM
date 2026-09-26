@@ -38,12 +38,42 @@
                         "statusMessage": "Loading session self-introduction policy…",
                         "timeout": 30,
                         "command": "php .claude/hooks/sessionstart_06_selfintro.php"
-                    },
+                    }
+                ]
+            }
+        ],
+        "Stop": [
+            {
+                "hooks": [
                     {
                         "type": "command",
-                        "statusMessage": "Loading doc-review-action policy…",
-                        "timeout": 30,
-                        "command": "php .claude/hooks/sessionstart_07_doc_review.php"
+                        "statusMessage": "End-stage documentation sweep (pattern docs, legends, guides, tests, temp files)…",
+                        "timeout": 15,
+                        "command": "php .claude/hooks/stop_docsync.php"
+                    }
+                ]
+            }
+        ],
+        "PreToolUse": [
+            {
+                "matcher": "Edit|Write|MultiEdit",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "statusMessage": "Checking module pattern-doc has been read…",
+                        "timeout": 15,
+                        "command": "php .claude/hooks/pretooluse_pattern_doc_gate.php"
+                    }
+                ]
+            },
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "statusMessage": "Checking test-run discipline (no unscoped full-suite runs)…",
+                        "timeout": 15,
+                        "command": "php .claude/hooks/pretooluse_test_discipline_gate.php"
                     }
                 ]
             }
@@ -54,15 +84,20 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "statusMessage": "Workflow-aware review (sonnet-4-6 / dual glm-5.2:cloud consensus at 93%)…",
+                        "statusMessage": "Edit-state tracker (inert in subagent mode — unit-review subagent owns review; API only enrichment + end-stage dual review)…",
                         "timeout": 120,
                         "command": "php .claude/hooks/post_tool_review.php"
-                    },
+                    }
+                ]
+            },
+            {
+                "matcher": "Read",
+                "hooks": [
                     {
                         "type": "command",
-                        "statusMessage": "Doc-accuracy review (grep-verified claims, sonnet-4-6 / dual glm-5.2:cloud consensus at 93%)…",
-                        "timeout": 120,
-                        "command": "php .claude/hooks/post_tool_doc_review.php"
+                        "statusMessage": "Recording pattern-doc read…",
+                        "timeout": 15,
+                        "command": "php .claude/hooks/posttooluse_pattern_doc_tracker.php"
                     }
                 ]
             }

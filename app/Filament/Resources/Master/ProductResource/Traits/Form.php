@@ -83,7 +83,7 @@ trait Form
     {
         return TextInput::make('code')
             ->label(__('resources/product/strings.form.code'))
-            ->unique(table: 'products', column: 'code', ignoreRecord: true)
+            ->unique(table: 'products', column: 'code', ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->maxLength(255)
             ->required()
             ->placeholder(__('resources/product/strings.form.validation_code_placeholder'))
@@ -116,12 +116,13 @@ trait Form
             ->visible(fn ($get) => $get('use_custom_name'))
             ->maxLength(255)
             ->rule(['string', 'max:255'])
-            ->unique(table: 'products', column: 'english_name', ignoreRecord: true)
+            ->unique(table: 'products', column: 'english_name', ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->placeholder(__('resources/product/strings.form.validation_english_name_placeholder'))
             ->validationMessages([
                 'unique' => __('resources/product/strings.form.validation_english_name_unique'),
                 'required' => __('resources/product/strings.form.validation_english_name_required'),
                 'max' => __('resources/product/strings.form.validation_english_name_max'),
+                'string' => __('resources/product/strings.form.validation_english_name_string'),
             ])
             ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
                 if (($get('slug') ?? '') === Str::slug($old)) {
@@ -210,12 +211,13 @@ trait Form
             ->visible(fn ($get) => $get('use_custom_name'))
             ->maxLength(255)
             ->rule(['string', 'max:255'])
-            ->unique(table: 'products', column: 'name', ignoreRecord: true)
+            ->unique(table: 'products', column: 'name', ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->placeholder(__('resources/product/strings.form.validation_name_placeholder'))
             ->validationMessages([
                 'unique' => __('resources/product/strings.form.validation_name_unique'),
                 'required' => __('resources/product/strings.form.validation_name_required'),
                 'max' => __('resources/product/strings.form.validation_name_max'),
+                'string' => __('resources/product/strings.form.validation_name_string'),
             ])
             ->live()
             ->validationAttribute(__('resources/product/strings.form.name'))

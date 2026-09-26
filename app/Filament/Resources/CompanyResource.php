@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Master\CompanyResource\Exports\CompanyExporter;
 use App\Filament\Resources\Master\CompanyResource\Pages\ManageCompanies;
 use App\Filament\Resources\Master\CompanyResource\Traits\Filters as CompanyFilters;
@@ -137,7 +138,7 @@ class CompanyResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showName(),
                 static::showEnglishName(),
@@ -166,16 +167,16 @@ class CompanyResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    ExportBulkAction::make()
+                        ->exporter(CompanyExporter::class),
                     static::getActivateBulkAction(),
                     static::getDeactivateBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(CompanyExporter::class),
                 ]),
             ])
             ->striped()
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

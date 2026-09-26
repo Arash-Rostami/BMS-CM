@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\FormComponents;
+use App\Filament\Resources\General\InfoComponents;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\CorrespondenceRelationManager;
 use App\Filament\Resources\Operational\ShipmentResource\Exports\ShipmentExporter;
 use App\Filament\Resources\Operational\ShipmentResource\Pages\CreateShipment;
@@ -18,6 +20,7 @@ use App\Filament\Resources\Operational\ShipmentResource\Traits\Table as Shipment
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\Shipment;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
@@ -41,16 +44,32 @@ use Filament\Tables\Table as FilamentTable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class ShipmentResource extends Resource
 {
-    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, ShipmentFilters, ShipmentForm, ShipmentInfolist, ShipmentInvoiceForm, ShipmentTable;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow, ShipmentFilters, ShipmentForm, ShipmentInfolist, ShipmentInvoiceForm, ShipmentTable;
 
     protected static ?string $model = Shipment::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-truck';
 
     protected static ?int $navigationSort = 1;
+
+    public static function statusWorkflowType(): string
+    {
+        return Shipment::TYPE_SHIPMENT_STATUS;
+    }
+
+    public static function statusWorkflowColumns(): array
+    {
+        return Shipment::statusHistoryColumns();
+    }
+
+    protected static function statusWorkflowRelation(string $column): string
+    {
+        return $column === 'shipment_status_id' ? 'trackingStatus' : Str::camel(Str::beforeLast($column, '_id'));
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -140,22 +159,27 @@ class ShipmentResource extends Resource
             ]);
     }
 
+    public static function eagerRelations(): array
+    {
+        return [
+            'creator',
+            'updater',
+            'extraAttributes',
+            'registeredOrder',
+            'carrier',
+            'status',
+            'containerStatus',
+            'operationStatus',
+            'trackingStatus',
+            'docStatus',
+            'attachments',
+        ];
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with([
-                'creator',
-                'updater',
-                'extraAttributes',
-                'registeredOrder',
-                'carrier',
-                'status',
-                'containerStatus',
-                'operationStatus',
-                'trackingStatus',
-                'docStatus',
-                'attachments',
-            ])
+            ->with(static::eagerRelations())
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
@@ -298,6 +322,7 @@ class ShipmentResource extends Resource
                             ))
                             ->icon('heroicon-o-paper-clip')
                             ->schema([Section::make()->schema([static::viewAttachments()])]),
+                        InfoComponents::getStatusHistoryTab(),
                         static::getExtraAttributesInfolistTab(),
                     ])
                     ->columnSpanFull(),
@@ -306,7 +331,7 @@ class ShipmentResource extends Resource
 
     public static function table(FilamentTable $table): FilamentTable
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showId(),
                 static::showRegisteredOrder(),
@@ -320,6 +345,8 @@ class ShipmentResource extends Resource
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
+                static::getStatusWorkflowProgressColumn('status_id', Shipment::TYPE_SHIPMENT_STATUS),
+                static::getStatusWorkflowProgressColumn('shipment_status_id', Shipment::TYPE_TRACKING_STATUS, toggledHiddenByDefault: true),
             ])
             ->filters([
                 static::getCarrierFilter(),
@@ -343,10 +370,10 @@ class ShipmentResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(ShipmentExporter::class),
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ])
             ->groups([
@@ -367,6 +394,6 @@ class ShipmentResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

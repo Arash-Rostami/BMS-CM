@@ -26,8 +26,7 @@ trait Table
     {
         return TextColumn::make('clearance_date')
             ->label(__('resources/custom/strings.form.clearance_date'))
-            ->date()
-            ->formatStateUsing(fn ($record) => app()->getLocale() === 'fa' ? toPersianDate($record->clearance_date) : toGregorianDate($record->clearance_date))
+            ->adaptiveDate()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -90,7 +89,7 @@ trait Table
     {
         return TextColumn::make('created_at')
             ->label(__('resources/custom/strings.table.created_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -145,7 +144,7 @@ trait Table
     {
         return TextColumn::make('updated_at')
             ->label(__('resources/custom/strings.table.updated_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

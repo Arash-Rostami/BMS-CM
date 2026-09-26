@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\General\FormComponents;
 use App\Filament\Resources\General\InfoComponents;
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\ProformaInvoiceResource\Exports\ProformaInvoiceExporter;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Pages\CreateProformaInvoice;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Pages\EditProformaInvoice;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Pages\ListProformaInvoices;
@@ -26,7 +25,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -147,24 +145,29 @@ class ProformaInvoiceResource extends Resource
             ]);
     }
 
+    public static function eagerRelations(): array
+    {
+        return [
+            'creator',
+            'updater',
+            'attachments',
+            'extraAttributes',
+            'buyerCompany',
+            'items',
+            'items.product',
+            'mainCurrency',
+            'purchaseOrders',
+            'registeredOrders',
+            'purchaseRequests',
+            'secondaryCurrency',
+            'sellerCompany',
+        ];
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with([
-                'creator',
-                'updater',
-                'attachments',
-                'extraAttributes',
-                'buyerCompany',
-                'items',
-                'items.product',
-                'mainCurrency',
-                'purchaseOrders',
-                'registeredOrders',
-                'purchaseRequests',
-                'secondaryCurrency',
-                'sellerCompany',
-            ])
+            ->with(static::eagerRelations())
             ->withCount([
                 'purchaseOrders',
                 'registeredOrders',
@@ -197,7 +200,7 @@ class ProformaInvoiceResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['invoice_no', 'contract_no'];
+        return static::withExtraAttributesSearch(['invoice_no', 'contract_no']);
     }
 
     public static function getModelLabel(): string
@@ -278,13 +281,16 @@ class ProformaInvoiceResource extends Resource
                                     static::viewFreightCharges(),
                                     static::viewOtherCharges(),
                                     static::viewTotalAmount(),
+                                    static::viewBudgetVariance(),
                                 ])->columns(3),
                             ]),
                         Tab::make('Items')
                             ->label(__('resources/proformaInvoice/strings.infolist.tab_items'))
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
-                                Section::make()->schema([static::viewInvoiceItems()]),
+                                Section::make()->schema([
+                                    static::viewInvoiceItems()->extraAttributes(['class' => 'fi-in-repeatable-spaced']),
+                                ]),
                             ])
                             ->badge(fn ($record) => $record->items->count())
                             ->badgeColor('success'),
@@ -305,7 +311,7 @@ class ProformaInvoiceResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showSource(),
                 static::showID(),
@@ -316,7 +322,9 @@ class ProformaInvoiceResource extends Resource
                 static::showSellerCompany(),
                 static::showBuyerCompany(),
                 static::showTotalAmount(),
+                static::showBudgetVariance(),
                 static::showInvoiceDate(),
+                static::showValidityDate(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
@@ -335,6 +343,7 @@ class ProformaInvoiceResource extends Resource
                 static::getInvoiceDateFilter(),
                 static::getHasPurchaseRequestsFilter(),
                 static::getHasPurchaseOrdersFilter(),
+                static::getNeedsConversionFilter(),
             ])
             ->filtersFormColumns(3)
             ->recordActions([
@@ -347,10 +356,9 @@ class ProformaInvoiceResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    static::getExportBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(ProformaInvoiceExporter::class),
                 ]),
             ])
             ->groups([
@@ -365,6 +373,6 @@ class ProformaInvoiceResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

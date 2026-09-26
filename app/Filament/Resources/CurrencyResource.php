@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Master\CurrencyResource\Exports\CurrencyExporter;
 use App\Filament\Resources\Master\CurrencyResource\Pages\ManageCurrencies;
 use App\Filament\Resources\Master\CurrencyResource\Traits\Filters as CurrencyFilters;
@@ -128,7 +129,7 @@ class CurrencyResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showName(),
                 static::showEnglishName(),
@@ -155,16 +156,16 @@ class CurrencyResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    ExportBulkAction::make()
+                        ->exporter(CurrencyExporter::class),
                     static::getActivateBulkAction(),
                     static::getDeactivateBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(CurrencyExporter::class),
                 ]),
             ])
             ->striped()
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

@@ -10,12 +10,12 @@ return new class extends Migration
     {
         Schema::create('purchase_requests', function (Blueprint $table) {
             $table->id();
-            $table->string('pr_number')->unique();
+            $table->string('pr_number', 50)->nullable();
             $table->foreignId('requester_id')->constrained('users');
             $table->foreignId('department_id')->constrained('departments');
             $table->unsignedBigInteger('cost_center_id')->nullable();
             $table->date('required_by_date')->nullable()->comment('Date by which items are needed');
-            $table->decimal('total_estimated_cost', 15, 5)->default(0);
+            $table->decimal('total_estimated_cost', 65, 5)->default(0);
             $table->string('urgency_level')->default('low')->comment('Urgency: low, medium, high');
             $table->foreignId('status_id')->nullable()->constrained('statuses');
             $table->foreignId('approver_id')->nullable()->constrained('users');
@@ -33,6 +33,8 @@ return new class extends Migration
             $table->index('cost_center_id', 'idx_pr_cost_center_id');
             $table->index('user_id', 'idx_pr_user_id');
             $table->index('updated_by_id', 'idx_pr_updated_by_id');
+            $table->index(['approval_date', 'required_by_date'], 'idx_pr_approval_required_dates');
+            $table->index(['deleted_at', 'created_at'], 'idx_pr_deleted_created');
         });
     }
 

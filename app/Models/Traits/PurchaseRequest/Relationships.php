@@ -44,7 +44,7 @@ trait Relationships
 
     public function proformaInvoices(): BelongsToMany
     {
-        return $this->belongsToMany(ProformaInvoice::class, 'proforma_invoice_purchase_request')->withTimestamps();
+        return $this->belongsToMany(ProformaInvoice::class, 'proforma_invoice_purchase_request');
     }
 
     public function purchaseOrders(): BelongsToMany

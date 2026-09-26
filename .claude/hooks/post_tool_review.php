@@ -2,10 +2,42 @@
 
 $THRESHOLD = 93;
 $OLLAMA_URL = 'http://localhost:11434/api/chat';
-$OLLAMA_MODEL = 'glm-5.2:cloud';
-$FALLBACK_MODEL = 'glm-5.1:cloud';
-$ANTHROPIC_MODEL = 'claude-sonnet-4-6';
+$chosen = trim(getenv('FATEH_LEAD_MODEL') ?: '');
+if ($chosen === '') $chosen = trim(getenv('ANTHROPIC_MODEL') ?: '');
+$OLLAMA_MODEL = $chosen !== '' ? $chosen : 'glm-5.2:cloud';
+$FALLBACK_CHAIN = [];
+foreach (['FATEH_FALLBACK_REVIEWER', 'FATEH_FALLBACK_MODEL', 'FATEH_FALLBACK_MODEL_2'] as $fbEnv) {
+    $fbVal = trim((string) getenv($fbEnv));
+    if ($fbVal !== '') $FALLBACK_CHAIN[] = $fbVal;
+}
+foreach (['glm-5.2:cloud', 'glm-5.1:cloud'] as $fbVal) {
+    if (!in_array($fbVal, $FALLBACK_CHAIN, true)) $FALLBACK_CHAIN[] = $fbVal;
+}
+$aId = trim(getenv('FATEH_REVIEWER_MODEL_A') ?: '');
+$REVIEWER_A = $aId !== '' ? $aId : $OLLAMA_MODEL;
+$bId = trim(getenv('FATEH_REVIEWER_MODEL_B') ?: '');
+$REVIEWER_B = $bId !== '' ? $bId : $OLLAMA_MODEL;
+$QUICK_REVIEWER = trim(getenv('FATEH_QUICK_REVIEWER') ?: '');
+if ($QUICK_REVIEWER === '') $QUICK_REVIEWER = $REVIEWER_A;
+$GATE_REVIEWER = trim(getenv('FATEH_GATE_REVIEWER') ?: '');
+if ($GATE_REVIEWER === '') $GATE_REVIEWER = $REVIEWER_A;
+$sId = trim(getenv('FATEH_SENSITIVE_REVIEWER') ?: '');
+$SENSITIVE_REVIEWER = $sId !== '' ? $sId : $REVIEWER_B;
+$MICRO_LINES = (int)((trim(getenv('FATEH_MICRO_LINES') ?: '') ?: '25'));
+$BIG_LINES = (int)((trim(getenv('FATEH_BIG_LINES') ?: '') ?: '150'));
+$SENSITIVE_PATTERN = trim(getenv('FATEH_SENSITIVE_PATHS') ?: '') ?: 'migration|\.env|(^|[/_\.-])auth(?![a-z])|polic(?:y|ies)|middleware|scope|config|secret|credential';
 $LOG = __DIR__ . '/../review.log';
+
+function classifyTier(array $input, string $tool, string $file): array
+{
+    global $MICRO_LINES, $BIG_LINES, $SENSITIVE_PATTERN;
+    if (preg_match("#({$SENSITIVE_PATTERN})#i", $file)) return ['sensitive', 'sensitive-path'];
+    $content = $tool === 'Write' ? ($input['content'] ?? '') : ($input['new_string'] ?? '');
+    $lines = ($content === '') ? 1 : substr_count($content, "\n") + 1;
+    if ($lines <= $MICRO_LINES) return ['skip', 'micro-diff'];
+    if ($lines > $BIG_LINES) return ['deep', 'large-diff'];
+    return ['quick', 'normal-diff'];
+}
 
 function logLine(string $line): void
 {
@@ -56,10 +88,9 @@ function extractJson(string $content): ?array
     return null;
 }
 
-function ollamaCall(array $prompts, ?string $model = null): array
+function ollamaCall(array $prompts, array $models = []): array
 {
     global $OLLAMA_URL, $OLLAMA_MODEL;
-    $model = $model ?? $OLLAMA_MODEL;
     $schema = [
         'type' => 'object',
         'properties' => [
@@ -73,6 +104,7 @@ function ollamaCall(array $prompts, ?string $model = null): array
     $mh = curl_multi_init();
     $handles = [];
     foreach (array_values($prompts) as $i => $prompt) {
+        $model = $models[$i] ?? $OLLAMA_MODEL;
         $payload = json_encode([
             'model' => $model,
             'stream' => false,
@@ -112,38 +144,17 @@ function ollamaCall(array $prompts, ?string $model = null): array
     return $out;
 }
 
-function ollamaCallFallback(string $prompt): ?array
+function ollamaCallFallback(string $prompt, string $primary): ?array
 {
-    global $OLLAMA_MODEL, $FALLBACK_MODEL;
-    $r = ollamaCall([$prompt], $OLLAMA_MODEL)[0] ?? null;
-    if (empty($r)) $r = ollamaCall([$prompt], $FALLBACK_MODEL)[0] ?? null;
-    return $r;
-}
-
-function anthropicCall(string $prompt, ?string $key, ?string $base): ?string
-{
-    global $ANTHROPIC_MODEL;
-    $url = rtrim($base ?? 'https://api.anthropic.com', '/') . '/v1/messages';
-    $payload = json_encode([
-        'model' => $ANTHROPIC_MODEL,
-        'max_tokens' => 1024,
-        'messages' => [['role' => 'user', 'content' => $prompt]],
-    ], JSON_UNESCAPED_SLASHES);
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'x-api-key: ' . ($key ?? ''),
-        'anthropic-version: 2023-06-01',
-    ]);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 40);
-    $res = curl_exec($ch);
-    curl_close($ch);
-    if ($res === false || $res === null) return null;
-    $data = json_decode($res, true);
-    return $data['content'][0]['text'] ?? null;
+    global $FALLBACK_CHAIN;
+    $r = ollamaCall([$prompt], [$primary])[0] ?? null;
+    if (!empty($r)) return $r;
+    foreach ($FALLBACK_CHAIN as $model) {
+        if ($model === $primary) continue;
+        $r = ollamaCall([$prompt], [$model])[0] ?? null;
+        if (!empty($r)) return $r;
+    }
+    return null;
 }
 
 function emitBlock(string $reason): void
@@ -154,7 +165,10 @@ function emitBlock(string $reason): void
 
 function commonPreamble(string $diff): string
 {
-    return "You are reviewing a code change in a Laravel 12 + Filament v4 + Livewire v3 codebase. Project rules: NO code comments are allowed (flag any comment introduced). Focus on the DIFF; the full file is attached as context only, not for judging unrelated code. Dry-run trace the changed code in your reasoning to verify control flow, edge cases, and integration.\n\n" . $diff . "\n\nOutput STRICT JSON only: {\"verdict\":\"pass|fail\",\"issues\":[\"concrete problem\"],\"confidence\":0-100,\"dry_run_notes\":\"trace summary\"}. verdict=pass only if no real issue is present. confidence = your confidence this change is safe to ship (0-100); a clean correct change should score 93 or higher, score below 93 only when you can name a concrete concern.";
+    $cfg = @include __DIR__ . '/pipeline_config.php';
+    $stack = is_array($cfg) ? (string)($cfg['stack'] ?? 'laravel') : 'laravel';
+    $stackPhrase = $stack === 'next' ? 'a Next.js (React) codebase' : ($stack === 'node' ? 'a Node.js/Express codebase' : 'a Laravel + Filament + Livewire codebase');
+    return "You are reviewing a code change in {$stackPhrase}. Project rules: NO code comments are allowed (flag any comment introduced). Focus on the DIFF; the full file is attached as context only, not for judging unrelated code. Dry-run trace the changed code in your reasoning to verify control flow, edge cases, and integration.\n\n" . $diff . "\n\nOutput STRICT JSON only: {\"verdict\":\"pass|fail\",\"issues\":[\"concrete problem\"],\"confidence\":0-100,\"dry_run_notes\":\"trace summary\"}. verdict=pass only if no real issue is present. confidence = your confidence this change is safe to ship (0-100); a clean correct change should score 93 or higher, score below 93 only when you can name a concrete concern.";
 }
 
 function reviewerA(string $diff): string
@@ -164,68 +178,40 @@ function reviewerA(string $diff): string
 
 function reviewerB(string $diff): string
 {
-    return "Your review lens: performance (queries inside loops, missing eager loads causing N+1, unbounded queries on large tables, repeated container resolution), pattern-consistency (trait-based schema composition — Form/Table/Infolist/Filters traits composed on the root Resource; Service classes in app/Services; HasResourcePermissions and HasExtraAttributesManagement traits where the project mandates them; no app/Policies), minimality, and absence of code comments. " . commonPreamble($diff);
+    return "Your review lens: performance (queries inside loops, missing eager loads causing N+1, unbounded queries on large tables, repeated container resolution), pattern-consistency (Action/Validator/Presenter/Service classes where the project mandates them), minimality, and absence of code comments. " . commonPreamble($diff);
 }
 
-function ollamaReview(string $diff, string $file): void
+function reviewerQuick(string $diff): string
 {
-    global $THRESHOLD;
-    $r1 = ollamaCall([reviewerA($diff), reviewerB($diff)]);
-    $a1 = $r1[0] ?? null;
-    $b1 = $r1[1] ?? null;
-    if (!$a1) $a1 = ollamaCallFallback(reviewerA($diff));
-    if (!$b1) $b1 = ollamaCallFallback(reviewerB($diff));
-    if (!$a1 || !$b1) {
-        logLine("ollama passthrough (infra-fail + fallback-fail) file=$file a1=" . ($a1 ? 'ok' : 'null') . " b1=" . ($b1 ? 'ok' : 'null'));
-        exit(0);
-    }
-    $a2prompt = reviewerA($diff) . "\n\nOther reviewer's round-1 verdict (correctness/security): " . json_encode($b1, JSON_UNESCAPED_SLASHES) . "\nRe-evaluate with this in view; output the same JSON shape.";
-    $b2prompt = reviewerB($diff) . "\n\nOther reviewer's round-1 verdict (perf/pattern/comments): " . json_encode($a1, JSON_UNESCAPED_SLASHES) . "\nRe-evaluate with this in view; output the same JSON shape.";
-    $r2 = ollamaCall([$a2prompt, $b2prompt]);
-    $a = $r2[0] ?? null;
-    $b = $r2[1] ?? null;
-    if (!$a) $a = ollamaCallFallback($a2prompt);
-    if (!$b) $b = ollamaCallFallback($b2prompt);
-    if (!$a || !$b) {
-        logLine("ollama passthrough (round2 infra-fail + fallback-fail) file=$file");
-        exit(0);
-    }
-    $va = $a['verdict'] ?? 'fail';
-    $vb = $b['verdict'] ?? 'fail';
-    $ca = (int)($a['confidence'] ?? 0);
-    $cb = (int)($b['confidence'] ?? 0);
-    $conf = min($ca, $cb);
-    $issues = array_merge((array)($a['issues'] ?? []), (array)($b['issues'] ?? []));
-    if ($va === 'pass' && $vb === 'pass' && $conf >= $THRESHOLD) {
-        logLine("ollama pass file=$file conf=$conf (a=$ca b=$cb)");
-        exit(0);
-    }
-    $aIssues = $va === 'pass' ? 'pass' : implode(' | ', (array)($a['issues'] ?? ['no issues stated']));
-    $bIssues = $vb === 'pass' ? 'pass' : implode(' | ', (array)($b['issues'] ?? ['no issues stated']));
-    $why = $conf < $THRESHOLD ? "confidence {$conf}% below gate {$THRESHOLD}%" : "confidence {$conf}%";
-    $reason = "Post-tool review blocked (verdicts A={$va} B={$vb}; {$why}). Reviewer A (correctness/security): {$aIssues}. Reviewer B (perf/pattern/comments): {$bIssues}. Dry-run A: " . ($a['dry_run_notes'] ?? '-') . " | Dry-run B: " . ($b['dry_run_notes'] ?? '-') . ". Required fixes: " . (empty($issues) ? 'see reviewer notes above' : implode(' | ', $issues));
-    logLine("ollama block file=$file conf=$conf (a=$va/$ca b=$vb/$cb)");
-    emitBlock($reason);
+    return "Quick tripwire review: real correctness bugs, broken control flow, unhandled edge cases, and code comments introduced. Be fast and decisive; do not nitpick style or architecture. " . commonPreamble($diff);
 }
 
-function anthropicReview(string $diff, string $file, ?string $key, ?string $base): void
+function gateReview(array $tier, string $diff, string $file): void
 {
-    $prompt = "Check only the literal code change below. You have no access to any other file, so judge only what is shown. Pass if the code is syntactically correct PHP, Blade, or JS, has no obvious bug or unhandled edge case, no obvious security hole (injection, XSS, missing auth check, data leakage), and no obvious performance red flag (query inside a loop, missing eager load causing N+1, unbounded query on an evidently large table). Fail only if one of those is clearly present. Output STRICT JSON: {\"verdict\":\"pass|fail\",\"reason\":\"concrete problem + one or two line fix\"}.\n\nDIFF:\n$diff";
-    $text = anthropicCall($prompt, $key, $base);
-    if ($text === null) {
-        logLine("anthropic passthrough (infra-fail) file=$file");
+    global $THRESHOLD, $QUICK_REVIEWER, $GATE_REVIEWER, $SENSITIVE_REVIEWER;
+    if ($tier[0] === 'skip') {
+        logLine("tier0 skip file=$file reason={$tier[1]}");
         exit(0);
     }
-    $json = extractJson($text);
-    $verdict = is_array($json) ? ($json['verdict'] ?? '') : '';
-    if ($verdict === 'fail') {
-        $reason = is_array($json) ? ($json['reason'] ?? '') : '';
-        if ($reason === '') $reason = $text ?: 'reviewer flagged the change';
-        logLine("anthropic block file=$file");
-        emitBlock("Post-tool review (claude-sonnet-4-6): {$reason}");
+    $kind = $tier[0];
+    $model = $kind === 'quick' ? $QUICK_REVIEWER : ($kind === 'deep' ? $GATE_REVIEWER : $SENSITIVE_REVIEWER);
+    $lens = $kind === 'quick' ? 'quick tripwire' : ($kind === 'deep' ? 'perf/pattern-consistency' : 'correctness/security');
+    $prompt = $kind === 'quick' ? reviewerQuick($diff) : ($kind === 'deep' ? reviewerB($diff) : reviewerA($diff));
+    $r = ollamaCall([$prompt], [$model])[0] ?? null;
+    if (!$r) $r = ollamaCallFallback($prompt, $model);
+    if (!$r) {
+        logLine("gate passthrough (infra-fail + fallback-fail) file=$file model=$model tier=$kind");
+        exit(0);
     }
-    logLine("anthropic pass file=$file");
-    exit(0);
+    $v = is_array($r) ? ($r['verdict'] ?? 'fail') : 'fail';
+    $c = (int)($r['confidence'] ?? 0);
+    if ($v === 'pass' && $c >= $THRESHOLD) {
+        logLine("gate pass tier=$kind file=$file conf=$c model=$model lens=$lens");
+        exit(0);
+    }
+    $issues = implode(' | ', (array)($r['issues'] ?? ['no issues stated']));
+    logLine("gate block tier=$kind file=$file verdict=$v conf=$c model=$model lens=$lens");
+    emitBlock("Post-tool review blocked ({$lens} gate, single round, model {$model}; verdict {$v}, confidence {$c}%). Issues: {$issues}. Dry-run: " . ($r['dry_run_notes'] ?? '-') . ". Required fixes: {$issues}");
 }
 
 $stdin = file_get_contents('php://stdin');
@@ -236,13 +222,27 @@ if (!is_array($payload)) {
 $tool = $payload['tool_name'] ?? '';
 $input = $payload['tool_input'] ?? [];
 $file = $input['file_path'] ?? '(unknown)';
+$stateDir = __DIR__ . '/.state';
+@mkdir($stateDir, 0777, true);
+$editsFile = $stateDir . '/edits_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)($payload['session_id'] ?? 'unknown')) . '.json';
+$edits = [];
+if (is_file($editsFile)) {
+    $decoded = json_decode((string)@file_get_contents($editsFile), true);
+    if (is_array($decoded)) $edits = $decoded;
+}
+$edits[$file] = time();
+if (count($edits) > 300) {
+    arsort($edits);
+    $edits = array_slice($edits, 0, 300, true);
+}
+@file_put_contents($editsFile, json_encode($edits), LOCK_EX);
 $diff = buildDiff($tool, $input);
 $base = getenv('ANTHROPIC_BASE_URL');
-$key = getenv('ANTHROPIC_API_KEY');
 $ollama = is_string($base) && strpos($base, '11434') !== false;
-if ($ollama) {
-    ollamaReview($diff, $file);
-} else {
-    anthropicReview($diff, $file, $key, $base);
+$subagent = getenv('FATEH_REVIEW_MODE') === 'subagent';
+if ($ollama && !$subagent) {
+    gateReview(classifyTier($input, $tool, $file), $diff, $file);
+} elseif ($ollama && $subagent) {
+    logLine("subagent mode: per-write gate inert file=$file (unit-review subagent owns review)");
 }
 exit(0);

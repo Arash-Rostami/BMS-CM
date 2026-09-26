@@ -52,4 +52,6 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
     </button>
+
+    @include('filament.partials.theme', ['surface' => 'lp'])
 </div>

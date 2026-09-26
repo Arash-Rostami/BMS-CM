@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Master\PermissionResource\Pages\ManagePermissions;
 use App\Filament\Resources\Master\PermissionResource\Traits\Filters as PermissionFilters;
 use App\Filament\Resources\Master\PermissionResource\Traits\Form as PermissionForm;
@@ -32,7 +33,7 @@ class PermissionResource extends Resource
 
     protected static string|null|\BackedEnum $navigationIcon = 'heroicon-o-key';
 
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 11;
 
     public static function form(Schema $schema): Schema
     {
@@ -94,7 +95,7 @@ class PermissionResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showName(),
                 static::showRolesCount(),
@@ -128,6 +129,6 @@ class PermissionResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

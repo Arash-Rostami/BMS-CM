@@ -11,11 +11,14 @@ class StatusFactory extends Factory
 {
     public function definition(): array
     {
+        $type = fake()->randomElement(['PurchaseRequest', 'ProformaInvoice', 'PurchaseOrder', 'Shipment']);
+        $name = fake()->unique()->word();
+
         return [
-            'type' => fake()->randomElement(['PurchaseRequest', 'ProformaInvoice', 'PurchaseOrder', 'Shipment']),
-            'english_type' => fake()->optional()->randomElement(['PurchaseRequest', 'ProformaInvoice', 'PurchaseOrder', 'Shipment']),
-            'name' => fake()->unique()->word(),
-            'english_name' => fake()->optional()->word(),
+            'type' => $type,
+            'english_type' => $type,
+            'name' => $name,
+            'english_name' => $name,
             'user_id' => null,
             'updated_by_id' => null,
         ];

@@ -14,6 +14,7 @@ class ListPurchaseOrders extends ListRecords
     {
         return [
             ...array_filter([PurchaseOrderResource::getDeskReferenceHeaderAction()]),
+            PurchaseOrderResource::getStatusWorkflowPipelineAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
         ];

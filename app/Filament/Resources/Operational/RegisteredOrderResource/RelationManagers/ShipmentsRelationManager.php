@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\ShipmentResource\Exports\ShipmentExporter;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Filters as ShipmentFilters;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Table as ShipmentTable;
 use App\Filament\Resources\ShipmentResource;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -13,7 +15,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -25,9 +26,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShipmentsRelationManager extends RelationManager
 {
+    use HandlesActionExceptions;
     use ShipmentFilters, ShipmentTable;
 
     protected static string $relationship = 'shipments';
+
+    protected static ?string $relatedResource = ShipmentResource::class;
 
     public static function getModelLabel(): string
     {
@@ -51,7 +55,8 @@ class ShipmentsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return TableComponents::gatedEmptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(ShipmentResource::eagerRelations()))
             ->columns([
                 static::showId(),
                 static::showShipmentNo(),
@@ -80,6 +85,8 @@ class ShipmentsRelationManager extends RelationManager
             ->headerActions([
                 Action::make('create')
                     ->label(__('resources/general/strings.actions.add_record'))
+                    ->tooltip(__('resources/general/strings.actions.add_record_tooltip'))
+                    ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Submitted']))
                     ->url(fn (): string => ShipmentResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
@@ -94,7 +101,6 @@ class ShipmentsRelationManager extends RelationManager
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(ShipmentExporter::class),
@@ -113,6 +119,6 @@ class ShipmentsRelationManager extends RelationManager
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

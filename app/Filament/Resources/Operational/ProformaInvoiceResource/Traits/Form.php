@@ -60,7 +60,7 @@ trait Form
             ->searchable(['name', 'english_name'])
             ->preload()
             ->required()
-            ->different('seller_company_id')
+            ->different('seller_id')
             ->rules(['exists:companies,id'])
             ->validationMessages([
                 'required' => __('resources/proformaInvoice/strings.form.validation_buyer_company_required'),
@@ -161,7 +161,7 @@ trait Form
             ->label(__('resources/proformaInvoice/strings.form.invoice_no'))
             ->required()
             ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('invoice_no') : null)
-            ->unique(ignoreRecord: true)
+            ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->maxLength(255)
             ->validationMessages([
                 'max' => __('resources/proformaInvoice/strings.form.validation_invoice_no_max'),
@@ -182,6 +182,7 @@ trait Form
             ->columnSpan('full')
             ->rules(['nullable', 'string', 'max:65535'])
             ->validationMessages([
+                'string' => __('resources/proformaInvoice/strings.form.validation.string'),
                 'max' => __('resources/proformaInvoice/strings.form.validation.max_string'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.item_description'));
@@ -521,7 +522,7 @@ trait Form
             ->relationship('sellerCompany', 'name')
             ->searchable(['name', 'english_name'])
             ->required()
-            ->different('buyer_company_id')
+            ->different('buyer_id')
             ->preload()
             ->rules(['exists:companies,id'])
             ->validationMessages([

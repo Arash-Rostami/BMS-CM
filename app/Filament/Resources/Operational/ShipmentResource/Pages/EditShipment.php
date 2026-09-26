@@ -9,9 +9,11 @@ use App\Filament\Resources\ShipmentResource;
 use App\Models\BankProfile;
 use App\Models\EntityAttribute;
 use App\Models\Shipment;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 
 class EditShipment extends EditRecord
 {
@@ -29,6 +31,11 @@ class EditShipment extends EditRecord
             $data['remittance_amount'] = $total > 0 ? round((float) $total, 2) : null;
         }
 
+        return $this->hydrateInvoiceData($data);
+    }
+
+    protected function hydrateInvoiceData(array $data): array
+    {
         $attr = EntityAttribute::where('entity_type', Shipment::class)
             ->where('entity_id', $this->record->id)
             ->where('key', 'commercial_invoice')
@@ -65,9 +72,45 @@ class EditShipment extends EditRecord
             $data['_inv_total_gross_weight'] = $inv['total_gross_weight'] ?? 0;
             $data['_inv_notes'] = $inv['notes'] ?? null;
         } else {
+            $data['_inv_pi_id'] = null;
+            $data['_inv_invoice_no'] = null;
+            $data['_inv_invoice_date'] = null;
+            $data['_inv_seller_name'] = null;
+            $data['_inv_seller_address'] = null;
+            $data['_inv_buyer_name'] = null;
+            $data['_inv_buyer_address'] = null;
+            $data['_inv_buyer_comm_card_no'] = null;
+            $data['_inv_currency'] = null;
+            $data['_inv_payment_terms'] = null;
+            $data['_inv_transport_mode'] = null;
+            $data['_inv_incoterms'] = null;
+            $data['_inv_port_of_loading'] = null;
+            $data['_inv_port_of_discharge'] = null;
+            $data['_inv_origin_country'] = null;
+            $data['_inv_destination_country'] = null;
             $data['_inv_bl_number'] = $data['bl_number'] ?? null;
             $data['_inv_etd'] = $data['etd'] ?? null;
             $data['_inv_eta'] = $data['eta'] ?? null;
+            $data['_inv_items'] = [];
+            $data['_inv_subtotal'] = 0;
+            $data['_inv_discount'] = 0;
+            $data['_inv_freight_charges'] = 0;
+            $data['_inv_other_charges'] = 0;
+            $data['_inv_grand_total'] = 0;
+            $data['_inv_total_net_weight'] = 0;
+            $data['_inv_total_gross_weight'] = 0;
+            $data['_inv_notes'] = null;
+        }
+
+        return $data;
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $record = $this->getRecord();
+
+        foreach (Shipment::statusHistoryColumns() as $column) {
+            ShipmentResource::assertStatusTransitionAllowed($record, $column, $data[$column] ?? null);
         }
 
         return $data;
@@ -79,6 +122,56 @@ class EditShipment extends EditRecord
             ViewAction::make(),
             DeleteAction::make(),
             RestoreAction::make(),
+        ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            Action::make('saveInvoice')
+                ->label(__('resources/shipment/strings.invoice.action_save'))
+                ->icon('heroicon-o-cloud-arrow-up')
+                ->color('success')
+                ->tooltip(__('resources/shipment/strings.invoice.action_save_tooltip'))
+                ->disabled(fn () => blank($this->data['_inv_pi_id'] ?? null))
+                ->action(function () {
+                    ShipmentResource::persistInvoiceToEav($this->data, $this->record);
+                    Notification::make()
+                        ->title(__('resources/shipment/strings.invoice.saved_notification'))
+                        ->success()
+                        ->send();
+                }),
+
+            Action::make('printInvoice')
+                ->label(__('resources/shipment/strings.invoice.action_print'))
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('info')
+                ->tooltip(__('resources/shipment/strings.invoice.action_print_tooltip'))
+                ->disabled(fn () => blank($this->data['_inv_pi_id'] ?? null))
+                ->action(function () {
+                    ShipmentResource::persistInvoiceToEav($this->data, $this->record);
+
+                    if ($this->record?->id) {
+                        $this->js('window.open('.json_encode(route('shipments.invoice.pdf', ['shipment' => $this->record->id])).", '_blank')");
+                    }
+                }),
+
+            Action::make('resetInvoice')
+                ->label(__('resources/shipment/strings.invoice.action_reset'))
+                ->icon('heroicon-o-arrow-path')
+                ->color('gray')
+                ->tooltip(__('resources/shipment/strings.invoice.action_reset_tooltip'))
+                ->requiresConfirmation()
+                ->action(function () {
+                    $this->form->fill($this->hydrateInvoiceData($this->data));
+                    Notification::make()
+                        ->title(__('resources/shipment/strings.invoice.reset_notification'))
+                        ->success()
+                        ->send();
+                }),
+
+            $this->getSaveFormAction(),
+            $this->getCancelFormAction(),
         ];
     }
 }

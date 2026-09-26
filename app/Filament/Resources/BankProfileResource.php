@@ -3,7 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\FormComponents;
-use App\Filament\Resources\Operational\BankProfileResource\Exports\BankProfileExporter;
+use App\Filament\Resources\General\InfoComponents;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\BankProfileResource\Pages\CreateBankProfile;
 use App\Filament\Resources\Operational\BankProfileResource\Pages\EditBankProfile;
 use App\Filament\Resources\Operational\BankProfileResource\Pages\ListBankProfiles;
@@ -15,6 +16,7 @@ use App\Filament\Resources\Operational\BankProfileResource\Traits\Table as BankP
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\BankProfile;
 use App\Models\Category;
 use App\Models\Product;
@@ -24,7 +26,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -43,13 +44,18 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BankProfileResource extends Resource
 {
-    use BankProfileFilters, BankProfileForm, BankProfileInfolist, BankProfileTable, HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions;
+    use BankProfileFilters, BankProfileForm, BankProfileInfolist, BankProfileTable, HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow;
 
     protected static ?string $model = BankProfile::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-office';
 
     protected static ?int $navigationSort = 2;
+
+    public static function statusWorkflowType(): string
+    {
+        return BankProfile::TYPE_BANK_PROFILE;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -133,22 +139,27 @@ class BankProfileResource extends Resource
             ]);
     }
 
+    public static function eagerRelations(): array
+    {
+        return [
+            'creator',
+            'updater',
+            'attachments',
+            'extraAttributes',
+            'bank',
+            'company',
+            'requestedCurrency',
+            'purchasedCurrency',
+            'targetable' => fn (MorphTo $morphTo) => $morphTo->morphWith([Product::class, Category::class]),
+            'registeredOrder',
+            'status',
+        ];
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with([
-                'creator',
-                'updater',
-                'attachments',
-                'extraAttributes',
-                'bank',
-                'company',
-                'requestedCurrency',
-                'purchasedCurrency',
-                'targetable' => fn (MorphTo $morphTo) => $morphTo->morphWith([Product::class, Category::class]),
-                'registeredOrder',
-                'status',
-            ])
+            ->with(static::eagerRelations())
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
@@ -176,7 +187,7 @@ class BankProfileResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['bp_number', 'order_number'];
+        return static::withExtraAttributesSearch(['bp_number', 'order_number']);
     }
 
     public static function getModelLabel(): string
@@ -283,6 +294,7 @@ class BankProfileResource extends Resource
                             $record?->attachments->count() ?? 0,
                             'info'
                         )),
+                    InfoComponents::getStatusHistoryTab(),
                     static::getExtraAttributesInfolistTab(),
                 ])->columnSpanFull(),
             ]);
@@ -290,7 +302,7 @@ class BankProfileResource extends Resource
 
     public static function table(FilamentTable $table): FilamentTable
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showId(),
                 static::showRegisteredOrder(),
@@ -299,12 +311,15 @@ class BankProfileResource extends Resource
                 static::showBank(),
                 static::showCompany(),
                 static::showStatus(),
+                static::showRequestedAmount(),
+                static::showRequestedCurrency(),
                 static::showPaymentDueDate(),
                 static::showCommitmentPaymentDate(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
+                static::getStatusWorkflowProgressColumn(),
             ])
             ->filters([
                 static::getRegisteredOrderFilter(),
@@ -327,10 +342,9 @@ class BankProfileResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    static::getExportBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(BankProfileExporter::class),
                 ]),
             ])
             ->groups([
@@ -351,6 +365,6 @@ class BankProfileResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

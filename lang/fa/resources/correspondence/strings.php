@@ -6,6 +6,7 @@ return [
         'plural_model_label' => 'مکاتبات و لاگها',
         'create_new' => 'پیام و لاگ جدید',
         'reply' => 'پاسخ',
+        'unresolved_cc_warning' => 'برخی نام‌های رونوشت با هیچ کاربری مطابقت نداشتند و نادیده گرفته شدند: :names',
     ],
     'enums' => [
         'type' => [
@@ -77,6 +78,10 @@ return [
         'created_until' => 'ایجاد تا تاریخ',
         'unread' => 'خوانده نشده (صندوق من)',
     ],
+    'bulk' => [
+        'mark_as_read' => 'علامت‌گذاری به‌عنوان خوانده‌شده',
+        'mark_as_read_notification' => 'مکاتبات انتخاب‌شده به‌عنوان خوانده‌شده علامت‌گذاری شدند.',
+    ],
     'infolist' => [
         'tab_general' => 'جزئیات پیام',
         'tab_recipients' => 'گیرندگان',
@@ -92,6 +97,7 @@ return [
         'unread_label' => 'خوانده نشده',
     ],
     'export' => [
+        'export_correspondences' => 'خروجی مکاتبات',
         'id' => 'شناسه',
         'subject' => 'موضوع',
         'type' => 'نوع',
@@ -100,11 +106,20 @@ return [
         'is_internal' => 'یادداشت داخلی',
         'is_private' => 'محرمانه (محدود)',
         'body' => 'متن پیام',
+        'related_to' => 'مرتبط با',
+        'related_module' => 'ماژول مرتبط',
+        'thread_role' => 'نقش در گفتگو',
+        'thread_role_root' => 'اصلی',
+        'thread_role_reply' => 'پاسخ',
+        'parent_subject' => 'موضوع پیام اصلی',
         'recipients' => 'گیرندگان',
         'recipient_to' => 'گیرنده',
         'recipient_cc' => 'رونوشت',
         'creator' => 'ایجاد کننده',
+        'updater' => 'بروزرسانی کننده',
         'created_at' => 'تاریخ ایجاد',
         'updated_at' => 'تاریخ بروزرسانی',
+        'yes' => 'بله',
+        'no' => 'خیر',
     ],
 ];

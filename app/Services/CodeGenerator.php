@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\BankProfile;
 use App\Models\Custom;
+use App\Models\Department;
 use App\Models\Payment;
 use App\Models\ProformaInvoice;
 use App\Models\PurchaseOrder;
@@ -24,6 +25,7 @@ class CodeGenerator
         'payment_no' => ['model' => Payment::class,         'prefix' => 'P'],
         'shipment_no' => ['model' => Shipment::class,        'prefix' => 'S'],
         'custom_no' => ['model' => Custom::class,          'prefix' => 'CU'],
+        'code' => ['model' => Department::class,       'prefix' => 'DEPT'],
     ];
 
     public static function generate(string $field): string

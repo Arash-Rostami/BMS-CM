@@ -59,7 +59,7 @@ trait Form
             ->required()
             ->readOnly()
             ->maxLength(255)
-            ->unique(ignoreRecord: true)
+            ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('bp_number') : null)
             ->validationMessages([
                 'required' => __('resources/bankProfile/strings.form.validation_required'),
@@ -387,6 +387,8 @@ trait Form
             ->columns(1)
             ->preload()
             ->required()
+            ->disabled(fn (string $operation): bool => $operation === 'create' && request()->has('registered_order_id'))
+            ->dehydrated()
             ->validationMessages([
                 'required' => __('resources/bankProfile/strings.form.validation_required'),
             ])
@@ -415,21 +417,14 @@ trait Form
 
     public static function getStatusField(): Select
     {
-        return Select::make('status_id')
+        return static::getStatusWorkflowField('status_id', fn (Select $field) => $field
             ->label(__('resources/bankProfile/strings.form.status'))
-            ->relationship(
-                name: 'status',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', BankProfile::TYPE_BANK_PROFILE)
-            )
-            ->default(fn ($operation): ?int => $operation === 'create' ? Status::findBy('Bank Profile Status', 'Submitted')?->id : null)
             ->searchable()
             ->preload()
-            ->required()
             ->validationMessages([
                 'required' => __('resources/bankProfile/strings.form.validation_required'),
             ])
-            ->validationAttribute(__('resources/bankProfile/strings.form.status'));
+            ->validationAttribute(__('resources/bankProfile/strings.form.status')), null, fn () => Status::findBy(BankProfile::TYPE_BANK_PROFILE, 'Submitted')?->id);
     }
 
     public static function getSummaryFields(): array
@@ -488,10 +483,16 @@ trait Form
             ->searchable()
             ->columns(1)
             ->required()
-            ->validationMessages([
-                'required' => __('resources/bankProfile/strings.form.validation_required'),
-            ])
-            ->validationAttribute(__('resources/bankProfile/strings.form.targetable'));
+            ->modifyTypeSelectUsing(fn (Select $select): Select => $select
+                ->validationAttribute(__('resources/bankProfile/strings.form.targetable'))
+                ->validationMessages([
+                    'required' => __('resources/bankProfile/strings.form.validation_required'),
+                ]))
+            ->modifyKeySelectUsing(fn (Select $select): Select => $select
+                ->validationAttribute(__('resources/bankProfile/strings.form.targetable'))
+                ->validationMessages([
+                    'required' => __('resources/bankProfile/strings.form.validation_required'),
+                ]));
     }
 
     public static function getWaitingDurationField(): TextEntry

@@ -2,58 +2,108 @@
 
 namespace App\Filament\Resources\Operational\PurchaseRequestResource\Exports;
 
-use App\Filament\Traits\ExportDefaults;
+use App\Filament\Resources\Operational\PurchaseRequestResource\Imports\PurchaseRequestImporter;
 use App\Models\PurchaseRequest;
-use Filament\Actions\Exports\ExportColumn;
-use Filament\Actions\Exports\Exporter;
+use App\Models\PurchaseRequestItem;
+use Illuminate\Database\Eloquent\Builder;
+use League\Csv\Writer;
 
-class PurchaseRequestExporter extends Exporter
+class PurchaseRequestExporter
 {
-    use ExportDefaults;
-
-    protected static ?string $model = PurchaseRequest::class;
-
-    protected static function eagerLoadRelations(): array
+    /**
+     * @return int the number of physical rows written (parents + items)
+     */
+    public static function write(Builder $query, string $absolutePath): int
     {
-        return ['requester', 'department', 'costCenter', 'status', 'approver', 'items.product', 'items.status'];
+        $labels = PurchaseRequestImporter::columnLabels();
+
+        $records = $query
+            ->with(['requester', 'department', 'costCenter', 'status', 'items.product', 'items.status'])
+            ->orderBy('id')
+            ->lazy();
+
+        $stream = fopen($absolutePath, 'w+');
+
+        fwrite($stream, "\xEF\xBB\xBF");
+
+        $csv = Writer::from($stream);
+        $csv->insertOne(array_values($labels));
+
+        $rows = 0;
+
+        foreach ($records as $record) {
+            $csv->insertOne(static::parentRow($record, $labels));
+            $rows++;
+
+            foreach ($record->items as $item) {
+                $csv->insertOne(static::itemRow($item, $labels));
+                $rows++;
+            }
+        }
+
+        fclose($stream);
+
+        return $rows;
     }
 
-    public static function getColumns(): array
+    /**
+     * @param  array<string, string>  $labels
+     * @return array<int, string>
+     */
+    protected static function parentRow(PurchaseRequest $record, array $labels): array
     {
-        return [
-            ExportColumn::make('id')->label(__('resources/purchaseRequest/strings.export.id')),
-            ExportColumn::make('requester.name')->label(__('resources/purchaseRequest/strings.export.requester')),
-            ExportColumn::make('department.name')->label(__('resources/purchaseRequest/strings.export.department')),
-            ExportColumn::make('department.english_name')->label(__('resources/purchaseRequest/strings.export.department_english')),
-            ExportColumn::make('costCenter.name')->label(__('resources/purchaseRequest/strings.export.cost_center')),
-            ExportColumn::make('costCenter.english_name')->label(__('resources/purchaseRequest/strings.export.cost_center_english')),
-            ExportColumn::make('required_by_date')->label(__('resources/purchaseRequest/strings.export.required_by_date')),
-            ExportColumn::make('total_estimated_cost')->label(__('resources/purchaseRequest/strings.export.total_estimated_cost'))
-                ->formatStateUsing(fn ($state) => preciseNumber($state)),
-            ExportColumn::make('urgency_level')->label(__('resources/purchaseRequest/strings.export.urgency_level')),
-            ExportColumn::make('status.name')->label(__('resources/purchaseRequest/strings.export.status')),
-            ExportColumn::make('status.english_name')->label(__('resources/purchaseRequest/strings.export.status_english')),
-            ExportColumn::make('approver.name')->label(__('resources/purchaseRequest/strings.export.approver')),
-            ExportColumn::make('approval_date')->label(__('resources/purchaseRequest/strings.export.approval_date')),
-            ExportColumn::make('items')
-                ->label(__('resources/purchaseRequest/strings.export.items'))
-                ->state(function (PurchaseRequest $record): string {
-                    return $record->items->map(function ($item) {
-                        $product = $item->product?->getLocalizedNameAttribute() ?? 'N/A';
-                        $quantity = preciseNumber($item->quantity);
-                        $unit = __('resources/general/strings.metrics.'.$item->unit) ?? $item->unit;
-                        $cost = preciseNumber($item->estimated_cost);
-                        $status = $item->status?->getLocalizedNameAttribute() ?? 'N/A';
-                        $notesContent = str_replace(["\r\n", "\r", "\n"], ' ', $item->notes ?? '');
-                        $notes = $notesContent ? " - Notes: {$notesContent}" : '';
+        $values = array_fill_keys(array_keys($labels), '');
 
-                        return "Product: {$product}, Qty: {$quantity} {$unit}, Cost: {$cost}, Status: {$status}{$notes}";
-                    })->implode(' | ');
-                }),
-            ExportColumn::make('creator.name')->label(__('resources/purchaseRequest/strings.export.creator')),
-            ExportColumn::make('updater.name')->label(__('resources/purchaseRequest/strings.export.updater')),
-            ExportColumn::make('created_at')->label(__('resources/purchaseRequest/strings.export.created_at')),
-            ExportColumn::make('updated_at')->label(__('resources/purchaseRequest/strings.export.updated_at')),
-        ];
+        $values['pr_number'] = (string) $record->pr_number;
+        $values['requester_id'] = $record->requester?->email ?? '';
+        $values['department_id'] = $record->department?->getLocalizedNameAttribute() ?? '';
+        $values['cost_center_id'] = $record->costCenter?->getLocalizedNameAttribute() ?? '';
+        $values['required_by_date'] = static::jalaliDate($record->required_by_date);
+        $values['urgency_level'] = (string) ($record->urgency_level ?? '');
+        $values['total_estimated_cost'] = static::numberValue($record->total_estimated_cost);
+        $values['status_id'] = $record->status?->getLocalizedNameAttribute() ?? '';
+        $values['notes'] = static::plainText($record->notes);
+
+        return array_values($values);
+    }
+
+    /**
+     * @param  array<string, string>  $labels
+     * @return array<int, string>
+     */
+    protected static function itemRow(PurchaseRequestItem $item, array $labels): array
+    {
+        $values = array_fill_keys(array_keys($labels), '');
+
+        $values['product_id'] = $item->product?->getLocalizedNameAttribute() ?? '';
+        $values['quantity'] = static::numberValue($item->quantity);
+        $values['unit'] = (string) ($item->unit ?? '');
+        $values['estimated_cost'] = static::numberValue($item->estimated_cost);
+        $values['item_status_id'] = $item->status?->getLocalizedNameAttribute() ?? '';
+        $values['item_notes'] = static::plainText($item->notes);
+
+        return array_values($values);
+    }
+
+    protected static function numberValue(mixed $value): string
+    {
+        return $value === null ? '' : (string) $value;
+    }
+
+    protected static function plainText(mixed $value): string
+    {
+        $text = trim(html_entity_decode(strip_tags((string) ($value ?? '')), ENT_QUOTES));
+
+        return static::escapeCsvFormula($text);
+    }
+
+    protected static function escapeCsvFormula(string $value): string
+    {
+        return preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
+    }
+
+    protected static function jalaliDate(mixed $date): string
+    {
+        return $date ? jdate($date)->format('Y-m-d') : '';
     }
 }

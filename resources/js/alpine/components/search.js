@@ -1,15 +1,26 @@
 const DEFAULT_BREADCRUMB = {
-    purchaseRequest: {state: 'upcoming', label: 'Purchase Request'},
-    proformaInvoice: {state: 'upcoming', label: 'Proforma Invoice'},
-    purchaseOrder: {state: 'upcoming', label: 'Purchase Order'},
-    registeredOrder: {state: 'upcoming', label: 'Registered Order'},
-    bankProfile: {state: 'upcoming', label: 'Bank Profile'},
-    payment: {state: 'upcoming', label: 'Payment'},
-    shipment: {state: 'upcoming', label: 'Shipment'},
-    custom: {state: 'upcoming', label: 'Custom'}
+    purchaseRequest: { state: 'upcoming', label: 'Purchase Request' },
+    proformaInvoice: { state: 'upcoming', label: 'Proforma Invoice' },
+    purchaseOrder: { state: 'upcoming', label: 'Purchase Order' },
+    registeredOrder: { state: 'upcoming', label: 'Registered Order' },
+    bankProfile: { state: 'upcoming', label: 'Bank Profile' },
+    payment: { state: 'upcoming', label: 'Payment' },
+    shipment: { state: 'upcoming', label: 'Shipment' },
+    custom: { state: 'upcoming', label: 'Custom' }
 };
+
 const CIRCUMFERENCE = 2 * Math.PI * 16;
 const CIRCUMFERENCE_L = 2 * Math.PI * 22;
+
+const buildStages = (b) => {
+    const entries = Object.entries(b);
+    const max = entries.length - 1;
+    return entries.map(([key, { state, label }], i) => ({
+        key, state, label, isLast: i === max
+    }));
+};
+
+const DEFAULT_STAGES = buildStages(DEFAULT_BREADCRUMB);
 
 export default function search() {
     return {
@@ -25,11 +36,18 @@ export default function search() {
         C: CIRCUMFERENCE,
         Cl: CIRCUMFERENCE_L,
 
+        _cachedStages: DEFAULT_STAGES,
+        _searchCtrl: null,
+        _chainCtrl: null,
+
         async performSearch() {
+            if (this._searchCtrl) this._searchCtrl.abort();
+
             if (this.searchQuery.length < 2) {
                 this.results = [];
                 this.selectedResult = null;
                 this.byUser = null;
+                this.isSearching = false;
                 return;
             }
 
@@ -37,60 +55,78 @@ export default function search() {
             this.selectedResult = null;
             this.chain = [];
             this.chainError = false;
+            this._searchCtrl = new AbortController();
 
             try {
-                const r = await axios.get('/api/search/spotlight?q=' + encodeURIComponent(this.searchQuery));
-                this.results = r.data.results || [];
-                this.byUser = r.data.by_user || null;
-            } catch {
+                const r = await axios.get('/api/search/spotlight', {
+                    params: { q: this.searchQuery },
+                    signal: this._searchCtrl.signal
+                });
+
+                this.results = r.data?.results || [];
+                this.byUser = r.data?.by_user || null;
+            } catch (e) {
+                if (this._searchCtrl.signal.aborted) return;
                 this.results = [];
             } finally {
-                this.isSearching = false;
+                if (!this._searchCtrl.signal.aborted) {
+                    this.isSearching = false;
+                }
             }
         },
 
         async selectResult(result) {
+            if (this._chainCtrl) this._chainCtrl.abort();
+
             this.selectedResult = result;
             this.chain = [];
             this.chainError = false;
+
             if (!result || !result.type || !result.id) return;
 
             this.chainLoading = true;
+            this._chainCtrl = new AbortController();
+
             try {
-                const r = await axios.get(
-                    '/api/search/chain?type=' + encodeURIComponent(result.type) + '&id=' + encodeURIComponent(result.id)
-                );
-                this.chain = r.data.chain || [];
-                if (r.data.breadcrumb) this.breadcrumb = r.data.breadcrumb;
-            } catch {
+                const r = await axios.get('/api/search/chain', {
+                    params: { type: result.type, id: result.id },
+                    signal: this._chainCtrl.signal
+                });
+
+                this.chain = r.data?.chain || [];
+
+                if (r.data?.breadcrumb) {
+                    this.breadcrumb = r.data.breadcrumb;
+                    this._cachedStages = buildStages(this.breadcrumb);
+                }
+            } catch (e) {
+                if (this._chainCtrl.signal.aborted) return;
                 this.chain = [];
                 this.chainError = true;
             } finally {
-                this.chainLoading = false;
+                if (!this._chainCtrl.signal.aborted) {
+                    this.chainLoading = false;
+                }
             }
         },
 
         clearSelected() {
+            if (this._chainCtrl) this._chainCtrl.abort();
             this.selectedResult = null;
             this.chain = [];
             this.chainError = false;
         },
 
-        _offset(p, circumference) {
-            return circumference - (p / 100) * circumference;
-        },
         getOffset(p) {
-            return this._offset(p, this.C);
+            return this.C * (1 - p / 100);
         },
+
         getOffsetL(p) {
-            return this._offset(p, this.Cl);
+            return this.Cl * (1 - p / 100);
         },
 
         breadcrumbStages() {
-            const entries = Object.entries(this.breadcrumb);
-            return entries.map(([key, {state, label}], i) => ({
-                key, state, label, isLast: i === entries.length - 1
-            }));
+            return this._cachedStages;
         }
     };
 }

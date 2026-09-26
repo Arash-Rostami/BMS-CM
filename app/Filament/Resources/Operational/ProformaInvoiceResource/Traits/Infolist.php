@@ -30,7 +30,7 @@ trait Infolist
         return TextEntry::make('beneficiary_country')
             ->label(__('resources/proformaInvoice/strings.form.beneficiary_country'))
             ->icon('heroicon-m-globe-alt')
-            ->formatStateUsing(fn ($state) => app(Country::class)->getCountryNameByCode($state) ?? $state);
+            ->formatStateUsing(fn (?string $state) => $state ? (app(Country::class)->getCountryNameByCode($state) ?? $state) : null);
     }
 
     public static function viewBuyerCommCardNum(): TextEntry
@@ -44,7 +44,8 @@ trait Infolist
     {
         return TextEntry::make('buyerCompany.name')
             ->label(__('resources/proformaInvoice/strings.form.buyer_company'))
-            ->icon('heroicon-m-building-office');
+            ->icon('heroicon-m-building-office')
+            ->formatStateUsing(fn ($record): ?string => $record->buyerCompany?->localized_name);
     }
 
     public static function viewContractNo(): TextEntry
@@ -59,7 +60,7 @@ trait Infolist
     {
         return TextEntry::make('created_at')
             ->label(__('resources/proformaInvoice/strings.table.created_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray');
     }
 
@@ -84,7 +85,7 @@ trait Infolist
         return TextEntry::make('destination_country')
             ->label(__('resources/proformaInvoice/strings.form.destination_country'))
             ->icon('heroicon-m-globe-alt')
-            ->formatStateUsing(fn ($state) => app(Country::class)->getCountryNameByCode($state) ?? $state);
+            ->formatStateUsing(fn (?string $state) => $state ? (app(Country::class)->getCountryNameByCode($state) ?? $state) : null);
     }
 
     public static function viewDiscount(): TextEntry
@@ -108,7 +109,7 @@ trait Infolist
         return TextEntry::make('invoice_date')
             ->label(__('resources/proformaInvoice/strings.form.invoice_date'))
             ->icon('heroicon-m-calendar-days')
-            ->formatStateUsing(fn ($state) => app()->getLocale() === 'fa' ? toPersianDate($state) : toGregorianDate($state));
+            ->adaptiveDate();
     }
 
     public static function viewInvoiceItems(): RepeatableEntry
@@ -136,25 +137,7 @@ trait Infolist
                     ->label(__('resources/proformaInvoice/strings.form.item_total_amount'))
                     ->color('success')
                     ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : ''),
-                TextEntry::make('origin')
-                    ->label(__('resources/proformaInvoice/strings.form.origin')),
-                TextEntry::make('hs_code')
-                    ->label(__('resources/proformaInvoice/strings.form.hs_code')),
-                TextEntry::make('net_weight')
-                    ->label(__('resources/proformaInvoice/strings.form.net_weight'))
-                    ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : ''),
-                TextEntry::make('gross_weight')
-                    ->label(__('resources/proformaInvoice/strings.form.gross_weight'))
-                    ->formatStateUsing(fn ($state): string => isset($state) ? preciseNumber($state) : ''),
-                TextEntry::make('description')
-                    ->label(__('resources/proformaInvoice/strings.form.item_description'))
-                    ->columnSpanFull()
-                    ->visible(fn ($record) => filled($record->description)),
-                TextEntry::make('english_description')
-                    ->label(__('resources/proformaInvoice/strings.form.item_english_description'))
-                    ->columnSpanFull()
-                    ->visible(fn ($record) => filled($record->english_description)),
-            ])->columns(5);
+            ])->columns(6);
     }
 
     public static function viewInvoiceNo(): TextEntry
@@ -169,7 +152,8 @@ trait Infolist
     {
         return TextEntry::make('mainCurrency.name')
             ->label(__('resources/proformaInvoice/strings.form.main_currency'))
-            ->icon('heroicon-m-banknotes');
+            ->icon('heroicon-m-banknotes')
+            ->formatStateUsing(fn ($record): ?string => $record->mainCurrency?->localized_name);
     }
 
     public static function viewOriginCountry(): TextEntry
@@ -177,7 +161,7 @@ trait Infolist
         return TextEntry::make('origin_country')
             ->label(__('resources/proformaInvoice/strings.form.origin_country'))
             ->icon('heroicon-m-globe-alt')
-            ->formatStateUsing(fn ($state) => app(Country::class)->getCountryNameByCode($state) ?? $state);
+            ->formatStateUsing(fn (?string $state) => $state ? (app(Country::class)->getCountryNameByCode($state) ?? $state) : null);
     }
 
     public static function viewOtherCharges(): TextEntry
@@ -206,14 +190,16 @@ trait Infolist
     {
         return TextEntry::make('secondaryCurrency.name')
             ->label(__('resources/proformaInvoice/strings.form.secondary_currency'))
-            ->icon('heroicon-m-banknotes');
+            ->icon('heroicon-m-banknotes')
+            ->formatStateUsing(fn ($record): ?string => $record->secondaryCurrency?->localized_name);
     }
 
     public static function viewSellerCompany(): TextEntry
     {
         return TextEntry::make('sellerCompany.name')
             ->label(__('resources/proformaInvoice/strings.form.seller_company'))
-            ->icon('heroicon-m-building-office');
+            ->icon('heroicon-m-building-office')
+            ->formatStateUsing(fn ($record): ?string => $record->sellerCompany?->localized_name);
     }
 
     public static function viewShipmentInfo(): TextEntry
@@ -255,7 +241,7 @@ trait Infolist
     {
         return TextEntry::make('updated_at')
             ->label(__('resources/proformaInvoice/strings.table.updated_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray');
     }
 
@@ -271,6 +257,22 @@ trait Infolist
         return TextEntry::make('validity_date')
             ->label(__('resources/proformaInvoice/strings.form.validity_date'))
             ->icon('heroicon-m-calendar-days')
-            ->formatStateUsing(fn ($state) => app()->getLocale() === 'fa' ? toPersianDate($state) : toGregorianDate($state));
+            ->badge(fn ($record): bool => static::isQuoteStale($record))
+            ->color(fn ($record): ?string => static::isQuoteStale($record) ? 'danger' : null)
+            ->formatStateUsing(fn (?string $state, $record) => match (true) {
+                blank($state) => null,
+                static::isQuoteStale($record) => __('resources/proformaInvoice/strings.table.validity_expired'),
+                default => adaptiveDate($state),
+            });
+    }
+
+    public static function viewBudgetVariance(): TextEntry
+    {
+        return TextEntry::make('budget_variance')
+            ->label(__('resources/proformaInvoice/strings.table.budget_variance'))
+            ->state(fn ($record) => static::budgetVariancePercent($record))
+            ->formatStateUsing(fn (?float $state) => $state === null ? '-' : number_format($state, 1).'%')
+            ->badge()
+            ->color(fn ($record): string => static::budgetVarianceColor(static::budgetVariancePercent($record)));
     }
 }

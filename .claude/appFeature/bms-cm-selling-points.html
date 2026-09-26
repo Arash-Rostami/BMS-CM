@@ -1,0 +1,589 @@
+<title>BMS-CM — Selling Points</title>
+<style>
+  :root {
+    --navy-950: #10162a;
+    --navy-900: #141b33;
+    --navy-800: #1c2542;
+    --navy-700: #2a3457;
+    --paper-050: #f1f2ea;
+    --paper-100: #e3e6da;
+    --paper-200: #d3d7c8;
+    --ink-900: #12162a;
+    --ink-600: #454c63;
+    --copper-500: #c97c3d;
+    --copper-400: #dd955a;
+    --teal-600: #2c6a63;
+    --teal-500: #3c8a81;
+    --good: #3f8f5f;
+    --warn: #b9932a;
+    --crit: #bd4c3f;
+    --line: rgba(18, 22, 42, 0.12);
+
+    --bg: var(--paper-050);
+    --surface: #ffffff;
+    --surface-2: var(--paper-100);
+    --text: var(--ink-900);
+    --text-dim: var(--ink-600);
+    --accent: var(--copper-500);
+    --accent-strong: #a4622c;
+    --pipeline-line: var(--teal-600);
+    --border: var(--line);
+    --shadow: 0 1px 2px rgba(18, 22, 42, 0.06), 0 8px 24px rgba(18, 22, 42, 0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: var(--navy-950);
+      --surface: var(--navy-900);
+      --surface-2: var(--navy-800);
+      --text: #eef0f6;
+      --text-dim: #a9b0c9;
+      --accent: var(--copper-400);
+      --accent-strong: #f0aa6f;
+      --pipeline-line: var(--teal-500);
+      --border: rgba(238, 240, 246, 0.12);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: var(--navy-950);
+    --surface: var(--navy-900);
+    --surface-2: var(--navy-800);
+    --text: #eef0f6;
+    --text-dim: #a9b0c9;
+    --accent: var(--copper-400);
+    --accent-strong: #f0aa6f;
+    --pipeline-line: var(--teal-500);
+    --border: rgba(238, 240, 246, 0.12);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
+  }
+  :root[data-theme="light"] {
+    --bg: var(--paper-050);
+    --surface: #ffffff;
+    --surface-2: var(--paper-100);
+    --text: var(--ink-900);
+    --text-dim: var(--ink-600);
+    --accent: var(--copper-500);
+    --accent-strong: #a4622c;
+    --pipeline-line: var(--teal-600);
+    --border: var(--line);
+    --shadow: 0 1px 2px rgba(18, 22, 42, 0.06), 0 8px 24px rgba(18, 22, 42, 0.05);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .display {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    text-wrap: balance;
+  }
+
+  .mono {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Segoe UI Mono", Consolas, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 56px);
+  }
+
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* ---------- Masthead ---------- */
+
+  .masthead {
+    border-bottom: 1px solid var(--border);
+    padding: clamp(28px, 5vw, 48px) 0 clamp(24px, 4vw, 36px);
+  }
+
+  .masthead-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: clamp(28px, 6vw, 52px);
+  }
+
+  .brand {
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .brand b { color: var(--text); font-weight: 700; }
+
+  .manifest-ref {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-align: right;
+    letter-spacing: 0.02em;
+  }
+
+  h1.headline {
+    font-size: clamp(2rem, 4.6vw, 3.1rem);
+    line-height: 1.12;
+    font-weight: 500;
+    margin: 0 0 20px;
+    max-width: 18ch;
+  }
+
+  .sub {
+    font-size: clamp(1.02rem, 1.6vw, 1.2rem);
+    color: var(--text-dim);
+    max-width: 62ch;
+    margin: 0 0 clamp(28px, 5vw, 40px);
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 16px 20px;
+  }
+
+  .stat .num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    display: block;
+  }
+
+  .stat .label {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+
+  /* ---------- Pipeline ---------- */
+
+  .pipeline-section {
+    padding: clamp(40px, 6vw, 64px) 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-eyebrow {
+    font-size: 0.76rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pipeline-line);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  h2.section-title {
+    font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+    font-weight: 500;
+    margin: 0 0 12px;
+    max-width: 40ch;
+  }
+
+  .section-note {
+    color: var(--text-dim);
+    max-width: 64ch;
+    margin: 0 0 28px;
+  }
+
+  .pipeline-scroll {
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .pipeline-chain {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    min-width: 760px;
+  }
+
+  .pl-node {
+    flex: 1 1 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    position: relative;
+  }
+
+  .pl-node .stage-no {
+    font-size: 0.68rem;
+    color: var(--pipeline-line);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .pl-node .stage-name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .pl-arrow {
+    flex: 0 0 auto;
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pipeline-line);
+    font-size: 1.1rem;
+  }
+
+  .pipeline-callout {
+    margin-top: 22px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 16px 18px;
+    background: var(--surface-2);
+    border-radius: 6px;
+    border-left: 3px solid var(--pipeline-line);
+  }
+
+  .pipeline-callout .ring {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: conic-gradient(var(--pipeline-line) 0deg 252deg, var(--border) 252deg 360deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pipeline-callout .ring::after {
+    content: "70%";
+    font-size: 0.62rem;
+    font-weight: 700;
+    background: var(--surface-2);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pipeline-callout p {
+    margin: 0;
+    font-size: 0.94rem;
+  }
+
+  .pipeline-callout p b { color: var(--text); }
+
+  /* ---------- Feature groups ---------- */
+
+  .features {
+    padding: clamp(40px, 6vw, 64px) 0;
+  }
+
+  .group {
+    margin-bottom: clamp(36px, 5vw, 52px);
+  }
+
+  .group:last-child { margin-bottom: 0; }
+
+  .group-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+
+  .group-head .tag {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .group-head h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .card h4 {
+    font-size: 0.98rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+
+  .card p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+  }
+
+  /* ---------- Closing ---------- */
+
+  .closing {
+    padding: clamp(40px, 6vw, 64px) 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .closing blockquote {
+    margin: 0;
+    padding: 0;
+    font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+    font-weight: 500;
+    max-width: 46ch;
+    line-height: 1.4;
+  }
+
+  .closing blockquote .display { color: var(--accent-strong); }
+
+  footer {
+    padding: 22px 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.03em;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card { transition: transform 160ms ease, box-shadow 160ms ease; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(18,22,42,0.08), 0 14px 30px rgba(18,22,42,0.08); }
+  }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="brand">Internal Brief · <b>BMS-CM</b> Procurement Platform</div>
+      <div class="manifest-ref mono">REF&nbsp;NO.&nbsp;BRF-01 &nbsp;·&nbsp; FOR&nbsp;INTERNAL&nbsp;&amp;&nbsp;PROSPECT&nbsp;USE</div>
+    </div>
+    <h1 class="headline display">It doesn't just record your trades. It watches them for you.</h1>
+    <p class="sub">From the first purchase request to customs clearance, BMS-CM automates the busywork, flags the risk before it becomes a problem, and finds any document in one search — without an analyst, a translator, or a spreadsheet standing between you and the answer.</p>
+    <div class="stat-row">
+      <div class="stat"><span class="num mono">8 → 1</span><span class="label">modules traced from one search box</span></div>
+      <div class="stat"><span class="num mono">0</span><span class="label">duplicate reference numbers, ever</span></div>
+      <div class="stat"><span class="num mono">3 / 2</span><span class="label">languages, calendars — one system</span></div>
+    </div>
+  </header>
+
+  <section class="pipeline-section">
+    <div class="section-eyebrow">The Pipeline</div>
+    <h2 class="section-title">Every deal moves through the same seven stages. Now every stage can see all the others.</h2>
+    <div class="pipeline-scroll">
+      <div class="pipeline-chain">
+        <div class="pl-node"><div class="stage-no mono">01</div><div class="stage-name">Purchase Request</div></div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-node"><div class="stage-no mono">02</div><div class="stage-name">Proforma Invoice</div></div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-node"><div class="stage-no mono">03</div><div class="stage-name">Registered Order</div></div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-node"><div class="stage-no mono">04</div><div class="stage-name">Purchase Order</div></div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-node"><div class="stage-no mono">05</div><div class="stage-name">Payment</div></div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-node"><div class="stage-no mono">06</div><div class="stage-name">Shipment</div></div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-node"><div class="stage-no mono">07</div><div class="stage-name">Customs</div></div>
+      </div>
+    </div>
+    <div class="pipeline-callout">
+      <div class="ring" aria-hidden="true"></div>
+      <p>Select <b>any one</b> of these seven documents, and the system instantly shows you the other six — each flagged <b>attached</b>, <b>missing</b>, or <b>in progress</b>, with a live completion percentage. No manual cross-referencing across separate screens.</p>
+    </div>
+  </section>
+
+  <section class="features">
+
+    <div class="group">
+      <div class="group-head">
+        <span class="tag">Sees it first</span>
+        <h3>Business intelligence, not just record-keeping</h3>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <h4>Stalled Deals Radar</h4>
+          <p>Automatically lists every request, order, or shipment that's blown past its own deadline, ranked by how overdue it is, linked straight to the record — no one has to go looking for what's stuck.</p>
+        </div>
+        <div class="card">
+          <h4>Supplier &amp; Currency Concentration Score</h4>
+          <p>Calculates how dependent the business is on one supplier or currency, using the same statistical method economists use to flag monopoly risk — color-coded, so no finance degree required to read it.</p>
+        </div>
+        <div class="card">
+          <h4>Aging &amp; Exposure Reports</h4>
+          <p>Unpaid invoices are automatically bucketed into 30/60/90+ day windows, and open currency exposure per deal is tracked live — the aging report an accountant normally builds by hand in a spreadsheet.</p>
+        </div>
+        <div class="card">
+          <h4>Deal Speed X-Ray</h4>
+          <p>Shows typical vs. worst-case turnaround time for every stage of the pipeline, so a slow deal is obvious before it becomes a crisis, not after.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-head">
+        <span class="tag">Finds anything</span>
+        <h3>One search box, the whole deal's history</h3>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <h4>Search Once, Match Everywhere</h4>
+          <p>Type a number and get matches across all eight stages of the pipeline at once — no need to know which module a record lives in before you can find it.</p>
+        </div>
+        <div class="card">
+          <h4>Progress Rings on Every Record</h4>
+          <p>Each result shows an at-a-glance completion percentage, so incomplete paperwork is visible before it turns into a hold-up.</p>
+        </div>
+        <div class="card">
+          <h4>&ldquo;Show Me John's Last Request&rdquo;</h4>
+          <p>Search by a person's name even when it isn't on a document, and the system surfaces their most recent related record automatically.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-head">
+        <span class="tag">Does the retyping</span>
+        <h3>Automation that runs itself</h3>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <h4>Prepare-From Chain Reactions</h4>
+          <p>Create an order from a request, or an invoice from an order, and line items, prices, parties, and terms auto-fill from the source document. No re-entry, no copy-paste.</p>
+        </div>
+        <div class="card">
+          <h4>Auto-Numbered, Collision-Proof Documents</h4>
+          <p>Every request, order, payment, and shipment gets a clean reference number the instant it's created — even under simultaneous use by different people, numbers never clash.</p>
+        </div>
+        <div class="card">
+          <h4>Status Cascades on Its Own</h4>
+          <p>Approve or decline a request once, and every line item inside it updates to match automatically — not one click per item.</p>
+        </div>
+        <div class="card">
+          <h4>Checklists That Tick Themselves</h4>
+          <p>Upload shipment paperwork and the system detects which required documents you've provided just from the file names — including Persian-script spelling variants — and ticks them off for you.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-head">
+        <span class="tag">Bends to you</span>
+        <h3>Configurable without a developer</h3>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <h4>Add Your Own Fields, No Code</h4>
+          <p>Any record can carry custom fields a user defines on the spot — like adding a column to a spreadsheet, without ever filing an IT ticket.</p>
+        </div>
+        <div class="card">
+          <h4>Workflow Statuses You Control</h4>
+          <p>Every pipeline stage's status list is centrally configurable, not hard-baked into the software — the business can rename or reshape its own workflow.</p>
+        </div>
+        <div class="card">
+          <h4>Role-Shaped Experience</h4>
+          <p>Every user sees and can do only what their role allows — approvers, clerks, and administrators each get a workspace matched to their job.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-head">
+        <span class="tag">Built for global trade</span>
+        <h3>Three languages, two calendars, one system</h3>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <h4>True Right-to-Left, Not Bolted On</h4>
+          <p>English, Persian, and French are all first-class — Persian renders in genuine right-to-left layout, not translated text forced into a left-to-right template.</p>
+        </div>
+        <div class="card">
+          <h4>Dual Calendar, One Toggle</h4>
+          <p>Every date switches instantly between Gregorian and Persian (Jalali) calendars, correctly anchored to the real Persian new year — not a naive date shift.</p>
+        </div>
+        <div class="card">
+          <h4>Invoices That Read Correctly Everywhere</h4>
+          <p>Generated PDFs automatically flip to right-to-left Persian formatting with the correct font, so clients receive a natively correct document, not an awkward translation.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-head">
+        <span class="tag">Remembers you</span>
+        <h3>A workspace that adapts to each person</h3>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <h4>Pin What You Actually Use</h4>
+          <p>Save frequent modules and specific records to a personal shortcut panel instead of navigating the same menu path every day.</p>
+        </div>
+        <div class="card">
+          <h4>In-Context Help, Not a Manual</h4>
+          <p>A tailored reference panel per module, with an unread flag that clears once you've actually seen the update — guidance that only interrupts when it's new.</p>
+        </div>
+        <div class="card">
+          <h4>A Greeting That Knows the Time of Day</h4>
+          <p>A small human touch — but the kind of detail users notice, and generic procurement software never bothers with.</p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="closing">
+    <blockquote>
+      <span class="display">Most procurement software stops at recording what happened.</span><br>
+      BMS-CM watches the pipeline, catches what's stalling, fills in what it already knows, and finds anything in one search — in the language and calendar your team actually works in.
+    </blockquote>
+  </section>
+
+  <footer>
+    <span class="mono">BMS-CM // TRADE OPERATIONS PLATFORM</span>
+    <span>Compiled from the live codebase — every feature listed is shipped, not roadmap.</span>
+  </footer>
+</div>

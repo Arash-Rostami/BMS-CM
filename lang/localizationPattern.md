@@ -11,7 +11,9 @@ lang/{locale}/resources/{camelCaseResource}/strings.php   ← per-resource names
 lang/{locale}/resources/general/strings.php                ← cross-resource shared keys
 lang/{locale}/resources/dashboard/strings.php               ← nav groups, greetings-adjacent app chrome
 lang/{locale}/deskReference/{group}.php                     ← Desk Reference content, not resource strings
-lang/{locale}/errors/strings.php                             ← HTTP error pages
+lang/{locale}/errors/strings.php                             ← HTTP error pages (`codes`), plus in-app save-failure
+                                                                 notifications (`notifications`, added 2026-09-17 —
+                                                                 see App\Services\ExceptionPresenter)
 ```
 
 Per-resource top-level groups:
@@ -26,7 +28,11 @@ infolist  → entry labels; tab labels tab_general / tab_items / tab_documents
 
 Referenced in code as `__('resources/{camelCaseResource}/strings.{section}.{key}')`. Tab labels always carry the `tab_` prefix, in both `form` and `infolist` groups.
 
-**Rule:** when adding a new form or infolist tab, add its `tab_*` key to all three locale files simultaneously — a missing locale renders the raw dot-key string to the user.
+**Rule:** when adding a new form or infolist tab, add its `tab_*` key to all three locale files simultaneously — a missing locale renders the raw dot-key string to the user. A master test, `tests/Feature/LangKeyIntegrityTest.php`, enforces that every literal `resources/…` key referenced under `app/Filament` exists in all 3 locales — run it after adding keys.
+
+## 1b. Vendor Translation Overrides
+
+Package strings (`filament-actions::import.*`, etc.) can be reworded without publishing the whole vendor lang file: drop a partial file at **`lang/vendor/{namespace}/{locale}/{group}.php`** (e.g. `lang/vendor/filament-actions/en/import.php`) containing only the overridden keys — Laravel's `FileLoader::loadNamespaceOverrides()` merges it over the package lines, everything else falls back to vendor. Two gotchas: the path is `lang/vendor/{locale}` at the TOP of `lang/`, NOT nested under `lang/{locale}/vendor/` (the wrong shape silently no-ops — verified live); and the `filament-actions::import` strings are overridden this way to say "Excel" (upload placeholder, example-download label, format-neutral max-rows title — `ImportDefaultsTest::test_import_modal_wording_says_excel_in_all_locales` pins all three) because the app's `ImportAction` genuinely accepts `.xlsx` via its OpenSpout-to-CSV bridge — only reword vendor strings when the underlying behavior makes the new wording true.
 
 ## 2. Shared vs Resource-Scoped Keys
 
@@ -40,7 +46,7 @@ Applied examples (verified in `lang/en/resources/general/strings.php`):
 |---|---|
 | `general.actions.add_record` | 6 operational RelationManagers' create-button label (`˙⋆✮ Create New`) |
 | `general.metrics.*` | unit-of-measure vocabulary (`mt`/`kg`/`lb`/`oz`/`m3`/`ft3`/`l`/`gal`/`pcs`/`unit`), canonical owner was `target`, borrowed by PR/PI/RO/PO |
-| `general.extra_attributes.*` (`key`/`value`/`add_action`) | the `HasExtraAttributesManagement` Repeater's field labels — its own group, not merged into `general.manage_custom_attributes`, since the two EAV entry points (KeyValue modal vs Repeater) use intentionally distinct wording |
+| `general.extra_attributes.*` (`key`/`value`/`add_action` + `validation_key_required`/`validation_key_max`/`validation_value_required`) | the `HasExtraAttributesManagement` Repeater's field labels and validation messages — its own group, not merged into `general.manage_custom_attributes`, since the two EAV entry points (KeyValue modal vs Repeater) use intentionally distinct wording |
 
 There is no `lang/{locale}/resources/actions/` directory — all action labels (view/edit/delete/create + tooltips, bulk activate/deactivate, and per-action subgroups like `manage_custom_attributes`) live under `general/strings.php`.
 
@@ -62,6 +68,8 @@ $this->rule('date', static fn (DateTimePicker $component): bool => $component->h
 
 This registers on every DatePicker automatically. It is **not** visible as a `->date()` call anywhere in the field definition, so it is the single easiest rule to miss on an audit pass — searching for `->date(` will not find it. Every form DatePicker must wire `'date' => __('resources/{r}/strings.form.validation_date')`. `->step()` does not add a rule. Filter DatePickers are exempt (§5).
 
+**Implicit rules on every FileUpload** (same invisible-rule class as the DatePicker `date` rule): `->maxSize(kb)` registers `max:{kb}` and `->acceptedFileTypes([...])` registers `mimetypes:…` (vendor `BaseFileUpload.php`). Verified wiring, `General/FormComponents::getAttachmentsField()` (shared by Shipment/Custom/Correspondence): both rules reuse the pre-existing `general/strings.attachments.validation.attachments_size` / `attachments_type` keys rather than new ones. `Repeater::maxItems()` similarly registers `array` + `max:{n}`.
+
 Verified reference wiring, `CustomResource/Traits/Form.php:36-40`:
 
 ```php
@@ -77,7 +85,7 @@ DatePicker::make('clearance_date')
 - Field-specific: `validation_{field}_{rule}` (e.g. `validation_contract_no_max`, `validation_declaration_no_max`).
 - Generic/shared-within-resource: `validation_{rule}` (`validation_required`, `validation_numeric`, `validation_date`).
 
-Shipment is the **one exception** — its validation keys live in a nested array under `form`:
+Shipment is the one resource whose validation vocabulary is **entirely** nested under `form`:
 
 ```php
 // lang/en/resources/shipment/strings.php
@@ -89,7 +97,7 @@ Shipment is the **one exception** — its validation keys live in a nested array
 ],
 ```
 
-referenced as `__('resources/shipment/strings.form.validation.{rule}')`. Do not flatten Shipment's shape to match the rest, and do not nest a new resource's shape to match Shipment — match whichever shape the target resource already uses.
+referenced as `__('resources/shipment/strings.form.validation.{rule}')`. ProformaInvoice is a half-exception: flat everywhere except one nested `form.validation` group (`string`, `max_string`) used by its item-description field. Do not flatten either exception to match the rest, and do not nest a new resource's shape to match them — match whichever shape the target resource already uses.
 
 Laravel placeholders `:attribute` / `:max` / `:date` / `:min` are used in templated messages on RegisteredOrder, Correspondence, and BankProfile's `after_or_equal` rule — preserve them verbatim when mirroring a message into a new field.
 
@@ -108,6 +116,8 @@ Laravel placeholders `:attribute` / `:max` / `:date` / `:min` are used in templa
 **Farsi word for "character": use کاراکتر, never نویسه.** For length-limit/password-hint copy, کاراکتر (plural کاراکترهای) is the contemporary, universally understood term. نویسه is the Persian Academy's formal/purist term — native readers find it meaningless and stiff. Applies project-wide (verified clean across all 16 fa lang files that reference "character").
 
 **fa/fr values must be genuine translations.** Never paste the English string into the fa or fr locale file. Every new key is added to all three locale files simultaneously.
+
+**New-module import/export labels take the MAJORITY convention across all sibling modules — never lift from the nearest twin.** Settled wording: fa import = `وارد کردن X`, fa export = `خروجی گرفتن از X` (3 of 4 audited modules; only BankProfile deviates with صدور — do not copy it); fr = `Importer les X` / `Exporter les X`. The same applies to helper sentences: fr `helper_is_active` is the fixed sentence `Indique le statut actif/inactif de cet enregistrement.` (Bank/Company), not a fresh translation of the English helper. Learned building Department 2026-09-26, after a twin-lifted `صدور دپارتمان‌ها` export label was rejected. Also from that build: `general.actions.restore` now exists in all 3 locales — `PermissionLabeler` resolves every `{module}.{action}` row through it, so a new action suffix needs a matching `general/strings.php` `actions.*` key or the Permission/Role UI shows the raw key.
 
 **Status labels are never hardcoded.** Resolve through `Status::findBy(Model::TYPE_X, 'EnglishName')`, never a literal English status string in resource code. This extends to color/icon maps keyed by status name — build the map from resolved `Status` IDs, not from the status's English name string directly. Verified pattern, `CorrespondenceResource/Traits/Table.php`:
 
@@ -138,9 +148,9 @@ A prior version of this exact column hardcoded the English status names directly
 
 Every filter — `SelectFilter`, custom `Filter`, toggle filters (`getUnreadFilter`/`getMyMentionsFilter`), and each inner `DatePicker` of a date-range `Filter` — carries a localized `->label(__('resources/{r}/strings.filters.{key}'))`, key added to the `filters` group of all three locale files. A date-range filter has **two** user-facing labels (e.g. `filters.created_from` / `filters.created_until`) — both must be localized.
 
-**Filters carry no validation rules.** A filter `DatePicker` is out of form-validation scope, so the implicit-`date`-rule wiring in §3 does not apply to filters — only their labels need localizing.
+**Filter-form schemas are never validated.** Filament only fills/reads filter state (vendor `HasFilters` has no `validate()` call), so any rule set on a filter field — including the implicit `date` on filter DatePickers and the `numeric` on Target's quantity-filter TextInputs — is inert and must NOT get `validationMessages` wiring (dead code). Only filter labels are localized.
 
-**Filter DatePickers use `->adaptive()`, not `maybeJalali()`.** `->adaptive()` is `DatePicker::macro('adaptive', ...)` registered in `FilamentMacroServiceProvider::boot()` — returns `$this->jalali()` when the session calendar is Jalali. It is the in-chain sibling of the `maybeJalali($component)` helper (`app/Utils/helpers.php`), documented in full in `app/Utils/helpersPattern.md` §2 (both must stay literal-identical on the `calendar_type` default expression — read that doc before changing either).
+**Filter DatePickers use `->adaptive()`, not `maybeJalali()`.** `->adaptive()` is `DatePicker::macro('adaptive', ...)` registered in `FilamentMacroServiceProvider::boot()` — returns `$this->jalali()` when the session calendar is Jalali. It is the in-chain sibling of the `maybeJalali($component)` helper (`app/Utils/helpers.php`); both call the shared `isJalaliCalendar()` predicate, documented in full in `app/Utils/helpersPattern.md` §2.
 
 **Verified correction to an older, overly-broad claim:** `maybeJalali()` is not actually the dominant convention on regular form `DatePicker`s — a repo-wide grep shows it is used in exactly one place, `ShipmentResource/Traits/InvoiceForm.php` (the EAV virtual-tab pattern), plus the Custom resource's form fields. Every other operational resource's `Form.php` `DatePicker`s (PurchaseRequest, PurchaseOrder, RegisteredOrder, ProformaInvoice, Payment, BankProfile, Shipment's own non-invoice fields, Target) chain `->adaptive()` instead, same as `Filters.php`. Both helpers read the identical `session('calendar_type', ...)` default, so either is functionally correct — but when touching an existing field, match what that field (or its nearest sibling) already uses rather than assuming `maybeJalali()` is the form-side default and `->adaptive()` the filter-side default.
 
@@ -172,7 +182,7 @@ Emoji and short-code labels (e.g. `Source::getLabel()`'s `'PR'`/`'PO'`/`'PI'`/`'
 
 ## 7. Calendar Helper Contract
 
-`maybeJalali($component)` / `->adaptive()` both gate on `session('calendar_type', app()->isLocale('fa') ? 'jalali' : 'gregorian') === 'jalali'`. Full lifecycle (session key semantics, the third byte-identical site in `CalendarToggle`, and why all three must never drift) is owned by `app/Utils/helpersPattern.md` §2 — this doc only states the localization-relevant half: omitting either wrapper on a date input gives Gregorian to an `fa` user who has switched their session to Jalali.
+`maybeJalali($component)` / `->adaptive()` (date pickers) and `->adaptiveDate()` / `->adaptiveDateTime()` (display columns/entries) all gate on the shared `isJalaliCalendar()` predicate (`app/Utils/helpers.php`), which reads `session('calendar_type', app()->isLocale('fa') ? 'jalali' : 'gregorian')`. Full lifecycle is owned by `app/Utils/helpersPattern.md` §2. Localization-relevant halves: omitting either picker wrapper gives Gregorian to an `fa` user who has switched their session to Jalali, and a raw `->date()`/`->dateTime()` display column ignores the calendar toggle entirely — a locale-locked ternary (`app()->getLocale() === 'fa' ? toPersianDate(...) : toGregorianDate(...)`) is the known historical bug shape; display dates must go through the adaptive macros (enforced by `tests/Unit/AdaptiveDateTest.php`).
 
 ## 8. Playbook — Adding a Localized Field/Filter/Tab
 

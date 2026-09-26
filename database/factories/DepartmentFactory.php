@@ -16,6 +16,16 @@ class DepartmentFactory extends Factory
             'code' => fake()->unique()->bothify('DEP-####'),
             'english_name' => fake()->optional()->company(),
             'description' => fake()->optional()->paragraph(),
+            'is_active' => true,
+            'user_id' => null,
+            'updated_by_id' => null,
         ];
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+        ]);
     }
 }

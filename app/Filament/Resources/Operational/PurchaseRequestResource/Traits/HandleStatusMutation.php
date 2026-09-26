@@ -2,20 +2,25 @@
 
 namespace App\Filament\Resources\Operational\PurchaseRequestResource\Traits;
 
+use App\Filament\Resources\PurchaseRequestResource;
 use App\Models\Status;
+use Illuminate\Database\Eloquent\Model;
 
 trait HandleStatusMutation
 {
-    protected function mutateStatusData(array $data, ?int $originalStatusId = null): array
+    protected function mutateStatusData(array $data, ?Model $record = null): array
     {
-        // Set approver info if status changed or is set for first time
-        if (! $originalStatusId || $data['status_id'] !== $originalStatusId) {
+        $newStatus = Status::find($data['status_id'] ?? null);
+
+        if ($newStatus) {
+            PurchaseRequestResource::assertStatusTransitionAllowed($record, 'status_id', $newStatus->id);
+        }
+
+        if (! $record || $data['status_id'] !== $record->status_id) {
             $data['approver_id'] = auth()->id();
             $data['approval_date'] = now();
         }
 
-        // Clear rejection reason unless status is 'Declined'
-        $newStatus = Status::find($data['status_id'] ?? null);
         if (! $newStatus || $newStatus->english_name !== 'Declined') {
             $data['rejection_reason'] = null;
         }

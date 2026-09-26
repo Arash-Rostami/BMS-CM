@@ -91,7 +91,7 @@ trait Infolist
     {
         return TextEntry::make('created_at')
             ->label(__('resources/payment/strings.infolist.created_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->icon('heroicon-m-calendar')
             ->color('gray')
             ->placeholder('-');
@@ -164,7 +164,7 @@ trait Infolist
     {
         return TextEntry::make('payment_date')
             ->label(__('resources/payment/strings.form.payment_date'))
-            ->date()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -173,7 +173,7 @@ trait Infolist
     {
         return TextEntry::make('payment_deadline')
             ->label(__('resources/payment/strings.form.payment_deadline'))
-            ->date()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -248,7 +248,7 @@ trait Infolist
     {
         return TextEntry::make('updated_at')
             ->label(__('resources/payment/strings.infolist.updated_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->icon('heroicon-m-clock')
             ->color('gray')
             ->placeholder('-');

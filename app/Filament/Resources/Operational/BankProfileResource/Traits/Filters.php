@@ -2,11 +2,10 @@
 
 namespace App\Filament\Resources\Operational\BankProfileResource\Traits;
 
-use Filament\Forms\Components\DatePicker;
+use App\Filament\Resources\General\FilterComponents;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 trait Filters
@@ -31,22 +30,14 @@ trait Filters
 
     public static function getCreationDateFilter(): Filter
     {
-        return Filter::make('created_at')
-            ->schema([
-                DatePicker::make('created_from')
-                    ->label(__('resources/bankProfile/strings.filters.created_from'))
-                    ->native(false)
-                    ->adaptive(),
-                DatePicker::make('created_until')
-                    ->label(__('resources/bankProfile/strings.filters.created_until'))
-                    ->native(false)
-                    ->adaptive(),
-            ])
-            ->query(function (Builder $query, array $data): Builder {
-                return $query
-                    ->when($data['created_from'], fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
-                    ->when($data['created_until'], fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date));
-            });
+        return FilterComponents::dateRangeFilter(
+            'created_at',
+            'created_at',
+            'created_from',
+            'created_until',
+            __('resources/bankProfile/strings.filters.created_from'),
+            __('resources/bankProfile/strings.filters.created_until'),
+        );
     }
 
     public static function getCreatorFilter(): SelectFilter
@@ -60,22 +51,14 @@ trait Filters
 
     public static function getPaymentDueDateFilter(): Filter
     {
-        return Filter::make('payment_due_date')
-            ->schema([
-                DatePicker::make('payment_due_from')
-                    ->label(__('resources/bankProfile/strings.filters.payment_due_from'))
-                    ->native(false)
-                    ->adaptive(),
-                DatePicker::make('payment_due_until')
-                    ->label(__('resources/bankProfile/strings.filters.payment_due_until'))
-                    ->native(false)
-                    ->adaptive(),
-            ])
-            ->query(function (Builder $query, array $data): Builder {
-                return $query
-                    ->when($data['payment_due_from'], fn (Builder $query, $date): Builder => $query->whereDate('payment_due_date', '>=', $date))
-                    ->when($data['payment_due_until'], fn (Builder $query, $date): Builder => $query->whereDate('payment_due_date', '<=', $date));
-            });
+        return FilterComponents::dateRangeFilter(
+            'payment_due_date',
+            'payment_due_date',
+            'payment_due_from',
+            'payment_due_until',
+            __('resources/bankProfile/strings.filters.payment_due_from'),
+            __('resources/bankProfile/strings.filters.payment_due_until'),
+        );
     }
 
     public static function getRegisteredOrderFilter(): SelectFilter

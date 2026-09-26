@@ -56,8 +56,6 @@ class ProformaInvoice extends Model
     protected $casts = [
         'invoice_date' => 'date',
         'validity_date' => 'date',
-        'allow_trans_shipment' => 'boolean',
-        'allow_partial_shipment' => 'boolean',
         'discount' => 'decimal:5',
         'freight_charges' => 'decimal:5',
         'other_charges' => 'decimal:5',

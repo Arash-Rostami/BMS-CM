@@ -2,73 +2,125 @@
 
 namespace App\Filament\Resources\Operational\ProformaInvoiceResource\Exports;
 
-use App\Filament\Traits\ExportDefaults;
+use App\Filament\Resources\Operational\ProformaInvoiceResource\Imports\ProformaInvoiceImporter;
 use App\Models\ProformaInvoice;
-use Filament\Actions\Exports\ExportColumn;
-use Filament\Actions\Exports\Exporter;
+use App\Models\ProformaInvoiceItem;
+use Illuminate\Database\Eloquent\Builder;
+use League\Csv\Writer;
 
-class ProformaInvoiceExporter extends Exporter
+class ProformaInvoiceExporter
 {
-    use ExportDefaults;
-
-    protected static ?string $model = ProformaInvoice::class;
-
-    protected static function eagerLoadRelations(): array
+    /**
+     * @return int the number of physical rows written (parents + items)
+     */
+    public static function write(Builder $query, string $absolutePath): int
     {
-        return ['sellerCompany', 'buyerCompany', 'mainCurrency', 'secondaryCurrency', 'items.product'];
+        $labels = ProformaInvoiceImporter::columnLabels();
+
+        $records = $query
+            ->with(['sellerCompany', 'buyerCompany', 'mainCurrency', 'secondaryCurrency', 'items.product'])
+            ->orderBy('id')
+            ->lazy();
+
+        $stream = fopen($absolutePath, 'w+');
+
+        fwrite($stream, "\xEF\xBB\xBF");
+
+        $csv = Writer::from($stream);
+        $csv->insertOne(array_values($labels));
+
+        $rows = 0;
+
+        foreach ($records as $record) {
+            $csv->insertOne(static::parentRow($record, $labels));
+            $rows++;
+
+            foreach ($record->items as $item) {
+                $csv->insertOne(static::itemRow($item, $labels));
+                $rows++;
+            }
+        }
+
+        fclose($stream);
+
+        return $rows;
     }
 
-    public static function getColumns(): array
+    /**
+     * @param  array<string, string>  $labels
+     * @return array<int, string>
+     */
+    protected static function parentRow(ProformaInvoice $record, array $labels): array
     {
-        return [
-            ExportColumn::make('id')->label(__('resources/proformaInvoice/strings.export.id')),
-            ExportColumn::make('invoice_no')->label(__('resources/proformaInvoice/strings.export.invoice_number')),
-            ExportColumn::make('invoice_date')->label(__('resources/proformaInvoice/strings.export.invoice_date')),
-            ExportColumn::make('validity_date')->label(__('resources/proformaInvoice/strings.export.validity_date')),
-            ExportColumn::make('sellerCompany.name')->label(__('resources/proformaInvoice/strings.export.seller')),
-            ExportColumn::make('sellerCompany.english_name')->label(__('resources/proformaInvoice/strings.export.seller_english')),
-            ExportColumn::make('buyerCompany.name')->label(__('resources/proformaInvoice/strings.export.buyer')),
-            ExportColumn::make('buyerCompany.english_name')->label(__('resources/proformaInvoice/strings.export.buyer_english')),
-            ExportColumn::make('discount')->label(__('resources/proformaInvoice/strings.export.discount'))
-                ->formatStateUsing(fn ($state) => preciseNumber($state)),
-            ExportColumn::make('freight_charges')->label(__('resources/proformaInvoice/strings.export.freight_charges'))
-                ->formatStateUsing(fn ($state) => preciseNumber($state)),
-            ExportColumn::make('other_charges')->label(__('resources/proformaInvoice/strings.export.other_charges'))
-                ->formatStateUsing(fn ($state) => preciseNumber($state)),
-            ExportColumn::make('total_amount')->label(__('resources/proformaInvoice/strings.export.total_amount'))
-                ->formatStateUsing(fn ($state) => preciseNumber($state)),
-            ExportColumn::make('mainCurrency.name')->label(__('resources/proformaInvoice/strings.export.main_currency')),
-            ExportColumn::make('mainCurrency.english_name')->label(__('resources/proformaInvoice/strings.export.main_currency_english')),
-            ExportColumn::make('secondaryCurrency.name')->label(__('resources/proformaInvoice/strings.export.secondary_currency')),
-            ExportColumn::make('secondaryCurrency.english_name')->label(__('resources/proformaInvoice/strings.export.secondary_currency_english')),
-            ExportColumn::make('delivery_terms')->label(__('resources/proformaInvoice/strings.export.delivery_terms')),
-            ExportColumn::make('transport_mode')->label(__('resources/proformaInvoice/strings.export.transport_mode')),
-            ExportColumn::make('contract_no')->label(__('resources/proformaInvoice/strings.export.contract_no')),
-            ExportColumn::make('buyer_comm_card_num')->label(__('resources/proformaInvoice/strings.export.buyer_commercial_card_number')),
-            ExportColumn::make('origin_country')->label(__('resources/proformaInvoice/strings.export.country_of_origin')),
-            ExportColumn::make('destination_country')->label(__('resources/proformaInvoice/strings.export.country_of_destination')),
-            ExportColumn::make('beneficiary_country')->label(__('resources/proformaInvoice/strings.export.beneficiary_country')),
-            ExportColumn::make('port_of_loading')->label(__('resources/proformaInvoice/strings.export.port_of_loading')),
-            ExportColumn::make('port_of_discharge')->label(__('resources/proformaInvoice/strings.export.port_of_discharge')),
+        $values = array_fill_keys(array_keys($labels), '');
 
-            ExportColumn::make('items')
-                ->label(__('resources/proformaInvoice/strings.export.items'))
-                ->state(function (ProformaInvoice $record): string {
-                    return $record->items->map(function ($item) {
-                        $product = $item->product?->getLocalizedNameAttribute() ?? 'N/A';
-                        $quantity = preciseNumber($item->quantity);
-                        $price = preciseNumber($item->unit_price);
-                        $total = preciseNumber($item->total_amount);
-                        $hsCode = $item->hs_code ? " (HS: {$item->hs_code})" : '';
+        $values['invoice_no'] = (string) $record->invoice_no;
+        $values['invoice_date'] = static::jalaliDate($record->invoice_date);
+        $values['contract_no'] = static::escapeCsvFormula((string) ($record->contract_no ?? ''));
+        $values['buyer_comm_card_num'] = static::escapeCsvFormula((string) ($record->buyer_comm_card_num ?? ''));
+        $values['seller_id'] = $record->sellerCompany?->getLocalizedNameAttribute() ?? '';
+        $values['buyer_id'] = $record->buyerCompany?->getLocalizedNameAttribute() ?? '';
+        $values['validity_date'] = static::jalaliDate($record->validity_date);
+        $values['beneficiary_country'] = (string) ($record->beneficiary_country ?? '');
+        $values['origin_country'] = (string) ($record->origin_country ?? '');
+        $values['destination_country'] = (string) ($record->destination_country ?? '');
+        $values['transport_mode'] = (string) ($record->transport_mode ?? '');
+        $values['port_of_discharge'] = static::escapeCsvFormula((string) ($record->port_of_discharge ?? ''));
+        $values['port_of_loading'] = static::escapeCsvFormula((string) ($record->port_of_loading ?? ''));
+        $values['delivery_terms'] = (string) ($record->delivery_terms ?? '');
+        $values['main_currency_id'] = $record->mainCurrency?->getLocalizedNameAttribute() ?? '';
+        $values['secondary_currency_id'] = $record->secondaryCurrency?->getLocalizedNameAttribute() ?? '';
+        $values['discount'] = static::numberValue($record->discount);
+        $values['freight_charges'] = static::numberValue($record->freight_charges);
+        $values['other_charges'] = static::numberValue($record->other_charges);
+        $values['total_amount'] = static::numberValue($record->total_amount);
+        $values['notes'] = static::plainText($record->notes);
 
-                        return "- {$product}, Qty: {$quantity}, Price: {$price}, Total: {$total}{$hsCode}";
-                    })->implode("\n");
-                }),
+        return array_values($values);
+    }
 
-            ExportColumn::make('creator.name')->label(__('resources/proformaInvoice/strings.export.creator')),
-            ExportColumn::make('updater.name')->label(__('resources/proformaInvoice/strings.export.updater')),
-            ExportColumn::make('created_at')->label(__('resources/proformaInvoice/strings.export.created_at')),
-            ExportColumn::make('updated_at')->label(__('resources/proformaInvoice/strings.export.updated_at')),
-        ];
+    /**
+     * @param  array<string, string>  $labels
+     * @return array<int, string>
+     */
+    protected static function itemRow(ProformaInvoiceItem $item, array $labels): array
+    {
+        $values = array_fill_keys(array_keys($labels), '');
+
+        $values['product_id'] = $item->product?->getLocalizedNameAttribute() ?? '';
+        $values['origin'] = static::escapeCsvFormula((string) ($item->origin ?? ''));
+        $values['hs_code'] = static::escapeCsvFormula((string) ($item->hs_code ?? ''));
+        $values['unit'] = (string) ($item->unit ?? '');
+        $values['quantity'] = static::numberValue($item->quantity);
+        $values['unit_price'] = static::numberValue($item->unit_price);
+        $values['net_weight'] = static::numberValue($item->net_weight);
+        $values['gross_weight'] = static::numberValue($item->gross_weight);
+        $values['item_freight_charges'] = static::numberValue($item->freight_charges);
+        $values['item_total_amount'] = static::numberValue($item->total_amount);
+        $values['description'] = static::plainText($item->description);
+
+        return array_values($values);
+    }
+
+    protected static function numberValue(mixed $value): string
+    {
+        return $value === null ? '' : (string) $value;
+    }
+
+    protected static function plainText(mixed $value): string
+    {
+        $text = trim(html_entity_decode(strip_tags((string) ($value ?? '')), ENT_QUOTES));
+
+        return static::escapeCsvFormula($text);
+    }
+
+    protected static function escapeCsvFormula(string $value): string
+    {
+        return preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
+    }
+
+    protected static function jalaliDate(mixed $date): string
+    {
+        return $date ? jdate($date)->format('Y-m-d') : '';
     }
 }

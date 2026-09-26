@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrderExporter;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Filters as PurchaseOrderFilters;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as PurchaseOrderTable;
 use App\Filament\Resources\PurchaseOrderResource;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -21,9 +23,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrdersRelationManager extends RelationManager
 {
+    use HandlesActionExceptions;
     use PurchaseOrderFilters, PurchaseOrderTable;
 
     protected static string $relationship = 'purchaseOrders';
+
+    protected static ?string $relatedResource = PurchaseOrderResource::class;
 
     public static function getModelLabel(): string
     {
@@ -47,7 +52,8 @@ class PurchaseOrdersRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return TableComponents::gatedEmptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(PurchaseOrderResource::eagerRelations())->withCount('proformaInvoices')->withCount('purchaseRequests')->withCount('registeredOrders'))
             ->recordTitleAttribute('formatted_name')
             ->columns([
                 static::showID(),
@@ -76,6 +82,7 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->headerActions([
                 Action::make('create')
                     ->label(__('resources/general/strings.actions.add_record'))
+                    ->tooltip(__('resources/general/strings.actions.add_record_tooltip'))
                     ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Submitted']))
                     ->url(fn (): string => PurchaseOrderResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
@@ -103,6 +110,6 @@ class PurchaseOrdersRelationManager extends RelationManager
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('purchase_orders.id', 'desc');
+            ->defaultSort('purchase_orders.id', 'desc'));
     }
 }

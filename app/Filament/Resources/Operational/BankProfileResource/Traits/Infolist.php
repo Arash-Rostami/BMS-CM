@@ -119,7 +119,7 @@ trait Infolist
     {
         return TextEntry::make('created_at')
             ->label(__('resources/bankProfile/strings.infolist.created_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray')
             ->placeholder('-');
     }
@@ -277,7 +277,11 @@ trait Infolist
         return TextEntry::make('remaining_commitment')
             ->label(__('resources/bankProfile/strings.form.summary_remaining'))
             ->formatStateUsing(fn ($state) => $state ? preciseNumber($state) : '-')
-            ->color('success')
+            ->color(fn ($state): string => match (true) {
+                $state < 0 => 'danger',
+                (float) $state === 0.0 => 'gray',
+                default => 'success',
+            })
             ->placeholder('-');
     }
 
@@ -386,7 +390,7 @@ trait Infolist
     {
         return TextEntry::make('updated_at')
             ->label(__('resources/bankProfile/strings.infolist.updated_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray')
             ->placeholder('-');
     }

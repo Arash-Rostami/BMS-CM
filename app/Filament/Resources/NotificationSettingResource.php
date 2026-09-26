@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Master\NotificationSettingResource\Pages\ManageNotificationSettings;
 use App\Filament\Resources\Master\NotificationSettingResource\Traits\Filters as NotificationSettingFilters;
 use App\Filament\Resources\Master\NotificationSettingResource\Traits\Form as NotificationSettingForm;
@@ -15,6 +16,8 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -23,6 +26,7 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Str;
 
 class NotificationSettingResource extends Resource
@@ -33,7 +37,7 @@ class NotificationSettingResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bell';
 
-    protected static ?int $navigationSort = 11;
+    protected static ?int $navigationSort = 12;
 
     public static function form(Schema $schema): Schema
     {
@@ -61,6 +65,9 @@ class NotificationSettingResource extends Resource
             ->with([
                 'creator',
                 'updater',
+            ])
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
             ]);
     }
 
@@ -165,7 +172,7 @@ class NotificationSettingResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showTable(),
                 static::showColumns(),
@@ -186,6 +193,7 @@ class NotificationSettingResource extends Resource
                 static::getIsActiveFilter(),
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
+                static::getTrashedFilter(),
             ])
             ->filtersFormColumns(3)
             ->recordActions([
@@ -193,6 +201,7 @@ class NotificationSettingResource extends Resource
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
             ->groups([
@@ -208,12 +217,13 @@ class NotificationSettingResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ])
             ->striped()
             ->reorderableColumns()
             ->searchDebounce('1000ms')
             ->recordUrl(null)
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

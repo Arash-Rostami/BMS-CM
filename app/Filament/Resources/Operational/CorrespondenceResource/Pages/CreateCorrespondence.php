@@ -23,6 +23,10 @@ class CreateCorrespondence extends CreateRecord
 
         $data['user_id'] = auth()->id();
 
+        $data = CorrespondenceResource::applyInitialStatusOnCreate($data);
+
+        CorrespondenceResource::assertStatusTransitionAllowed(null, 'status_id', $data['status_id'] ?? null);
+
         return $data;
     }
 }

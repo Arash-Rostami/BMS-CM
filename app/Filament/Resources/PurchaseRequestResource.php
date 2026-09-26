@@ -6,7 +6,6 @@ use App\Filament\Resources\General\FormComponents;
 use App\Filament\Resources\General\InfoComponents;
 use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Enums\Status;
-use App\Filament\Resources\Operational\PurchaseRequestResource\Exports\PurchaseRequestExporter;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\CreatePurchaseRequest;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\EditPurchaseRequest;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\ListPurchaseRequests;
@@ -21,6 +20,7 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\TotalCostC
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\PurchaseRequest;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
@@ -28,7 +28,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -48,13 +47,18 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PurchaseRequestResource extends Resource
 {
-    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, PurchaseRequestFilters, PurchaseRequestForm, PurchaseRequestInfolist, PurchaseRequestTable, TotalCostCalculation;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow, PurchaseRequestFilters, PurchaseRequestForm, PurchaseRequestInfolist, PurchaseRequestTable, TotalCostCalculation;
 
     protected static ?string $model = PurchaseRequest::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
 
     protected static ?int $navigationSort = 2;
+
+    public static function statusWorkflowType(): string
+    {
+        return PurchaseRequest::TYPE_PURCHASE_REQUEST;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -98,6 +102,10 @@ class PurchaseRequestResource extends Resource
                                                     ])
                                                     ->live(true)
                                                     ->defaultItems(0)
+                                                    ->minItems(1)
+                                                    ->validationMessages([
+                                                        'min' => __('resources/purchaseRequest/strings.form.validation_items_min'),
+                                                    ])
                                                     ->afterStateUpdated(fn (Get $get, Set $set) => self::updateTotalCost($get, $set))
                                                     ->afterStateHydrated(fn (Get $get, Set $set) => static::updateTotalCost($get, $set))
                                                     ->deleteAction(fn ($action) => $action->after(fn (Get $get, Set $set) => self::updateTotalCost($get, $set)))
@@ -117,6 +125,8 @@ class PurchaseRequestResource extends Resource
                                                 static::getApprovalDateField(),
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
+                                                static::viewAttachments()
+                                                    ->visible(fn (?Model $record): bool => (bool) $record),
                                             ]),
                                     ])
                                     ->columnSpan(['lg' => 1]),
@@ -128,33 +138,37 @@ class PurchaseRequestResource extends Resource
             ]);
     }
 
+    public static function eagerRelations(): array
+    {
+        return [
+            'creator',
+            'updater',
+            'approver',
+            'attachments',
+            'extraAttributes',
+            'costCenter',
+            'department',
+            'items',
+            'items.attachments',
+            'items.product',
+            'items.status',
+            'proformaInvoices',
+            'registeredOrders',
+            'purchaseOrders',
+            'requester',
+            'status',
+        ];
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with([
-                'creator',
-                'updater',
-                'approver',
-                'attachments',
-                'extraAttributes',
-                'costCenter',
-                'department',
-                'items',
-                'items.attachments',
-                'items.product',
-                'items.status',
-                'proformaInvoices',
-                'registeredOrders',
-                'purchaseOrders',
-                'requester',
-                'status',
-            ])
+            ->with(static::eagerRelations())
             ->withCount([
                 'proformaInvoices',
                 'registeredOrders',
                 'purchaseOrders',
             ])
-            ->withCount('proformaInvoices')
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
@@ -181,7 +195,7 @@ class PurchaseRequestResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['pr_number', 'rejection_reason'];
+        return static::withExtraAttributesSearch(['pr_number', 'rejection_reason']);
     }
 
     public static function getModelLabel(): string
@@ -253,7 +267,9 @@ class PurchaseRequestResource extends Resource
                             ->label(__('resources/purchaseRequest/strings.infolist.tab_items'))
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
-                                Section::make()->schema([static::viewPurchaseItems()]),
+                                Section::make()->schema([
+                                    static::viewPurchaseItems()->extraAttributes(['class' => 'fi-in-repeatable-spaced']),
+                                ]),
                             ]),
                         Tab::make('Documents')
                             ->icon('heroicon-o-paper-clip')
@@ -265,6 +281,7 @@ class PurchaseRequestResource extends Resource
                                 $record?->attachments->count() ?? 0,
                                 'info'
                             )),
+                        InfoComponents::getStatusHistoryTab(),
                         static::getExtraAttributesInfolistTab(),
                     ])->columnSpanFull(),
             ]);
@@ -272,7 +289,7 @@ class PurchaseRequestResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showSource(),
                 static::showID(),
@@ -291,6 +308,7 @@ class PurchaseRequestResource extends Resource
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
+                static::getStatusWorkflowProgressColumn(),
                 static::showProformaInvoiceCount(),
             ])
             ->filters([
@@ -313,10 +331,9 @@ class PurchaseRequestResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    static::getExportBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(PurchaseRequestExporter::class),
                 ]),
             ])
             ->groups([
@@ -333,6 +350,6 @@ class PurchaseRequestResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

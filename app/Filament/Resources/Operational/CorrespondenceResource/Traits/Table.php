@@ -2,23 +2,75 @@
 
 namespace App\Filament\Resources\Operational\CorrespondenceResource\Traits;
 
+use App\Filament\Resources\CorrespondenceResource;
 use App\Filament\Resources\Operational\CorrespondenceResource\Enums\Priority;
 use App\Filament\Resources\Operational\CorrespondenceResource\Enums\Type;
+use App\Jobs\ExportCorrespondences;
 use App\Models\Correspondence;
+use App\Models\CorrespondenceRecipient;
 use App\Models\Status;
+use App\Services\SmartCacheManager;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 trait Table
 {
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportCorrespondences')
+            ->label(__('resources/correspondence/strings.export.export_correspondences'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => CorrespondenceResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportCorrespondences::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
+    public static function getMarkAsReadBulkAction(): BulkAction
+    {
+        return BulkAction::make('markAsRead')
+            ->label(__('resources/correspondence/strings.bulk.mark_as_read'))
+            ->icon('heroicon-o-envelope-open')
+            ->action(function (Collection $records): void {
+                $userId = auth()->id();
+
+                if (! $userId) {
+                    return;
+                }
+
+                CorrespondenceRecipient::query()
+                    ->whereIn('correspondence_id', $records->pluck('id'))
+                    ->where('user_id', $userId)
+                    ->whereNull('read_at')
+                    ->update(['read_at' => now(), 'updated_at' => now()]);
+
+                SmartCacheManager::invalidate('Correspondence');
+
+                Notification::make()
+                    ->title(__('resources/correspondence/strings.bulk.mark_as_read_notification'))
+                    ->success()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showCreator(): TextColumn
     {
         return TextColumn::make('creator.name')
             ->label(__('resources/correspondence/strings.table.creator'))
-            ->description(fn (Correspondence $record) => $record->created_at ? toPersianDate($record->created_at) : '-')
+            ->description(fn (Correspondence $record) => adaptiveDate($record->created_at))
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -91,7 +143,7 @@ trait Table
     {
         return TextColumn::make('updated_at')
             ->label(__('resources/correspondence/strings.table.updated_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

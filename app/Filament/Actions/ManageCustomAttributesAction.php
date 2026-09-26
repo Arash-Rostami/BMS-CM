@@ -27,19 +27,7 @@ class ManageCustomAttributesAction
                 'attributes' => $record->getCustomAttributesMap(),
             ])
             ->action(function ($record, array $data): void {
-                $attributes = $data['attributes'] ?? [];
-                $userId = auth()->id();
-
-                $record->customAttributes()
-                    ->whereNotIn('key', array_keys($attributes))
-                    ->delete();
-
-                foreach ($attributes as $key => $value) {
-                    $record->customAttributes()->updateOrCreate(
-                        ['key' => $key],
-                        ['value' => $value, 'created_by' => $userId],
-                    );
-                }
+                $record->syncCustomAttributes($data['attributes'] ?? []);
             });
     }
 }

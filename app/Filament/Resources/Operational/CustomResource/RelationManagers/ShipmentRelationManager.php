@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Operational\CustomResource\RelationManagers;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\ShipmentResource\Exports\ShipmentExporter;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Filters as ShipmentFilters;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Table as ShipmentTable;
 use App\Filament\Resources\ShipmentResource;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
@@ -18,19 +20,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShipmentRelationManager extends RelationManager
 {
+    use HandlesActionExceptions;
     use ShipmentFilters, ShipmentTable;
 
     protected static string $relationship = 'shipment';
 
-    protected bool $canAssociate = false;
-
-    protected bool $canCreate = false;
-
-    protected bool $canDelete = false;
-
-    protected bool $canDissociate = false;
-
-    protected bool $canEdit = false;
+    protected static ?string $relatedResource = ShipmentResource::class;
 
     public static function getModelLabel(): string
     {
@@ -54,7 +49,8 @@ class ShipmentRelationManager extends RelationManager
 
     public function table(FilamentTable $table): FilamentTable
     {
-        return $table
+        return TableComponents::emptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(ShipmentResource::eagerRelations()))
             ->columns([
                 static::showId(),
                 static::showRegisteredOrder(),
@@ -98,6 +94,6 @@ class ShipmentRelationManager extends RelationManager
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

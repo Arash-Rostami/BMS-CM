@@ -33,7 +33,32 @@ class FilamentRenderHooks
         );
 
         FilamentView::registerRenderHook(
-            PanelsRenderHook::HEAD_END,
+            PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+            fn (): View => view('filament.partials.table-density-toggle')
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+            fn (): View => view('filament.partials.fullscreen-toggle')
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+            fn (): View => view('filament.partials.theme')
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+            fn (): View => view('filament.partials.work-actions')
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+            fn (): View => view('filament.partials.topbar-divider')
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::SIDEBAR_NAV_END,
             fn (): View => view('filament.partials.meta')
         );
     }

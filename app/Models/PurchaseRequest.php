@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
+use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\PurchaseRequest\HasFormattedName;
 use App\Models\Traits\PurchaseRequest\HasSearchableRelations;
@@ -21,6 +22,7 @@ class PurchaseRequest extends Model
         HasSearchableRelations,
         Relationships,
         SoftDeletes,
+        TracksStatusHistory,
         UserStamps;
 
     public const SCANNABLE_TABLE = 'purchase_requests';

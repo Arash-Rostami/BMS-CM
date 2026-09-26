@@ -4,8 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Company;
 use App\Models\Currency;
-use App\Models\ProformaInvoice;
-use App\Models\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

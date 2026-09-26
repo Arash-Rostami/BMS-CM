@@ -36,7 +36,7 @@ trait Infolist
     {
         return TextEntry::make('created_at')
             ->label(__('resources/registeredOrder/strings.infolist.created_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->color('gray')
             ->placeholder('-');
     }
@@ -45,7 +45,7 @@ trait Infolist
     {
         return TextEntry::make('created_at')
             ->label(__('resources/registeredOrder/strings.infolist.created_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->color('gray')
             ->placeholder('-');
     }
@@ -78,7 +78,7 @@ trait Infolist
     {
         return TextEntry::make('expected_delivery_date')
             ->label(__('resources/registeredOrder/strings.form.expected_delivery_date'))
-            ->date()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -161,7 +161,7 @@ trait Infolist
     {
         return TextEntry::make('order_date')
             ->label(__('resources/registeredOrder/strings.form.order_date'))
-            ->date()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -223,7 +223,7 @@ trait Infolist
     {
         return TextEntry::make('updated_at')
             ->label(__('resources/registeredOrder/strings.infolist.updated_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray')
             ->placeholder('-');
     }
@@ -240,7 +240,7 @@ trait Infolist
     {
         return TextEntry::make('validity_date')
             ->label(__('resources/registeredOrder/strings.form.validity_date'))
-            ->date()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }

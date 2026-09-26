@@ -310,6 +310,15 @@ input[type="range"]::-moz-range-thumb {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+.custom-scrollbar:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+}
+
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
 }
@@ -322,6 +331,12 @@ input[type="range"]::-moz-range-thumb {
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
+    opacity: 0 !important;
+    transition: opacity 0.2s var(--md-motion);
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    opacity: 1 !important;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {

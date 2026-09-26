@@ -35,7 +35,7 @@ trait Table
     {
         return TextColumn::make('created_at')
             ->label(__('resources/role/strings.table.created_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -44,7 +44,7 @@ trait Table
     {
         return TextColumn::make('updated_at')
             ->label(__('resources/role/strings.table.updated_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

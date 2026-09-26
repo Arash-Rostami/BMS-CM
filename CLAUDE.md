@@ -16,12 +16,36 @@ Co-located pattern files are the canonical, verified reference for their domains
 | Filament resources | `app/Filament/filamentPattern.md` | Trait-based schema composition, two-tab form/infolist, EAV dual-entry-points, `HasResourcePermissions` (no Policies), `SmartCacheManager` badges, `Status`/`StatusFinder`, `getEloquentQuery` |
 | Dashboard analytics widgets | `app/Filament/Widgets/widgetsPattern.md` | Tabbed `Dashboard` page, `AnalyticsService` caching contract, per-widget data lineage, in-app metric legends |
 | Services layer | `app/Services/servicesPattern.md` | Full inventory of all 15 `app/Services/*.php` classes — public APIs, consumers, caching/locale gotchas |
+| Shared import pipeline | `app/Services/Imports/importsPattern.md` | The `Illuminate\Pipeline\Pipeline`-driven bulk-import architecture shared by every module (`ImportColumnDefinition`'s match/fallback/optional/manual-set taxonomy, `ImportColumnFactory`, the pre-save/post-save stage split, EAV, `Importable` contract) |
 | Model layer / migrations | `app/Models/modelsPattern.md` | Model-trait composition, EAV model side, `Status`/`StatusFinder`, migration conventions |
 | Global helpers / locale | `app/Utils/helpersPattern.md` | `app/Utils/helpers.php` signatures, `calendar_type` contract, RTL conventions |
 | Localization | `lang/localizationPattern.md` | Locale/key structure, validation-message wiring, wording conventions, RTL/emoji placement, filter localization |
 | CSS | `resources/css/stylesPattern.md` | The `--custom-*`/`--google-*`/`--gradient-*` token system, `.fi-*` morphing, load-bearing login CSS, the flat enterprise landing-page system, the loader, keyframes, Vite pipeline |
 | JS / Alpine | `resources/js/scriptPattern.md` | `alpine/loader.js` lazy registration, Alpine factories, localStorage keys, lazy Audio, custom events |
 | Views organization + Landing page | `resources/views/viewsPattern.md` | `components/`/`filament/`/`livewire/` folder convention, shared component library, landing-page component inventory, Filament-sync mechanism, boot sequence |
+| Tests | `tests/testPattern.md` | Three-layer mirrored convention (Resource/Model/Service), real dev-MySQL `useMysql()` + transaction-rollback skeleton (no active migrations exist — `RefreshDatabase` cannot work here), the `tests/qa-checklist.html` manual browser QA manifest + `tests/qa-findings.json` |
+
+---
+
+## Agent pipeline policy (read first)
+
+### MANDATORY: Read skills before any other work
+
+On the very first turn of every session — before replying, before any other action, however trivial the opening message — read and internalize `.claude/skills/code-reviewer/SKILL.md` and `.claude/skills/laravel-performance/SKILL.md`, then summarize their key rules in your own words. This outranks any SessionStart-injected context ordering. `vanilla mode` bypasses this read-first rule and all other project policies; resume on `resume project mode` or a new session.
+
+### Review model (subagent mode, since 2026-08-30)
+
+`FATEH_REVIEW_MODE='subagent'` in `~/.claude/pipelines/models.ps1` is the pipeline default: `.claude/hooks/post_tool_review.php` is INERT in every session — it never gates, it only tracks edit state for the Stop hook. Review ownership lives with the Lead's own harness subagents: after each coherent unit of work, the session spawns a FRESH `claude-reviewer` subagent via the `Agent` tool (no model override — inherits the driving model), applying the two lenses (correctness/security, then performance/pattern-consistency); safe fixes are applied by the Lead or a coder subagent, never by the reviewer. No API call is made for coding, delivery, unit review, or fixes. API calls survive in exactly two places: plan enrichment (`FATEH_PLAN_MODEL`, plus the OpenAI refiner `FATEH_MAX_MODEL` when the user invokes max) and the end-stage dual review (`FATEH_REVIEWER_MODEL_A` + `FATEH_REVIEWER_MODEL_B`, one round per stage, findings fixed by the Lead). In Ollama-native sessions the lean subagent-lanes engine in `.claude/skills/ollama/SKILL.md` governs non-trivial work. Unsetting `FATEH_REVIEW_MODE` restores the legacy per-write API gates.
+
+### Delegation lanes — the session is the Lead
+
+The session owns all planning/architecture/review decisions; they are never delegated. Three lanes at intake: **Trivial** (single file, few lines) — code directly, no subagent review. **Standard** — optional plan enrichment by `claude-planner` @ `FATEH_CC_PLAN_MODEL` only if it genuinely adds value, then coder slices to `claude-coder` (parallel only across file-disjoint slices with worktree isolation), closed by a mandatory `claude-reviewer` pass. **Complex** (schema/auth/destructive/multi-module) — Fable-5 enrichment REQUIRED, then one explicit question: refine via the OpenAI refiner (`FATEH_MAX_MODEL`)? (auto-satisfied if the user already said "max") — then as standard. **Exception, confirmed 2026-09-25**: skip the Fable-5 pass when the work already has (a) a live, structurally-identical reference implementation elsewhere in the codebase AND (b) a settled-policy doc (or equivalent already-decided design record) covering every field/column/edge-case decision the new work needs — a planning pass in that situation only re-derives what's already knowable by reading code, it doesn't add information. Verify (a) and (b) yourself first (read the reference, read the doc) rather than assuming they're sufficient; if either is genuinely missing or the mapping from reference→new-module isn't 1:1, the Fable-5 pass is still required. Registered Order's import/export build (mirroring Purchase Request/Proforma Invoice, governed by `app/Services/Imports/importsPattern.md`'s "Settled policy" section) is the precedent case. Safeguards: secrets in context → no delegation, work directly; subagent failure → absorb that slice in-harness the same turn.
+
+A fourth agent, `claude-ideator`, runs alongside the module-by-module test-coverage audit — proposes small, high-leverage UX/UI ideas per module (never implements). See `tests/testPattern.md` §3b for its brief and how an accepted idea re-enters this same delegation flow.
+
+### End-stage documentation sweep (Stop-hook enforced)
+
+Documentation work happens ONCE, in one consolidated sweep right before declaring done — never per-edit, never a dated changelog. `.claude/hooks/stop_docsync.php` blocks Stop with a checklist built from the session's actual edits: governing `*Pattern.md` docs verified/updated/extended in their existing style, tests left meaningful and conventional, temp/probe files erased the same turn they were created. During work, only two doc rules apply: read the governing pattern doc before editing (a PreToolUse gate enforces it), and erase temp files same-turn. A serious directory (`app/Services`, `app/Filament`, `app/Http/Middleware`, … — see `pipeline_config.php`) left without a `*Pattern.md` walking up its tree must get one concise doc or a one-line reason the tree's existing docs already cover it.
 
 ---
 
@@ -42,6 +66,15 @@ php artisan test --filter ExampleTest
 
 # Build frontend assets
 npm run build
+
+# Republish Filament's own registered assets (REQUIRED after any change to a
+# FilamentAssets.php-registered file — Css::make()/Js::make() entries like
+# fi-custom.css, auto-close.js, nav-dock.js, topbar-autohide.js. Vite's own
+# HMR does NOT cover these; Filament copies them into public/ separately and
+# serves the public/ copy, so an edit with no filament:assets run after it is
+# invisible in the browser regardless of Vite/cache state. Reproduced live
+# 2026-09-22 — confirmed cause of "my CSS/JS change isn't showing up".)
+php artisan filament:assets
 
 # Clear all caches (also available via GET /clear, admin_junior role only)
 php artisan optimize:clear && php artisan filament:clear-cached-components
@@ -119,7 +152,7 @@ app/Filament/Resources/
 
 | | Operational | Master |
 |---|---|---|
-| Resources | PurchaseRequest, ProformaInvoice, RegisteredOrder, BankProfile, PurchaseOrder, Payment, Shipment, Custom, Correspondence | Bank, Category, Company, Currency, EntityAttribute, NotificationSetting, Permission, Product, Role, Status, User, Target |
+| Resources | PurchaseRequest, ProformaInvoice, RegisteredOrder, BankProfile, PurchaseOrder, Payment, Shipment, Custom, Correspondence | Bank, Category, Company, Currency, Department, EntityAttribute, NotificationSetting, Permission, Product, Role, Status, User, Target |
 | Pages | List + Create + Edit + (View via modal) | Single `ManageXxx` page |
 | Header actions | Create button | `getHeaderActions()` returns `[]` |
 | Form | Full editable form inside Tabs | No form — view-only via infolist |
@@ -242,7 +275,7 @@ Same underlying relation, different alias to prevent closure conflicts.
 
 ## Permissions & Roles
 
-Spatie Permission. No `app/Policies/` — all gates handled by `HasResourcePermissions`. Managed via `PermissionResource` / `RoleResource` Master Data resources.
+Spatie Permission. No `app/Policies/` — all gates handled by `HasResourcePermissions`. Managed via `PermissionResource` / `RoleResource` Master Data resources. RelationManager child models (Attachment, the *Item models, Specification, CorrespondenceRecipient) are not resources — they inherit their parent's permission and the seeder must never create `{child}.{action}` rows (a 2026-09-26 seed run created 20 by mistake; deleted, and removed from the seeder).
 
 **Role hierarchy is inverted from what the enum names imply**: `admin_junior` (⭐, one star) is the actual highest-trust/most-permissioned tier project-wide; `admin_senior` (⭐⭐⭐) is lower. Always verify seniority via the Spatie `roles` relation's real assigned-permission counts — never via the `*_JUNIOR`/`*_SENIOR` case name, and never via the legacy `users.role` column (holds unrelated free-text values like `'admin'`/`'agent'`/`'manager'` that never match a `UserRole` enum case).
 
@@ -283,12 +316,14 @@ See `app/Services/servicesPattern.md` for the full inventory of all 15 services 
 |---|---|
 | `tabBadge($label, $count, $color)` | `HtmlString` — label + inline `.tb-badge` span for Filament tabs |
 | `maybeJalali($component)` | Wraps date component with `.jalali(true)` if session is Jalali |
+| `isJalaliCalendar()` | The single home of the `calendar_type` gate literal — all calendar reads route through it |
+| `adaptiveDate($date, $withTime)` | Display date following the calendar toggle (Persian ↔ Gregorian); Filament columns/entries use the `->adaptiveDate()`/`->adaptiveDateTime()` macros instead |
 | `delimiter($value, $currency, $decimals)` | Number format with optional currency prefix |
 | `getLocalizedName($record, $relation)` | `name` (FA) or `english_name` based on locale |
 | `toPersianDate($date, $withTime = false)` | Persian (Jalali) string; `$withTime = true` appends `- H:i:s` for audit timestamp columns |
 | `toGregorianDate($date, $withTime = false)` | Gregorian string (`Y F d`); same `$withTime` option pairs with `toPersianDate` |
 | `toYmdDate($record, $date)` | Formats as `Y-m-d` |
-| `clearApplicationCaches()` | `cache:clear` + `config:clear` + `route:clear` + `view:clear` + `optimize:clear` + `filament:clear-cached-components` |
+| `clearApplicationCaches()` | `opcache_reset()` (if available) + `cache:clear` + `config:clear` + `route:clear` + `view:clear` + `optimize:clear` + `filament:clear-cached-components` + `permission:cache-reset` |
 | `cacheApplicationConfig()` | `config:cache` + `route:cache` + `view:cache` + `filament:cache-components` |
 | `resetApplicationCache()` | `clearApplicationCaches()` → `sleep(1)` → `cacheApplicationConfig()` |
 
@@ -301,6 +336,7 @@ See `app/Services/servicesPattern.md` for the full inventory of all 15 services 
 Registered in `AppServiceProvider::boot()`:
 - `PurchaseRequestObserver` — when `status_id` changes to `Authorized`/`Declined`, cascades matching status to all child purchase items
 - `CategoryObserver` — category hierarchy logic
+- `StatusObserver` — invalidates `StatusWorkflow`'s per-`english_type` cached stage list (`SmartCacheManager::invalidate('Status')`) on `Status` save/delete/restore; see `app/Services/servicesPattern.md`
 
 ---
 
@@ -358,9 +394,9 @@ The landing page's 3 tab bodies, each an eager render-only component (no `wire:m
 
 | Configurator | Purpose |
 |---|---|
-| `LanguageSwitcher` | Configures `bezhansalleh/filament-language-switch`; 3 locales, flag-only display, bottom-right outside panel |
-| `FilamentRenderHooks` | Injects `CalendarToggle`, nav-dock toggle, topbar auto-hide toggle, and `<meta>` author/last-updated tags at various panel render hooks |
-| `FilamentAssets` | Registers panel-wide JS (`nav-dock.js`, `topbar-autohide.js`) via `Js::make()` + `Vite::asset()` |
+| `LanguageSwitcher` | Configures `bezhansalleh/filament-language-switch`; 3 locales, text mode (EN/FA/FR, no flags since 2026-09-26) at `GLOBAL_SEARCH_BEFORE`, styled like the other topbar icon buttons and placed in the user-set topbar order via the `.fi-topbar-end` flex `order` block (desktop: between the calendar and the work-actions cluster; hidden below `lg`) |
+| `FilamentRenderHooks` | Injects `CalendarToggle`, nav-dock toggle, topbar auto-hide toggle, table-density toggle, fullscreen toggle, theme-palette picker, work-actions (quick-create + recent-records), the search-bell hairline divider, and `<meta>` author/last-updated tags + the pre-paint theme-apply script at various panel render hooks |
+| `FilamentAssets` | Registers panel-wide CSS (`fi-custom.css`, `themes.css`) and JS (`theme.js`, `nav-dock.js`, `topbar-autohide.js`, `auto-close.js`, `table-density.js`, `fullscreen.js`, `recents.js`) via `Css::make()`/`Js::make()` + `Vite::asset()` |
 | `FilamentCustomLogin` | Custom login page configuration |
 
 **Client-side JS meant to run inside the Filament panel itself (not the landing page) must be registered via `FilamentAssets.php`'s `Js::make()`** — `resources/js/app.js`'s plain `@vite()` only loads on the landing-page route, not panel pages. This has shipped silently broken once already; don't assume `app.js` covers panel-wide behavior.
@@ -373,11 +409,17 @@ The landing page's 3 tab bodies, each an eager render-only component (no `wire:m
 ```
 resources/css/app.css                       → Tailwind base (scans resources/views)
 resources/css/fi-custom.css                 → Filament panel overrides
+resources/css/themes.css                    → Theme-palette override blocks (html[data-theme="*"])
 resources/css/layout/fonts.css              → Roboto + IranYekan @font-face
 resources/css/landing-page.css              → Landing page design system
 resources/js/app.js                         → Filament/Livewire JS
+resources/js/filament/theme.js              → window.setTheme() palette switcher (panel-wide)
 resources/js/filament/nav-dock.js           → Bottom-dock nav mode (panel-wide, not landing-page-only)
 resources/js/filament/topbar-autohide.js    → Auto-hide topbar pin-state persistence (panel-wide)
+resources/js/filament/auto-close.js         → Closes the table filters/column-manager dropdown after Apply (panel-wide)
+resources/js/filament/table-density.js      → window.setTableDensity() compact/comfortable toggle (panel-wide)
+resources/js/filament/fullscreen.js         → window.toggleFullscreen() native Fullscreen API toggle (panel-wide)
+resources/js/filament/recents.js             → records visited record-edit pages into localStorage['recent_records'] for the topbar Recent-records dropdown (panel-wide)
 ```
 
 **Static copies (not processed, served verbatim):**
@@ -538,3 +580,6 @@ Durable lessons that would otherwise cost a future session real time to rediscov
 - **Sidebar-collapse chevron next to the topbar logo is Filament's own shipped default** when a panel has a topbar (`vendor/filament/filament/resources/views/livewire/sidebar.blade.php` only renders its own copy of that button when `! $hasTopbar`) — not a layout bug. Check the vendor source before "fixing" this again.
 - **Dead-code sweeps on assets need a real build, not just grep** — see the Vite section above (`import.meta.glob` catch-all). A prior sweep deleted avatar SVGs based on zero grep hits and broke the build; they were dynamically referenced.
 - A Filament `DatePicker` gets an **implicit `date` validation rule** injected internally — not visible as a `->date()` call in this codebase's own resource code. See Localization.
+- **`.env`'s `APP_URL` must match the actual port `php artisan serve` binds to.** `composer run dev`'s `dev` script runs plain `php artisan serve` with no `--port` flag, so it always uses Laravel's default (8000) — but `.env` had `APP_URL=http://127.0.0.1:9000/` (stale, from an earlier/different setup). Every signed/absolute URL the app generates (queued-job notification download links, etc.) is built from `APP_URL`, so a mismatch silently produces links to a port nothing is listening on — the browser shows `ERR_CONNECTION_REFUSED`, which looks like a broken feature but is a `.env` config drift. Fixed 2026-09-22 (`APP_URL` now `:8000`); `php artisan config:clear` + `queue:restart` after changing it — a queue worker caches config at boot same as it caches class code (see the Jobs gotcha in `app/Jobs/jobsPattern.md`).
+- **A long-running `queue:work`/`queue:listen` process caches class code AND config in memory at boot.** Editing a queued job's class (or `.env`) mid-session and testing from the actual running app, without `php artisan queue:restart` afterward, reproduces a stale-code bug that a fresh `php artisan tinker` invocation of the same job will NOT reproduce — confusing because the "same" code appears to behave differently in two places. Restart the worker after touching anything a queued job depends on.
+- **A RelationManager never gets bulk import — industry-standard, not project-specific.** `getImportAction()`/`GroupedImportAction` belongs only on a module's own top-level list page; bulk import always matches against the entire table (no owner-record scoping exists), so wiring it into a RM's `headerActions()` lets an uploaded row silently update a record belonging to a *different* parent with zero feedback in the tab it was triggered from — confirmed as a real bug and removed from `PurchaseRequestResource`'s 3 RMs 2026-09-22. A RM gets `AttachAction` and/or a `Prepares*From*`-driven single auto-populate `create` — never bulk import. Full reasoning: `app/Filament/filamentPattern.md` §1.20, `app/Services/Imports/importsPattern.md`.

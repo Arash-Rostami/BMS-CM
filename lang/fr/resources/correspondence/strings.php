@@ -6,6 +6,7 @@ return [
         'plural_model_label' => 'Correspondances',
         'create_new' => 'Rédiger un nouveau',
         'reply' => 'Répondre',
+        'unresolved_cc_warning' => 'Certains noms en CC n\'ont correspondu à aucun utilisateur et ont été ignorés : :names',
     ],
     'enums' => [
         'type' => [
@@ -77,6 +78,10 @@ return [
         'created_until' => 'Créé jusqu\'à',
         'unread' => 'Non lu (Ma boîte de réception)',
     ],
+    'bulk' => [
+        'mark_as_read' => 'Marquer comme lu',
+        'mark_as_read_notification' => 'Correspondances sélectionnées marquées comme lues.',
+    ],
     'infolist' => [
         'tab_general' => 'Détails du message',
         'tab_recipients' => 'Destinataires',
@@ -92,6 +97,7 @@ return [
         'unread_label' => 'Non lu',
     ],
     'export' => [
+        'export_correspondences' => 'Exporter la Correspondance',
         'id' => 'ID',
         'subject' => 'Sujet',
         'type' => 'Type',
@@ -100,11 +106,20 @@ return [
         'is_internal' => 'Note Interne',
         'is_private' => 'Privé (Restreint)',
         'body' => 'Corps du message',
+        'related_to' => 'Lié à',
+        'related_module' => 'Module Lié',
+        'thread_role' => 'Rôle dans le Fil',
+        'thread_role_root' => 'Original',
+        'thread_role_reply' => 'Réponse',
+        'parent_subject' => 'Sujet du Message Parent',
         'recipients' => 'Destinataires',
         'recipient_to' => 'À',
         'recipient_cc' => 'CC',
         'creator' => 'Créateur',
+        'updater' => 'Modifié par',
         'created_at' => 'Créé le',
         'updated_at' => 'Modifié le',
+        'yes' => 'Oui',
+        'no' => 'Non',
     ],
 ];

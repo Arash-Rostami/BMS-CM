@@ -1,0 +1,22 @@
+# Proforma Invoice — what changed for you
+
+- You can now search by a custom field's name or value — in this list and the main spotlight search.
+- Searching by invoice number also picks up custom field matches now.
+- Picking a date range on the invoice date filter now shows which dates you picked, and the filter counter updates.
+- A new "Needs Conversion" filter lets you quickly find proforma invoices that haven't become a registered order yet.
+- The validity date now shows "Expired" when a quote is past its date and hasn't been converted to a registered order.
+- A new budget-variance indicator shows how far the invoice total is from the estimated cost of its linked purchase requests.
+- Seller, buyer, and currency names on the record view now show in your selected language instead of always showing the Persian name.
+- Viewing a record with a blank beneficiary, origin, or destination country no longer errors.
+- Leaving a custom field's value blank no longer shows the word "null," and saving it no longer fails.
+- Bulk import and export now use a single button each — one file per direction, with each invoice's items grouped automatically right under it, instead of separate parent/item files.
+- The import modal's "download example" button used to give you an empty, header-only file — it's now correctly labeled as a blank template.
+- The import modal now has a "How to fill this file" guide explaining which columns match automatically, how custom field pairs work, and that unrecognized values get rejected with a clear error.
+- Opening the import modal no longer crashes.
+- The import modal's title no longer shows a stray extra "s" stuck on the end when viewed in Farsi.
+- The invoice number column is visible and fillable again when importing — leave it blank and one is generated for you, or provide your own and it's used as given, including to match an existing invoice when you re-upload a file to update it.
+- The import date fields now show a note next to the calendar toggle confirming whether it's set to Persian or Gregorian.
+- Dates typed in Persian digits/calendar and dates typed in English digits/Gregorian calendar both import correctly, and a badly formatted date is now cleanly rejected with a clear error instead of crashing the import.
+- Beneficiary, origin, and destination country now match by name (Persian or English) or country code when importing — a typo or unrecognized country is rejected with a clear error instead of being saved as-is.
+- Validity date now defaults to two weeks after the import date when left blank, same as the other date fields — and the import guide explains it.
+- A "Download filled example" button is now available on the import modal, alongside the blank template.

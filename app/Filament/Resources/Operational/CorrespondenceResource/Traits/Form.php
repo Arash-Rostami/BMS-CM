@@ -111,6 +111,7 @@ trait Form
         return TagsInput::make('recipients_cc')
             ->label(__('resources/correspondence/strings.form.recipients_cc'))
             ->suggestions(fn () => User::pluck('name')->toArray())
+            ->default(fn () => static::getReplyParent()?->recipients->where('pivot.type', 'cc')->pluck('name')->toArray())
             ->placeholder('🇨🇨')
             ->nullable()
             ->validationAttribute(__('resources/correspondence/strings.form.recipients_cc'));
@@ -124,6 +125,12 @@ trait Form
             ->multiple()
             ->searchable()
             ->preload()
+            ->default(fn () => static::getReplyParent()?->recipients
+                ->where('pivot.type', 'to')
+                ->pluck('id')
+                ->reject(fn ($id) => (int) $id === (int) auth()->id())
+                ->values()
+                ->toArray())
             ->suffixIcon('heroicon-o-user-group')
             ->placeholder('@️')
             ->required()
@@ -135,24 +142,14 @@ trait Form
 
     public static function getStatusField(): Select
     {
-        return Select::make('status_id')
+        return static::getStatusWorkflowField('status_id', fn (Select $field) => $field
             ->label(__('resources/correspondence/strings.form.status'))
-            ->relationship(
-                name: 'status',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', Correspondence::TYPE_CORRESPONDENCE_STATUS)
-            )
-            ->default(fn ($operation) => $operation === 'create'
-                ? Status::findBy(Correspondence::TYPE_CORRESPONDENCE_STATUS, 'Submitted')?->id
-                : null
-            )
             ->searchable()
             ->preload()
-            ->required()
             ->validationAttribute(__('resources/correspondence/strings.form.status'))
             ->validationMessages([
                 'required' => __('resources/correspondence/strings.form.validation_required'),
-            ]);
+            ]), null, fn () => Status::findBy(Correspondence::TYPE_CORRESPONDENCE_STATUS, 'Submitted')?->id);
     }
 
     public static function getSubjectField(): TextInput

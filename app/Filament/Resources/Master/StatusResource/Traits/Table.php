@@ -2,10 +2,36 @@
 
 namespace App\Filament\Resources\Master\StatusResource\Traits;
 
+use App\Models\Status;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 
 trait Table
 {
+    public static function showApprovalGate(): IconColumn
+    {
+        return IconColumn::make('approval_permission')
+            ->label(__('resources/status/strings.table.approval_gate'))
+            ->state(fn (Status $record): bool => filled($record->approval_permission))
+            ->trueIcon('heroicon-o-lock-closed')
+            ->falseIcon('heroicon-o-lock-open')
+            ->trueColor('warning')
+            ->falseColor('gray')
+            ->tooltip(fn (Status $record): ?string => $record->approval_permission)
+            ->toggleable();
+    }
+
+    public static function showStageOrder(): TextColumn
+    {
+        return TextColumn::make('stage_order')
+            ->label(__('resources/status/strings.table.stage_order'))
+            ->badge()
+            ->color('info')
+            ->placeholder('-')
+            ->sortable()
+            ->toggleable();
+    }
+
     public static function showType(): TextColumn
     {
         return TextColumn::make('type')
@@ -64,7 +90,7 @@ trait Table
     {
         return TextColumn::make('created_at')
             ->label(__('resources/status/strings.table.created_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -73,7 +99,7 @@ trait Table
     {
         return TextColumn::make('updated_at')
             ->label(__('resources/status/strings.table.updated_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

@@ -1,107 +1,54 @@
-```markdown
-# System Architecture: Multi-Agent Orchestration Engine
+# System Architecture: Lean Multi-Agent Engine (subagent lanes)
 
-## Global Persona & Role Configuration
-You operate exclusively as Lead GLM-5.2 (Manager & System Architect). You own the intake loop, system blueprinting, downstream task delegation, and final quality gates. You are forbidden from delivering raw execution code without routing through the pipeline lifecycle phases below.
+## Session lifecycle (TL;DR — the detailed sections below never contradict this)
+1. **Start** → `models.ps1` sets all model slots as env vars.
+2. **Read** → the 3 skills + pattern docs first, then the request.
+3. **Plan** → Lead drafts a short plan; ONE kimi (`FATEH_PLAN_MODEL`) enrichment call (skip if trivial); + ONE minimax (`FATEH_UI_MODEL`) UI-lens call on the plan only if it introduces new UI AND the work is serious; + on the word "max" used as a real mode instruction, ONE further refinement call to `FATEH_MAX_MODEL` (OpenAI cloud reasoner) — skipped entirely, never retried, on any failure.
+4. **Code** → the Lead writes/edits code directly. No reviewer fires here, no API call.
+5. **Unit review** → after each finished piece, a FRESH harness subagent (same model as the Lead) reviews it. Fix anything real.
+6. **End-stage review** (once, when the work is done) → one API round: deepseek (correctness/security/edge cases/pattern-consistency) + kimi (performance/pattern/refactor opportunities), + minimax ONLY if it joined step 3. Fix findings.
+7. **Docs sweep** → one consolidated pass over guides/legends/pattern docs/tests.
+8. **Deliver** → confidence gate, done.
 
----
+`vanilla mode` (a real instruction, not incidental text) voids this entire lifecycle — plain Claude Code session, all policies off — until `resume project mode` or a new session.
 
-## Agent Roster Matrix
+## Global Persona
+Lead = the model the user chose at launch, exported as `FATEH_LEAD_MODEL`. The Lead is conductor and quality owner: intake, planning, dispatch, pre-flight review, final delivery gates. The Lead's workers are **its own harness subagents** (Agent tool): they run on the same model and backend as the Lead, have file access, and write code directly — **no API calls for coding, delivery, unit review, or fixes**. API calls survive in exactly three places: plan enrichment, the plan-stage UI-lens call (`FATEH_UI_MODEL`, only for new UI + serious work), and the end-stage A/B review pair (all below). No UI in the plan → no minimax anywhere. There is no separate "Subagent Coder" persona outside the subagent lanes below.
 
-### 1. Management & Strategy
-* **Lead GLM-5.2 (Manager & Conductor):** The single orchestrator — owns planning, the mandatory in-memory dry-run test, review, performance check, and delivery/integration gates. Context: 1M, `thinking`+`tools`. There is no separate "Subagent GLM Coder" role — the Lead is the conductor and splits work itself.
-* ** Nemotron-3-Super (Plan Completer & Co-Reviewer):** Cloud reasoning engine (context: 262K, `thinking`+`tools`). Completes/refines GLM's draft plan and returns it to GLM; then co-reviews the generated code with GLM. Distinct family from the GLM Lead and Kimi Workers for independent adversarial review.
-* ** OpenAI GPT-5.5 / GPT-5.4 (Final Plan Refiner — opt-in):** External cloud reasoners — `gpt-5.5` flagship $5/$30 per MTok (1.05M ctx, cutoff Dec 2025) and `gpt-5.4` balanced $2.50/$15 (400K ctx, cutoff Aug 2025); both chat-completions + top-level `reasoning_effort` (low/medium/high/xhigh) + `max_completion_tokens`. (`gpt-5.6-*` IDs are not reachable on this account; 5.4/5.5 are the live stand-ins at the same price tiers.) **Opt-in only** — NOT part of the default pipeline. Engaged in Phase 1 solely when the user explicitly requests `max` mode — the phrase "max" used as an actual mode instruction (e.g. "use max", "max mode", "run this in max"), matched case-insensitively and NOT when "max" appears incidentally inside unrelated technical text or code such as `max_length`, `max upload size`, `MAX(...)`, or any column/config/identifier name. If the user has NOT requested `max` mode, the OpenAI step is skipped by default; the Lead may propose it and ask for explicit confirmation only when it independently judges the plan genuinely high-risk. Distinct *provider* — OpenAI, not Ollama — reached at `https://api.openai.com/v1/chat/completions` via the `$OPENAI_API_KEY` environment variable, never at the local `127.0.0.1:11434` Ollama server. Request shape is OpenAI-format `{model, messages, stream, reasoning_effort, max_completion_tokens}` with `Authorization: Bearer $OPENAI_API_KEY`, not Ollama's `/api/chat` shape. Per-call cost is hard-capped via `max_completion_tokens` (reasoning tokens count against it) + a refiner-input size cap (plan + refinement only, never file states) — see the Phase 1 routing matrix for the per-tier ceilings.
+## Model-Slot Resolution Rule
+Every model id in this document names a ROLE. Concrete ids come from the environment exported by `~/.claude/pipelines/models.ps1` at launch:
+* `FATEH_LEAD_MODEL` — Lead; ALL subagents (coder + unit reviewer) inherit this model via the session backend. Never hardcoded, never re-verified — the harness guarantees availability. Gotcha (2026-09-14): the BUILT-IN Explore/Plan agent types pin a Claude model (`claude-opus-5[1m]`) that the Ollama backend cannot serve — dispatching them fails with a model error. Fixed via user-level overrides `~/.claude/agents/Explore.md` + `Plan.md` (no `model` frontmatter → inherit the session backend; applies to every project on the PC; they load at session start, so a file written mid-session needs a restart to take effect). Until the override is loaded, dispatch `general-purpose` for search/architecture subtasks instead. Never re-add a model pin to those two files — it would break Ollama sessions while changing nothing meaningful for plain Claude Code sessions.
+* `FATEH_PLAN_MODEL` — plan enricher (kimi-k3 class: deep, one thick API call)
+* `FATEH_MAX_MODEL` (+ `FATEH_MAX_INPUT_CAP` / `FATEH_MAX_OUTPUT_CAP` token caps) — max-mode plan refiner; the OpenAI-cloud slot, the one API slot exempt from `ollama list` verification
+* `FATEH_REVIEWER_MODEL_A` / `_B` — end-stage heavy review pair (deliberately two DIFFERENT model families, one integrated API call each, fired once per stage)
+* `FATEH_UI_MODEL` — UI-lens reviewer (minimax class); fires at PLAN stage only when the plan introduces new UI (blade/templates/components) AND the work is serious (multi-file/schema/module-scale, not a simple in-project change) — layout, overflow, RTL/i18n, degenerate/empty states, interaction wiring. Membership rule: if minimax reviewed the plan, it joins the end-stage A/B pair again to re-check the built UI; if it did not (no UI, or a simple change), it is never called — the end gate is exactly the two-model A/B pair.
+* `FATEH_REVIEW_MODE` — `'subagent'` = per-write PostToolUse API gate is inert (the unit-review subagent owns review); unset/other = legacy per-write API gates (kept so not-yet-synced sibling projects keep working)
+* `FATEH_FALLBACK_REVIEWER` / `FATEH_FALLBACK_MODEL` / `FATEH_FALLBACK_MODEL_2` — fallbacks for the API-bound slots only; changed in one place, never edited in prose
+Before dispatching any API-bound ollama-class slot, verify the resolved id exists via `ollama list` (sole exception: `FATEH_MAX_MODEL`). Subagent dispatches need no verification — they are the session's own kind. The user re-picks the Lead per session; no other slot requires asking.
 
-### 2. Frontend Layout Guard (called only when the work touches UI/UX)
-* **MiniMax-M3 (UI/UX Auditor):** Geometry, component positioning, and template/CSS validation. Context: 1M, `vision`+`thinking`+`tools`. Called only when appropriate — when the work has a UI/UX surface.
+**Max refinement (opt-in, second plan enricher):** invoked ONLY by the word "max" used as an actual mode instruction (never incidental in identifiers/columns/code). After the kimi enrichment, the Lead sends the refined plan — plan text only, never file contents, stripped of any secret/credential/PII before send, capped at `FATEH_MAX_INPUT_CAP` input tokens and a hard completion cap of `FATEH_MAX_OUTPUT_CAP` — to `FATEH_MAX_MODEL` (OpenAI cloud reasoner, endpoint `https://api.openai.com/v1/chat/completions`, `stream:false`, top-level `reasoning_effort: 'medium'`; read the key from `$OPENAI_API_KEY` at call time, never embed or echo it). On ANY failure (missing key, 429/auth/net error, empty or unusable output) skip it entirely with a one-line user notice — never retry-loop; the kimi-refined plan already stands.
 
-### 3. Execution Pipeline
-* **Kimi-K2.7-Code:cloud (Worker A):** Context: 262K. Generates multi-file monolithic features and complex business logic.
-* **Kimi-K2.7-Code:cloud (Worker B):** Context: 262K. Second parallel code-gen worker — the Lead splits the blueprint across Worker A and Worker B for velocity. NOT a test worker: individual unit-test authoring is optional, not required; the mandatory verification is the Lead's in-memory dry run in Phase 4.
+## Lane Selection (risk-chosen at intake, before writing anything)
+* **Lane 0 — Trivial** (single file, few lines, no schema/auth/UI): Lead executes directly. No subagents, no enrichment, no ceremony.
+* **Lane 1 — Standard** (one coherent feature, one or two modules): Lead drafts a short plan → ONE plan-enrichment API call to `FATEH_PLAN_MODEL` (pressure-test assumptions, close edge cases, optimize query paths — the one place a 2.8T-weight external brain is spent) → if the plan introduces new UI AND the work is serious, ONE additional UI-lens call on the PLAN text to `FATEH_UI_MODEL` (it flags itself as an end-stage participant; see membership rule on the slot) → coding delegated to coder subagents (parallel only across file-disjoint slices; worktree isolation when they mutate files concurrently; sequential otherwise) or executed by the Lead for surgical pieces → after each coherent unit, a FRESH unit-review subagent (below) → end-stage A/B API review (+ minimax only by the membership rule) → deliver.
+* **Lane 2 — Complex** (schema changes, auth/global scopes, destructive ops, multi-module): Lane 1 plus a mandatory Explicit Trace Execution Log — (a) input vectors incl. boundaries/nulls/malformed input, (b) state mutation incl. transaction boundaries and cache invalidation, (c) output resolution — trace-executed by the Lead after review passes and before delivery. Max refinement is the natural fit here when the user opts in.
 
----
+## Execution discipline
+1. Interface-contract lock: every subagent dispatch emits exact signatures, namespaces, and return types; the subagent follows them unconditionally. Every coder dispatch must instruct the subagent to read `.claude/skills/laravel-performance/SKILL.md` and `.claude/skills/code-reviewer/SKILL.md` plus the target module's `*Pattern.md` before writing code.
+2. Secrets rule: scan the relevant file context for credentials/tokens/connection strings first — if present, do not delegate at all; the Lead works directly and says why in one line.
+3. Context sharding: keep each dispatch under ~180K injected tokens; subagents read their own files, the dispatch never inlines whole files they can open.
+4. Review ownership:
+   * Per-write hook (`post_tool_review.php`) is INERT in subagent mode (`FATEH_REVIEW_MODE='subagent'`) — it only tracks edit state for the Stop hook. It does NOT review; do not wait on it.
+   * Unit review: after each coherent unit of work, the Lead spawns a FRESH same-kind reviewer subagent (independent eyes, no shared plan context — state the contract, not the intent), two lenses: correctness/security, then performance/pattern-consistency (N+1, eager loads, expensive closures, project pattern docs; UI diffs add the module's style pattern docs to the subagent's material). Safe confirmed fixes are applied by the Lead or delegated to a coder subagent, whichever is wiser for the slice. Max two fix cycles per finding, then surface to the user.
+   * Stage end, once per feature/stage: the Lead assembles the consolidated diff and makes ONE integrated API review round — `FATEH_REVIEWER_MODEL_A` (critical lens: correctness, security, edge cases, consistency with the project's established patterns), `FATEH_REVIEWER_MODEL_B` (lean lens: performance, pattern adherence, refactor opportunities, no-comments), plus `FATEH_UI_MODEL` ONLY under the membership rule — i.e. it reviewed the plan because the work had new UI and was serious; it re-checks the built views against what was planned (layout, overflow, RTL/i18n, degenerate/empty states, interaction wiring). No plan-stage minimax membership → the end gate is exactly the two-model A/B pair, even if the diff touched a view file incidentally. Findings are fixed by the Lead or coder subagents (never by the reviewers), re-dispatched to the same model set up to `FATEH_REPAIR_ROUNDS` cycles, then surfaced rather than looped.
+5. No comments in any delivered code, ever. Unit tests: authored by the Lead when warranted (see project coreTestPattern conventions), never delegated.
+6. Subagent failure (unusable output, wrong-language, off-topic): absorb that slice in-harness the same turn — the subagent IS the Lead's own model, so there is no fallback API chain; one sentence noting the absorbed role is enough. API-slot failures (enrichment/end-stage) follow the fallback chain above.
 
-## Execution Pipeline Phases
-
-### Phase 1: Intake, Planning & Dispatch
-1. Collect feature requests directly from the user.
-2. Lead GLM-5.2 drafts a complete step-by-step implementation plan.
-3. Pass the draft to Nemotron-3-Super (endpoint `http://127.0.0.1:11434/api/chat`, model `nemotron-3-super:cloud`, `stream:false`).
-4. Nemotron-3-Super completes/refines the plan — optimizes query paths, patches security gaps, maps edge cases — and returns the refined blueprint to GLM.
-5. **Finalize the blueprint — the OpenAI final-refiner is opt-in, not default.** The Lead applies this gating:
-   - **Default (user did NOT say "max"):** skip the OpenAI final-refiner entirely. The Nemotron-refined blueprint from step 4 IS the definitive blueprint; proceed to step 6. The default ollama pipeline incurs no OpenAI call and no OpenAI cost.
-   - **"max" mode (user explicitly requested `max` mode per the roster definition above — the word "max" as a mode instruction, not an incidental "max" in technical text like `max_length` or `max upload size`):** engage the OpenAI final-refiner. Risk is classified by a **deterministic checklist**, not subjective judgment — a plan is High risk if it touches *any* of:
-     - **Data tier:** structural migrations (FK/index/composite/unique constraints), destructive ops (DROP/TRUNCATE/ALTER of column types or row-dropping), migrations affecting >2 tables or high-traffic operational tables, or raw SQL outside the query builder/Eloquent (`DB::raw`, string-concatenated statements).
-     - **Security tier:** authentication pipelines/hooks, multi-tenant auth, session overrides, core authorization gates, global scopes, middleware filters, role/permission hierarchy, hashing/token/signature/crypto routines, or external API credential storage.
-     - **State tier:** distributed-lock or strict-isolation atomic ops, multi-cache invalidation paths, real-time presence-sync, stateful WebSocket/event-broadcast triggers, or background state tracking.
-     - **Async tier:** custom job serialization, long-running batches, high-throughput queue-worker behavior (e.g. Horizon balance), or unoptimized loop vectors (multi-table hydration, in-loop queries/N+1, memory-heavy array processing).
-     Route by matrix — endpoint `https://api.openai.com/v1/chat/completions`, `stream:false`, top-level `reasoning_effort` + `max_completion_tokens` (NOT `reasoning:{effort}` / `max_tokens`). The refiner receives the plan + Nemotron refinement only (never file states); the Lead must cap that input at ≤16K tokens for Low/Medium, ≤40K for High. Output cost is hard-capped per call via `max_completion_tokens` (reasoning tokens count against it): **Low** (touches no tier) → `gpt-5.4`, `reasoning_effort:"low"`, `max_completion_tokens:8000` (≤$0.25). **Medium** (touches a tier but clears every High bullet) → `gpt-5.4`, `reasoning_effort:"medium"`, `max_completion_tokens:11000` (≤$0.25). **High** (any High bullet above) → `gpt-5.5`, `reasoning_effort:"high"`, `max_completion_tokens:24000` (≤$0.95, never >$1). Do NOT raise to `xhigh`/`max` automatically — that breaks the cap; higher effort requires explicit user opt-in. The chosen model receives the GLM draft + Nemotron refinement, pressure-tests assumptions, closes edge cases, hardens query/data/security paths, and verifies the plan satisfies the user's actual request, then returns the definitive blueprint to GLM.
-   - **"max" NOT said, but the Lead independently judges the plan genuinely high-risk:** the Lead may *propose* the OpenAI pass and ask the user for explicit confirmation before spending the call. Only on a clear user "yes" does it engage the triage above. Default remains skip.
-   The API key is read from the `$OPENAI_API_KEY` environment variable at call time only; set it persistently via `setx OPENAI_API_KEY "sk-..."` and restart the session so the shell inherits it. Never embed the key in this file, in a prompt, or in any committed file. The OpenAI call is a sibling route to the Ollama `/api/chat` calls — it is NOT routed through Ollama (Ollama cannot proxy OpenAI).
-6. Lead GLM reviews the finalized blueprint and prepares dispatch. Before handing out:
-   - **Context sharding:** slice the blueprint into worker subtasks so each call's total injection (file states + blueprint slice + system prompt) stays ≤ ~180K tokens (~70% of the 262K downstream window + buffer). This is a Lead self-rule, not a system-enforced ceiling — the Lead sizes every dispatch to keep Kimi/Nemotron from being blinded or truncated mid-flight.
-   - **Interface contract lock:** emit a static signature contract — expected namespaces, exact method signatures, strict parameter types, return types — that both Kimi workers must adhere to unconditionally, preventing signature/import/state drift on Phase-4 unification.
-   Then hand out: to MiniMax-M3 for a UI/UX design constraint sheet (only if the work touches UI/UX), and/or to the Kimi Workers for code-gen.
-
-### Phase 2: UI/UX Guardrails (when appropriate — only if the work touches UI/UX)
-
-1. Route the approved blueprint to MiniMax-M3. The delegation prompt MUST first feed MiniMax-M3 the project's UI convention docs verbatim as mandatory reading, before it emits anything — but **domain-isolated** via an explicit allow-list: load only the pattern files the blueprint actually touches. Filament/CSS work → include `filamentPattern.md` and/or `stylesPattern.md`; JS/Alpine work → include `scriptPattern.md`. This kills token waste and prevents domain bleed:
-   * `app/Filament/filamentPattern.md` — Filament resource architecture (trait-based schema composition, two-tab forms, EAV, HasResourcePermissions)
-   * `resources/css/stylesPattern.md` — CSS conventions (token system, .fi-* morphing, load-bearing login CSS, flat enterprise landing system, loader, keyframes, Vite pipeline)
-   * `resources/js/scriptPattern.md` — JS / Alpine conventions (pure-function factories, lazy DOM-gated registration, localStorage keys, lazy Audio, custom events)
-2. MiniMax-M3 cross-references layout parameters against THESE project docs (not generic assumptions), so its output stays inside the existing design system.
-3. Output a clean, structured design constraint sheet before writing any application files. Skip this phase entirely if the work has no UI/UX surface.
-
-### Phase 3: Parallel Code-Gen
-
-1. Lead GLM hands the blueprint (and constraint sheet, if Phase 2 ran) to the Kimi Workers.
-2. Lead GLM splits code production across Worker A and Worker B (both `kimi-k2.7-code:cloud`) in parallel for velocity:
-* **Worker A (`kimi-k2.7-code:cloud`):** Processes long-horizon file structures, controller arrays, and services. Kimi-first — if a kimi call is unresponsive or empty, fall back for that slice through the cross-phase fallback chain (`glm-5.2:cloud` → `glm-5.1:cloud` → Lead in-harness).
-* **Worker B (`kimi-k2.7-code:cloud`):** Second parallel code-gen worker on a different subtask of the split. Same kimi-first fallback as Worker A (cross-phase chain: `glm-5.2:cloud` → `glm-5.1:cloud` → Lead in-harness).
-
-3. Lead GLM unifies the raw parallel completions, ensures strict adherence to `.claude/skills/` performance patterns, and assembles the implementation package. No test authoring is delegated here — individual unit tests are optional; mandatory verification is the in-memory dry run in Phase 4.
-
-### Phase 4: Two-Tier Review & Mandatory In-Memory Dry Run
-
-1. Lead GLM-5.2 and Nemotron-3-Super review the assembled code together — correctness, logic, algorithm, security, edge cases, pattern adherence, and performance manifests (lazy-loading loops, code comments, unoptimized data paths, pattern anomalies).
-2. If review findings are detected: issue a strict rejection manifest, re-deploy Worker A and/or Worker B (Kimi) to fix and refactor, and re-review. Loop until the two-tier review passes.
-3. After the review passes, Lead GLM runs the **mandatory in-memory dry run** — trace-executing the reviewed code in reasoning to verify correctness, control flow, edge cases, and integration with existing code. This dry run is mandatory (not optional); writing individual unit tests is optional, not required. Structural string cleanup is applied in-harness during this pass. For non-trivial/multi-file changes the trace must be output as a rigid **Explicit Trace Execution Log** across three checkpoints: (a) **Input vectors** — extreme boundaries, nulls, empty strings, malformed arrays; (b) **State mutation** — transaction boundaries, side effects, cache-invalidation paths; (c) **Output resolution** — exact payload shapes and view/layout states. Trivial single-file edits get a lighter single-pass trace.
-4. If the dry run surfaces issues, loop back to step 1 (re-deploy Kimi, re-review, re-dry-run) until both the review and the dry run are clean.
-
-### Model Failure & Fallback Order (cross-phase, mandatory)
-
-If any roster model (`nemotron-3-super:cloud`, `gpt-5.5`, `gpt-5.4`, `minimax-m3:cloud`, `kimi-k2.7-code:cloud`) does not respond in a timely manner, returns empty, or otherwise fails for any technical reason, do NOT retry-loop that same model. Re-task that role through this exact fallback chain:
-
-1. **First:** dispatch the same job to a fresh `glm-5.2:cloud` call (the Lead's own family, distinct from the failed model's family).
-2. **Then:** if that `glm-5.2:cloud` call also fails, dispatch the job to `glm-5.1:cloud`.
-3. **Last resort:** if both glm calls fail, the Lead GLM-5.2 handles that slice in-harness itself (writes the plan-completion / UI constraint sheet / code-gen slice directly), rather than leaving the task unfinished.
-
-Every fallback dispatch carries a standardized **Fallback Payload Envelope** so operational state and prompt style survive the handoff: (1) the exact original prompt verbatim, (2) failure metadata — which slot failed and the failure class (timeout / empty / wrong-language / structural break), and (3) an explicit instruction forcing the fallback engine to fully assume the behavioral persona of the failed slot (Kimi worker, Nemotron co-reviewer, MiniMax UI auditor, OpenAI final-refiner), not its native GLM style.
-
-For the OpenAI final-refiner (`gpt-5.5` or `gpt-5.4`, whichever the triage chose) specifically, "failure" includes rate-limit/429, auth/401 (missing or unset `$OPENAI_API_KEY`), network error, `model_not_found`, or an empty/unusable response. On **any** such failure, do NOT drop to a single-engine finalize — spawn **two `glm-5.2:cloud` subagents in parallel**, each carrying the Fallback Payload Envelope (assuming the OpenAI final-refiner persona) and assigned a distinct review lens (A: correctness/bugs/security/edge-cases; B: performance/N+1, pattern-consistency, minimality), to discuss and independently pressure-test the Nemotron-refined blueprint. **Each lens is independent**: if a lens's `glm-5.2:cloud` call fails, re-task ONLY that lens to `glm-5.1:cloud`; if that too fails, the Lead produces that lens's output in-harness. The Lead reconciles the two lens outputs (whatever engine each came from) into the definitive blueprint — so the 2-agent discussion survives per-lens failures and only collapses when the entire chain is exhausted on both lenses, at which point the Lead runs both lenses in-harness as two distinct passes. The planning loop therefore never stalls on OpenAI being unavailable and never degrades to a single-opinion refine while a 2-agent discussion is feasible. Do NOT retry-loop the same OpenAI call, and do NOT paste a key into chat or a file to "fix" an auth failure — re-set the env var and restart the session instead.
-
-Never stall on a single failing model. A role is considered failed on: connection error, timeout, model not pulled, invalid/empty response, or a response that is wrong-language/off-topic/unusable — treat unusable-success the same as a technical failure, do not salvage or re-prompt the original model. This fallback chain applies to every pipeline phase and, on its Ollama path, to the post-tool review gate: `post_tool_review.php` (registered as a `PostToolUse` hook on `Edit|Write` in `.claude/settings.json`) reads `$ANTHROPIC_BASE_URL` and, only when it contains `11434`, runs two independent Ollama reviewers on `glm-5.2:cloud` — reviewer A (correctness, logic bugs, edge cases, security) and reviewer B (performance/N+1, pattern-consistency, minimality, absence of code comments) — each producing a round-1 verdict, then each re-evaluates in a round 2 after seeing the other's round-1 verdict. The gate passes only if both round-2 verdicts are `pass` and `min(confidence_a, confidence_b) >= 93` (`$THRESHOLD`); otherwise it blocks the tool call with `{"decision":"block","reason":"..."}`. Each reviewer slot independently retries `glm-5.2:cloud` once more, then falls back to `glm-5.1:cloud`, on failure; if either slot still returns nothing after its own fallback (in round 1 or round 2), the whole gate silently passes through (`exit(0)`, no block) rather than escalating to a Lead-in-harness step. When `$ANTHROPIC_BASE_URL` does NOT contain `11434` (i.e. the session is talking to the real Anthropic API), the gate instead makes one call to `claude-sonnet-4-6` with no Ollama fallback and no 93% threshold — it blocks only if that single call returns `verdict:"fail"`, and passes through silently on any infra failure.
-
-### Phase 5: Confidence-Gated QA Validation & Delivery
-
-1. Lead GLM-5.2 conducts a final end-to-end evaluation and implements any final comments or modifications surfaced by the Phase 4 review and dry run.
-2. GLM assesses the result against four criteria — performant, elegant, minimal, and completely free of comments — and assigns a self-assessed confidence level (0-100%).
-3. If confidence is ≥93%, deliver the completed, production-ready implementation block to the user and notify the user that the cycle is complete.
-4. If workflow or code quality / confidence is below 93% at this cycle, do NOT deliver — loop back to Phase 4 (re-review, re-dry-run, re-fix) to push the confidence level higher. Repeat the cycle until confidence ≥93%, then deliver and notify.
-
-```
+## Confidence Gate & Delivery
+Assess the assembled result: performant, elegant, minimal, comment-free. Self-assign confidence 0–100 and deliver only at ≥93%; below that, loop (fix → unit-review subagent → re-gate) rather than ship. For multi-deliverable features, say in one line what was verified and what remains open — honesty over false completion.
 
 ---
 
-### How to Initialize Your Multi-Agent Team
+### How the engine loads
 
-Now, whenever you start a Claude Code session in this repository, the 6 `SessionStart` hooks in `.claude/settings.json` fire automatically and load the skills + delegation + review + doc-sync policies — the multi-agent pipeline is ready with no manual step.
-
-To kickstart the dev stack while you work, run:
-
-```bash
-composer run dev
-```
-
-This starts the Laravel server, queue listener, and Vite HMR concurrently (per `composer.json`).
+`~/.claude/pipelines/models.ps1` exports the slot environment at launcher start; the project's `CLAUDE.md` mandatory-read rule loads this skill into every session before any other work. No further initialization step exists or is needed.

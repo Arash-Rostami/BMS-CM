@@ -38,7 +38,7 @@ trait Table
     {
         return TextColumn::make('start_from')
             ->label(__('resources/target/strings.table.start_from'))
-            ->date()
+            ->adaptiveDate()
             ->when(app()->isLocale('fa'), fn ($column) => $column->jalaliDate())
             ->toggleable(isToggledHiddenByDefault: true)
             ->sortable();
@@ -48,7 +48,7 @@ trait Table
     {
         return TextColumn::make('end_in')
             ->label(__('resources/target/strings.table.end_in'))
-            ->date()
+            ->adaptiveDate()
             ->when(app()->isLocale('fa'), fn ($column) => $column->jalaliDate())
             ->toggleable(isToggledHiddenByDefault: true)
             ->sortable();
@@ -139,7 +139,7 @@ trait Table
         return TextColumn::make('created_at')
             ->label(__('resources/target/strings.table.created_at'))
             ->toggleable(isToggledHiddenByDefault: true)
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable();
     }
 
@@ -148,7 +148,7 @@ trait Table
         return TextColumn::make('updated_at')
             ->label(__('resources/target/strings.table.updated_at'))
             ->toggleable(isToggledHiddenByDefault: true)
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable();
     }
 }

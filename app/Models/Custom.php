@@ -7,6 +7,7 @@ use App\Models\Traits\Custom\HasSearchableRelations;
 use App\Models\Traits\Custom\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
+use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,7 @@ class Custom extends Model
         HasSearchableRelations,
         Relationships,
         SoftDeletes,
+        TracksStatusHistory,
         UserStamps;
 
     const SCANNABLE_TABLE = 'customs';
@@ -63,4 +65,9 @@ class Custom extends Model
         'ten_percent_exit_date' => 'date',
         'rial_return_date' => 'date',
     ];
+
+    public static function statusHistoryColumns(): array
+    {
+        return ['clearance_status_id', 'bank_guarantee_status_id', 'commitment_status_id'];
+    }
 }

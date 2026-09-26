@@ -31,9 +31,9 @@ trait ExportDefaults
         return "{$app}-{$model}-{$timestamp}";
     }
 
-    public function getQuery(): Builder
+    public static function modifyQuery(Builder $query): Builder
     {
-        return parent::getQuery()
+        return parent::modifyQuery($query)
             ->with(array_merge(['creator', 'updater'], static::eagerLoadRelations()))
             ->limit(1000);
     }

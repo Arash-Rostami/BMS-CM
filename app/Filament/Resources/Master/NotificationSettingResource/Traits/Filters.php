@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Master\NotificationSettingResource\Traits;
 use App\Models\NotificationSetting;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\TrashedFilter;
 
 trait Filters
 {
@@ -81,6 +82,11 @@ trait Filters
             })
             ->searchable()
             ->multiple();
+    }
+
+    public static function getTrashedFilter(): TrashedFilter
+    {
+        return TrashedFilter::make();
     }
 
     public static function getUpdaterFilter(): SelectFilter

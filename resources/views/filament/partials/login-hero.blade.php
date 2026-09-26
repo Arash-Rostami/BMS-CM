@@ -5,3 +5,5 @@
         <span class="fi-login-hero-text"> {{ config('app.branding.subtitle') }} </span>
     </div>
 </div>
+
+@include('filament.partials.theme', ['surface' => 'login'])

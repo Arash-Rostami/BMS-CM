@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\Operational\ShipmentResource\Traits;
 
+use App\Filament\Resources\General\FilterComponents;
 use App\Models\Shipment;
-use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
-use Illuminate\Database\Eloquent\Builder;
 
 trait Filters
 {
@@ -35,22 +34,14 @@ trait Filters
 
     public static function getCreationDateFilter(): Filter
     {
-        return Filter::make('created_at')
-            ->schema([
-                DatePicker::make('created_from')
-                    ->label(__('resources/shipment/strings.filters.created_from'))
-                    ->native(false)
-                    ->adaptive(),
-                DatePicker::make('created_until')
-                    ->label(__('resources/shipment/strings.filters.created_until'))
-                    ->native(false)
-                    ->adaptive(),
-            ])
-            ->query(function (Builder $query, array $data): Builder {
-                return $query
-                    ->when($data['created_from'], fn (Builder $query, $date) => $query->whereDate('created_at', '>=', $date))
-                    ->when($data['created_until'], fn (Builder $query, $date) => $query->whereDate('created_at', '<=', $date));
-            });
+        return FilterComponents::dateRangeFilter(
+            'created_at',
+            'created_at',
+            'created_from',
+            'created_until',
+            __('resources/shipment/strings.filters.created_from'),
+            __('resources/shipment/strings.filters.created_until'),
+        );
     }
 
     public static function getCreatorFilter(): SelectFilter
@@ -64,22 +55,14 @@ trait Filters
 
     public static function getEtaFilter(): Filter
     {
-        return Filter::make('eta')
-            ->schema([
-                DatePicker::make('eta_from')
-                    ->label(__('resources/shipment/strings.filters.eta_from'))
-                    ->native(false)
-                    ->adaptive(),
-                DatePicker::make('eta_until')
-                    ->label(__('resources/shipment/strings.filters.eta_until'))
-                    ->native(false)
-                    ->adaptive(),
-            ])
-            ->query(function (Builder $query, array $data): Builder {
-                return $query
-                    ->when($data['eta_from'], fn (Builder $query, $date) => $query->whereDate('eta', '>=', $date))
-                    ->when($data['eta_until'], fn (Builder $query, $date) => $query->whereDate('eta', '<=', $date));
-            });
+        return FilterComponents::dateRangeFilter(
+            'eta',
+            'eta',
+            'eta_from',
+            'eta_until',
+            __('resources/shipment/strings.filters.eta_from'),
+            __('resources/shipment/strings.filters.eta_until'),
+        );
     }
 
     public static function getStatusFilter(): SelectFilter

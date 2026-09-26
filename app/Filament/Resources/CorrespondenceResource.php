@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\FormComponents;
+use App\Filament\Resources\General\InfoComponents;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\CorrespondenceResource\Enums\Priority;
 use App\Filament\Resources\Operational\CorrespondenceResource\Enums\Type;
 use App\Filament\Resources\Operational\CorrespondenceResource\Pages\CreateCorrespondence;
@@ -13,7 +15,9 @@ use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Form as Cor
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Infolist as CorrespondenceInfolist;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Table as CorrespondenceTable;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\Correspondence;
+use App\Services\SmartCacheManager;
 use DB;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -22,6 +26,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
@@ -38,13 +43,18 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CorrespondenceResource extends Resource
 {
-    use CorrespondenceFilters, CorrespondenceForm, CorrespondenceInfolist, CorrespondenceTable, HasResourcePermissions;
+    use CorrespondenceFilters, CorrespondenceForm, CorrespondenceInfolist, CorrespondenceTable, HasResourcePermissions, HasStatusWorkflow;
 
     protected static ?string $model = Correspondence::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
     protected static ?int $navigationSort = 5;
+
+    public static function statusWorkflowType(): string
+    {
+        return Correspondence::TYPE_CORRESPONDENCE_STATUS;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -88,17 +98,22 @@ class CorrespondenceResource extends Resource
             ->columns(3);
     }
 
+    public static function eagerRelations(): array
+    {
+        return [
+            'creator',
+            'updater',
+            'status',
+            'recipients',
+            'attachments',
+            'correspondable',
+        ];
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with([
-                'creator',
-                'updater',
-                'status',
-                'recipients',
-                'attachments',
-                'correspondable',
-            ])
+            ->with(static::eagerRelations())
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
@@ -120,6 +135,29 @@ class CorrespondenceResource extends Resource
     public static function getModelLabel(): string
     {
         return __('resources/correspondence/strings.general.model_label');
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $userId = auth()->id();
+
+        if (! $userId) {
+            return null;
+        }
+
+        $count = SmartCacheManager::remember(
+            'Correspondence',
+            ['user_id' => $userId, 'type' => 'unread_count'],
+            1,
+            fn () => Correspondence::whereHas('recipients', fn ($query) => $query->where('user_id', $userId)->whereNull('read_at'))->count()
+        );
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
     }
 
     public static function getNavigationGroup(): ?string
@@ -194,6 +232,7 @@ class CorrespondenceResource extends Resource
                                         static::viewAttachments(),
                                     ]),
                             ])->columnSpanFull(),
+                        InfoComponents::getStatusHistoryTab(),
                     ])
                     ->columnSpanFull(),
             ]);
@@ -201,7 +240,7 @@ class CorrespondenceResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->select('*', DB::raw('COALESCE(parent_id, id) as conversation_id'));
             })
@@ -215,6 +254,7 @@ class CorrespondenceResource extends Resource
                 static::showFlags(),
                 static::showCreator(),
                 static::showLastUpdated(),
+                static::getStatusWorkflowProgressColumn(),
             ])
             ->filters([
                 static::getTypeFilter(),
@@ -256,7 +296,10 @@ class CorrespondenceResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    static::getMarkAsReadBulkAction(),
                     DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    static::getExportBulkAction(),
                 ]),
             ])
             ->groups([
@@ -289,6 +332,6 @@ class CorrespondenceResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

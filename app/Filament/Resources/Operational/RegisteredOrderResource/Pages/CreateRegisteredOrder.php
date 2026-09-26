@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\Pages;
 
 use App\Filament\Pages\CreateRecord;
+use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\HandleStatusMutation;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\PrepareRegisteredOrderFromProformaInvoice;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\PrepareRegisteredOrderFromPurchaseOrder;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\PrepareRegisteredOrderFromPurchaseRequest;
@@ -10,6 +11,7 @@ use App\Filament\Resources\RegisteredOrderResource;
 
 class CreateRegisteredOrder extends CreateRecord
 {
+    use HandleStatusMutation;
     use PrepareRegisteredOrderFromProformaInvoice;
     use PrepareRegisteredOrderFromPurchaseOrder;
     use PrepareRegisteredOrderFromPurchaseRequest;
@@ -29,5 +31,12 @@ class CreateRegisteredOrder extends CreateRecord
         if (request()->has('purchase_request_id')) {
             self::afterFillFromPurchaseRequest();
         }
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data = RegisteredOrderResource::applyInitialStatusOnCreate($data);
+
+        return $this->mutateStatusData($data);
     }
 }

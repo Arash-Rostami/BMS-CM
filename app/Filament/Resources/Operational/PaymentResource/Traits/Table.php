@@ -15,8 +15,8 @@ trait Table
     public static function showCreationTime(): TextColumn
     {
         return TextColumn::make('created_at')
-            ->label(__('resources/payment/strings.table.created_at'))->dateTime()
-            ->dateTime()
+            ->label(__('resources/payment/strings.table.created_at'))->adaptiveDateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -55,8 +55,7 @@ trait Table
     {
         return TextColumn::make('payment_date')
             ->label(__('resources/payment/strings.table.payment_date'))
-            ->date()
-            ->formatStateUsing(fn ($record) => app()->getLocale() === 'fa' ? toPersianDate($record->payment_date) : toGregorianDate($record->payment_date))
+            ->adaptiveDate()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -153,7 +152,7 @@ trait Table
     {
         return TextColumn::make('updated_at')
             ->label(__('resources/payment/strings.table.updated_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

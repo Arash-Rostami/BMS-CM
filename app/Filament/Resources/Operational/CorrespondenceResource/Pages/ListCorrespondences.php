@@ -11,6 +11,8 @@ class ListCorrespondences extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            CorrespondenceResource::getStatusWorkflowPipelineAction(),
+        ];
     }
 }

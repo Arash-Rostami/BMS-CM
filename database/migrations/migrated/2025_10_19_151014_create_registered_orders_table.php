@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('registered_orders', function (Blueprint $table) {
             $table->id();
-            $table->string('ro_number')->unique();
-            $table->string('contract_no')->unique();
-            $table->string('official_registration_no')->unique();
+            $table->string('ro_number');
+            $table->string('contract_no');
+            $table->string('official_registration_no')->nullable();
             $table->foreignId('seller_id')->constrained('companies');
             $table->foreignId('buyer_id')->constrained('companies');
             $table->foreignId('status_id')->constrained('statuses');
@@ -32,6 +32,9 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index(['status_id', 'deleted_at']);
+            $table->index('expected_delivery_date', 'idx_registered_orders_expected_delivery_date');
+            $table->index(['currency_id', 'deleted_at'], 'idx_registered_orders_currency_deleted');
+            $table->index(['deleted_at', 'created_at'], 'idx_registered_orders_deleted_created');
         });
     }
 

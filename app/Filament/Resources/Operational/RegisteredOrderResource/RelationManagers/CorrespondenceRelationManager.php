@@ -3,14 +3,15 @@
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers;
 
 use App\Filament\Resources\CorrespondenceResource;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\CorrespondenceResource\Enums\Priority;
 use App\Filament\Resources\Operational\CorrespondenceResource\Enums\Type;
-use App\Filament\Resources\Operational\CorrespondenceResource\Exports\CorrespondenceExporter;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Filters as CorrespondenceFilters;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Form as CorrespondenceForm;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\HandlesRecipients;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Infolist as CorrespondenceInfolist;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Table as CorrespondenceTable;
+use App\Filament\Traits\HandlesActionExceptions;
 use App\Models\Correspondence;
 use App\Models\User;
 use Filament\Actions\ActionGroup;
@@ -19,8 +20,8 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
-use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -32,8 +33,11 @@ use Illuminate\Database\Eloquent\Model;
 class CorrespondenceRelationManager extends RelationManager
 {
     use CorrespondenceFilters, CorrespondenceForm, CorrespondenceInfolist, CorrespondenceTable, HandlesRecipients;
+    use HandlesActionExceptions;
 
     protected static string $relationship = 'correspondences';
+
+    protected static ?string $relatedResource = CorrespondenceResource::class;
 
     public function form(Schema $schema): Schema
     {
@@ -62,7 +66,8 @@ class CorrespondenceRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(CorrespondenceResource::eagerRelations()))
             ->columns([
                 static::showSubject(),
                 static::showType(),
@@ -78,6 +83,7 @@ class CorrespondenceRelationManager extends RelationManager
                 static::getPriorityFilter(),
                 static::getStatusFilter(),
                 static::getMyMentionsFilter(),
+                static::getTrashedFilter(),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -102,7 +108,7 @@ class CorrespondenceRelationManager extends RelationManager
                     EditAction::make()
                         ->modalWidth('7xl')
                         ->mutateRecordDataUsing(function (array $data, Model $record): array {
-                            $data['recipients_to'] = $record->recipients->where('pivot.type', 'to')->pluck('name')->toArray();
+                            $data['recipients_to'] = $record->recipients->where('pivot.type', 'to')->pluck('id')->toArray();
                             $data['recipients_cc'] = $record->recipients->where('pivot.type', 'cc')->pluck('name')->toArray();
 
                             return $data;
@@ -115,14 +121,14 @@ class CorrespondenceRelationManager extends RelationManager
                             return $record->fresh();
                         }),
                     DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(CorrespondenceExporter::class)
-                        ->formats([ExportFormat::Xlsx]),
+                    RestoreBulkAction::make(),
+                    CorrespondenceResource::getExportBulkAction(),
                 ]),
             ])
             ->groups([
@@ -147,7 +153,7 @@ class CorrespondenceRelationManager extends RelationManager
                     ->collapsible(),
             ])
             ->defaultGroup('thread')
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc'));
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Master\ProductResource\Exports\ProductExporter;
 use App\Filament\Resources\Master\ProductResource\Pages\ManageProducts;
 use App\Filament\Resources\Master\ProductResource\Traits\CategoryDrilldown;
@@ -257,7 +258,7 @@ class ProductResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showName(),
                 static::showEnglishName(),
@@ -292,14 +293,14 @@ class ProductResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(ProductExporter::class),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()->exporter(ProductExporter::class),
                 ]),
             ])
             ->striped()
             ->searchDebounce('1000ms')
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

@@ -54,12 +54,22 @@ class SearchService
         $foundTypes = [];
 
         foreach ($this->registry() as $key => $cfg) {
+            if (! userCan($cfg['model'])) {
+                continue;
+            }
+
             $base = (new $cfg['model'])->newQuery()->with($cfg['with']);
 
             $record = (clone $base)
                 ->where(function ($q) use ($cfg, $escaped) {
                     foreach ($cfg['search'] as $col) {
                         $q->orWhere($col, 'like', "%{$escaped}%");
+                    }
+
+                    if (method_exists($cfg['model'], 'extraAttributes')) {
+                        $q->orWhereHas('extraAttributes', fn ($eq) => $eq
+                            ->where('key', 'like', "%{$escaped}%")
+                            ->orWhere('value', 'like', "%{$escaped}%"));
                     }
                 })
                 ->latest()
@@ -90,6 +100,10 @@ class SearchService
         $meta = $this->chainMeta();
 
         if (! in_array($type, self::PIPELINE, true) || ! isset($registry[$type], $meta[$type])) {
+            return ['anchor' => null, 'chain' => []];
+        }
+
+        if (! userCan($registry[$type]['model'])) {
             return ['anchor' => null, 'chain' => []];
         }
 
@@ -130,8 +144,10 @@ class SearchService
                 'records' => [],
             ];
 
-            foreach ($records as $r) {
-                $entry['records'][] = $this->buildChainRecord($key, $registry[$key], $meta[$key], $r, $refs);
+            if (userCan($registry[$key]['model'])) {
+                foreach ($records as $r) {
+                    $entry['records'][] = $this->buildChainRecord($key, $registry[$key], $meta[$key], $r, $refs);
+                }
             }
 
             $chain[] = $entry;

@@ -14,6 +14,7 @@ return [
         'categories' => 'Catégories',
         'targets' => 'Objectifs',
         'currencies' => 'Devises',
+        'departments' => 'Départements',
         'purchase_requests' => 'Demandes d\'achat',
         'purchase_orders' => 'Commandes d\'achat',
         'proforma_invoices' => 'Factures proforma',
@@ -67,6 +68,125 @@ return [
     'customize' => 'Personnaliser',
     'workflow' => 'Flux de travail',
     'search' => 'Recherche',
+    'features' => 'Fonctionnalités',
+    'app_features' => [
+        'panel_title' => 'Ce qui distingue ce système',
+        'panel_intro' => 'Une liste vivante de ce que ce système fait qu\'un logiciel d\'achat classique ne fait pas — et la preuve qu\'il couvre aussi tout ce qu\'un bon logiciel d\'entreprise doit offrir.',
+        'distinguishing' => [
+            'section_label' => 'Ce qui nous distingue',
+            'section_note' => 'Automatisation, analyses et recherche transversale que vous ne trouverez pas dans un système à formulaires classique.',
+            'groups' => [
+                [
+                    'tag' => 'Retrouve tout',
+                    'title' => 'Une seule recherche, tout l\'historique du dossier',
+                    'items' => [
+                        ['title' => 'Une recherche, des résultats partout', 'description' => 'Saisissez un numéro et obtenez des correspondances dans les huit étapes du processus à la fois — inutile de savoir dans quel module se trouve le dossier.'],
+                        ['title' => 'Radiographie complète du dossier', 'description' => 'Sélectionnez un document et visualisez instantanément tous les documents qui lui sont liés, chacun marqué comme rattaché ou manquant, pour repérer les lacunes en un coup d\'œil.'],
+                        ['title' => 'Anneaux de progression dans la recherche', 'description' => 'Chaque dossier affiché dans la recherche ou la radiographie de dossier affiche un pourcentage d\'achèvement en un coup d\'œil, rendant visibles les documents incomplets avant qu\'ils ne causent un retard.'],
+                        ['title' => '« Montrez-moi sa dernière demande »', 'description' => 'Recherchez par nom de personne même lorsqu\'il n\'apparaît sur aucun document, et le système fait remonter son dossier lié le plus récent.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Fait la ressaisie à votre place',
+                    'title' => 'Une automatisation qui s\'exécute d\'elle-même',
+                    'items' => [
+                        ['title' => 'Réactions en chaîne « Préparer à partir de »', 'description' => 'Créez une commande à partir d\'une demande, ou une facture pro forma à partir d\'une commande, et les lignes, prix et conditions se remplissent automatiquement depuis le document source.'],
+                        ['title' => 'Numérotation automatique des documents', 'description' => 'Chaque demande, commande, paiement et expédition reçoit un numéro de référence propre dès sa création, la base de données garantissant elle-même qu\'aucun numéro ne se retrouve jamais partagé entre deux dossiers.'],
+                        ['title' => 'Le statut se propage tout seul', 'description' => 'Approuvez ou refusez une demande une seule fois, et chaque ligne qu\'elle contient se met à jour automatiquement.'],
+                        ['title' => 'Des listes de contrôle qui se cochent seules', 'description' => 'Téléversez les documents d\'expédition et le système détecte, rien qu\'au nom des fichiers, lesquels ont été fournis — y compris les variantes d\'écriture persane — puis les coche automatiquement.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Anticipe les problèmes',
+                    'title' => 'De la veille métier, pas seulement de la saisie',
+                    'items' => [
+                        ['title' => 'Radar des dossiers bloqués', 'description' => 'Répertorie automatiquement chaque demande, commande ou expédition ayant dépassé son échéance, classée par nombre de jours de retard, avec un lien direct vers le dossier.'],
+                        ['title' => 'Score de concentration fournisseur/devise', 'description' => 'Calcule à quel point l\'entreprise dépend d\'un seul fournisseur ou d\'une seule devise, avec un code couleur ne nécessitant aucune expertise financière.'],
+                        ['title' => 'Rapports d\'ancienneté et d\'exposition', 'description' => 'Les factures impayées sont automatiquement classées par tranches de 30/60/90+ jours, avec l\'exposition de change par transaction actualisée automatiquement.'],
+                        ['title' => 'Radiographie de la vitesse des transactions', 'description' => 'Affiche le délai typique face au délai des 10 % de cas les plus lents pour chaque étape du processus, rendant visible un dossier lent avant qu\'il ne devienne un problème.'],
+                        ['title' => 'Des notifications qui s\'expliquent d\'elles-mêmes', 'description' => 'Lorsqu\'un dossier que vous surveillez change, l\'alerte envoyée par e-mail affiche les valeurs avant et après en termes clairs — pas seulement « dossier mis à jour ».'],
+                        ['title' => '« Ce que signifie ce chiffre » sur chaque graphique', 'description' => 'Chaque indicateur du tableau de bord intègre une explication en langage clair — ce qu\'il mesure et pourquoi il compte — avec un détail technique disponible pour qui le souhaite.'],
+                    ],
+                ],
+                [
+                    'tag' => 'S\'adapte à vous',
+                    'title' => 'Configurable sans développeur',
+                    'items' => [
+                        ['title' => 'Ajoutez vos propres champs, sans code', 'description' => 'Tout document du processus — demandes, commandes, factures, paiements, expéditions — peut porter des champs personnalisés définis sur-le-champ par l\'utilisateur, comme ajouter une colonne à un tableur, sans ticket informatique.'],
+                        ['title' => 'Workflows d\'approbation pilotés par statut', 'description' => 'Transformez n\'importe quelle étape du pipeline en point d\'approbation contrôlé — définissez l\'ordre requis et choisissez précisément qui peut l\'accorder, directement depuis l\'écran des statuts, modifiable à tout moment sans code.'],
+                        ['title' => 'Une expérience façonnée par le rôle', 'description' => 'Chaque utilisateur ne voit et ne peut faire que ce que son rôle autorise — valideurs, agents et administrateurs disposent chacun d\'un espace adapté à leur fonction.'],
+                        ['title' => 'Reliez des dossiers à tout moment, pas seulement à la création', 'description' => 'Une demande, une commande ou une facture peut se connecter à plusieurs documents liés, et ces liens peuvent être ajoutés, modifiés ou supprimés à n\'importe quelle étape du processus — avant ou après la création initiale du dossier.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Conçu pour le commerce international',
+                    'title' => 'Trois langues, deux calendriers, un seul système',
+                    'items' => [
+                        ['title' => 'Un vrai droite-à-gauche, pas un ajout', 'description' => 'L\'anglais, le persan et le français sont tous traités de façon native — le persan s\'affiche dans une mise en page réellement droite-à-gauche, pas comme du texte traduit forcé dans un modèle gauche-à-droite.'],
+                        ['title' => 'Double calendrier, un seul interrupteur', 'description' => 'Chaque date bascule instantanément entre le calendrier grégorien et le calendrier persan (jalali), correctement calé sur le véritable Nouvel An persan.'],
+                        ['title' => 'Des factures lisibles correctement partout', 'description' => 'Les PDF générés basculent automatiquement en mise en page persane droite-à-gauche avec la police adaptée.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Se souvient de vous',
+                    'title' => 'Un espace de travail qui s\'adapte à chacun',
+                    'items' => [
+                        ['title' => 'Épinglez ce que vous utilisez vraiment', 'description' => 'Enregistrez les modules et dossiers fréquemment utilisés dans un panneau de raccourcis personnel, au lieu de reparcourir le même menu chaque jour.'],
+                        ['title' => 'Une aide contextuelle, pas un manuel', 'description' => 'Un panneau de référence dédié à chaque module — avec un indicateur « non lu » qui disparaît après consultation, et qui réapparaît automatiquement si le contenu du guide est ensuite mis à jour.'],
+                        ['title' => 'Une salutation qui connaît l\'heure', 'description' => 'Une petite attention humaine qu\'un logiciel d\'achat classique ne prend jamais la peine d\'offrir.'],
+                        ['title' => 'La barre latérale, à votre façon', 'description' => 'Basculez le menu de navigation entre un panneau latéral et un dock en bas d\'écran en un clic, et l\'application retient votre choix.'],
+                        ['title' => 'Une boîte à outils qui vous suit', 'description' => 'Une horloge flottante, un minuteur façon Pomodoro pour vous aider à vous concentrer, et une musique apaisante pour relâcher la tension — tout reste accessible en un clic partout dans l\'espace de travail, avec vos choix de musique et de volume mémorisés d\'une visite à l\'autre.'],
+                        ['title' => 'Une barre supérieure à votre service', 'description' => 'Un bouton de création rapide qui ne propose que les documents que votre rôle est autorisé à créer, regroupés par étape du processus — plus un menu d\'enregistrements récents qui garde à portée de clic les derniers dossiers ouverts.'],
+                    ],
+                ],
+            ],
+        ],
+        'standard' => [
+            'section_label' => 'Tout ce qu\'un bon logiciel commercial doit avoir',
+            'section_note' => 'Les fondamentaux fiables, bien exécutés, pour que rien ne passe à travers les mailles du filet.',
+            'groups' => [
+                [
+                    'tag' => 'Données et sécurité',
+                    'title' => 'Construit sur des bases sûres et responsables',
+                    'items' => [
+                        ['title' => 'Contrôle d\'accès par rôle', 'description' => 'Chaque action est vérifiée par rapport au rôle attribué à l\'utilisateur avant d\'être autorisée, afin que chacun ne voie et ne fasse que ce que son poste exige.'],
+                        ['title' => 'Traçabilité complète', 'description' => 'Le système enregistre automatiquement qui a créé et qui a modifié en dernier chaque dossier du processus, pour que l\'activité quotidienne ne reste jamais anonyme.'],
+                        ['title' => 'Suppression réversible avec corbeille', 'description' => 'Supprimer un dossier le déplace vers une corbeille récupérable au lieu de l\'effacer définitivement.'],
+                        ['title' => 'Authentification sécurisée', 'description' => 'Une connexion standard et renforcée protège chaque écran avant l\'affichage de toute donnée commerciale.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Collaboration et workflow',
+                    'title' => 'Conçu pour des équipes, pas seulement des individus',
+                    'items' => [
+                        ['title' => 'Pièces jointes sur chaque dossier de commande', 'description' => 'Les documents justificatifs s\'attachent directement à chaque demande, facture, commande, paiement et expédition, pour que les pièces ne soient jamais séparées des données.'],
+                        ['title' => 'Journal de correspondance interne', 'description' => 'Les échanges d\'équipe liés à une commande précise gardent le contexte au même endroit, plutôt que dispersé dans les e-mails.'],
+                        ['title' => 'Notifications configurables', 'description' => 'Les utilisateurs sont alertés lorsque les dossiers qui les concernent changent, et les administrateurs définissent quels événements déclenchent une alerte.'],
+                        ['title' => 'Multi-entreprise et multi-devise', 'description' => 'Une même entreprise peut être vendeur, acheteur ou fournisseur, et chaque commande peut porter sa propre devise — pensé pour le commerce international réel.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Rapports et export',
+                    'title' => 'Récupérez vos données quand vous en avez besoin',
+                    'items' => [
+                        ['title' => 'Export Excel/CSV partout', 'description' => 'Presque toutes les listes du système peuvent être exportées vers un tableur pour un rapport hors ligne ou un partage.'],
+                        ['title' => 'Documents PDF professionnels', 'description' => 'Les factures commerciales sont générées en PDF correctement mis en forme et prêts à imprimer, y compris en mise en page persane droite-à-gauche.'],
+                        ['title' => 'Recherche et filtres sur chaque liste', 'description' => 'Chaque tableau permet la recherche et le filtrage, pour que les longues listes ne signifient jamais un défilement sans fin.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Ergonomie',
+                    'title' => 'Cohérent, où que vous travailliez',
+                    'items' => [
+                        ['title' => 'Fonctionne sur tout appareil', 'description' => 'L\'ensemble du système fonctionne de la même façon sur ordinateur, tablette et mobile, sans application séparée.'],
+                        ['title' => 'Fiches dossier uniformes', 'description' => 'Chaque type de dossier dispose d\'une vue de détail cohérente à côté de son formulaire d\'édition, pour que l\'information soit toujours là où on l\'attend.'],
+                        ['title' => 'Accès direct aux dossiers liés', 'description' => 'Depuis n\'importe quelle commande, consultez ses factures, paiements et expéditions liés directement sur la page, avec un accès en un clic pour ouvrir et modifier chacun en détail.'],
+                        ['title' => 'Des formulaires guidés et validés', 'description' => 'Les champs des formulaires expliquent ce qui est attendu et détectent les erreurs avant leur envoi, pour guider l\'utilisateur plutôt que le laisser deviner.'],
+                    ],
+                ],
+            ],
+        ],
+    ],
     'insights' => 'Aperçus',
     'insights_listen' => 'Écouter',
     'insights_pause' => 'Pause',

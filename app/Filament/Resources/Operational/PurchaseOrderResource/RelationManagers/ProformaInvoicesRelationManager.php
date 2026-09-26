@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\RelationManagers;
 
-use App\Filament\Resources\Operational\ProformaInvoiceResource\Exports\ProformaInvoiceExporter;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Filters as ProformaInvoiceFilters;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Table as ProformaInvoiceTable;
 use App\Filament\Resources\ProformaInvoiceResource;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -13,8 +14,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DetachAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -25,10 +25,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProformaInvoicesRelationManager extends RelationManager
 {
+    use HandlesActionExceptions;
     use ProformaInvoiceFilters;
     use ProformaInvoiceTable;
 
     protected static string $relationship = 'proformaInvoices';
+
+    protected static ?string $relatedResource = ProformaInvoiceResource::class;
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
@@ -52,8 +55,8 @@ class ProformaInvoicesRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
-            ->emptyStateIcon('heroicon-o-bookmark')
+        return TableComponents::gatedEmptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(ProformaInvoiceResource::eagerRelations()))
             ->recordTitleAttribute('invoice_no')
             ->columns([
                 static::showID(),
@@ -82,6 +85,7 @@ class ProformaInvoicesRelationManager extends RelationManager
             ->headerActions([
                 Action::make('create')
                     ->label(__('resources/general/strings.actions.add_record'))
+                    ->tooltip(__('resources/general/strings.actions.add_record_tooltip'))
                     ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Approved']))
                     ->url(fn (): string => ProformaInvoiceResource::getUrl('create', ['purchase_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
@@ -92,15 +96,14 @@ class ProformaInvoicesRelationManager extends RelationManager
                         ->url(fn ($record): string => ProformaInvoiceResource::getUrl('edit', ['record' => $record])),
                     DetachAction::make(),
                     DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(ProformaInvoiceExporter::class),
+                    ProformaInvoiceResource::getExportBulkAction(),
                 ]),
             ])
             ->groups([
@@ -113,6 +116,6 @@ class ProformaInvoicesRelationManager extends RelationManager
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('proforma_invoices.id', 'desc');
+            ->defaultSort('proforma_invoices.id', 'desc'));
     }
 }

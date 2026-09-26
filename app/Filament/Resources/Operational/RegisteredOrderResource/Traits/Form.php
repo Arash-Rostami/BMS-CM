@@ -156,6 +156,7 @@ trait Form
             ->columnSpanFull()
             ->rules(['nullable', 'string', 'max:65535'])
             ->validationMessages([
+                'string' => __('resources/registeredOrder/strings.form.validation_string'),
                 'max' => __('resources/registeredOrder/strings.form.validation_max_string'),
             ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.item_description'));
@@ -290,7 +291,7 @@ trait Form
             ->required()
             ->readOnly()
             ->maxLength(255)
-            ->unique(ignoreRecord: true)
+            ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('ro_number') : null)
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
@@ -350,22 +351,15 @@ trait Form
 
     public static function getStatusField(): Select
     {
-        return Select::make('status_id')
+        return static::getStatusWorkflowField('status_id', fn (Select $field) => $field
             ->label(__('resources/registeredOrder/strings.form.status'))
-            ->relationship(
-                name: 'status',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', RegisteredOrder::TYPE_REGISTERED_ORDER)
-            )
-            ->default(fn ($operation): ?int => $operation === 'create' ? Status::findBy('Registered Order Status', 'Submitted')?->id : null)
             ->searchable()
             ->preload()
-            ->required()
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
             ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.status'))
-            ->helperText(__('resources/registeredOrder/strings.form.helper_status'));
+            ->helperText(__('resources/registeredOrder/strings.form.helper_status')), null, fn () => Status::findBy(RegisteredOrder::TYPE_REGISTERED_ORDER, 'Submitted')?->id);
     }
 
     public static function getTotalAmountField(): TextEntry

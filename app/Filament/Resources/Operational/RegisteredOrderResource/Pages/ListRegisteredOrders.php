@@ -14,6 +14,8 @@ class ListRegisteredOrders extends ListRecords
     {
         return [
             ...array_filter([RegisteredOrderResource::getDeskReferenceHeaderAction()]),
+            RegisteredOrderResource::getStatusWorkflowPipelineAction(),
+            RegisteredOrderResource::getImportAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
         ];

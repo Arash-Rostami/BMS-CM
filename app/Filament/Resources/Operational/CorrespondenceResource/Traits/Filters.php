@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Operational\CorrespondenceResource\Traits;
 
+use App\Filament\Resources\General\FilterComponents;
 use App\Filament\Resources\Operational\CorrespondenceResource\Enums\Priority;
 use App\Filament\Resources\Operational\CorrespondenceResource\Enums\Type;
-use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -14,22 +14,14 @@ trait Filters
 {
     public static function getCreationDateFilter(): Filter
     {
-        return Filter::make('created_at')
-            ->schema([
-                DatePicker::make('created_from')
-                    ->label(__('resources/correspondence/strings.filters.created_from'))
-                    ->native(false)
-                    ->jalali(app()->isLocale('fa')),
-                DatePicker::make('created_until')
-                    ->label(__('resources/correspondence/strings.filters.created_until'))
-                    ->native(false)
-                    ->jalali(app()->isLocale('fa')),
-            ])
-            ->query(function (Builder $query, array $data): Builder {
-                return $query
-                    ->when($data['created_from'], fn (Builder $query, $date) => $query->whereDate('created_at', '>=', $date))
-                    ->when($data['created_until'], fn (Builder $query, $date) => $query->whereDate('created_at', '<=', $date));
-            });
+        return FilterComponents::dateRangeFilter(
+            'created_at',
+            'created_at',
+            'created_from',
+            'created_until',
+            __('resources/correspondence/strings.filters.created_from'),
+            __('resources/correspondence/strings.filters.created_until'),
+        );
     }
 
     public static function getCreatorFilter(): SelectFilter

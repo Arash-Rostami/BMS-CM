@@ -28,7 +28,7 @@ trait Infolist
     {
         return TextEntry::make('created_at')
             ->label(__('resources/permission/strings.infolist.created_at'))
-            ->formatStateUsing(fn ($state) => app()->getLocale() === 'fa' ? toPersianDate($state, true) : toGregorianDate($state, true))
+            ->adaptiveDateTime()
             ->color('gray');
     }
 
@@ -36,7 +36,7 @@ trait Infolist
     {
         return TextEntry::make('updated_at')
             ->label(__('resources/permission/strings.infolist.updated_at'))
-            ->formatStateUsing(fn ($state) => app()->getLocale() === 'fa' ? toPersianDate($state, true) : toGregorianDate($state, true))
+            ->adaptiveDateTime()
             ->color('gray');
     }
 }

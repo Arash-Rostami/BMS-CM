@@ -18,4 +18,13 @@ class CreatePayment extends CreateRecord
     {
         self::afterFillFromTargetable();
     }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data = PaymentResource::applyInitialStatusOnCreate($data);
+
+        PaymentResource::assertStatusTransitionAllowed(null, 'status_id', $data['status_id'] ?? null);
+
+        return $data;
+    }
 }

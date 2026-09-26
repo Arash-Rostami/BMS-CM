@@ -80,7 +80,7 @@ trait Table
         return TextColumn::make('created_at')
             ->label(__('resources/category/strings.table.created_at'))
             ->toggleable(isToggledHiddenByDefault: true)
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable();
     }
 
@@ -89,7 +89,7 @@ trait Table
         return TextColumn::make('updated_at')
             ->label(__('resources/category/strings.table.updated_at'))
             ->toggleable(isToggledHiddenByDefault: true)
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable();
     }
 }

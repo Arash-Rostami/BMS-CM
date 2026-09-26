@@ -6,7 +6,7 @@ Verified against source on branch `master` (2026-07-25). Where this doc conflict
 
 ## Core idea
 
-Ten pure functions, each one screen of logic, no classes, no state except a `static` color map. Two of them (`maybeJalali`, `getLocalizedName`) enforce the project's locale contract: locale is `fa` (Farsi/RTL), `en`, or `fr`; `fa` implies Jalali dates + the `name` column, every other locale implies Gregorian + the `english_name` column. The calendar-type gate's byte-identical three-site literal contract is detailed in §2.
+Eleven pure functions, each one screen of logic, no classes, no state except a `static` color map. Two of them (`maybeJalali`, `getLocalizedName`) enforce the project's locale contract: locale is `fa` (Farsi/RTL), `en`, or `fr`; `fa` implies Jalali dates + the `name` column, every other locale implies Gregorian + the `english_name` column. The calendar-type gate lives once in `isJalaliCalendar()` (§2).
 
 ## Recommended structure
 
@@ -43,14 +43,23 @@ Single money formatter — never call `number_format()` directly for a money col
 ### `preciseNumber($value, ?string $currency = null, int $maxDecimals = 5): string`
 Same currency-prefix/suffix logic as `delimiter()`, but formats to `$maxDecimals` and then `rtrim`s trailing zeros (and a trailing bare `.`) — `4` stays `4`, `4.56` stays `4.56`, `4.56000` never appears. Use this for **every non-table display** of a price/quantity/rate/weight metric (Infolist entries, form `hint()`s, `_display` companion fields) — see the precision standard below for why table vs. everywhere-else is the split.
 
+### `isJalaliCalendar(): bool`
+The single home of the `calendar_type` gate literal (§2). Every read site calls this — never re-inline the `session(...)` expression.
+
+### `adaptiveDate($date, bool $withTime = false): string`
+The display-date gate: `toPersianDate($date, $withTime)` in Jalali mode, `toGregorianDate($date, $withTime)` otherwise — driven by the calendar session, **not** the locale, so the panel's calendar toggle flips it. Use for standalone format sites (tooltips, descriptions); for Filament columns/entries use the `->adaptiveDate()`/`->adaptiveDateTime()` macros (which wrap this).
+
 ### `maybeJalali($component)`
-The Jalali gate for Filament date components: calls `->jalali(true)` when in Jalali mode, else returns the component unchanged. The gate expression is the load-bearing literal — see §2. Never inline the `session(...)` check in a resource; always route through this helper or `->adaptive()` (§2).
+The Jalali gate for Filament date components: calls `->jalali(true)` when in Jalali mode, else returns the component unchanged. Never inline the `session(...)` check in a resource; always route through this helper or `->adaptive()` (§2).
+
+### `userCan(string $modelClass, string $action = 'view'): bool`
+`auth()->user()?->can(Str::snake(class_basename($modelClass)).'.'.$action) ?? false` — the exact same permission-string formula `HasResourcePermissions::getPermissionPrefix()` uses (`app/Filament/filamentPattern.md` §1.5), exposed as a plain function so plain Services/Controllers outside the Filament layer (no Resource class to delegate to) can gate against the identical Spatie permission rows. Added 2026-09-17 to close a gap where `SearchController`'s two endpoints and `InvoiceController::shipmentPdf()` checked only `auth()->check()`/nothing — any authenticated user, regardless of their actual permissions, could read any pipeline model's full record (including Payment IBAN/SWIFT/amount) or download any Shipment's invoice PDF by id. See `servicesPattern.md`'s `SearchService`/`InvoicePdfService` sections for where it's now called.
 
 ### `tabBadge(string $label, int|string|null $count, string $color = 'info'): HtmlString`
 Returns `{label} <span class="tb-badge tb-{color}">{count}</span>` for `Tab::make()->badge(...)` / infolist headers. Blank `$count` → bare escaped label, no badge. Valid colors: `info`/`success`/`warning`/`danger` → `tb-info`/`tb-success`/`tb-warning`/`tb-danger`; unknown falls back to `info`. Both args HTML-escaped via `e()`. Only PHP-side producer of `.tb-badge` markup — see §4.
 
 ### `clearApplicationCaches(): void`
-Runs `cache:clear`, `config:clear`, `route:clear`, `view:clear`, `optimize:clear`, `filament:clear-cached-components` in sequence via `Artisan::call()`. Backs the `/clear` route.
+Runs `opcache_reset()` first (guarded by `function_exists`, since not every environment has OPcache — deliberately first so an `Artisan::call()` failure below can't skip it), then `cache:clear`, `config:clear`, `route:clear`, `view:clear`, `optimize:clear`, `filament:clear-cached-components`, `permission:cache-reset` in sequence via `Artisan::call()`. Backs the `/clear` route. The OPcache reset only takes effect because this runs inside a real HTTP request on the same PHP-FPM/mod_php SAPI that serves production traffic — `opcache_reset()` run from `php artisan tinker` or any other CLI invocation resets a *different* OPcache instance and has no effect on what the web server actually serves when `opcache.validate_timestamps` is off.
 
 ### `cacheApplicationConfig(): void`
 Runs `config:cache`, `route:cache`, `view:cache`, `filament:cache-components`. Backs the `/cache` route.
@@ -60,7 +69,9 @@ Runs `config:cache`, `route:cache`, `view:cache`, `filament:cache-components`. B
 
 ## 1b. Numeric precision standard (price/quantity/rate/weight)
 
-Every column carrying real calculation precision — price, quantity, amount, rate, weight — is stored and computed at **up to 5 decimal places**, never 2. This applies at all layers: migration column scale (`decimal(15,5)`), Eloquent `$casts` (`'decimal:5'`), and Filament calculation traits (`TotalXxxCalculation`/`Calculation` traits must never `round()`/`number_format()` a computed total down to 2dp before `$set()`-ing it back into form state — that silently discards precision before it ever reaches the DB).
+Every column carrying real calculation precision — price, quantity, amount, rate, weight — is stored and computed at **up to 5 decimal places**, never 2. This applies at all layers: migration column scale (`decimal(65,5)` as of the 2026-09-17 widening — see §8b note below; scale stays 5, only the integer-digit capacity grew), Eloquent `$casts` (`'decimal:5'`), and Filament calculation traits (`TotalXxxCalculation`/`Calculation` traits must never `round()`/`number_format()` a computed total down to 2dp before `$set()`-ing it back into form state — that silently discards precision before it ever reaches the DB).
+
+**2026-09-17 widening:** every such column was originally `decimal(15,5)` (max ~10 integer digits, ~9.99 billion), which overflowed in production on a legitimately large `purchase_requests.total_estimated_cost` (`SQLSTATE[22003]`). `database/migrations/2026_09_17_000000_widen_pipeline_decimal_precision.php` widened every one of these columns project-wide to `decimal(65,5)` — MySQL's absolute maximum total-digit precision — so no realistic figure can overflow again. No Filament-side `maxValue()`/`max:` validation existed on any numeric field before or after this change (only string-length `max:` rules on unrelated text fields) — the ceiling was purely the DB column width, and now there effectively isn't one.
 
 **The only place a fixed, rounded display is acceptable is a Filament Table column** (`showXxx()` via `delimiter()`) — rounding there is a readability/alignment choice, not a precision bug, since the underlying stored value is untouched. Everywhere else (Infolist entries, form hints, `_display` fields) must show the value's actual meaningful precision — use `preciseNumber()`, not `delimiter()` or a raw `number_format()`, so `4` renders as `4` and `3.64583` renders in full rather than as `3.65` or `4.56000`.
 
@@ -72,23 +83,25 @@ Don't confuse this with `HasComputedAttributes`' unrounded float accessors (`app
 session('calendar_type', app()->isLocale('fa') ? 'jalali' : 'gregorian') === 'jalali'
 ```
 
-Appears byte-identically in **three places** and must stay identical in all of them:
-1. `app/Utils/helpers.php` → `maybeJalali()` (read side).
-2. `app/Providers/FilamentMacroServiceProvider.php` → `DatePicker::macro('adaptive')` in `boot()` (sibling read side; date pickers commonly chain `->adaptive()` instead of/alongside `maybeJalali()`).
-3. `app/Livewire/CalendarToggle.php` → `mount()` (read side, initial toggle state).
+The literal lives in exactly **one place**: `app/Utils/helpers.php` → `isJalaliCalendar()`. All consumers call it:
+1. `maybeJalali()` (picker gate, helpers.php).
+2. `FilamentMacroServiceProvider::boot()` → `DatePicker::macro('adaptive')` (pickers) and the `TextColumn`/`TextEntry` `->adaptiveDate()`/`->adaptiveDateTime()` display macros (which delegate to `adaptiveDate()`).
+3. `app/Livewire/CalendarToggle.php` → `mount()` (initial toggle state).
 
-Write side (not part of the byte-identical literal, but the sole writer): `CalendarToggle::toggle()` → `session(['calendar_type' => $this->isJalali ? 'jalali' : 'gregorian'])`, then dispatches `calendar-toggled` (consumed via `#[On('calendar-toggled')]` on Filament pages).
+Write side (the sole writer): `CalendarToggle::toggle()` → `session(['calendar_type' => $this->isJalali ? 'jalali' : 'gregorian'])`, then dispatches `calendar-toggled` (consumed via `#[On('calendar-toggled')]` on Filament pages).
 
 Semantics: session key `calendar_type`, value `'jalali'` or `'gregorian'`. No session value → locale-driven default (`fa` → `'jalali'`, else → `'gregorian'`).
 
-**Why byte-identical:** if the default expression drifts between the three sites, the toggle's initial state and the date pickers' actual calendar disagree on first load. Never inline a fourth copy of this literal anywhere — route through `maybeJalali()` or `->adaptive()`.
+**Toggle refresh contract:** List/Manage pages re-render on `calendar-toggled` (no-op listener) — enough for tables/infolists, whose columns re-evaluate per request. Create/Edit pages **redirect** instead (`$this->redirect(request()->header('Referer'))`) — a jalali picker is a `wire:ignore`'d Alpine component whose view Livewire cannot morph in place, so a soft refresh would leave the stale-calendar picker on the form.
+
+**Why one site:** the default expression was formerly copy-pasted byte-identically across three sites; any drift made the toggle's initial state and the pickers disagree on first load. Never inline a second copy of the literal anywhere — route through `isJalaliCalendar()`, `maybeJalali()`, `->adaptive()`, `->adaptiveDate()`, or `->adaptiveDateTime()`.
 
 ## 3. Locale & RTL conventions
 
 - **Three locales:** `en`, `fa` (Farsi/RTL), `fr`, switched via `bezhansalleh/filament-language-switch`.
 - **`fa` is the only RTL locale.** Every locale branch is `app()->getLocale() === 'fa'` (else covers `en`+`fr` together) — never branch per-`en`/`fr`.
 - **Name columns:** `fa` → `name`; `en`/`fr` → `english_name`. Enforced in `getLocalizedName()`, the `Localization` trait's `localeColumn()` (`modelsPattern.md` §3), and nowhere else — prefer the helper/trait over a direct `$record->name` read.
-- **Dates:** `fa` → `toPersianDate()`; `en`/`fr` → `toGregorianDate()`. The Jalali/Gregorian *calendar* is independently toggleable via `calendar_type` (§2) — locale and calendar are coupled by default but decoupled by the toggle.
+- **Dates:** `fa` → `toPersianDate()`; `en`/`fr` → `toGregorianDate()`. The Jalali/Gregorian *calendar* is independently toggleable via `calendar_type` (§2) — locale and calendar are coupled by default but decoupled by the toggle. Display surfaces (columns/entries) route through the `->adaptiveDate()`/`->adaptiveDateTime()` macros or `adaptiveDate()` so the toggle actually flips them — never a locale ternary or a raw `->date()`/`->dateTime()`.
 - **`$isRtl` (Blade):** landing-page and PDF views receive a single `$isRtl` bool prop, computed once at the page root, used for all layout-direction decisions (`{{ $isRtl ? 'right' : 'left' }}`, chevron rotation, slide direction). Don't recompute `app()->getLocale() === 'fa'` inside a partial that already receives it.
 - **PDF/Invoice RTL:** `InvoicePdfService` sets dir/font/text-align from locale (Persian → IranYekan + RTL; else DejaVu + LTR) — same `fa` gate, applied at the mPDF layer.
 
@@ -122,18 +135,19 @@ This `files` entry is what makes every function globally available without `use`
 | Show a localized field on the model itself | `Localization` trait's `getLocalizedNameAttribute` | Don't re-implement the `fa`/`else` gate inline. |
 | Format money ± currency in a Table column | `delimiter($value, $currency, $decimals)` | Fixed rounding is acceptable only in Tables — §1b. |
 | Format a price/quantity/rate/weight value anywhere else (Infolist, hint, `_display` field) | `preciseNumber($value, $currency, $maxDecimals)` | Shows meaningful precision, no padded/truncated zeros — §1/§1b. |
-| Make a date picker respect Jalali | `maybeJalali(DatePicker::make(...))` or `->adaptive()` | Keeps the `calendar_type` literal in one place — §2. |
+| Make a date picker respect Jalali | `maybeJalali(DatePicker::make(...))` or `->adaptive()` | Keeps the `calendar_type` gate in one place — §2. |
+| Format a display date that follows the calendar toggle | `->adaptiveDate()` / `->adaptiveDateTime()` on the column/entry, or `adaptiveDate($date)` at a standalone site | Raw `->date()`/`->dateTime()` and locale ternaries ignore the toggle — enforced by `tests/Unit/AdaptiveDateTest.php`. |
 | Add a count badge to a Tab/infolist header | `tabBadge($label, $count, $color)` | Only producer of `.tb-badge` markup — §1/§4. |
 | Clear all caches | `clearApplicationCaches()` | Backs `/clear`; also the first half of `resetApplicationCache()`. |
 | Rebuild all caches | `cacheApplicationConfig()` | Backs `/cache`; also the second half of `resetApplicationCache()`. |
 | Clear + rebuild in one call | `resetApplicationCache()` | Backs `/reset` and the panel's "Reset Cache" menu action. |
-| Change the default calendar rule | Edit the literal in `maybeJalali()`, `CalendarToggle::mount()`, AND `adaptive()` identically | Keeps the three literal sites in sync — §2. |
+| Change the default calendar rule | Edit the literal in `isJalaliCalendar()` only | Single home — every consumer follows automatically — §2. |
 | Add a new global helper | Append to `helpers.php` inside `if (!function_exists(...))`; `composer dump-autoload` | One helper file — §5. |
 
 ## 7. Absolute Anti-Patterns
 
-- ❌ Inlining `session('calendar_type', ...)` in a resource or view — duplicates the load-bearing literal (§2); route through `maybeJalali()`/`->adaptive()`.
-- ❌ Letting the `calendar_type` default differ between the three sites in §2.
+- ❌ Inlining `session('calendar_type', ...)` in a resource or view — duplicates the load-bearing literal (§2); route through `isJalaliCalendar()`/`maybeJalali()`/`->adaptive()`.
+- ❌ A locale-ternary date branch (`app()->getLocale() === 'fa' ? toPersianDate(...) : toGregorianDate(...)`) or a raw `->date()`/`->dateTime()` on a display column/entry — both ignore the calendar toggle; use the adaptive macros (§2, enforced by `tests/Unit/AdaptiveDateTest.php`).
 - ❌ Calling `number_format()` directly for a money column — use `delimiter()` in a Table column, `preciseNumber()` everywhere else.
 - ❌ Rounding/truncating a price/quantity/rate/weight value to 2 decimals anywhere outside a Table column — the standard is up to 5 decimals at DB/model/computation layers; only Table display may round for readability (§1b).
 - ❌ Hand-writing `<span class="tb-badge tb-info">N</span>` — use `tabBadge()`.
@@ -152,7 +166,7 @@ This `files` entry is what makes every function globally available without `use`
 - **Locale helper:** `getLocalizedName` (relation form); on-model accessor is `getLocalizedNameAttribute` (`Localization` trait).
 - **Money helper (Table columns):** `delimiter($value, $currency, $decimals)`.
 - **Precision helper (everywhere else):** `preciseNumber($value, $currency, $maxDecimals)` — trims trailing zeros, default cap 5 decimals.
-- **Calendar gate:** `maybeJalali($component)`.
+- **Calendar gate:** `isJalaliCalendar(): bool` (the predicate) / `maybeJalali($component)` (pickers) / `adaptiveDate($date, $withTime)` (standalone display sites).
 - **Badge helper:** `tabBadge($label, $count, $color)` — 4-color map, §1/§4.
 - **Cache helpers:** `clearApplicationCaches` / `cacheApplicationConfig` / `resetApplicationCache` — all no-arg, void-return, `Artisan::call()`-based.
 - **Session key:** `calendar_type` (values `'jalali'`/`'gregorian'`); **Livewire event:** `calendar-toggled`.

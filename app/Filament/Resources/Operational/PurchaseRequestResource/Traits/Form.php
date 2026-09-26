@@ -13,6 +13,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 trait Form
@@ -46,7 +47,13 @@ trait Form
 
         return Select::make('cost_center_id')
             ->label(__('resources/purchaseRequest/strings.form.cost_center'))
-            ->relationship('costCenter', app()->getLocale() === 'fa' ? 'name' : 'english_name')
+            ->relationship(
+                'costCenter',
+                app()->getLocale() === 'fa' ? 'name' : 'english_name',
+                modifyQueryUsing: fn (Builder $query, ?Model $record) => $query->where(fn ($q) => $q
+                    ->active()
+                    ->when($record?->cost_center_id, fn ($q) => $q->orWhere('id', $record->cost_center_id))),
+            )
             ->getOptionLabelFromRecordUsing(fn (?Model $record) => $record->getLocalizedNameAttribute() ?? '--')
             ->default($department?->id)
             ->searchable()
@@ -84,7 +91,7 @@ trait Form
     {
         return Textarea::make('notes')
             ->hiddenLabel()
-            ->maxLength(255)
+            ->maxLength(500)
             ->live()
             ->extraAttributes(fn (Get $get) => ['style' => ! $get('show_notes') ? 'display: none;' : ''])
             ->columnSpan('full')
@@ -177,7 +184,11 @@ trait Form
             ->searchable()
             ->preload()
             ->columns(1)
-            ->nullable();
+            ->required(fn (?Model $record): bool => ! $record || filled($record->unit))
+            ->validationMessages([
+                'required' => __('resources/purchaseRequest/strings.form.validation_unit_required'),
+            ])
+            ->validationAttribute(__('resources/target/strings.form.metrics'));
     }
 
     public static function getNotesField(): RichEditor
@@ -200,7 +211,7 @@ trait Form
             ->required()
             ->readOnly()
             ->maxLength(255)
-            ->unique(ignoreRecord: true)
+            ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('pr_number') : null)
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_required'),
@@ -217,9 +228,11 @@ trait Form
             ->label(__('resources/purchaseRequest/strings.form.rejection_reason'))
             ->rows(3)
             ->visible(fn (Get $get): bool => ($statusId = $get('status_id')) && Status::where('id', $statusId)->value('english_name') === 'Declined')
+            ->required(fn (Get $get): bool => Status::where('id', $get('status_id'))->value('english_name') === 'Declined')
             ->maxLength(65535)
             ->rules(['max:65535'])
             ->validationMessages([
+                'required' => __('resources/purchaseRequest/strings.form.validation_rejection_reason_required'),
                 'max' => __('resources/purchaseRequest/strings.form.validation_max'),
             ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.rejection_reason'));
@@ -244,20 +257,12 @@ trait Form
 
     public static function getStatusIdField(): Select
     {
-        return Select::make('status_id')
+        return static::getStatusWorkflowField('status_id', fn (Select $field) => $field
             ->label(__('resources/purchaseRequest/strings.form.status'))
-            ->relationship(
-                name: 'status',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-            )
-            ->default(fn ($operation): ?int => $operation === 'create' ? Status::findBy('Purchase Request Status', 'Under Review')?->id : null)
-            ->live()
-            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->getLocalizedNameAttribute() ?? '--')
-            ->required()
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_status_required'),
             ])
-            ->validationAttribute(__('resources/purchaseRequest/strings.form.status'));
+            ->validationAttribute(__('resources/purchaseRequest/strings.form.status')));
     }
 
     public static function getTotalEstimatedCostField(): TextInput

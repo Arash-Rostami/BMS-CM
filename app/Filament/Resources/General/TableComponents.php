@@ -2,11 +2,42 @@
 
 namespace App\Filament\Resources\General;
 
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class TableComponents
 {
+    public static function emptyState(Table $table): Table
+    {
+        return $table
+            ->emptyStateIcon(fn (Table $table) => filled($table->getFilterIndicators())
+                ? 'heroicon-o-magnifying-glass'
+                : 'heroicon-o-inbox')
+            ->emptyStateHeading(fn (Table $table) => filled($table->getFilterIndicators())
+                ? __('resources/general/strings.empty_state.filtered_heading')
+                : __('resources/general/strings.empty_state.heading'))
+            ->emptyStateDescription(fn (Table $table) => filled($table->getFilterIndicators())
+                ? __('resources/general/strings.empty_state.filtered_description')
+                : __('resources/general/strings.empty_state.description'))
+            ->emptyStateActions([
+                Action::make('resetFilteredEmptyState')
+                    ->label(__('resources/general/strings.empty_state.reset_filters'))
+                    ->link()
+                    ->visible(fn (Table $table) => filled($table->getFilterIndicators()))
+                    ->action(fn ($livewire) => $livewire->removeTableFilters()),
+            ]);
+    }
+
+    public static function gatedEmptyState(Table $table): Table
+    {
+        return $table
+            ->emptyStateIcon('heroicon-o-lock-closed')
+            ->emptyStateHeading(__('resources/general/strings.empty_state.gated_heading'))
+            ->emptyStateDescription(__('resources/general/strings.empty_state.gated_description'));
+    }
+
     public static function showProformaInvoices(): TextColumn
     {
         return TextColumn::make('proformaInvoices')

@@ -1,0 +1,206 @@
+{
+  "purchase_request": {
+    "L01_list_search": { "result": "pass" },
+    "L02_filters": {
+      "result": "pass",
+      "note": "Filter modal now closes/fades on Apply.",
+      "scope": "app_wide",
+      "status": "fixed — confirmed directly by user 2026-09-22; app_wide_requests.filter_modal_close_on_apply resolved for at least this module"
+    },
+    "L03_sort_pagination": {
+      "result": "pass",
+      "note": "Sorting by Department or Cost Center crashed: SQLSTATE[42S22] Unknown column 'departments.localized_name' — localized_name is a PHP accessor, not a DB column.",
+      "scope": "purchase_request",
+      "status": "fixed — app/Filament/Resources/Operational/PurchaseRequestResource/Traits/Table.php, custom sortable() query added; caches cleared; confirmed by user"
+    },
+    "C01_create_happy_path": { "result": "pass" },
+    "C02_create_validation": { "result": "pass" },
+    "E01_edit_loads_relations": { "result": "pass" },
+    "I01_infolist_tabs": {
+      "result": "pass",
+      "note": "Infolist modal now has a fixed height, no longer shrinks with less data.",
+      "scope": "app_wide",
+      "status": "fixed — confirmed directly by user 2026-09-22; app_wide_requests.infolist_modal_fixed_height resolved for at least this module"
+    },
+    "A01_eav_custom_attributes": {
+      "result": "pass",
+      "note": "Default/empty value displayed literally as the text 'null'.",
+      "scope": "shared_trait",
+      "status": "fixed — app/Filament/Traits/HasExtraAttributesManagement.php, both the form repeater and infolist entry formatters; confirmed by user"
+    },
+    "P01_role_permissions": {
+      "result": "skipped_manual",
+      "note": "User trusts the automated PurchaseRequestResourceTest permission coverage instead of manual browser check.",
+      "status": "covered — test_full_permissions_allow_every_gated_action / test_no_permissions_denies_every_gated_action, both green"
+    },
+    "B01_bulk_actions": { "result": "pass" },
+    "X01_export": {
+      "result": "pass",
+      "note": "User reports purchase_request_items (nested/connected table) don't appear in the export.",
+      "scope": "purchase_request",
+      "status": "fixed — user confirmed item/product rows now appear in the export 2026-09-22"
+    },
+    "N01_badge_locale": { "result": "pass" },
+    "A01b_eav_search": {
+      "result": "pass",
+      "note": "Custom (extra) attributes are not searchable — neither by key nor by value.",
+      "scope": "shared_or_purchase_request",
+      "status": "fixed — user confirmed EAV search now works 2026-09-22"
+    }
+  },
+  "proforma_invoice": {
+    "_note": "CLOSED 2026-09-25 — user confirmed all prior open findings fixed via browser re-pass. ProformaInvoiceResourceTest.php green (39 passed, 1 pre-documented skip per testPattern.md §3d) covers P01 (full/no-permissions tests), A01b (EAV search tests), L02 (filter-indicator test), I01 (infolist entry tests), X01 (exporter item-row tests). B01 covered by the app_wide_bulk_action_order fix (ProformaInvoice was one of the 14 standardized resources).",
+    "L01_list_search": { "result": "pass" },
+    "L02_filters": { "result": "pass" },
+    "L03_sort_pagination": { "result": "pass" },
+    "C01_create_happy_path": { "result": "pass" },
+    "C02_create_validation": { "result": "pass" },
+    "E01_edit_loads_relations": { "result": "pass" },
+    "I01_infolist_tabs": { "result": "pass" },
+    "A01_eav_custom_attributes": { "result": "pass" },
+    "A01b_eav_search": { "result": "pass" },
+    "P01_role_permissions": { "result": "pass" },
+    "B01_bulk_actions": { "result": "pass" },
+    "X01_export": { "result": "pass" },
+    "N01_badge_locale": { "result": "pass" }
+  },
+  "registered_order": {
+    "_note": "First formal browser pass 2026-09-25. Caches were stale at the time of this pass (optimize:clear + filament:clear-cached-components run same session) — items matching an already-fixed PR/PI issue are noted as cache-suspected, pending user re-verification, not re-fixed blind.",
+    "L01_list_search": {
+      "result": "fail",
+      "note": "Custom (extra) attributes were not searchable in the table search.",
+      "scope": "registered_order",
+      "status": "fixed — app/Filament/Resources/Operational/RegisteredOrderResource/Traits/Table.php showRoNumber() wired to orWhereExtraAttributesMatch (mirrors purchase_request/proforma_invoice's existing pattern); RegisteredOrderResource::getGloballySearchableAttributes() also wrapped with withExtraAttributesSearch() for spotlight search. Covered by 2 new RegisteredOrderResourceTest tests, both green."
+    },
+    "L02_filters": { "result": "pass" },
+    "L03_sort_pagination": { "result": "pass" },
+    "C01_create_happy_path": { "result": "pass" },
+    "C02_create_validation": { "result": "pass" },
+    "E01_edit_loads_relations": { "result": "pass" },
+    "I01_infolist_tabs": { "result": "pass" },
+    "A01_eav_custom_attributes": {
+      "result": "fail",
+      "note": "Same finding as L01 — EAV attributes could be added but weren't searchable.",
+      "scope": "registered_order",
+      "status": "fixed — same fix as L01_list_search above"
+    },
+    "P01_role_permissions": { "result": "pass" },
+    "B01_bulk_actions": {
+      "result": "fail",
+      "note": "User wants the same bulk-actions/bulk-import mechanism Purchase Request and Proforma Invoice already have.",
+      "scope": "registered_order",
+      "status": "open — studied 2026-09-25 (see below), same underlying work as X01_export. Complex lane, needs a design decision before building: RO has two CodeGenerator-mapped identifier columns (ro_number + contract_no, vs PR/PI's one each) and its PR/PI/PO relations are belongsToMany pivots, not simple belongsTo FKs — the shared app/Services/Imports/ pipeline has no existing pivot-attach-on-import precedent to mirror. Awaiting user decision on how pivot rows should import before any code is written."
+    },
+    "X01_export": {
+      "result": "fail",
+      "note": "User wants the export to be \"super comprehensive,\" including the line items as real rows, not a single summarized column.",
+      "scope": "registered_order",
+      "status": "open — same root work as B01_bulk_actions. RO's current RegisteredOrderExporter is a Filament-native one-row-per-record Exporter with items packed into one text-blob ExportColumn; PR/PI's exporters are a plain write()-based parent-row-then-item-rows shape paired with their GroupedImportAction (see importsPattern.md). Adopting the shared pipeline for RO's bulk import would solve this export gap in the same piece of work — see B01_bulk_actions status."
+    },
+    "N01_badge_locale": { "result": "pass" },
+    "I02_ideation_pass": {
+      "result": "partial",
+      "note": "claude-ideator proposed 3 ranked ideas 2026-09-25: (1) validity-date-lapsed flag, (2) surface existing PI/PR/Shipment link counts, (3) wire up the orphaned Incoterms filter.",
+      "scope": "registered_order",
+      "status": "fixed — ideas 1 and 3 accepted and implemented: RegisteredOrderResource\\Traits\\Table::isValidityLapsed()/showValidityDate() added (mirrors ProformaInvoice's isQuoteStale(), keyed off purchase_orders_count), getIncotermsFilter() wired into the main table's ->filters([...]). 4 new RegisteredOrderResourceTest tests, all green. Idea 2 (link counts) not accepted/not built."
+    }
+  },
+  "bank_profile": {
+    "_note": "First formal browser pass 2026-09-26. Test-writing and ideation ran in parallel per the 3-lane cadence; several fixes below were built by parallel subagents and are pending this session's own final consolidated review pass before being treated as fully closed.",
+    "L01_list_search": {
+      "result": "fail",
+      "note": "Search is not working at all, let alone EAV.",
+      "scope": "bank_profile",
+      "status": "fixed — root cause was NOT the EAV wiring itself but a doubled closure in showStatus()'s search callback (`fn ($q) => fn ($q) => ...`) that silently no-op'd, which — because Filament wraps every globally-searchable column into one OR-group — made the status clause always-true and defeated search for every row in the table, not just the status column. Fixed at the one-line source (Traits/Table.php::showStatus()); the separate EAV crash (orWhereExtraAttributesMatch BadMethodCallException, see A01/E01 below) was a second, independent bug in the same area, also fixed. New regression test added (test_search_excludes_records_whose_status_does_not_match_the_term) that asserts exclusion, not just inclusion — the shape of test that would have caught the doubled-closure bug originally. New pitfall entry added to app/Filament/filamentPattern.md."
+    },
+    "L02_filters": {
+      "result": "fail",
+      "note": "Date filters should be one inline row (start/end side by side) instead of two stacked rows — not unique to this module, wants the same pattern app-wide via a shared trait/component.",
+      "scope": "app_wide",
+      "status": "fixed, pending independent review — see app_wide_requests.date_filter_inline_row"
+    },
+    "L03_sort_pagination": {
+      "result": "fail",
+      "note": "Product/Category sort does not work; targetable is polymorphic (can be either) so sort must work smartly across both.",
+      "scope": "bank_profile",
+      "status": "fixed — Traits/Table.php::sortByTargetableName(), a correlated scalar subquery per possible targetable_type branch (Product, Category) combined via COALESCE, sortable(query: ...) replacing the old opaque sort by targetable_type/targetable_id. Reviewed: mechanics verified sound (no row loss, correct correlation), and the reviewer proactively replaced an initial toRawSql()-string-interpolation with parameterized toSql()+bindings (no live exploit existed, but removed the unsafe precedent). New reference example added to filamentPattern.md's sortable-dot-path pitfall entry. User explicitly confirmed sort-by-name (not by the Product's displayed code prefix) is the desired behavior — no further change needed."
+    },
+    "C01_create_happy_path": { "result": "pass" },
+    "C02_create_validation": { "result": "pass" },
+    "E01_edit_loads_relations": {
+      "result": "fail",
+      "note": "Search inside RegisteredOrder's own BankProfiles RelationManager tab wasn't working.",
+      "scope": "shared_trait",
+      "status": "fixed — this was the EAV-search BadMethodCallException: BankProfileResource\\Traits\\Table (and 3 sibling resources' Table traits — ProformaInvoice, PurchaseRequest, RegisteredOrder) called static::orWhereExtraAttributesMatch(...), which resolves via late static binding to whatever class actually composes the trait — a RelationManager reusing the trait for column parity has no such method, only the parent Resource does (via HasExtraAttributesManagement). Fixed at the shared source in all 4 files: explicit ClassName::orWhereExtraAttributesMatch(...) instead of static::. Independently reviewed and confirmed correct across all 4 sites; 4 new regression tests added, all using genuine Livewire::test(RelationManagerClass)->searchTable(...) mounts."
+    },
+    "I01_infolist_tabs": { "result": "pass" },
+    "A01_eav_custom_attributes": {
+      "result": "fail",
+      "note": "Search must be added to both the resource's own table search and the app's global/dashboard search.",
+      "scope": "bank_profile",
+      "status": "fixed/verified — the table's own search is fixed (see L01). The app-wide paths were already correctly wired, not newly built: Filament's native global search via getGloballySearchableAttributes() (includes bp_number, order_number, and extra-attribute columns — covered by test_globally_searchable_attributes_include_extra_attribute_columns, green), and this app's custom spotlight/dashboard search via SearchService::PIPELINE (BankProfile is one of the 8 operational models) + BankProfile::scopeSearchAll() (app/Models/Traits/BankProfile/HasSearchableRelations.php — correctly qualifies every column, e.g. bank_profiles.bp_number, no ambiguous-column risk)."
+    },
+    "P01_role_permissions": {
+      "result": "skipped_manual",
+      "note": "Needs verification.",
+      "status": "covered — test_full_permissions_allow_every_gated_action / test_no_permissions_denies_every_gated_action, both green, same pattern as PR/PI/RO."
+    },
+    "B01_bulk_actions": {
+      "result": "fail",
+      "note": "Needs the same consistent shape as PI/RO/PR.",
+      "scope": "bank_profile",
+      "status": "fixed — bulk-action ordering (Export/Delete/Restore) was already standardized app-wide earlier this session (see app_wide_bulk_action_order); BankProfile's own ExportBulkAction now dispatches ExportBankProfiles matching the PI/RO/PR job shape, built by the import/export pipeline agent (see X01). Pending this session's independent review pass."
+    },
+    "X01_export": {
+      "result": "fail",
+      "note": "Needs the same consistent shape as PI/RO/PR.",
+      "scope": "bank_profile",
+      "status": "fixed, pending independent review — full flat (non-grouped, BankProfile has no child item table) import/export pipeline built: BankProfileImporter.php following the settled Match/Fallback/Optional/Manual-set column plan agreed with the user (registered_order_id strict-match/reject; company_id/bank_id/status_id/requested_currency_id/purchased_currency_id nullable+allowNullOnMismatch; requested_amount/purchased_equivalent/commission_rate fallback to 0; payment_due_date fallback to +2 weeks; bp_number optional+CodeGenerator fallback; notes optional), BankProfileExporter.php rewritten to the plain write()-based shape mirroring RegisteredOrderExporter, ExportBankProfiles job, filled-example CSV. Also fixed, as a byproduct: ~25+3 pre-existing missing resources/general/strings.import.*/export.* lang keys shared by the WHOLE import pipeline (PR/PI/RO too) — these were rendering as raw untranslated keys everywhere, a real gap an earlier review surfaced (28 test failures, 26 traced to this)."
+    },
+    "N01_badge_locale": {
+      "result": "fail",
+      "note": "Check the localized files for it.",
+      "scope": "bank_profile",
+      "status": "fixed, pending independent review — lang files touched extensively this session (see X01's lang-key fix); final confirmation via LangKeyIntegrityTest passing is part of the still-running import/export review."
+    },
+    "I02_ideation_pass": {
+      "result": "fixed",
+      "note": "claude-ideator proposed 3 ranked ideas 2026-09-25: (1) show core financial figures (requested amount/currency) in the table — currently zero money columns, deviates from PurchaseOrder's own showTotalAmount() convention; (2) overdue-commitment badge on payment_due_date/commitment_payment_date, mirroring RegisteredOrder's isValidityLapsed()/showValidityDate(); (3) flag over-drawn commitment (negative remaining_commitment) with a danger/gray/success color closure instead of an unconditional success color.",
+      "scope": "bank_profile",
+      "status": "user approved all 3 (no partial acceptance, unlike RO's 1-and-3-of-3) — implementation dispatched, pending completion + review."
+    }
+  },
+  "app_wide_requests": {
+    "date_filter_inline_row": {
+      "note": "Every resource's date-range filter — should be one inline row (start/end side by side) instead of two stacked DatePickers, via a shared component.",
+      "status": "fixed, pending independent review — App\\Filament\\Resources\\General\\FilterComponents::dateRangeFilter() added, retrofitted onto all 9 existing date-range filters across 8 resources (RegisteredOrder, PurchaseRequest, PurchaseOrder, Payment, BankProfile x2, Custom, Shipment x2, ProformaInvoice, Correspondence), using Filament's native Filter->columns(2) mechanism."
+    },
+    "filter_modal_close_on_apply": {
+      "note": "Every resource's table filter panel — should close/fade after Apply instead of staying open over the table.",
+      "status": "open — needs scope decision before building"
+    },
+    "infolist_modal_fixed_height": {
+      "note": "Every resource's infolist modal — fixed height so it doesn't visually shrink on records with less data.",
+      "status": "open — needs scope decision before building"
+    },
+    "bulk_import": {
+      "note": "New feature: a strictly-validated bulk import mechanism/service, app-wide, not resource-specific. Must cleanly reject corrupted/unnormalized/unvalidated rows rather than partially insert.",
+      "status": "open — Complex lane, needs a design pass before building"
+    }
+  },
+  "shipment": {
+    "_note": "Not yet through its own formal module audit pass — this single entry is from a client-reported claim investigated ad hoc, not a full 12-item checklist run.",
+    "commercial_invoice_pi_not_persisting": {
+      "result": "fixed",
+      "note": "Client reported: in the Logistics module (Shipment), the selected Proforma Invoice (پیش‌فاکتور) on the Commercial Invoice tab does not persist after saving.",
+      "scope": "shipment",
+      "status": "Root cause: the Commercial Invoice tab's fields are all ->dehydrated(false), and the tab had its OWN separate 'Save Invoice' footer action, entirely disconnected from the Shipment record's normal Save button — a user filling the tab then clicking the NORMAL Save button silently lost the selection. Fixed by moving Save/Download/Restore CI out of the schema-level footerActions() (app/Filament/Resources/Operational/ShipmentResource/Traits/InvoiceForm.php) and into EditShipment::getFormActions() (app/Filament/Resources/Operational/ShipmentResource/Pages/EditShipment.php), sitting directly beside — and preceding, for accent — the record's own Save/Cancel buttons, reading the page's live $this->data array instead of a schema Get closure. persistInvoiceToEav() signature changed from (Get $get, $record) to (array $formData, $record) to support this. All three CI actions are disabled via blank($this->data['_inv_pi_id'] ?? null) until a Proforma Invoice is actually selected. A third action, 'Restore CI', was added — reverts unsaved in-progress edits back to the last saved EAV state (or blanks the tab if nothing was ever saved) via a new shared EditShipment::hydrateInvoiceData() + $this->form->fill(). The 'Download CI' action's persist-then-open-PDF race (action + ->url()->openUrlInNewTab() could open the PDF before the AJAX save finished) was fixed by dropping ->url() and opening the tab via $this->js('window.open(...)') only after persistInvoiceToEav() completes. The Notes card was also relocated from the right column to the left column, directly under the Items/products section, per user request. Verified via tests/Feature/Filament/ShipmentResourceTest.php (5 passed, including a Livewire::test(...)->callAction(TestAction::make('saveInvoice')->schemaComponent('form-actions', 'content')) end-to-end action test — see testPattern.md §3e for why page-level getFormActions() actions need schemaComponent() targeting) and a claude-reviewer pass."
+    }
+  },
+  "app_wide_bulk_action_order": {
+    "result": "fixed",
+    "note": "User noticed Proforma Invoice and Purchase Request's bulk-action toolbar had different ordering (one led with Export, the other with Delete/Restore).",
+    "scope": "app_wide",
+    "status": "Standardized every resource's BulkActionGroup to lead with ExportBulkAction, followed by Activate/Deactivate (where present) then Delete/RestoreBulkAction — 14 resources touched: Category, Bank, BankProfile, Company, Payment, Custom, Product, PurchaseOrder, Currency, ProformaInvoice, Shipment, RegisteredOrder, Status, Target. PurchaseRequest already matched and was left unchanged. Row-level Actions::make([ViewAction, EditAction, DeleteAction, RestoreAction]) were audited app-wide and were already consistent everywhere — no changes needed there."
+  }
+}

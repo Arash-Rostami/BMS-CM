@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Master\RoleResource\Pages\ManageRoles;
 use App\Filament\Resources\Master\RoleResource\Traits\Filters as RoleFilters;
 use App\Filament\Resources\Master\RoleResource\Traits\Form as RoleForm;
@@ -31,7 +32,7 @@ class RoleResource extends Resource
 
     protected static string|null|\BackedEnum $navigationIcon = 'heroicon-o-finger-print';
 
-    protected static ?int $navigationSort = 9;
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {
@@ -42,11 +43,12 @@ class RoleResource extends Resource
                     static::getGradeSelect(),
                     static::getSelectAllToggle(),
                 ]),
-                Grid::make(4)->schema([
+                Grid::make(5)->schema([
                     static::getActionToggle('view'),
                     static::getActionToggle('create'),
                     static::getActionToggle('edit'),
                     static::getActionToggle('delete'),
+                    static::getActionToggle('restore'),
                 ]),
                 static::getModuleSelector(),
                 static::getPermissionSelector(),
@@ -100,7 +102,7 @@ class RoleResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showName(),
                 static::showPermissionsCount(),
@@ -134,6 +136,6 @@ class RoleResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

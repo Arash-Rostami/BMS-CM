@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Master\CategoryResource\Exports\CategoryExporter;
 use App\Filament\Resources\Master\CategoryResource\Pages\ManageCategories;
 use App\Filament\Resources\Master\CategoryResource\Traits\Filters as CategoryFilters;
@@ -148,7 +149,7 @@ class CategoryResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showName(),
                 static::showEnglishName(),
@@ -179,13 +180,13 @@ class CategoryResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(CategoryExporter::class),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()->exporter(CategoryExporter::class),
                 ]),
             ])
             ->striped()
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

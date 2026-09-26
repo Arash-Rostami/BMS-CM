@@ -4,11 +4,12 @@ namespace App\Filament\Resources\Operational\BankProfileResource\Pages;
 
 use App\Filament\Pages\CreateRecord;
 use App\Filament\Resources\BankProfileResource;
+use App\Filament\Resources\Operational\BankProfileResource\Traits\HandleStatusMutation;
 use App\Filament\Resources\Operational\BankProfileResource\Traits\PrepareBankProfileFromRegisteredOrder;
 
 class CreateBankProfile extends CreateRecord
 {
-    use PrepareBankProfileFromRegisteredOrder;
+    use HandleStatusMutation, PrepareBankProfileFromRegisteredOrder;
 
     protected static string $resource = BankProfileResource::class;
 
@@ -28,6 +29,8 @@ class CreateBankProfile extends CreateRecord
         }
         unset($data['commission_input_mode']);
 
-        return $data;
+        $data = BankProfileResource::applyInitialStatusOnCreate($data);
+
+        return $this->mutateStatusData($data);
     }
 }

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('proforma_invoices', function (Blueprint $table) {
             $table->id();
-            $table->string('invoice_no')->unique();
+            $table->string('invoice_no');
             $table->date('invoice_date');
             $table->string('contract_no')->nullable();
             $table->string('buyer_comm_card_num')->nullable();
@@ -20,18 +20,16 @@ return new class extends Migration
             $table->string('beneficiary_country')->nullable();
             $table->string('origin_country')->nullable();
             $table->string('destination_country')->nullable();
-            $table->boolean('allow_trans_shipment')->default(false);
-            $table->boolean('allow_partial_shipment')->default(false);
             $table->string('transport_mode')->nullable();
             $table->string('port_of_discharge')->nullable();
             $table->string('port_of_loading')->nullable();
             $table->string('delivery_terms')->nullable();
             $table->foreignId('main_currency_id')->constrained('currencies');
             $table->foreignId('secondary_currency_id')->nullable()->constrained('currencies');
-            $table->decimal('discount', 15, 5)->nullable();
-            $table->decimal('freight_charges', 15, 5)->nullable();
-            $table->decimal('other_charges', 15, 5)->nullable()->comment('Additional miscellaneous charges');
-            $table->decimal('total_amount', 15, 5)->nullable();
+            $table->decimal('discount', 65, 5)->nullable();
+            $table->decimal('freight_charges', 65, 5)->nullable();
+            $table->decimal('other_charges', 65, 5)->nullable()->comment('Additional miscellaneous charges');
+            $table->decimal('total_amount', 65, 5)->nullable();
             $table->text('notes')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('updated_by_id')->nullable();
@@ -43,6 +41,7 @@ return new class extends Migration
             $table->index(['seller_id', 'deleted_at']);
             $table->index('user_id', 'idx_pi_user_id');
             $table->index('updated_by_id', 'idx_pi_updated_by_id');
+            $table->index(['deleted_at', 'created_at'], 'idx_pi_deleted_created');
         });
     }
 

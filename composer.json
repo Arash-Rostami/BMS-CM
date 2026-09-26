@@ -22,6 +22,7 @@
         "mokhosh/filament-jalali": "^5.0",
         "morilog/jalali": "^3.4",
         "mpdf/mpdf": "^8.3",
+        "openspout/openspout": "^4.28",
         "spatie/laravel-permission": "^6.24",
         "ysfkaya/filament-phone-input": "^4.0"
     },

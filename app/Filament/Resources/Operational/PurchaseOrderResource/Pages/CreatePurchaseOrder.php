@@ -30,4 +30,13 @@ class CreatePurchaseOrder extends CreateRecord
             self::afterFillFromProformaInvoice();
         }
     }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data = PurchaseOrderResource::applyInitialStatusOnCreate($data);
+
+        PurchaseOrderResource::assertStatusTransitionAllowed(null, 'status_id', $data['status_id'] ?? null);
+
+        return $data;
+    }
 }

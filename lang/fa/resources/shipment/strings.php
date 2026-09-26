@@ -160,7 +160,7 @@ return [
         'tab_documents' => 'پیوستها',
     ],
     'invoice' => [
-        'tab_label' => 'فاکتور کالا',
+        'tab_label' => 'فاکتور کالا و پکینگ لیست',
         'section_pi_selector' => 'بارگذاری از پیش‌فاکتور',
         'section_parties' => 'طرفین و مشخصات فاکتور',
         'section_shipment' => 'حمل‌ونقل و شرایط تجاری',
@@ -210,9 +210,12 @@ return [
         'notes' => 'توضیحات / یادداشت',
         'action_save' => 'ذخیره فاکتور',
         'action_save_tooltip' => 'اطلاعات فاکتور برای دسترسی بعدی ذخیره می‌شود.',
-        'action_print' => 'دانلود PDF',
+        'action_print' => 'دانلود فاکتور',
         'action_print_tooltip' => 'ذخیره و دانلود فاکتور تجاری به فرمت PDF.',
         'saved_notification' => 'فاکتور با موفقیت ذخیره شد.',
         'no_record_notification' => 'لطفاً ابتدا محموله را ذخیره کنید.',
+        'action_reset' => 'بازیابی فاکتور',
+        'action_reset_tooltip' => 'تغییرات ذخیره‌نشده را لغو کرده و به آخرین نسخهٔ ذخیره‌شدهٔ فاکتور بازمی‌گردد.',
+        'reset_notification' => 'فاکتور به آخرین وضعیت ذخیره‌شده بازنشانی شد.',
     ],
 ];

@@ -2,17 +2,22 @@
 
 namespace App\Filament\Resources\Operational\ProformaInvoiceResource\RelationManagers;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrderExporter;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Filters as PurchaseOrderFilters;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as PurchaseOrderTable;
 use App\Filament\Resources\PurchaseOrderResource;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DetachAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -22,9 +27,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrdersRelationManager extends RelationManager
 {
+    use HandlesActionExceptions;
     use PurchaseOrderFilters, PurchaseOrderTable;
 
     protected static string $relationship = 'purchaseOrders';
+
+    protected static ?string $relatedResource = PurchaseOrderResource::class;
 
     public static function getModelLabel(): string
     {
@@ -48,7 +56,8 @@ class PurchaseOrdersRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(PurchaseOrderResource::eagerRelations())->withCount('proformaInvoices')->withCount('purchaseRequests')->withCount('registeredOrders'))
             ->recordTitleAttribute('formatted_name')
             ->columns([
                 static::showID(),
@@ -77,6 +86,7 @@ class PurchaseOrdersRelationManager extends RelationManager
             ->headerActions([
                 Action::make('create')
                     ->label(__('resources/general/strings.actions.add_record'))
+                    ->tooltip(__('resources/general/strings.actions.add_record_tooltip'))
                     ->url(fn (): string => PurchaseOrderResource::getUrl('create', ['proforma_invoice_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
@@ -86,10 +96,13 @@ class PurchaseOrdersRelationManager extends RelationManager
                         ->url(fn ($record) => PurchaseOrderResource::getUrl('edit', ['record' => $record])),
                     DetachAction::make(),
                     DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(PurchaseOrderExporter::class),
                 ]),
@@ -104,6 +117,6 @@ class PurchaseOrdersRelationManager extends RelationManager
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('purchase_orders.id', 'desc');
+            ->defaultSort('purchase_orders.id', 'desc'));
     }
 }

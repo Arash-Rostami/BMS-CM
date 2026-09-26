@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\SellerEntity;
+use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
+use App\Models\Traits\RegisteredOrder\HasComputedAttributes;
 use App\Models\Traits\RegisteredOrder\HasFormattedName;
 use App\Models\Traits\RegisteredOrder\HasSearchableRelations;
 use App\Models\Traits\RegisteredOrder\Relationships as ExclusiveRelationships;
@@ -16,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class RegisteredOrder extends Model
 {
     use ExclusiveRelationships,
+        HasComputedAttributes,
         HasCustomAttributes,
         HasFactory,
         HasFormattedName,
@@ -23,6 +26,7 @@ class RegisteredOrder extends Model
         Relationships,
         SellerEntity,
         SoftDeletes,
+        TracksStatusHistory,
         UserStamps;
 
     public const SCANNABLE_TABLE = 'registered_orders';
@@ -30,6 +34,8 @@ class RegisteredOrder extends Model
     public const SCANNABLE_IDENTIFIER = 'ro_number';
 
     public const TYPE_REGISTERED_ORDER = 'Registered Order Status';
+
+    protected $appends = ['total_amount', 'total_quantity'];
 
     protected $fillable = [
         'ro_number',

@@ -23,7 +23,7 @@ trait Infolist
     {
         return TextEntry::make('created_at')
             ->label(__('resources/user/strings.table.created_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray')
             ->placeholder('-');
     }
@@ -69,7 +69,7 @@ trait Infolist
     {
         return TextEntry::make('last_log_in')
             ->label(__('resources/user/strings.form.last_log_in'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray')
             ->icon('heroicon-m-arrow-right-end-on-rectangle')
             ->placeholder('-');
@@ -79,7 +79,7 @@ trait Infolist
     {
         return TextEntry::make('last_log_out')
             ->label(__('resources/user/strings.form.last_log_out'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray')
             ->icon('heroicon-m-arrow-left-start-on-rectangle')
             ->placeholder('-');
@@ -138,7 +138,7 @@ trait Infolist
     {
         return TextEntry::make('updated_at')
             ->label(__('resources/user/strings.table.updated_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray')
             ->placeholder('-');
     }

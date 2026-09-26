@@ -9,6 +9,7 @@ use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasProductCategoryFormatting;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\SearchTargetable;
+use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +26,7 @@ class BankProfile extends Model
         Relationships,
         searchTargetable,
         SoftDeletes,
+        TracksStatusHistory,
         UserStamps;
 
     public const TYPE_BANK_PROFILE = 'Bank Profile Status';

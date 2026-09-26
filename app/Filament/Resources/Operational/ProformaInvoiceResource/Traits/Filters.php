@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Operational\ProformaInvoiceResource\Traits;
 
-use Filament\Forms\Components\DatePicker;
+use App\Filament\Resources\General\FilterComponents;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -53,28 +53,35 @@ trait Filters
 
     public static function getInvoiceDateFilter(): Filter
     {
-        return Filter::make('invoice_date')
-            ->schema([
-                DatePicker::make('invoice_date_from')
-                    ->label(__('resources/proformaInvoice/strings.filters.invoice_date_from'))
-                    ->adaptive()
-                    ->native(false),
-                DatePicker::make('invoice_date_until')
-                    ->label(__('resources/proformaInvoice/strings.filters.invoice_date_until'))
-                    ->adaptive()
-                    ->native(false),
-            ])
-            ->query(function (Builder $query, array $data): Builder {
-                return $query
-                    ->when(
-                        $data['invoice_date_from'],
-                        fn (Builder $query, $date): Builder => $query->whereDate('invoice_date', '>=', $date),
-                    )
-                    ->when(
-                        $data['invoice_date_until'],
-                        fn (Builder $query, $date): Builder => $query->whereDate('invoice_date', '<=', $date),
-                    );
+        return FilterComponents::dateRangeFilter(
+            'invoice_date',
+            'invoice_date',
+            'invoice_date_from',
+            'invoice_date_until',
+            __('resources/proformaInvoice/strings.filters.invoice_date_from'),
+            __('resources/proformaInvoice/strings.filters.invoice_date_until'),
+        )
+            ->indicateUsing(function (array $data): array {
+                $indicators = [];
+
+                if ($data['invoice_date_from'] ?? null) {
+                    $indicators[] = __('resources/proformaInvoice/strings.filters.invoice_date_from').': '.adaptiveDate($data['invoice_date_from']);
+                }
+
+                if ($data['invoice_date_until'] ?? null) {
+                    $indicators[] = __('resources/proformaInvoice/strings.filters.invoice_date_until').': '.adaptiveDate($data['invoice_date_until']);
+                }
+
+                return $indicators;
             });
+    }
+
+    public static function getNeedsConversionFilter(): Filter
+    {
+        return Filter::make('needs_conversion')
+            ->label(__('resources/proformaInvoice/strings.filters.needs_conversion'))
+            ->query(fn (Builder $query): Builder => $query->doesntHave('registeredOrders'))
+            ->toggle();
     }
 
     public static function getMainCurrencyFilter(): SelectFilter

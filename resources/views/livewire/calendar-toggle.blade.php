@@ -4,7 +4,7 @@
     $padding = app()->getLocale() === 'fa' ? 'bottom-[12px]' : 'bottom-[10px]';
 @endphp
 
-<div class="flex shrink-0 items-center">
+<div class="flex shrink-0 items-center" style="order: 9">
     <x-icon-button
         wire:click="toggle"
         wire:loading.attr="disabled"

@@ -16,14 +16,14 @@ return new class extends Migration
             $table->string('slug')->nullable();
             $table->json('attributes')->nullable();
             $table->text('description')->nullable()->comment('Description of the product');
-            $table->string('code')->unique()->comment('Unique product code');
+            $table->string('code')->comment('Unique product code');
 
             $table->boolean('in_stock')->default(true);
             $table->boolean('is_active')->default(true)->comment('true = active, false = inactive');
 
             $table->foreignId('user_id')->nullable();
             $table->foreignId('updated_by_id')->nullable();
-            $table->foreignId('category_id')->nullable();
+            $table->foreignId('category_id')->nullable()->constrained('categories');
 
             $table->softDeletes();
             $table->timestamps();

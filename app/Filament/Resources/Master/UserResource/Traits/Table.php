@@ -112,7 +112,7 @@ trait Table
     {
         return TextColumn::make('last_log_in')
             ->label(__('resources/user/strings.table.last_log_in'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->formatStateUsing(fn ($state) => $state->diffForHumans())
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
@@ -122,7 +122,7 @@ trait Table
     {
         return TextColumn::make('last_log_out')
             ->label(__('resources/user/strings.table.last_log_out'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->formatStateUsing(fn ($state) => $state->diffForHumans())
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
@@ -132,7 +132,7 @@ trait Table
     {
         return TextColumn::make('deleted_at')
             ->label(__('resources/user/strings.table.deleted_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -141,7 +141,7 @@ trait Table
     {
         return TextColumn::make('created_at')
             ->label(__('resources/user/strings.table.created_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -150,7 +150,7 @@ trait Table
     {
         return TextColumn::make('updated_at')
             ->label(__('resources/user/strings.table.updated_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

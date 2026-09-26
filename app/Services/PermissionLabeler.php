@@ -19,6 +19,10 @@ class PermissionLabeler
 
     public static function getLabel(string $permissionName): string
     {
+        if (str_starts_with($permissionName, 'status.grant_')) {
+            return self::getStatusGrantLabel($permissionName);
+        }
+
         [$module, $action] = self::parsePermissionName($permissionName);
 
         if ($action === '') {
@@ -54,6 +58,20 @@ class PermissionLabeler
             })
             ->sort(SORT_NATURAL | SORT_FLAG_CASE)
             ->all();
+    }
+
+    private static function getStatusGrantLabel(string $permissionName): string
+    {
+        $status = \App\Models\Status::where('approval_permission', $permissionName)->first();
+
+        if (! $status) {
+            return __('resources/general/strings.actions.grant').': '.self::prettifyModuleName(Str::after($permissionName, 'status.grant_'));
+        }
+
+        $statusLabel = $status->getLocalizedNameAttribute();
+        $categoryLabel = app()->getLocale() === 'fa' ? $status->type : $status->english_type;
+
+        return __('resources/general/strings.actions.grant')." {$statusLabel} ({$categoryLabel})";
     }
 
     private static function getActionLabel(string $action): string

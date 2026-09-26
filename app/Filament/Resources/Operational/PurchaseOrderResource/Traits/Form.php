@@ -264,7 +264,7 @@ trait Form
             ->label(__('resources/purchaseOrder/strings.form.po_number'))
             ->required()
             ->readOnly()
-            ->unique(ignoreRecord: true)
+            ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->maxLength(255)
             ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('po_number') : null)
             ->helperText(__('resources/purchaseOrder/strings.form.helper_po_number'))
@@ -398,21 +398,16 @@ trait Form
 
     public static function getStatusField(): Select
     {
-        return Select::make('status_id')
+        return static::getStatusWorkflowField('status_id', fn (Select $field) => $field
             ->label(__('resources/purchaseOrder/strings.form.status'))
-            ->relationship(
-                name: 'status',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-            )
-            ->default(fn ($operation): ?int => $operation === 'create' ? Status::findBy('Purchase Order Status', 'Submitted')?->id : null)
             ->searchable()
             ->preload()
-            ->required()
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.status'))
-            ->helperText(__('resources/purchaseOrder/strings.form.helper_status'));
+            ->helperText(fn (?Model $record) => static::statusWorkflowLockedHelperText('status_id', $record)
+                ?? __('resources/purchaseOrder/strings.form.helper_status')), null, fn () => Status::findBy(static::statusWorkflowType(), 'Submitted')?->id);
     }
 
     public static function getTotalAmountField(): TextEntry

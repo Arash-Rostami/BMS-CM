@@ -4,9 +4,11 @@ namespace App\Filament\Resources\General;
 
 use App\Rules\ValidAttachment;
 use App\Services\FileUploadManager;
+use App\Services\StatusWorkflow;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 
 class FormComponents
@@ -23,10 +25,15 @@ class FormComponents
             ->live()
             ->columnSpanFull()
             ->downloadable()
+            ->deletable(fn (?Model $record): bool => ! ($record?->status && StatusWorkflow::isTerminal($record->status)))
             ->hintIconTooltip(fn ($record) => $record?->attachments()->latest('id')->implode('name', "\n") ?? '')
             ->rules([new ValidAttachment])
             ->acceptedFileTypes(ValidAttachment::ALLOWED_TYPES)
             ->maxSize(ValidAttachment::MAX_SIZE_KB)
+            ->validationMessages([
+                'max' => __('resources/general/strings.attachments.validation.attachments_size'),
+                'mimetypes' => __('resources/general/strings.attachments.validation.attachments_type'),
+            ])
             ->validationAttribute(__('resources/general/strings.attachments.attachments'))
             ->saveUploadedFileUsing(static function (UploadedFile $file, $state) {
                 return app(FileUploadManager::class)->storeTemporary($file);

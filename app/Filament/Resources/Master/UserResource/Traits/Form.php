@@ -9,6 +9,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -35,7 +36,11 @@ trait Form
             ->label(__('resources/user/strings.form.department'))
             ->relationship(
                 name: 'department',
-                titleAttribute: fn () => app()->getLocale() === 'fa' ? ('name' ?? 'english_name') : 'english_name')
+                titleAttribute: fn () => app()->getLocale() === 'fa' ? ('name' ?? 'english_name') : 'english_name',
+                modifyQueryUsing: fn (Builder $query, ?Model $record) => $query->where(fn ($q) => $q
+                    ->active()
+                    ->when($record?->department_id, fn ($q) => $q->orWhere('id', $record->department_id))),
+            )
             ->nullable()
             ->searchable()
             ->preload()
@@ -49,7 +54,7 @@ trait Form
             ->email()
             ->required()
             ->maxLength(255)
-            ->unique(ignoreRecord: true)
+            ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->validationAttribute(__('resources/user/strings.form.email'))
             ->validationMessages([
                 'email' => __('resources/user/strings.form.validation_email_email'),
@@ -170,7 +175,7 @@ trait Form
     {
         return PhoneInput::make('phone')
             ->label(__('resources/user/strings.form.phone'))
-            ->unique(ignoreRecord: true)
+            ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->ipLookup(fn () => rescue(fn () => Http::get('http://ip-api.com/json/')->json('country'), null, report: false))
             ->defaultCountry('IR')
             ->showFlags(true)

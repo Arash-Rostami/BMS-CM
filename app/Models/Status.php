@@ -32,6 +32,8 @@ class Status extends Model
         'english_type',
         'name',
         'english_name',
+        'stage_order',
+        'approval_permission',
         'user_id',
         'updated_by_id',
     ];

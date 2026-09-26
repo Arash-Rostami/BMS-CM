@@ -2,17 +2,18 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\RelationManagers;
 
-use App\Filament\Resources\Operational\RegisteredOrderResource\Exports\RegisteredOrderExporter;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Filters as RegisteredOrderFilters;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Table as RegisteredOrderTable;
 use App\Filament\Resources\RegisteredOrderResource;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DetachAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -24,9 +25,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class RegisteredOrdersRelationManager extends RelationManager
 {
+    use HandlesActionExceptions;
     use RegisteredOrderFilters, RegisteredOrderTable;
 
     protected static string $relationship = 'registeredOrders';
+
+    protected static ?string $relatedResource = RegisteredOrderResource::class;
 
     public static function getModelLabel(): string
     {
@@ -50,7 +54,8 @@ class RegisteredOrdersRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return TableComponents::gatedEmptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(RegisteredOrderResource::eagerRelations()))
             ->columns([
                 static::showId(),
                 static::showRoNumber(),
@@ -75,12 +80,15 @@ class RegisteredOrdersRelationManager extends RelationManager
             ->headerActions([
                 Action::make('create')
                     ->label(__('resources/general/strings.actions.add_record'))
+                    ->tooltip(__('resources/general/strings.actions.add_record_tooltip'))
+                    ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Approved']))
                     ->url(fn (): string => RegisteredOrderResource::getUrl('create', ['purchase_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
+                    DetachAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),
                 ]),
@@ -89,8 +97,7 @@ class RegisteredOrdersRelationManager extends RelationManager
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(RegisteredOrderExporter::class),
+                    RegisteredOrderResource::getExportBulkAction(),
                 ]),
             ])
             ->groups([
@@ -109,6 +116,6 @@ class RegisteredOrdersRelationManager extends RelationManager
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('registered_orders.id', 'desc');
+            ->defaultSort('registered_orders.id', 'desc'));
     }
 }

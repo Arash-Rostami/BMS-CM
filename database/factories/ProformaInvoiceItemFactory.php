@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Product;
 use App\Models\ProformaInvoice;
-use App\Models\ProformaInvoiceItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

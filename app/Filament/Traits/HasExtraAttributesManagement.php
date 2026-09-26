@@ -12,6 +12,18 @@ use Filament\Schemas\Components\Tabs\Tab;
 
 trait HasExtraAttributesManagement
 {
+    public static function withExtraAttributesSearch(array $ownAttributes): array
+    {
+        return [...$ownAttributes, 'extraAttributes.key', 'extraAttributes.value'];
+    }
+
+    public static function orWhereExtraAttributesMatch(\Illuminate\Database\Eloquent\Builder $query, string $search): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->orWhereHas('extraAttributes', fn ($q) => $q
+            ->where('key', 'like', "%{$search}%")
+            ->orWhere('value', 'like', "%{$search}%"));
+    }
+
     public static function getExtraAttributesFormTab(): Tab
     {
         return Tab::make(__('resources/entityAttribute/strings.general.plural_model_label'))
@@ -51,7 +63,11 @@ trait HasExtraAttributesManagement
                                 ->icon('heroicon-m-key'),
                             TextEntry::make('value')
                                 ->label(__('resources/general/strings.extra_attributes.value'))
-                                ->formatStateUsing(fn ($state): string => is_string($state) ? $state : json_encode($state, JSON_UNESCAPED_UNICODE))
+                                ->formatStateUsing(fn ($state): string => match (true) {
+                                    is_string($state) => $state,
+                                    is_null($state) => '',
+                                    default => json_encode($state, JSON_UNESCAPED_UNICODE),
+                                })
                                 ->icon('heroicon-m-document-text')
                                 ->placeholder('-'),
                         ])
@@ -69,16 +85,42 @@ trait HasExtraAttributesManagement
                 TextInput::make('key')
                     ->label(__('resources/general/strings.extra_attributes.key'))
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->validationMessages([
+                        'required' => __('resources/general/strings.extra_attributes.validation_key_required'),
+                        'max' => __('resources/general/strings.extra_attributes.validation_key_max'),
+                    ]),
                 Textarea::make('value')
                     ->label(__('resources/general/strings.extra_attributes.value'))
                     ->required()
+                    ->validationMessages([
+                        'required' => __('resources/general/strings.extra_attributes.validation_value_required'),
+                    ])
                     ->rows(2)
-                    ->formatStateUsing(fn ($state): string => is_string($state) ? $state : json_encode($state, JSON_UNESCAPED_UNICODE)),
+                    ->formatStateUsing(fn ($state): string => match (true) {
+                        is_string($state) => $state,
+                        is_null($state) => '',
+                        default => json_encode($state, JSON_UNESCAPED_UNICODE),
+                    }),
             ])
             ->columns(2)
             ->defaultItems(0)
             ->addActionLabel(__('resources/general/strings.extra_attributes.add_action'))
-            ->reorderableWithButtons();
+            ->reorderableWithButtons()
+            ->saveRelationshipsUsing(function (Repeater $component): void {
+                $record = $component->getRecord();
+
+                $keyValueMap = [];
+
+                foreach ($component->getItems() as $item) {
+                    $itemData = $item->getState(shouldCallHooksBefore: false);
+
+                    if (filled($itemData['key'] ?? null)) {
+                        $keyValueMap[$itemData['key']] = $itemData['value'] ?? null;
+                    }
+                }
+
+                $record->syncCustomAttributes($keyValueMap);
+            });
     }
 }

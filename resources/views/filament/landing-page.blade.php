@@ -83,6 +83,17 @@
                     @livewire('landing-page.search', ['isRtl' => $isRtl])
                 </div>
 
+                <div x-show="activeTab === 'features'"
+                     x-transition:enter="transition-opacity duration-150 ease-in"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition-opacity duration-100 ease-out"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     x-cloak>
+                    @livewire('landing-page.features', ['isRtl' => $isRtl])
+                </div>
+
             </div>
         </div>
     </div>

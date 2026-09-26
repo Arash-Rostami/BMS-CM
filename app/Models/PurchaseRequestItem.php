@@ -13,7 +13,7 @@ class PurchaseRequestItem extends Model
 
     public const TYPE_PURCHASE_REQUEST = 'Purchase Item Status';
 
-    protected $table = 'purchase_items';
+    protected $table = 'purchase_request_items';
 
     protected $fillable = [
         'purchase_request_id',

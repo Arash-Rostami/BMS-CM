@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Department;
-use App\Models\PurchaseRequest;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,7 +19,7 @@ class PurchaseRequestFactory extends Factory
             'requester_id' => User::factory(),
             'department_id' => Department::factory(),
             'cost_center_id' => null,
-            'required_by_date' => fake()->dateTimeBetween('now', '+30 days'),
+            'required_by_date' => fake()->dateTimeBetween('+1 day', '+30 days'),
             'total_estimated_cost' => fake()->randomFloat(2, 100, 100000),
             'urgency_level' => fake()->randomElement(['low', 'medium', 'high']),
             'status_id' => Status::factory(),

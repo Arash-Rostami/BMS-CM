@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Master\StatusResource\Exports\StatusExporter;
 use App\Filament\Resources\Master\StatusResource\Pages\ManageStatuses;
 use App\Filament\Resources\Master\StatusResource\Traits\Filters as StatusFilters;
@@ -21,6 +22,8 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -41,19 +44,31 @@ class StatusResource extends Resource
     {
         return $schema
             ->components([
-                Section::make()
-                    ->schema([
-                        static::getType(),
-                        static::getCustomType(),
-                        static::getTypeCustomField(),
-                        static::getEnglishType(),
-                        static::getCustomEnglishType(),
-                        static::getEnglishTypeCustomField(),
-                        static::getName(),
-                        static::getEnglishName(),
+                Tabs::make('Status')
+                    ->tabs([
+                        Tab::make(__('resources/status/strings.form.tab_general'))
+                            ->icon('heroicon-o-tag')
+                            ->schema([
+                                static::getType(),
+                                static::getCustomType(),
+                                static::getTypeCustomField(),
+                                static::getEnglishType(),
+                                static::getCustomEnglishType(),
+                                static::getEnglishTypeCustomField(),
+                                static::getName(),
+                                static::getEnglishName(),
+                            ])
+                            ->columns(2),
+                        Tab::make(__('resources/status/strings.form.tab_approval_workflow'))
+                            ->icon('heroicon-o-shield-check')
+                            ->schema([
+                                static::getStageOrderField(),
+                                static::getRequiresApprovalField(),
+                                static::getApprovalUsersField(),
+                            ])
+                            ->columns(2),
                     ])
-                    ->columnSpanFull()
-                    ->columns(2),
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -122,6 +137,9 @@ class StatusResource extends Resource
                         static::viewEnglishType(),
                         static::viewName(),
                         static::viewEnglishName(),
+                        static::viewStageOrder(),
+                        static::viewApprovalGate(),
+                        static::viewApprovalUsers(),
                         static::viewCreator(),
                         static::viewUpdater(),
                         static::viewCreatedAt(),
@@ -134,12 +152,14 @@ class StatusResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showType(),
                 static::showEnglishType(),
                 static::showName(),
                 static::showEnglishName(),
+                static::showStageOrder(),
+                static::showApprovalGate(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
@@ -154,21 +174,23 @@ class StatusResource extends Resource
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
+                    EditAction::make()
+                        ->mutateDataUsing(fn (array $data, ?Status $record): array => static::processApprovalWorkflow($data, $record))
+                        ->after(fn (array $data) => static::syncApprovalUsers($data)),
                     DeleteAction::make(),
                     RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(StatusExporter::class),
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ])
             ->striped()
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

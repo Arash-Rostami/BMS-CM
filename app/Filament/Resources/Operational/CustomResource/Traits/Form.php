@@ -4,7 +4,9 @@ namespace App\Filament\Resources\Operational\CustomResource\Traits;
 
 use App\Models\Custom;
 use App\Models\Shipment;
+use App\Models\Status;
 use App\Services\CodeGenerator;
+use App\Services\StatusWorkflow;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -15,17 +17,51 @@ use Illuminate\Database\Eloquent\Model;
 
 trait Form
 {
-    public static function getBankGuaranteeStatusField(): Select
+    protected static function getWorkflowStatusField(string $column, string $relation, string $type, string $label): Select
     {
-        return Select::make('bank_guarantee_status_id')
-            ->label(__('resources/custom/strings.form.bank_guarantee_status'))
+        return Select::make($column)
+            ->label($label)
             ->relationship(
-                name: 'bankGuaranteeStatus',
+                name: $relation,
                 titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', Custom::TYPE_BANK_GUARANTEE_STATUS)
+                modifyQueryUsing: fn ($query, ?Model $record) => $query->whereIn('id', static::availableWorkflowStatusIds($type, $relation, $record)),
             )
+            ->default(fn ($operation): ?int => $operation === 'create' ? StatusWorkflow::initialFor($type)?->id : null)
+            ->live()
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->getLocalizedNameAttribute() ?? '--')
+            ->disableOptionWhen(fn ($value, ?Model $record): bool => ! ($target = Status::find($value))
+                || ! StatusWorkflow::canSet(auth()->user(), $target, $record?->{$relation}))
             ->searchable()
             ->preload();
+    }
+
+    protected static function availableWorkflowStatusIds(string $type, string $relation, ?Model $record): array
+    {
+        $current = $record?->{$relation};
+        $ids = collect();
+
+        if ($current) {
+            $ids->push($current->id);
+            $ids->push(StatusWorkflow::nextFor($current)?->id);
+        } else {
+            $ids->push(StatusWorkflow::initialFor($type)?->id);
+        }
+
+        return $ids->merge(Status::where('english_type', $type)->whereNull('stage_order')->pluck('id'))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    public static function getBankGuaranteeStatusField(): Select
+    {
+        return static::getWorkflowStatusField(
+            'bank_guarantee_status_id',
+            'bankGuaranteeStatus',
+            Custom::TYPE_BANK_GUARANTEE_STATUS,
+            __('resources/custom/strings.form.bank_guarantee_status')
+        );
     }
 
     public static function getClearanceDateField()
@@ -42,15 +78,12 @@ trait Form
 
     public static function getClearanceStatusField(): Select
     {
-        return Select::make('clearance_status_id')
-            ->label(__('resources/custom/strings.form.clearance_status'))
-            ->relationship(
-                name: 'clearanceStatus',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', Custom::TYPE_CLEARANCE_STATUS)
-            )
-            ->searchable()
-            ->preload();
+        return static::getWorkflowStatusField(
+            'clearance_status_id',
+            'clearanceStatus',
+            Custom::TYPE_CLEARANCE_STATUS,
+            __('resources/custom/strings.form.clearance_status')
+        );
     }
 
     public static function getClearanceTypeField(): Select
@@ -81,15 +114,12 @@ trait Form
 
     public static function getCommitmentStatusField(): Select
     {
-        return Select::make('commitment_status_id')
-            ->label(__('resources/custom/strings.form.commitment_status'))
-            ->relationship(
-                name: 'commitmentStatus',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', Custom::TYPE_COMMITMENT_STATUS)
-            )
-            ->searchable()
-            ->preload();
+        return static::getWorkflowStatusField(
+            'commitment_status_id',
+            'commitmentStatus',
+            Custom::TYPE_COMMITMENT_STATUS,
+            __('resources/custom/strings.form.commitment_status')
+        );
     }
 
     public static function getContractNoField(): TextInput
@@ -112,7 +142,7 @@ trait Form
             ->helperText(__('resources/custom/strings.form.helper_custom_no'))
             ->required()
             ->readOnly()
-            ->unique(ignoreRecord: true)
+            ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('custom_no') : null)
             ->validationAttribute(__('resources/custom/strings.form.custom_no'))
             ->validationMessages([

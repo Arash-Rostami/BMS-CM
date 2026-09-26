@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\BankProfile;
 use App\Models\Company;
 use App\Models\Currency;
 use App\Models\RegisteredOrder;

@@ -43,7 +43,7 @@ trait Form
             ->required()
             ->maxLength(255)
             ->rule('regex:/^[A-Za-z\s\p{P}\d\*]+$/')
-            ->unique(column: 'english_name', ignoreRecord: true)
+            ->unique(column: 'english_name', ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->placeholder(__('resources/company/strings.form.english_name_placeholder'))
             ->validationMessages([
                 'required' => __('resources/company/strings.form.validation_english_name_required'),
@@ -75,7 +75,7 @@ trait Form
             ->required()
             ->maxLength(255)
             ->rule('regex:/^[\x{0600}-\x{06FF}\s\p{P}\d\*]+$/u')
-            ->unique(column: 'name', ignoreRecord: true)
+            ->unique(column: 'name', ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->placeholder(__('resources/company/strings.form.name_placeholder'))
             ->validationMessages([
                 'required' => __('resources/company/strings.form.validation_name_required'),

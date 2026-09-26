@@ -13,8 +13,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bank extends Model
 {
-    use HasNameSearch,
-        HasFactory,
+    use HasFactory,
+        HasNameSearch,
         HasScope,
         Localization,
         Relationships,

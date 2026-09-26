@@ -5,6 +5,10 @@ const ACCENT_MAP = {
     red:    { border: 'border-red-200 dark:border-red-500/30', bg: 'bg-red-50 dark:bg-red-500/10', text: 'text-red-700 dark:text-red-400' },
 };
 
+const EVENT_AUDIO = 'lp-audio-play';
+const SRC_WORKFLOW = 'workflow';
+const MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
 export default function workflow(groups) {
     return {
         groups,
@@ -19,39 +23,68 @@ export default function workflow(groups) {
         rotateInterval: null,
         accentMap: ACCENT_MAP,
 
+        _audioHandler: null,
+
         init() {
             this.flattenTips();
+
             this._audioHandler = (e) => {
-                if (e.detail.source !== 'workflow' && this.playing) this.stopAudio();
+                if (e.detail.source !== SRC_WORKFLOW && this.playing) this.stopAudio();
             };
-            window.addEventListener('lp-audio-play', this._audioHandler);
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) this.startRotate();
+
+            window.addEventListener(EVENT_AUDIO, this._audioHandler);
+
+            if (!window.matchMedia(MOTION_QUERY).matches) {
+                this.startRotate();
+            }
         },
 
         destroy() {
             clearInterval(this.rotateInterval);
-            if (this._audioHandler) window.removeEventListener('lp-audio-play', this._audioHandler);
+            if (this._audioHandler) window.removeEventListener(EVENT_AUDIO, this._audioHandler);
             this.stopAudio();
         },
 
         flattenTips() {
-            this.tips = (this.groups || []).flatMap(g => (g.tips || []).map(t => ({tip: t, accent: g.accent, title: g.title, key: g.key, route: g.route, group: g})));
+            const result = [];
+            const grps = this.groups || [];
+            const len = grps.length;
+
+            for (let i = 0; i < len; i++) {
+                const g = grps[i];
+                const gTips = g.tips || [];
+                const tLen = gTips.length;
+
+                for (let j = 0; j < tLen; j++) {
+                    result.push({
+                        tip: gTips[j],
+                        accent: g.accent,
+                        title: g.title,
+                        key: g.key,
+                        route: g.route,
+                        group: g
+                    });
+                }
+            }
+            this.tips = result;
         },
 
         startRotate() {
             this.rotateInterval = setInterval(() => {
-                if (!this.tips.length || this.textOpen || this.videoOpen || this.playing || this.paused) return;
-                this.rotateIdx = (this.rotateIdx + 1) % this.tips.length;
+                const len = this.tips.length;
+                if (len === 0 || this.textOpen || this.videoOpen || this.playing || this.paused) return;
+                this.rotateIdx = (this.rotateIdx + 1) % len;
             }, 7000);
         },
 
         nextTip() {
-            if (!this.tips.length) return;
-            this.rotateIdx = (this.rotateIdx + 1) % this.tips.length;
+            const len = this.tips.length;
+            if (len === 0) return;
+            this.rotateIdx = (this.rotateIdx + 1) % len;
         },
 
         setTip(i) {
-            if (this.tips[i]) this.rotateIdx = i;
+            if (i >= 0 && i < this.tips.length) this.rotateIdx = i;
         },
 
         togglePause() {
@@ -86,22 +119,33 @@ export default function workflow(groups) {
         },
 
         playPause(group) {
-            if (this.playing && this.selected?.key === group.key) {
+            if (this.playing && this.selected?.key === group?.key) {
                 this.stopAudio();
                 return;
             }
+
             this.stopAudio();
+
             if (!group?.audio) return;
-            window.dispatchEvent(new CustomEvent('lp-audio-play', {detail: {source: 'workflow'}}));
+
+            window.dispatchEvent(new CustomEvent(EVENT_AUDIO, { detail: { source: SRC_WORKFLOW } }));
+
             this.audio = new Audio(group.audio);
             this.selected = group;
-            this.audio.play().then(() => {this.playing = true;}).catch(() => {});
-            this.audio.onended = () => {this.playing = false;};
+
+            this.audio.play().then(() => {
+                this.playing = true;
+            }).catch(() => {});
+
+            this.audio.onended = () => {
+                this.playing = false;
+            };
         },
 
         stopAudio() {
             if (this.audio) {
                 this.audio.pause();
+                this.audio.src = '';
                 this.audio = null;
             }
             this.playing = false;

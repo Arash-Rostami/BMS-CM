@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Master\EntityAttributeResource\Pages\ManageEntityAttributes;
 use App\Filament\Resources\Master\EntityAttributeResource\Traits\Filters as EntityAttributeFilters;
 use App\Filament\Resources\Master\EntityAttributeResource\Traits\Infolist as EntityAttributeInfolist;
@@ -80,7 +81,7 @@ class EntityAttributeResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showEntityType(),
                 static::showEntityId(),
@@ -113,6 +114,6 @@ class EntityAttributeResource extends Resource
             ])
             ->striped()
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

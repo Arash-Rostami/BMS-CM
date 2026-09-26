@@ -14,6 +14,7 @@ class ListProformaInvoices extends ListRecords
     {
         return [
             ...array_filter([ProformaInvoiceResource::getDeskReferenceHeaderAction()]),
+            ProformaInvoiceResource::getImportAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
         ];

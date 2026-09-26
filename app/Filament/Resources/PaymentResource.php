@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\FormComponents;
+use App\Filament\Resources\General\InfoComponents;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\PaymentResource\Exports\PaymentExporter;
 use App\Filament\Resources\Operational\PaymentResource\Pages\CreatePayment;
 use App\Filament\Resources\Operational\PaymentResource\Pages\EditPayment;
@@ -17,6 +19,7 @@ use App\Filament\Resources\Operational\PaymentResource\Traits\VisibilityCheck;
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\BankProfile;
 use App\Models\Payment;
 use App\Models\PurchaseOrder;
@@ -48,7 +51,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PaymentResource extends Resource
 {
-    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, PaymentFilters, PaymentForm, PaymentInfolist, PaymentTable, VisibilityCheck;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow, PaymentFilters, PaymentForm, PaymentInfolist, PaymentTable, VisibilityCheck;
 
     protected static ?string $model = Payment::class;
 
@@ -57,6 +60,11 @@ class PaymentResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Operational';
 
     protected static ?int $navigationSort = 2;
+
+    public static function statusWorkflowType(): string
+    {
+        return Payment::TYPE_PAYMENT;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -150,24 +158,29 @@ class PaymentResource extends Resource
             ]);
     }
 
+    public static function eagerRelations(): array
+    {
+        return [
+            'creator',
+            'updater',
+            'attachments',
+            'extraAttributes',
+            'payor',
+            'payee',
+            'currency',
+            'targetable' => fn (MorphTo $morphTo) => $morphTo->morphWith([
+                PurchaseOrder::class,
+                RegisteredOrder::class,
+                BankProfile::class,
+            ]),
+            'status',
+        ];
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with([
-                'creator',
-                'updater',
-                'attachments',
-                'extraAttributes',
-                'payor',
-                'payee',
-                'currency',
-                'targetable' => fn (MorphTo $morphTo) => $morphTo->morphWith([
-                    PurchaseOrder::class,
-                    RegisteredOrder::class,
-                    BankProfile::class,
-                ]),
-                'status',
-            ])
+            ->with(static::eagerRelations())
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
@@ -293,6 +306,7 @@ class PaymentResource extends Resource
                             $record?->attachments->count() ?? 0,
                             'info'
                         )),
+                    InfoComponents::getStatusHistoryTab(),
                     static::getExtraAttributesInfolistTab(),
                 ])->columnSpanFull(),
             ]);
@@ -300,7 +314,7 @@ class PaymentResource extends Resource
 
     public static function table(FilamentTable $table): FilamentTable
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showTargetable(),
                 static::showId(),
@@ -315,6 +329,7 @@ class PaymentResource extends Resource
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
+                static::getStatusWorkflowProgressColumn(),
 
             ])
             ->filters([
@@ -338,10 +353,10 @@ class PaymentResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(PaymentExporter::class),
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ])
             ->groups([
@@ -367,6 +382,6 @@ class PaymentResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

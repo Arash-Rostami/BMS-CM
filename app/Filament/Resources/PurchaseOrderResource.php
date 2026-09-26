@@ -21,10 +21,13 @@ use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\TotalCalcula
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\PurchaseOrder;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
@@ -48,7 +51,7 @@ use UnitEnum;
 
 class PurchaseOrderResource extends Resource
 {
-    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, PurchaseOrderFilters, PurchaseOrderForm, PurchaseOrderInfolist, PurchaseOrderTable, TotalCalculation;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow, PurchaseOrderFilters, PurchaseOrderForm, PurchaseOrderInfolist, PurchaseOrderTable, TotalCalculation;
 
     protected static ?string $model = PurchaseOrder::class;
 
@@ -57,6 +60,11 @@ class PurchaseOrderResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'Operational';
 
     protected static ?int $navigationSort = 1;
+
+    public static function statusWorkflowType(): string
+    {
+        return PurchaseOrder::TYPE_PURCHASE_ORDER;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -136,27 +144,32 @@ class PurchaseOrderResource extends Resource
             ]);
     }
 
+    public static function eagerRelations(): array
+    {
+        return [
+            'creator',
+            'updater',
+            'attachments',
+            'extraAttributes',
+            'currency',
+            'items',
+            'items.product',
+            'proformaInvoices',
+            'purchaseRequests',
+            'registeredOrders',
+            'status',
+            'buyerCompany',
+            'sellerCompany',
+            'sellerCompanyExclusive',
+            'supplierCompanyExclusive',
+            'manufacturerCompanyExclusive',
+        ];
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with([
-                'creator',
-                'updater',
-                'attachments',
-                'extraAttributes',
-                'currency',
-                'items',
-                'items.product',
-                'proformaInvoices',
-                'purchaseRequests',
-                'registeredOrders',
-                'status',
-                'buyerCompany',
-                'sellerCompany',
-                'sellerCompanyExclusive',
-                'supplierCompanyExclusive',
-                'manufacturerCompanyExclusive',
-            ])
+            ->with(static::eagerRelations())
             ->withCount([
                 'proformaInvoices',
                 'registeredOrders',
@@ -282,6 +295,7 @@ class PurchaseOrderResource extends Resource
                         $record?->attachments->count() ?? 0,
                         'info'
                     )),
+                InfoComponents::getStatusHistoryTab(),
                 static::getExtraAttributesInfolistTab(),
             ])->columnSpanFull(),
         ]);
@@ -289,7 +303,7 @@ class PurchaseOrderResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showSource(),
                 static::showID(),
@@ -306,6 +320,7 @@ class PurchaseOrderResource extends Resource
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
+                static::getStatusWorkflowProgressColumn(),
             ])
             ->filters([
                 static::getSellerFilter(),
@@ -322,14 +337,16 @@ class PurchaseOrderResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
+                    DeleteAction::make(),
                     RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(PurchaseOrderExporter::class),
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ])
             ->groups([
@@ -350,6 +367,6 @@ class PurchaseOrderResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('purchase_orders.id', 'desc');
+            ->defaultSort('purchase_orders.id', 'desc'));
     }
 }

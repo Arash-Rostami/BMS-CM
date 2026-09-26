@@ -6,6 +6,7 @@ return [
         'plural_model_label' => 'Correspondences',
         'create_new' => '˙⋆✮ Compose',
         'reply' => 'Reply',
+        'unresolved_cc_warning' => 'Some CC names could not be matched to a user and were skipped: :names',
     ],
     'enums' => [
         'type' => [
@@ -77,6 +78,10 @@ return [
         'created_until' => 'Created Until',
         'unread' => 'Unread (My Inbox)',
     ],
+    'bulk' => [
+        'mark_as_read' => 'Mark as Read',
+        'mark_as_read_notification' => 'Selected correspondence marked as read.',
+    ],
     'infolist' => [
         'tab_general' => 'Message Details',
         'tab_recipients' => 'Recipients',
@@ -92,6 +97,7 @@ return [
         'unread_label' => 'Unread',
     ],
     'export' => [
+        'export_correspondences' => 'Export Correspondence',
         'id' => 'ID',
         'subject' => 'Subject',
         'type' => 'Type',
@@ -100,11 +106,20 @@ return [
         'is_internal' => 'Internal Note',
         'is_private' => 'Private (Restricted)',
         'body' => 'Message Body',
+        'related_to' => 'Related To',
+        'related_module' => 'Related Module',
+        'thread_role' => 'Thread Role',
+        'thread_role_root' => 'Root',
+        'thread_role_reply' => 'Reply',
+        'parent_subject' => 'Reply To Subject',
         'recipients' => 'Recipients',
         'recipient_to' => 'To',
         'recipient_cc' => 'CC',
         'creator' => 'Creator',
+        'updater' => 'Updater',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
+        'yes' => 'Yes',
+        'no' => 'No',
     ],
 ];

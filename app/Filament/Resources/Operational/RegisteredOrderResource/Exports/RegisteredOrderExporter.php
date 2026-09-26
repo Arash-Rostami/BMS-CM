@@ -2,88 +2,123 @@
 
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\Exports;
 
-use App\Filament\Traits\ExportDefaults;
+use App\Filament\Resources\Operational\RegisteredOrderResource\Imports\RegisteredOrderImporter;
 use App\Models\RegisteredOrder;
-use Filament\Actions\Exports\ExportColumn;
-use Filament\Actions\Exports\Exporter;
-use Filament\Actions\Exports\Models\Export;
+use App\Models\RegisteredOrderItem;
+use Illuminate\Database\Eloquent\Builder;
+use League\Csv\Writer;
 
-class RegisteredOrderExporter extends Exporter
+class RegisteredOrderExporter
 {
-    use ExportDefaults;
-
-    protected static ?string $model = RegisteredOrder::class;
-
-    protected static function eagerLoadRelations(): array
+    /**
+     * @return int the number of physical rows written (parents + items)
+     */
+    public static function write(Builder $query, string $absolutePath): int
     {
-        return ['sellerCompany', 'buyerCompany', 'status', 'currency', 'items.product'];
+        $labels = RegisteredOrderImporter::columnLabels();
+
+        $records = $query
+            ->with(['sellerCompany', 'buyerCompany', 'status', 'currency', 'purchaseRequests', 'proformaInvoices', 'purchaseOrders', 'items.product'])
+            ->orderBy('id')
+            ->lazy();
+
+        $stream = fopen($absolutePath, 'w+');
+
+        fwrite($stream, "\xEF\xBB\xBF");
+
+        $csv = Writer::from($stream);
+        $csv->insertOne(array_values($labels));
+
+        $rows = 0;
+
+        foreach ($records as $record) {
+            $csv->insertOne(static::parentRow($record, $labels));
+            $rows++;
+
+            foreach ($record->items as $item) {
+                $csv->insertOne(static::itemRow($item, $labels));
+                $rows++;
+            }
+        }
+
+        fclose($stream);
+
+        return $rows;
     }
 
-    public static function getColumns(): array
+    /**
+     * @param  array<string, string>  $labels
+     * @return array<int, string>
+     */
+    protected static function parentRow(RegisteredOrder $record, array $labels): array
     {
-        return [
-            ExportColumn::make('id')->label(__('resources/registeredOrder/strings.export.id')),
-            ExportColumn::make('ro_number')->label(__('resources/registeredOrder/strings.export.ro_number')),
-            ExportColumn::make('contract_no')->label(__('resources/registeredOrder/strings.export.contract_no')),
-            ExportColumn::make('official_registration_no')->label(__('resources/registeredOrder/strings.export.official_registration_no')),
-            ExportColumn::make('sellerCompany.name')->label(__('resources/registeredOrder/strings.export.seller')),
-            ExportColumn::make('sellerCompany.english_name')->label(__('resources/registeredOrder/strings.export.seller_english')),
-            ExportColumn::make('buyerCompany.name')->label(__('resources/registeredOrder/strings.export.buyer')),
-            ExportColumn::make('buyerCompany.english_name')->label(__('resources/registeredOrder/strings.export.buyer_english')),
-            ExportColumn::make('status.name')->label(__('resources/registeredOrder/strings.export.status')),
-            ExportColumn::make('status.english_name')->label(__('resources/registeredOrder/strings.export.status_english')),
-            ExportColumn::make('order_date')->label(__('resources/registeredOrder/strings.export.order_date')),
-            ExportColumn::make('validity_date')->label(__('resources/registeredOrder/strings.export.validity_date')),
-            ExportColumn::make('expected_delivery_date')->label(__('resources/registeredOrder/strings.export.expected_delivery_date')),
-            ExportColumn::make('incoterms')->label(__('resources/registeredOrder/strings.export.incoterms')),
-            ExportColumn::make('currency.name')->label(__('resources/registeredOrder/strings.export.currency')),
-            ExportColumn::make('currency.english_name')->label(__('resources/registeredOrder/strings.export.currency_english')),
-            ExportColumn::make('currency_type')->label(__('resources/registeredOrder/strings.export.currency_type')),
-            ExportColumn::make('insurance_number')->label(__('resources/registeredOrder/strings.export.insurance_number')),
-            ExportColumn::make('insurance_provider')->label(__('resources/registeredOrder/strings.export.insurance_provider')),
-            ExportColumn::make('insurance_date')->label(__('resources/registeredOrder/strings.export.insurance_date')),
-            ExportColumn::make('notes')->label(__('resources/registeredOrder/strings.export.notes')),
-            ExportColumn::make('items')
-                ->label(__('resources/registeredOrder/strings.export.line_items'))
-                ->state(function (RegisteredOrder $record): string {
-                    return $record->items->map(function ($item) {
-                        $product = $item->product?->getLocalizedNameAttribute() ?? 'N/A';
-                        $quantity = is_numeric($item->quantity) ? preciseNumber($item->quantity) : ($item->quantity ?? 0);
-                        $unit = $item->unit ?? '';
-                        $unitPrice = is_numeric($item->unit_price) ? preciseNumber($item->unit_price) : '0';
-                        $netWeight = is_numeric($item->net_weight) ? preciseNumber($item->net_weight) : ($item->net_weight ?? '');
-                        $grossWeight = is_numeric($item->gross_weight) ? preciseNumber($item->gross_weight) : ($item->gross_weight ?? '');
-                        $entrance = is_numeric($item->entrance_fee) ? preciseNumber($item->entrance_fee) : '0';
-                        $shipping = is_numeric($item->shipping_cost) ? preciseNumber($item->shipping_cost) : '0';
-                        $extra = is_numeric($item->extra_cost) ? preciseNumber($item->extra_cost) : '0';
-                        $line = is_numeric($item->line_total) ? preciseNumber($item->line_total) : '0';
-                        $packing = $item->packing_details ? str_replace(["\r\n", "\n"], ' ', $item->packing_details) : '';
-                        $desc = $item->description ? str_replace(["\r\n", "\n"], ' ', $item->description) : '';
+        $values = array_fill_keys(array_keys($labels), '');
 
-                        return implode(' | ', array_filter([
-                            __('resources/registeredOrder/strings.export.item_product').": {$product}",
-                            __('resources/registeredOrder/strings.export.item_quantity').": {$quantity} {$unit}",
-                            __('resources/registeredOrder/strings.export.item_unit_price').": {$unitPrice}",
-                            $netWeight !== '' ? __('resources/registeredOrder/strings.export.item_net_weight').": {$netWeight}" : null,
-                            $grossWeight !== '' ? __('resources/registeredOrder/strings.export.item_gross_weight').": {$grossWeight}" : null,
-                            __('resources/registeredOrder/strings.export.item_entrance_fee').": {$entrance}",
-                            __('resources/registeredOrder/strings.export.item_shipping_cost').": {$shipping}",
-                            __('resources/registeredOrder/strings.export.item_extra_cost').": {$extra}",
-                            __('resources/registeredOrder/strings.export.item_line_total').": {$line}",
-                            $packing ? __('resources/registeredOrder/strings.export.item_packing').": {$packing}" : null,
-                            $desc ? __('resources/registeredOrder/strings.export.item_description').": {$desc}" : null,
-                        ]));
-                    })->implode("\n");
-                }),
-            ExportColumn::make('creator.name')->label(__('resources/registeredOrder/strings.export.creator')),
-            ExportColumn::make('updater.name')->label(__('resources/registeredOrder/strings.export.updater')),
-            ExportColumn::make('created_at')->label(__('resources/registeredOrder/strings.export.created_at')),
-            ExportColumn::make('updated_at')->label(__('resources/registeredOrder/strings.export.updated_at')),
-        ];
+        $values['ro_number'] = (string) $record->ro_number;
+        $values['contract_no'] = static::escapeCsvFormula((string) ($record->contract_no ?? ''));
+        $values['official_registration_no'] = static::escapeCsvFormula((string) ($record->official_registration_no ?? ''));
+        $values['seller_id'] = $record->sellerCompany?->getLocalizedNameAttribute() ?? '';
+        $values['buyer_id'] = $record->buyerCompany?->getLocalizedNameAttribute() ?? '';
+        $values['status_id'] = $record->status?->getLocalizedNameAttribute() ?? '';
+        $values['order_date'] = static::jalaliDate($record->order_date);
+        $values['validity_date'] = static::jalaliDate($record->validity_date);
+        $values['expected_delivery_date'] = static::jalaliDate($record->expected_delivery_date);
+        $values['incoterms'] = (string) ($record->incoterms ?? '');
+        $values['currency_id'] = $record->currency?->getLocalizedNameAttribute() ?? '';
+        $values['currency_type'] = (string) ($record->currency_type ?? '');
+        $values['insurance_number'] = static::escapeCsvFormula((string) ($record->insurance_number ?? ''));
+        $values['insurance_provider'] = static::escapeCsvFormula((string) ($record->insurance_provider ?? ''));
+        $values['insurance_date'] = static::jalaliDate($record->insurance_date);
+        $values['notes'] = static::plainText($record->notes);
+        $values['pr_numbers'] = $record->purchaseRequests->pluck('pr_number')->implode(',');
+        $values['invoice_nos'] = $record->proformaInvoices->pluck('invoice_no')->implode(',');
+        $values['po_numbers'] = $record->purchaseOrders->pluck('po_number')->implode(',');
+
+        return array_values($values);
     }
 
-    public function getFileName(Export $export): string
+    /**
+     * @param  array<string, string>  $labels
+     * @return array<int, string>
+     */
+    protected static function itemRow(RegisteredOrderItem $item, array $labels): array
     {
-        return "RegisteredOrders-{$export->getKey()}";
+        $values = array_fill_keys(array_keys($labels), '');
+
+        $values['product_id'] = $item->product?->getLocalizedNameAttribute() ?? '';
+        $values['quantity'] = static::numberValue($item->quantity);
+        $values['unit'] = (string) ($item->unit ?? '');
+        $values['unit_price'] = static::numberValue($item->unit_price);
+        $values['net_weight'] = static::numberValue($item->net_weight);
+        $values['gross_weight'] = static::numberValue($item->gross_weight);
+        $values['entrance_fee'] = static::numberValue($item->entrance_fee);
+        $values['shipping_cost'] = static::numberValue($item->shipping_cost);
+        $values['extra_cost'] = static::numberValue($item->extra_cost);
+        $values['packing_details'] = static::plainText($item->packing_details);
+        $values['description'] = static::plainText($item->description);
+
+        return array_values($values);
+    }
+
+    protected static function numberValue(mixed $value): string
+    {
+        return $value === null ? '' : (string) $value;
+    }
+
+    protected static function plainText(mixed $value): string
+    {
+        $text = trim(html_entity_decode(strip_tags((string) ($value ?? '')), ENT_QUOTES));
+
+        return static::escapeCsvFormula($text);
+    }
+
+    protected static function escapeCsvFormula(string $value): string
+    {
+        return preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
+    }
+
+    protected static function jalaliDate(mixed $date): string
+    {
+        return $date ? jdate($date)->format('Y-m-d') : '';
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers;
 
 use App\Filament\Resources\CustomResource;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\CustomResource\Exports\CustomExporter;
 use App\Filament\Resources\Operational\CustomResource\Traits\Filters as CustomFilters;
 use App\Filament\Resources\Operational\CustomResource\Traits\Table as CustomTable;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -13,6 +15,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
+use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
@@ -24,8 +27,11 @@ use Illuminate\Database\Eloquent\Model;
 class CustomsRelationManager extends RelationManager
 {
     use CustomFilters, CustomTable;
+    use HandlesActionExceptions;
 
     protected static string $relationship = 'customs';
+
+    protected static ?string $relatedResource = CustomResource::class;
 
     public static function getModelLabel(): string
     {
@@ -49,7 +55,8 @@ class CustomsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return TableComponents::gatedEmptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(CustomResource::eagerRelations()))
             ->recordTitleAttribute('declaration_no')
             ->columns([
                 static::showShipment(),
@@ -77,6 +84,8 @@ class CustomsRelationManager extends RelationManager
             ->headerActions([
                 Action::make('create')
                     ->label(__('resources/general/strings.actions.add_record'))
+                    ->tooltip(__('resources/general/strings.actions.add_record_tooltip'))
+                    ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Submitted']))
                     ->modalWidth('md')
                     ->schema([
                         Select::make('shipment_id')
@@ -95,8 +104,6 @@ class CustomsRelationManager extends RelationManager
                                 'required' => __('resources/custom/strings.form.validation_required'),
                             ]),
                     ])
-                    ->modalSubmitActionLabel('✔')
-                    ->modalCancelActionLabel('✘')
                     ->action(fn (array $data) => redirect(CustomResource::getUrl('create', ['shipment_id' => $data['shipment_id']]))),
             ])
             ->recordActions([
@@ -105,6 +112,7 @@ class CustomsRelationManager extends RelationManager
                     EditAction::make()
                         ->url(fn ($record) => CustomResource::getUrl('edit', ['record' => $record])),
                     DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
@@ -117,6 +125,6 @@ class CustomsRelationManager extends RelationManager
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

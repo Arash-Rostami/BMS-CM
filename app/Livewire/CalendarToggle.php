@@ -11,7 +11,7 @@ class CalendarToggle extends Component
 
     public function mount(): void
     {
-        $this->isJalali = session('calendar_type', app()->isLocale('fa') ? 'jalali' : 'gregorian') === 'jalali';
+        $this->isJalali = isJalaliCalendar();
     }
 
     public function toggle(): void

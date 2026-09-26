@@ -15,9 +15,17 @@ class EditPayment extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            PaymentResource::getStatusWorkflowPipelineAction(),
             ViewAction::make(),
             DeleteAction::make(),
             RestoreAction::make(),
         ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        PaymentResource::assertStatusTransitionAllowed($this->getRecord(), 'status_id', $data['status_id'] ?? null);
+
+        return $data;
     }
 }

@@ -2,11 +2,11 @@
 
 return [
     'navigation_group' => [
-        'base' => '【#】 Master Data Management',
-        'operational_first' => '【1】 Purchase Requests Management',
-        'operational_second' => '【2】 Order Registration Files',
-        'operational_third' => '【3】 Files Financial Management',
-        'operational_fourth' => '【4】 Logistics & Clearance',
+        'base' => '【#】 Master Data',
+        'operational_first' => '【1】 PR Mangs.',
+        'operational_second' => '【2】 RO Mangs.',
+        'operational_third' => '【3】 Fin. Mangs',
+        'operational_fourth' => '【4】 Logs Mangs',
     ],
     'widgets' => [
         'tabs' => [
@@ -107,7 +107,7 @@ return [
             'pipeline_stalls' => [
                 'what' => "Specific records that are overdue against their own target date and haven't moved forward — a list, not a chart.",
                 'data' => 'Purchase Requests, Registered Orders, Payments, and Shipments, each compared against its own deadline or target-date column.',
-                'why' => "The \"what needs attention today\" list, ranked by days overdue.",
+                'why' => 'The "what needs attention today" list, ranked by days overdue.',
                 'technical' => 'Four queries unioned: purchase_requests (approval_date IS NULL AND required_by_date < CURDATE()); registered_orders (expected_delivery_date < CURDATE() and no matching shipments.registered_order_id); payments (payment_date IS NULL AND payment_deadline < CURDATE()); shipments (exit_date IS NULL AND eta < CURDATE()). Each computes DATEDIFF(CURDATE(), target_date); combined result ORDER BY that value DESC LIMIT 15.',
             ],
         ],

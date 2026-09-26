@@ -3,14 +3,13 @@
 namespace App\Filament\Resources\Operational\ShipmentResource\RelationManagers;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\RegisteredOrderResource\Exports\RegisteredOrderExporter;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Filters as RegisteredOrderFilters;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Table as RegisteredOrderTable;
 use App\Filament\Resources\RegisteredOrderResource;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -19,9 +18,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class RegisteredOrderRelationManager extends RelationManager
 {
+    use HandlesActionExceptions;
     use RegisteredOrderFilters, RegisteredOrderTable;
 
     protected static string $relationship = 'registeredOrder';
+
+    protected static ?string $relatedResource = RegisteredOrderResource::class;
 
     public static function getModelLabel(): string
     {
@@ -45,7 +47,8 @@ class RegisteredOrderRelationManager extends RelationManager
 
     public function table(FilamentTable $table): FilamentTable
     {
-        return $table
+        return TableComponents::emptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(RegisteredOrderResource::eagerRelations())->withCount('purchaseOrders')->withCount('proformaInvoices')->withCount('purchaseRequests'))
             ->columns([
                 static::showSource(),
                 static::showId(),
@@ -83,16 +86,13 @@ class RegisteredOrderRelationManager extends RelationManager
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    BulkActionGroup::make([
-                        ExportBulkAction::make()
-                            ->exporter(RegisteredOrderExporter::class),
-                    ]),
+                    RegisteredOrderResource::getExportBulkAction(),
                 ]),
             ])
             ->striped()
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

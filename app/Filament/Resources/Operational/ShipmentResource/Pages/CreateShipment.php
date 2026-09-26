@@ -7,6 +7,7 @@ use App\Filament\Resources\Operational\ShipmentResource\Traits\HandlesDocumentCh
 use App\Filament\Resources\Operational\ShipmentResource\Traits\PrepareShipmentFromRegisteredOrder;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\SyncsDocumentChecklist;
 use App\Filament\Resources\ShipmentResource;
+use App\Models\Shipment;
 
 class CreateShipment extends CreateRecord
 {
@@ -19,5 +20,15 @@ class CreateShipment extends CreateRecord
         if (request()->has('registered_order_id')) {
             self::afterFillFromRegisteredOrder();
         }
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data = ShipmentResource::applyInitialStatusOnCreate($data, 'status_id', Shipment::TYPE_SHIPMENT_STATUS);
+        $data = ShipmentResource::applyInitialStatusOnCreate($data, 'container_status_id', Shipment::TYPE_CONTAINER_STATUS);
+        $data = ShipmentResource::applyInitialStatusOnCreate($data, 'operation_status_id', Shipment::TYPE_OPERATION_STATUS);
+        $data = ShipmentResource::applyInitialStatusOnCreate($data, 'shipment_status_id', Shipment::TYPE_TRACKING_STATUS);
+
+        return ShipmentResource::applyInitialStatusOnCreate($data, 'doc_status_id', Shipment::TYPE_DOC_STATUS);
     }
 }

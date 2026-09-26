@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class DeskReference extends Model
 {
     use HasFactory;
+
     protected $fillable = ['user_id', 'group_key', 'version', 'acknowledged_at'];
 
     protected $casts = ['acknowledged_at' => 'datetime'];

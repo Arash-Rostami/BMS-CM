@@ -14,6 +14,8 @@ class ListBankProfiles extends ListRecords
     {
         return [
             ...array_filter([BankProfileResource::getDeskReferenceHeaderAction()]),
+            BankProfileResource::getStatusWorkflowPipelineAction(),
+            BankProfileResource::getImportAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
         ];

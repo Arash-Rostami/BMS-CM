@@ -44,7 +44,7 @@ trait Infolist
     {
         return TextEntry::make('created_at')
             ->label(__('resources/correspondence/strings.infolist.created_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray')
             ->placeholder('-');
     }
@@ -133,7 +133,7 @@ trait Infolist
     {
         return TextEntry::make('updated_at')
             ->label(__('resources/correspondence/strings.infolist.updated_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray')
             ->placeholder('-');
     }

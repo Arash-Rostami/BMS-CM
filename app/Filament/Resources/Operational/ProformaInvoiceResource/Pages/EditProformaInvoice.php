@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Operational\ProformaInvoiceResource\Pages;
 use App\Filament\Pages\EditRecord;
 use App\Filament\Resources\ProformaInvoiceResource;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
 
 class EditProformaInvoice extends EditRecord
 {
@@ -14,6 +15,7 @@ class EditProformaInvoice extends EditRecord
     {
         return [
             DeleteAction::make(),
+            RestoreAction::make(),
         ];
     }
 }

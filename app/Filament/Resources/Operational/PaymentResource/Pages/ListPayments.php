@@ -14,6 +14,7 @@ class ListPayments extends ListRecords
     {
         return [
             ...array_filter([PaymentResource::getDeskReferenceHeaderAction()]),
+            PaymentResource::getStatusWorkflowPipelineAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
 

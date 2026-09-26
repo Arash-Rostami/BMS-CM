@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\EntityAttribute;
 use App\Models\Model;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

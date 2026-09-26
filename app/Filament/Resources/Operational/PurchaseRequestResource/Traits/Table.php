@@ -2,20 +2,66 @@
 
 namespace App\Filament\Resources\Operational\PurchaseRequestResource\Traits;
 
+use App\Filament\Actions\GroupedImportAction;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Enums\Source;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Enums\Status;
+use App\Filament\Resources\Operational\PurchaseRequestResource\Imports\PurchaseRequestImporter;
+use App\Filament\Resources\PurchaseRequestResource;
+use App\Jobs\ExportPurchaseRequests;
+use App\Models\Department;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getImportAction(): GroupedImportAction
+    {
+        return GroupedImportAction::make('importPurchaseRequests')
+            ->label(__('resources/purchaseRequest/strings.import.import_requests'))
+            ->modalHeading(__('resources/purchaseRequest/strings.import.import_requests'))
+            ->icon('heroicon-o-arrow-up-tray')
+            ->importer(PurchaseRequestImporter::class)
+            ->resourceGate(PurchaseRequestResource::class)
+            ->itemDiscriminatorColumn('product_id')
+            ->itemOnlyColumns(['quantity', 'unit', 'estimated_cost', 'item_status_id', 'item_notes']);
+    }
+
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportPurchaseRequests')
+            ->label(__('resources/purchaseRequest/strings.export.export_requests'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => PurchaseRequestResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportPurchaseRequests::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
+    private static function sortByRelatedDepartmentName(string $foreignKey): \Closure
+    {
+        return fn (Builder $query, string $direction): Builder => $query->orderBy(
+            Department::select(app()->getLocale() === 'fa' ? 'name' : 'english_name')
+                ->whereColumn('departments.id', "purchase_requests.{$foreignKey}"),
+            $direction
+        );
+    }
+
     public static function showCostCenter(): TextColumn
     {
         return TextColumn::make('costCenter.localized_name')
             ->label(__('resources/purchaseRequest/strings.form.cost_center'))
             ->tooltip(fn ($record) => $record?->requester->name)
-            ->sortable()
+            ->sortable(query: static::sortByRelatedDepartmentName('cost_center_id'))
             ->searchable(
                 query: fn (Builder $query, string $search) => $query->orWhereHas('costCenter', fn ($q) => $q->searchDepartment($search))
             )
@@ -26,7 +72,7 @@ trait Table
     {
         return TextColumn::make('created_at')
             ->label(__('resources/purchaseRequest/strings.table.created_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -45,7 +91,7 @@ trait Table
         return TextColumn::make('department.localized_name')
             ->label(__('resources/purchaseRequest/strings.table.department'))
             ->tooltip(fn ($record) => $record?->requester->name)
-            ->sortable()
+            ->sortable(query: static::sortByRelatedDepartmentName('department_id'))
             ->searchable(
                 query: fn (Builder $query, string $search) => $query->orWhereHas('department', fn ($q) => $q->searchDepartment($search))
             )
@@ -58,7 +104,7 @@ trait Table
             ->label(__('resources/purchaseRequest/strings.table.id'))
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true)
-            ->searchable();
+            ->searchable(query: fn (Builder $query, string $search): Builder => $query->where('purchase_requests.id', 'like', "%{$search}%"));
     }
 
     public static function showPrNumber(): TextColumn
@@ -69,7 +115,10 @@ trait Table
             ->badge()
             ->copyable()
             ->toggleable()
-            ->searchable();
+            ->searchable(query: fn (Builder $query, string $search): Builder => PurchaseRequestResource::orWhereExtraAttributesMatch(
+                $query->where('pr_number', 'like', "%{$search}%"),
+                $search
+            ));
     }
 
     public static function showProformaInvoiceCount()
@@ -96,13 +145,40 @@ trait Table
             ->searchable();
     }
 
+    private static function requiredByDateUrgency($record): ?string
+    {
+        $date = $record?->required_by_date;
+
+        if (! $date || in_array($record->status?->english_name, ['Authorized', 'Declined'], true)) {
+            return null;
+        }
+
+        $today = today();
+
+        return match (true) {
+            $date->lt($today) => 'overdue',
+            $date->lte($today->copy()->addDays(3)) => 'due_soon',
+            default => null,
+        };
+    }
+
     public static function showRequiredByDate(): TextColumn
     {
         return TextColumn::make('required_by_date')
             ->label(__('resources/purchaseRequest/strings.table.required_by_date'))
-            ->date()
+            ->formatStateUsing(fn (?string $state, $record) => match (static::requiredByDateUrgency($record)) {
+                'overdue' => __('resources/purchaseRequest/strings.table.overdue'),
+                'due_soon' => __('resources/purchaseRequest/strings.table.due_soon'),
+                default => blank($state) ? null : adaptiveDate($state),
+            })
+            ->badge(fn ($record): bool => static::requiredByDateUrgency($record) !== null)
+            ->color(fn ($record): ?string => match (static::requiredByDateUrgency($record)) {
+                'overdue' => 'danger',
+                'due_soon' => 'warning',
+                default => null,
+            })
             ->sortable()
-            ->toggleable(isToggledHiddenByDefault: true);
+            ->toggleable();
     }
 
     public static function showStatus(): TextColumn
@@ -137,7 +213,7 @@ trait Table
     {
         return TextColumn::make('updated_at')
             ->label(__('resources/purchaseRequest/strings.table.updated_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

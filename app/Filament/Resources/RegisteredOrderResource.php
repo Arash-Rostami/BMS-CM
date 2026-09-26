@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\General\FormComponents;
 use App\Filament\Resources\General\InfoComponents;
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\RegisteredOrderResource\Exports\RegisteredOrderExporter;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\CreateRegisteredOrder;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\EditRegisteredOrder;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\ListRegisteredOrders;
@@ -24,12 +23,14 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Table as R
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\RegisteredOrder;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -52,13 +53,18 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class RegisteredOrderResource extends Resource
 {
-    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, RegisteredOrderFilters, RegisteredOrderForm, RegisteredOrderInfolist, RegisteredOrderTable;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow, RegisteredOrderFilters, RegisteredOrderForm, RegisteredOrderInfolist, RegisteredOrderTable;
 
     protected static ?string $model = RegisteredOrder::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-check';
 
     protected static ?int $navigationSort = 1;
+
+    public static function statusWorkflowType(): string
+    {
+        return RegisteredOrder::TYPE_REGISTERED_ORDER;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -155,28 +161,33 @@ class RegisteredOrderResource extends Resource
             ]);
     }
 
+    public static function eagerRelations(): array
+    {
+        return [
+            'creator',
+            'updater',
+            'attachments',
+            'extraAttributes',
+            'items',
+            'items.product',
+            'currency',
+            'purchaseRequests',
+            'proformaInvoices',
+            'purchaseOrders',
+            'status',
+            'buyerCompany',
+            'sellerCompany',
+            'sellerCompanyExclusive',
+            'supplierCompanyExclusive',
+            'manufacturerCompanyExclusive',
+            'shipments',
+        ];
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with([
-                'creator',
-                'updater',
-                'attachments',
-                'extraAttributes',
-                'items',
-                'items.product',
-                'currency',
-                'purchaseRequests',
-                'proformaInvoices',
-                'purchaseOrders',
-                'status',
-                'buyerCompany',
-                'sellerCompany',
-                'sellerCompanyExclusive',
-                'supplierCompanyExclusive',
-                'manufacturerCompanyExclusive',
-                'shipments',
-            ])
+            ->with(static::eagerRelations())
             ->withCount([
                 'purchaseOrders',
                 'proformaInvoices',
@@ -210,7 +221,7 @@ class RegisteredOrderResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['ro_number', 'contract_no', 'official_registration_no', 'insurance_number', 'insurance_provider'];
+        return static::withExtraAttributesSearch(['ro_number', 'contract_no', 'official_registration_no', 'insurance_number', 'insurance_provider']);
     }
 
     public static function getModelLabel(): string
@@ -306,7 +317,8 @@ class RegisteredOrderResource extends Resource
                                         static::viewItemUnit(),
                                         static::viewItemNetWeight(),
                                         static::viewItemGrossWeight(),
-                                    ])->columns(7),
+                                    ])->columns(7)
+                                    ->extraAttributes(['class' => 'fi-in-repeatable-spaced']),
                             ]),
                         ]),
                     Tab::make(__('resources/registeredOrder/strings.infolist.tab_documents'))
@@ -317,6 +329,7 @@ class RegisteredOrderResource extends Resource
                             $record?->attachments->count() ?? 0,
                             'info'
                         )),
+                    InfoComponents::getStatusHistoryTab(),
                     static::getExtraAttributesInfolistTab(),
                 ])->columnSpanFull(),
             ]);
@@ -324,7 +337,7 @@ class RegisteredOrderResource extends Resource
 
     public static function table(FilamentTable $table): FilamentTable
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showSource(),
                 static::showId(),
@@ -338,16 +351,19 @@ class RegisteredOrderResource extends Resource
                 static::showBuyer(),
                 static::showStatus(),
                 static::showOrderDate(),
+                static::showValidityDate(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
+                static::getStatusWorkflowProgressColumn(),
                 static::showPurchaseOrdersCount(),
             ])
             ->filters([
                 static::getSellerFilter(),
                 static::getBuyerFilter(),
                 static::getStatusFilter(),
+                static::getIncotermsFilter(),
                 static::getCreatorFilter(),
                 static::getTrashedFilter(),
                 static::getCreationDateFilter(),
@@ -357,16 +373,15 @@ class RegisteredOrderResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
+                    DeleteAction::make(),
                     RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    BulkActionGroup::make([
-                        RestoreBulkAction::make(),
-                        ExportBulkAction::make()
-                            ->exporter(RegisteredOrderExporter::class),
-                    ]),
+                    static::getExportBulkAction(),
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ])
             ->groups([
@@ -387,6 +402,6 @@ class RegisteredOrderResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

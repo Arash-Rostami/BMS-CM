@@ -23,6 +23,13 @@
             'label' => __('dashboard/strings.search') ?? 'Search',
             'click' => "activeTab = 'search'; \$nextTick(() => \$dispatch('tab-search-focus'))",
         ],
+        [
+            'id' => 'features',
+            'icon' => 'heroicon-o-sparkles',
+            'label' => __('dashboard/strings.features') ?? 'Features',
+            'click' => "activeTab = 'features'",
+            'class' => 'ms-auto',
+        ],
     ];
 @endphp
 
@@ -57,7 +64,7 @@
         <div class="fi-tabs flex items-center gap-1 px-2 sm:px-3 overflow-x-auto custom-scrollbar">
             @foreach ($tabs as $tab)
                 <button @click="{!! $tab['click'] !!}"
-                        class="lp-tab flex items-center gap-1.5 px-3 py-1.5 text-sm whitespace-nowrap"
+                        class="lp-tab flex items-center gap-1.5 px-3 py-1.5 text-sm whitespace-nowrap {{ $tab['class'] ?? '' }}"
                         :class="{ 'lp-tab-active': activeTab === '{{ $tab['id'] }}' }">
                     <x-dynamic-component :component="$tab['icon']" class="w-4 h-4 flex-shrink-0"/>
                     <span>{{ $tab['label'] }}</span>

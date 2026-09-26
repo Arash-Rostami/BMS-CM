@@ -10,16 +10,16 @@ Every new business model — and the migration that creates its table — must b
 app/Models/
     {Model}.php                                ← root model, namespace App\Models
     Traits/
-        General/                               ← 12 cross-cutting traits (shared by many models)
+        General/                               ← 13 cross-cutting traits (shared by many models)
             Relationships.php  UserStamps.php  HasCustomAttributes.php
             Localization.php  HasScope.php  SellerEntity.php  HasSlug.php
             HasNameSearch.php  HasLocalizedAttributes.php  HasProductCategoryFormatting.php
-            SearchTargetable.php  ModelInspector.php
+            SearchTargetable.php  ModelInspector.php  TracksStatusHistory.php
         {Model}/                               ← per-domain folder, 1:1 with the model
             Relationships.php                  ← imported `as ExclusiveRelationships`
             HasSearchableRelations.php         ← scopeSearchAll()
             HasFormattedName.php               ← formatted_name / formatted_name_without_date
-            HasComputedAttributes.php          ← BankProfile / Payment only
+            HasComputedAttributes.php          ← BankProfile / Payment / RegisteredOrder
         Status/
             StatusFinder.php  HasSearchableRelations.php  Relationships.php
     EntityAttribute.php                        ← the EAV table (NOT a consumer of HasCustomAttributes)
@@ -68,7 +68,7 @@ class PurchaseRequest extends Model
     protected $casts = [
         'required_by_date' => 'date',
         'approval_date' => 'datetime',
-        'total_estimated_cost' => 'decimal:2',
+        'total_estimated_cost' => 'decimal:5',
     ];
 }
 ```
@@ -78,9 +78,9 @@ Three near-universal conventions:
 - `General\Relationships` is imported unaliased; the per-domain `Relationships` is imported **`as ExclusiveRelationships`**. Mandatory (§2).
 - The per-domain folder name matches the model class name 1:1 (`Traits\PurchaseRequest\` for `PurchaseRequest`).
 
-Verified by grep across all 30 model files: **16** models import a per-domain `Relationships` aliased against `General\Relationships` (15 as `ExclusiveRelationships`; `Payment` drifts to the singular `ExclusiveRelationship` — see §13 Naming conventions). The remaining 14 fall into three groups:
+Verified by grep across all 30 model files: **17** models import a per-domain `Relationships` aliased against `General\Relationships` (15 as `ExclusiveRelationships`; `Payment` drifts to the singular `ExclusiveRelationship` — see §13 Naming conventions; `Department` joined this group 2026-09-26 when promoted to the master-resource audit kit). The remaining 13 fall into three groups:
 - **No trait kit at all** — `Permission`, `Role` (extend Spatie base classes), `CorrespondenceRecipient` (extends `Illuminate\Database\Eloquent\Relations\Pivot`), `DeskReference` (plain `Model` + `HasFactory`, no audit/EAV traits).
-- **Single, unaliased `Relationships`** — `Department`, `User` use only their own per-domain `Relationships` (no `General\Relationships`, no `UserStamps`, no collision so no alias needed). `ProformaInvoiceItem`, `PurchaseOrderItem`, `PurchaseRequestItem`, `RegisteredOrderItem` are the same shape (own `Relationships` + `SoftDeletes` only — no audit-stamp traits).
+- **Single, unaliased `Relationships`** — `User` uses only its own per-domain `Relationships` (no `General\Relationships`, no `UserStamps`, no collision so no alias needed). `ProformaInvoiceItem`, `PurchaseOrderItem`, `PurchaseRequestItem`, `RegisteredOrderItem` are the same shape (own `Relationships` + `SoftDeletes` only — no audit-stamp traits).
 - **General kit without a colliding per-domain `Relationships`** — `Bank`, `NotificationSetting`, `EntityAttribute` (§5) compose `General\Relationships` + `UserStamps` directly with no `Traits/{Model}/Relationships.php` to collide with. `Company` has its own `Traits/Company/` folder (`HasCustomSorts`, `HasSearchableRelations`, `TypeScopes`) but no `Relationships.php` inside it, so still no collision.
 
 Treat the skeleton in this section as the pattern for **operational, EAV-backed resources** (the 8 models in CLAUDE.md's operational groups) — accurate for all 8. Not a claim about every model in `app/Models/`.
@@ -133,11 +133,13 @@ public function scopeSearchAll($query, string $term)
 Column names are prefixed with the full table name (e.g. `purchase_requests.id`) to stay unambiguous in joined queries. This scope is the contract `TableComponents::show{Relation}()` searches through (`filamentPattern.md` §1.14).
 
 - **`HasFormattedName.php`** — `getFormattedNameAttribute()` + `getFormattedNameWithoutDateAttribute()` (6 domains: Custom, ProformaInvoice, PurchaseOrder, PurchaseRequest, RegisteredOrder, Shipment). Verified `PurchaseRequest\HasFormattedName` builds a locale-aware string: `fa` puts the requester name first, others put the id first; a status emoji prefix for `Authorized`/`Conditional`; the cost-center/department localized name in parens; the date variant appends created + required-by dates via the `toPersianDate`/`toGregorianDate` helpers. This is the contract `TableComponents::show{Relation}()` renders via `$state?->formatted_name_without_date`.
-- **`HasComputedAttributes.php`** — BankProfile and Payment only; exposes `Attribute::make(get: fn() => …)` accessors listed in the model's `$appends`.
+- **`HasComputedAttributes.php`** — BankProfile, Payment, and RegisteredOrder; exposes `Attribute::make(get: fn() => …)` accessors listed in the model's `$appends`. (`PurchaseOrder` has the identical `total_amount`/`total_quantity` shape but under an undocumented drifted name, `Traits\PurchaseOrder\Accessors` — a pre-existing inconsistency, not a second convention; new models should use `HasComputedAttributes`.)
 
 ## 5. EAV model side
 
 `HasCustomAttributes` (General) is the EAV entry point on the owning model. The double-declaration — two methods, both `morphMany(EntityAttribute::class, 'entity')`, no `->as()` — is intentional and prevents closure conflicts between `ManageCustomAttributesAction` and the `HasExtraAttributesManagement` Repeater (see `filamentPattern.md` §1.9). Do not collapse with `->as()`.
+
+**`syncCustomAttributes(array $keyValueMap, ?int $userId = null): void`** is the only sanctioned way to write EAV rows — both `ManageCustomAttributesAction` and `HasExtraAttributesManagement`'s Repeater (via a `->saveRelationshipsUsing()` override) call it instead of touching `customAttributes()`/`create()`/`updateOrCreate()` directly. `entity_attributes` carries a real DB-level `UNIQUE(entity_type, entity_id, key)` index, and `EntityAttribute` is `SoftDeletes` — removing a key only soft-deletes its row, it never vanishes from that index. A naive `updateOrCreate(['key' => $key], [...])` (the default Eloquent query excludes trashed rows) or Filament's own relationship-Repeater `create()` path can't see the trashed row, so re-adding a previously-removed key attempts a raw `INSERT` and throws `SQLSTATE[23000]: 1062 Duplicate entry` on the composite index — reproduced live against MySQL. `syncCustomAttributes()` fixes this by looking the key up `withTrashed()` first: if a trashed row matches, `restore()` it and update the value; only a genuinely absent key gets a fresh `create()`. Do not reintroduce a direct `updateOrCreate`/Repeater-default write path against `customAttributes()`/`extraAttributes()` — it reopens this exact collision.
 
 `EntityAttribute` is the EAV table itself — it does **not** consume `HasCustomAttributes`:
 
@@ -185,17 +187,44 @@ public function status(): BelongsTo
 
 Never hardcode status strings in model code — always `Status::findBy(Model::TYPE_X, 'SomeStatus')`.
 
+## 6b. `StatusHistory` + `TracksStatusHistory` — append-only status-change audit log
+
+`status_histories` is a generic, polymorphic (`morphs('statusable')`) log table capturing who changed a record's status column, from what `Status` id to what, and when. It is intentionally decoupled from any approval/permission logic — this is a pure audit trail, not a workflow gate.
+
+`App\Models\StatusHistory` — a plain, non-`SoftDeletes` model (`const UPDATED_AT = null;`, Eloquent still manages `created_at` alone): `statusable()` (`MorphTo`), `status()` (`BelongsTo(Status::class, 'to_status_id')`), `fromStatus()` (`BelongsTo(Status::class, 'from_status_id')`), `user()` (`BelongsTo(User::class)` — the actor). `$fillable` covers `statusable_type`, `statusable_id`, `field`, `from_status_id`, `to_status_id`, `user_id`, plus a nullable `reason` column (added 2026-09-26, `text`) populated only by the "Return for Revision"/reject-style actions of the stage-driven approval workflow (`app/Services/servicesPattern.md`'s `StatusWorkflow`) — `NULL` for every ordinary forward transition logged by `TracksStatusHistory` below, which never sets it.
+
+`statuses` itself carries two workflow-gate columns as of the same date: nullable `stage_order` (`unsignedSmallInteger`, a status's position within its own `english_type`; `NULL` = unordered/free, the default) and nullable `approval_permission` (`string`, a Spatie permission name gating who may set that status; `NULL` = ungated). Both are read exclusively by `StatusWorkflow`, never by `StatusFinder`/`TracksStatusHistory` — a `Status` row with both `NULL` behaves exactly as before this addition.
+
+`App\Models\Traits\General\TracksStatusHistory` — the composing trait, one of three General traits (alongside `UserStamps`/`HasSlug`) allowed a `boot*` method (§8's exception is deliberate here, since the whole point of this trait is a lifecycle-driven side effect):
+
+```php
+public static function statusHistoryColumns(): array   // override per model — the status FK column name(s) to track
+public static function withStatusHistoryReason(?string $reason): void   // sets a pending reason for the NEXT created/updated status-history row(s) this class writes
+public function statusHistories(): MorphMany           // morphMany(StatusHistory::class, 'statusable')
+protected static function bootTracksStatusHistory(): void
+    // static::created(...)  logs an initial from-null row for each non-null tracked column
+    // static::updated(...)  logs a from→to row for each tracked column that `wasChanged()`
+```
+
+Default `statusHistoryColumns()` is `['status_id']` — correct for `PurchaseRequest`, `RegisteredOrder`, `PurchaseOrder`, `Payment`, `Correspondence`, `BankProfile`. `Shipment` (5 status columns) and `Custom` (3 status columns) override it to return their full real column-name lists. `ProformaInvoice` has zero status columns and does not compose this trait. The actor is `auth()->id()` — `null` on a system/console-driven change, same convention as `UserStamps`.
+
+**`withStatusHistoryReason()` (added 2026-09-26) is a `protected static ?string $pendingStatusHistoryReason` set on the trait itself** — since PHP gives each class that composes a trait its own independent copy of that trait's static properties, this is safely per-model, not a cross-model leak, without any extra bookkeeping (same spirit as `HandlesRecipients::$storedRecipients` in the Correspondence Filament module, but as a static rather than instance property since the caller here is a plain Action class, not a stateful Livewire page). A caller sets it immediately before the `save()`/`update()` call that will trigger the history row (e.g. `App\Filament\Actions\ReturnForRevisionAction`: `$record::withStatusHistoryReason($data['reason']); $record->update([...]);`), and both the `created` and `updated` boot closures read `static::$pendingStatusHistoryReason` into the new `StatusHistory` row's `reason` column, then reset it to `null` unconditionally at the end of the closure — so a reason never survives past the single write it was set for, and an ordinary status edit that never calls the setter always logs `reason: null` exactly as before this addition.
+
+**`archiveAttachmentsIfTerminal()` (added 2026-09-26)** is a `protected static` helper on the same trait, called from the tail of `bootTracksStatusHistory()`'s `updated` closure for every tracked column that `wasChanged()`. It re-fetches the new `Status` row and asks `App\Services\StatusWorkflow::isTerminal($status)` (true only for a genuine ordered terminus — `stage_order` set AND `nextFor()` returns null); if true, it bulk-updates `$model->attachments()->update(['status_id' => $archivedId])` in a single `UPDATE ... WHERE` query — never a per-attachment loop. This is the shared, cross-module attachment-lifecycle hook (`App\Models\Attachment`'s `Uploaded`/`Superseded`/`Archived` states, see `filamentPattern.md` §1.14) — it fires for every model composing `TracksStatusHistory`, but is a true no-op for any model/`english_type` with no `stage_order` rows defined (currently everything except `PurchaseRequest`), so no per-module opt-in code is needed as new pipelines gain ordered stages. `method_exists($model, 'attachments')` guards models that might compose this trait without ever having attachments.
+
+Consumed by the shared infolist tab `App\Filament\Resources\General\InfoComponents::getStatusHistoryTab()` — see `filamentPattern.md`'s EAV-tab section for the sibling convention. **Do not add `'statusHistories.*'` to a composing resource's `eagerRelations()`** — that array backs both list-page table queries and single-record view/edit queries, and `statusHistories` grows unbounded over a record's lifetime, so a blanket eager load would load full history on every list-page row for a relation only ever shown on this one infolist tab. The tab instead scope-loads it itself for the single record being viewed (`$record->statusHistories()->with(['status', 'fromStatus', 'user'])->latest()->get()`), keeping list pages free of the cost entirely.
+
 ## 7. `SCANNABLE_TABLE` / `SCANNABLE_IDENTIFIER` constants
 
 Verified `PurchaseRequest` declares both. `SCANNABLE_TABLE` is the model's table name; it is the marker `NotificationServiceProvider::boot()` scans `app/Models/` for to auto-attach a notification dispatcher (also read by `ModelInspector::getAvailableModels()` for the filter UI). `SCANNABLE_IDENTIFIER` is the human identifier column, read by `BaseModelEventNotification` for notification copy. A model that should raise model-event notifications declares `SCANNABLE_TABLE`; one that should not, omits it (and gets no auto-wired observer).
 
 ## 8. Boot-only lifecycle rule
 
-Only two General traits define `boot*` methods: `UserStamps` (`bootUserStamps` → creating/updating) and `HasSlug` (`bootHasSlug` → saving). No other trait boots lifecycle hooks, and models do not define `boot()` themselves. Side effects (cascade status, closure-table sync) live in `app/Observers/` and are registered manually in `AppServiceProvider::boot()` — see `filamentPattern.md` §1.26 for the manual-vs-`SCANNABLE_TABLE`-auto split. Keep new behavior in scopes/accessors or observers, not in model `boot`.
+Only three General traits define `boot*` methods: `UserStamps` (`bootUserStamps` → creating/updating), `HasSlug` (`bootHasSlug` → saving), and `TracksStatusHistory` (`bootTracksStatusHistory` → created/updated, §6b). No other trait boots lifecycle hooks, and models do not define `boot()` themselves. Side effects (cascade status, closure-table sync) live in `app/Observers/` and are registered manually in `AppServiceProvider::boot()` — see `filamentPattern.md` §1.26 for the manual-vs-`SCANNABLE_TABLE`-auto split. Keep new behavior in scopes/accessors or observers, not in model `boot`.
 
 ## 8b. Numeric precision on price/quantity/rate/weight columns
 
-Any column carrying real calculation precision (price, quantity, amount, rate, weight) is `decimal(15,5)` at the migration layer and `'decimal:5'` in `$casts` — never `decimal(x,2)`/`'decimal:2'`. Full standard (including the "Tables may round for display, nothing else may" rule and the `preciseNumber()` display helper) lives in `app/Utils/helpersPattern.md` §1b — don't duplicate it here.
+Any column carrying real calculation precision (price, quantity, amount, rate, weight) is `decimal(65,5)` at the migration layer — MySQL's max integer-digit capacity at a fixed 5-decimal scale, chosen so no realistic figure can overflow — and `'decimal:5'` in `$casts` — never `decimal(x,2)`/`'decimal:2'`. Full standard (including the "Tables may round for display, nothing else may" rule and the `preciseNumber()` display helper) lives in `app/Utils/helpersPattern.md` §1b — don't duplicate it here.
 
 ## 9. Migration skeleton (operational tables)
 
@@ -216,14 +245,16 @@ Schema::create('purchase_requests', function (Blueprint $table) {
 ```
 
 Rules for every operational table:
-- `$table->id()` PK → a business identifier (`pr_number`, `po_number`, `bp_number`, `shipment_no`) as `->unique()`.
+- `$table->id()` PK → a business identifier (`pr_number`, `po_number`, `bp_number`, `shipment_no`). **Do NOT add `->unique()` at the migration/DB level on any column belonging to a `SoftDeletes` model.** MySQL's `UNIQUE` index has no concept of `deleted_at` — it still matches trashed rows, so soft-deleting a record and then creating a new one that reuses its identifying value throws a raw `SQLSTATE[23000]: 1062 Duplicate entry`, even though the app-level check (Filament's `->unique()` field validation, always required per `filamentPattern.md` §1.15 corollary) correctly allows it. Reproduced live and fixed 2026-09-19: 12 such DB-level constraints (`users.email`, `products.code`, `purchase_requests.pr_number`, `shipments.shipment_no`, `purchase_orders.po_number`, `proforma_invoices.invoice_no`, `registered_orders.ro_number` + `.official_registration_no`, `payments.payment_no`, `customs.custom_no`, `bank_profiles.bp_number`, `statuses(type, name)`) were dropped from both the live database and their migration source. Uniqueness for these columns is enforced **application-level only** now (Filament's `->unique(..., modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())`) — this trades a theoretical two-simultaneous-creates race condition (negligible for this internal admin tool, and most of these columns are auto-generated codes, not user-typed) for correctness against the far more common soft-delete-then-recreate path. Do not re-add a DB-level `->unique()` to a `SoftDeletes` model's column without also solving the soft-delete collision (e.g. a generated soft-delete-aware guard column) — adding it back as a bare `->unique()` reopens this exact bug.
 - Foreign keys via `foreignId('x_id')->constrained('table')`. An explicit delete policy is the exception, not the rule, on non-pivot tables — the `purchase_requests` example above has none. `->cascadeOnDelete()` is the norm only on **pivot** FKs (§10); on regular operational FKs it's added ad hoc where the domain requires it. Nullable FKs use `->nullable()->constrained()` (status FK is always nullable).
-- Money/quantity/weight: `decimal('...', 15, 5)`. Rates/percentages: `decimal('...', 15, 5)` (see §8b — both now share the same 5-decimal precision standard).
-- **`user_id` and `updated_by_id` are `unsignedBigInteger(...)->nullable()` with NO foreign-key constraint** — not `foreignId`. Deliberate: it lets a `User` be deleted without cascading into every stamped record. Reproduce exactly; do not "fix" by adding `->constrained('users')`.
+- Money/quantity/weight: `decimal('...', 65, 5)`. Rates/percentages: `decimal('...', 65, 5)` (see §8b — both share the same 5-decimal-scale standard, at MySQL's max integer-digit capacity).
+- **`user_id`/`updated_by_id` FK-or-not is genuinely split, verified against production (2026-09-17 sync)** — two coexisting shapes, both intentional: `purchase_requests`, `proforma_invoices`, `categories`, `targets` use bare `unsignedBigInteger(...)->nullable()`/`foreignId(...)->nullable()` with **no** `.constrained()`, letting a `User` be hard-deleted without touching stamped records. `payments`, `shipments`, `customs`, `bank_profiles`, `correspondences`, `purchase_orders`, `registered_orders` DO carry a real `.constrained('users')` (paired with `->nullOnDelete()` on `updated_by_id`, `->restrictOnDelete()`/`->nullOnDelete()` on `user_id` depending on the table). Match whichever shape the table already uses — do not blanket-assume "no FK" is universal, and do not add `.constrained('users')` to the no-FK group without confirming first (it's a real access/behavior change, not a formatting fix).
 - `timestamps()` + `softDeletes()` on every operational table.
-- A composite index `['{fk}_id', 'deleted_at']` for every foreign key used in filtered/sorted queries; standalone `->index('{fk}_id')` for FKs not paired with `deleted_at`.
+- A composite index `['{fk}_id', 'deleted_at']` for every foreign key used in filtered/sorted queries; standalone `->index('{fk}_id')` for FKs not paired with `deleted_at`. Two more composite shapes joined this convention 2026-09-17, evidence-backed against real query patterns in `AnalyticsService`/Filament filters rather than added speculatively: `['deleted_at', 'created_at']` on every operational table (every resource's date-range Filament filter combines with the ever-present soft-delete scope) and ad hoc date-pair composites where two nullable date columns are checked together in the same query (e.g. `payments(payment_date, payment_deadline)`, `purchase_requests(approval_date, required_by_date)`, `shipments(deleted_at, eta, exit_date)`) — add one of these only when you can point to the actual multi-column WHERE/ORDER BY in the code, not preemptively.
 - `->comment('...')` on every non-obvious column.
 - `down()` is always `Schema::dropIfExists('table_name')`.
+
+**Plain (non-unique) indexes added 2026-09-22** on all 9 `CodeGenerator`-mapped business-identifier columns (`purchase_requests.pr_number`, `proforma_invoices.invoice_no`, `registered_orders.ro_number` + `.contract_no`, `purchase_orders.po_number`, `bank_profiles.bp_number`, `payments.payment_no`, `shipments.shipment_no`, `customs.custom_no`) via `database/migrations/2026_09_22_092707_add_business_identifier_indexes.php` — a plain `$table->index($column)`, deliberately **not** `->unique()` (see the bullet above; a unique constraint on these was already removed once for the exact soft-delete collision this would reopen). Turns `CodeGenerator::generate()`'s `WHERE {field} LIKE '...%' ... FOR UPDATE` from a full-table exclusive-lock scan into an index-range lock — load-bearing for bulk-import chunk concurrency (`filamentPattern.md` §1.8a), but speeds up every `generate()` call.
 
 ## 10. Pivot conventions
 
@@ -262,6 +293,8 @@ Schema::create('registered_order_purchase_request', function (Blueprint $table) 
 });
 ```
 
+Only Shape C pivots (`registered_order_purchase_request`, `registered_order_purchase_order`) carry their own `id` column — any `Table` trait reused inside a RelationManager built over one of THOSE two pivots (e.g. `RegisteredOrderResource`'s PR/PO RelationManagers reusing `PurchaseRequestResource`/`PurchaseOrderResource`'s `showID()`) must qualify the column (`purchase_requests.id`, not bare `id`) or the join produces `SQLSTATE[42S22]` ambiguous-column; Shape A/B pivots have no `id()` so the same reuse is currently safe there, but qualify defensively anyway since a future migration could add one (`filamentPattern.md`'s anti-patterns list covers the Filament-side fix and full crash history).
+
 **Convention for new pivots: use Shape C** (`$table->id()`, two `foreignId->cascadeOnDelete`, `timestamps()`, ONE `unique([...], '{a}_{b}_unique')`, plus `$table->index('{second_fk}')` if the second FK is queried standalone). It's the most complete shape and matches half of the existing pivots. Name the index `{modelA}_{modelB}_unique` in snake_case.
 
 ## 11. Developer Decision Matrix
@@ -287,8 +320,10 @@ Schema::create('registered_order_purchase_request', function (Blueprint $table) 
 - ❌ **Booting lifecycle hooks in a model or a new trait instead of using an Observer.** — Only `UserStamps`/`HasSlug` boot; side effects belong in `app/Observers/` (see §8).
 - ❌ **Collapsing the `customAttributes()` / `extraAttributes()` double-declaration with `->as()`.** — Breaks one of the two EAV consumers (see §5, `filamentPattern.md` §1.9).
 - ❌ **Hardcoding status strings in model code.** — Use `Status::findBy(Model::TYPE_X, 'EnglishName')` (see §6).
+- ❌ **Adding a DB-level `->unique()` to a column on a `SoftDeletes` model.** — MySQL's `UNIQUE` index ignores `deleted_at`; a soft-deleted row still blocks a new one reusing its value with a raw SQL 1062 error, even after the app-level Filament check is fixed. See §9.
 - ❌ **Prefixing `scopeSearchAll` columns without the full table name.** — Ambiguous inside joined queries (see §4).
 - ❌ **Deleting the commented-out `->orderBy($this->localeColumn())` line in `Localization::newQuery()`.** — Intentionally preserved (see §3).
+- ❌ **Deleting or directly consuming `Payment::purchaseOrder()` / `Payment::registeredOrder()`.** — These bare `belongsTo(…, 'targetable_id')` hooks in `Payment\Relationships` are unscoped on `targetable_type` and exist solely as the Filament RM `$relationship` contract anchors (see `filamentPattern.md` §1.20 read-only variant); the RMs' `getRelationship()` overrides are the only real guard. Deleting them breaks the Payment RMs (a deletion once took down 3 tests).
 
 ## 13. Naming conventions
 

@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Specification;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,7 +21,7 @@ class SpecificationFactory extends Factory
             'vat_exempt' => fake()->boolean(),
             'tax_id' => fake()->optional()->numerify('TAX-########'),
             'manufacturer' => fake()->optional()->company(),
-            'import_licenses' => ['LIC-' . fake()->numerify('####')],
+            'import_licenses' => ['LIC-'.fake()->numerify('####')],
             'extra' => [
                 'certification' => 'ISO 9001',
                 'origin' => fake()->country(),

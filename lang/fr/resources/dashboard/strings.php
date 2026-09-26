@@ -2,11 +2,11 @@
 
 return [
     'navigation_group' => [
-        'base' => '【#】 Gestion des Données de base',
-        'operational_first' => '【1】 Gestion des demandes d\'achat',
-        'operational_second' => '【2】 Gestion des dossiers de commande',
-        'operational_third' => '【3】 Gestion financière des dossiers',
-        'operational_fourth' => '【4】 Logistique et dédouanement',
+        'base' => '【#】 Données de Base',
+        'operational_first' => '【1】 DA Gest.',
+        'operational_second' => '【2】 CE Gest.',
+        'operational_third' => '【3】 Fin. Gest.',
+        'operational_fourth' => '【4】 Log. Gest.',
     ],
     'widgets' => [
         'tabs' => [
@@ -108,7 +108,7 @@ return [
                 'what' => "Des dossiers précis qui sont en retard par rapport à leur propre date cible et n'ont pas avancé — une liste, pas un graphique.",
                 'data' => "Demandes d'achat, Commandes enregistrées, Paiements et Expéditions, chacun comparé à sa propre colonne d'échéance ou de date cible.",
                 'why' => 'La liste « ce qui nécessite une attention aujourd\'hui », classée par nombre de jours de retard.',
-                'technical' => "Quatre requêtes réunies par UNION : purchase_requests (approval_date IS NULL AND required_by_date < CURDATE()) ; registered_orders (expected_delivery_date < CURDATE() et aucun shipments.registered_order_id correspondant) ; payments (payment_date IS NULL AND payment_deadline < CURDATE()) ; shipments (exit_date IS NULL AND eta < CURDATE()). Chacune calcule DATEDIFF(CURDATE(), date_cible) ; le résultat combiné est trié par cette valeur décroissante, limité à 15.",
+                'technical' => 'Quatre requêtes réunies par UNION : purchase_requests (approval_date IS NULL AND required_by_date < CURDATE()) ; registered_orders (expected_delivery_date < CURDATE() et aucun shipments.registered_order_id correspondant) ; payments (payment_date IS NULL AND payment_deadline < CURDATE()) ; shipments (exit_date IS NULL AND eta < CURDATE()). Chacune calcule DATEDIFF(CURDATE(), date_cible) ; le résultat combiné est trié par cette valeur décroissante, limité à 15.',
             ],
         ],
     ],

@@ -15,6 +15,7 @@ trait Relationships
 
     public function status(): BelongsTo
     {
-        return $this->belongsTo(Status::class);
+        return $this->belongsTo(Status::class)
+            ->where('english_type', static::TYPE_ATTACHMENT);
     }
 }

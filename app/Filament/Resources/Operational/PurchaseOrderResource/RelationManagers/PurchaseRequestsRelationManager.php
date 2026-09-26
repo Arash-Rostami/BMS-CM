@@ -2,19 +2,20 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\RelationManagers;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Enums\Status;
-use App\Filament\Resources\Operational\PurchaseRequestResource\Exports\PurchaseRequestExporter;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Filters as PurchaseRequestFilters;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as PurchaseRequestTable;
 use App\Filament\Resources\PurchaseRequestResource;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\AttachAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DetachAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -25,9 +26,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class PurchaseRequestsRelationManager extends RelationManager
 {
+    use HandlesActionExceptions;
     use PurchaseRequestFilters, PurchaseRequestTable;
 
     protected static string $relationship = 'purchaseRequests';
+
+    protected static ?string $relatedResource = PurchaseRequestResource::class;
 
     public static function getModelLabel(): string
     {
@@ -51,8 +55,8 @@ class PurchaseRequestsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
-            ->emptyStateIcon('heroicon-o-bookmark')
+        return TableComponents::emptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(PurchaseRequestResource::eagerRelations())->withCount('proformaInvoices'))
             ->recordTitleAttribute('formatted_name')
             ->columns([
                 static::showID(),
@@ -79,21 +83,24 @@ class PurchaseRequestsRelationManager extends RelationManager
                 static::getCreationDateFilter(),
             ])
             ->filtersFormColumns(2)
+            ->headerActions([
+                AttachAction::make()
+                    ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Approved'])),
+            ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
                     DetachAction::make(),
                     DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(PurchaseRequestExporter::class),
+                    PurchaseRequestResource::getExportBulkAction(),
                 ]),
             ])
             ->groups([
@@ -108,6 +115,6 @@ class PurchaseRequestsRelationManager extends RelationManager
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('purchase_requests.id', 'desc');
+            ->defaultSort('purchase_requests.id', 'desc'));
     }
 }

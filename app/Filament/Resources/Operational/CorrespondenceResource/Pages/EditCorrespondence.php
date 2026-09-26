@@ -21,6 +21,7 @@ class EditCorrespondence extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            CorrespondenceResource::getStatusWorkflowPipelineAction(),
             Actions\DeleteAction::make(),
             Actions\RestoreAction::make(),
         ];
@@ -37,6 +38,8 @@ class EditCorrespondence extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        CorrespondenceResource::assertStatusTransitionAllowed($this->getRecord(), 'status_id', $data['status_id'] ?? null);
+
         return $this->parseRecipientsFormData($data);
     }
 }

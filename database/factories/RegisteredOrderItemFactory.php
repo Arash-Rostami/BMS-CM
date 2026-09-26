@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Product;
 use App\Models\RegisteredOrder;
-use App\Models\RegisteredOrderItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

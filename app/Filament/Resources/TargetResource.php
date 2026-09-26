@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\TargetResource\Enums\Status;
 use App\Filament\Resources\Operational\TargetResource\Exports\TargetExporter;
 use App\Filament\Resources\Operational\TargetResource\Pages\ManageTargets;
@@ -126,7 +127,7 @@ class TargetResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showTargetable(),
                 static::showYear(),
@@ -163,10 +164,10 @@ class TargetResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(TargetExporter::class),
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ])
             ->groups([
@@ -180,6 +181,6 @@ class TargetResource extends Resource
             ])
             ->striped()
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

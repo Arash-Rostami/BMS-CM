@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Operational\CorrespondenceResource\Traits;
 
 use App\Models\User;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
 
 trait HandlesRecipients
@@ -22,9 +23,10 @@ trait HandlesRecipients
         return [$data, $to, $cc];
     }
 
-    public static function syncRecipients(Model $record, array $to, array $cc): void
+    public static function syncRecipients(Model $record, array $to, array $cc): array
     {
-        $ccIds = User::whereIn('name', $cc)->pluck('id')->toArray();
+        $ccUsers = User::whereIn('name', $cc)->pluck('id', 'name');
+        $unresolved = array_values(array_diff($cc, $ccUsers->keys()->all()));
 
         $syncData = [];
 
@@ -32,7 +34,7 @@ trait HandlesRecipients
             $syncData[$id] = ['type' => 'to'];
         }
 
-        foreach ($ccIds as $id) {
+        foreach ($ccUsers as $id) {
             // 'to' takes precedence if user is in both lists
             if (! isset($syncData[$id])) {
                 $syncData[$id] = ['type' => 'cc'];
@@ -40,6 +42,8 @@ trait HandlesRecipients
         }
 
         $record->recipients()->sync($syncData);
+
+        return $unresolved;
     }
 
     protected function loadRecipientsToForm(Model $record, array $data): array
@@ -66,6 +70,13 @@ trait HandlesRecipients
 
     protected function saveRecipientsToRecord(Model $record): void
     {
-        static::syncRecipients($record, $this->storedRecipients['to'], $this->storedRecipients['cc']);
+        $unresolved = static::syncRecipients($record, $this->storedRecipients['to'], $this->storedRecipients['cc']);
+
+        if ($unresolved !== []) {
+            Notification::make()
+                ->title(__('resources/correspondence/strings.general.unresolved_cc_warning', ['names' => implode(', ', $unresolved)]))
+                ->warning()
+                ->send();
+        }
     }
 }

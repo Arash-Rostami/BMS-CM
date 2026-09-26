@@ -3,16 +3,18 @@
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers;
 
 use App\Filament\Resources\BankProfileResource;
-use App\Filament\Resources\Operational\BankProfileResource\Exports\BankProfileExporter;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Filters as BankProfileFilters;
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Table as BankProfileTable;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -22,8 +24,11 @@ use Illuminate\Database\Eloquent\Model;
 class BankProfilesRelationManager extends RelationManager
 {
     use BankProfileFilters, BankProfileTable;
+    use HandlesActionExceptions;
 
     protected static string $relationship = 'bankProfiles';
+
+    protected static ?string $relatedResource = BankProfileResource::class;
 
     public static function getModelLabel(): string
     {
@@ -47,7 +52,8 @@ class BankProfilesRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return TableComponents::gatedEmptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(BankProfileResource::eagerRelations()))
             ->recordTitleAttribute('bp_number')
             ->columns([
                 static::showId(),
@@ -73,6 +79,8 @@ class BankProfilesRelationManager extends RelationManager
             ->headerActions([
                 Action::make('create')
                     ->label(__('resources/general/strings.actions.add_record'))
+                    ->tooltip(__('resources/general/strings.actions.add_record_tooltip'))
+                    ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Submitted']))
                     ->url(fn (): string => BankProfileResource::getUrl('create', ['registered_order_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
@@ -81,17 +89,18 @@ class BankProfilesRelationManager extends RelationManager
                     EditAction::make()
                         ->url(fn ($record): string => BankProfileResource::getUrl('edit', ['record' => $record])), // Correct URL for edit
                     DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(BankProfileExporter::class),
+                    RestoreBulkAction::make(),
+                    BankProfileResource::getExportBulkAction(),
                 ]),
             ])
             ->striped()
             ->recordUrl(null)
-            ->defaultSort('bank_profiles.id', 'desc');
+            ->defaultSort('bank_profiles.id', 'desc'));
     }
 }

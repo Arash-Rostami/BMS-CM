@@ -1,11 +1,23 @@
 const STORAGE_KEY = 'user_shortcuts';
+const DEFAULT_THEME = 'from-slate-500 to-slate-600';
+const REGEX_SPLIT = /[\s\-_/.]+/;
+const REGEX_ALNUM = /[^a-zA-Z0-9]/g;
 
 export default function workspace(config = {}) {
-    return {
-        modules: Array.isArray(config.modules) ? config.modules : [],
-        stats: config.stats || {},
-        recordsUrl: config.recordsUrl || '',
+    const rawModules = Array.isArray(config.modules) ? config.modules : [];
+    const rawStats = config.stats || {};
+    const rawRecordsUrl = config.recordsUrl || '';
 
+    const moduleMap = new Map();
+    const searchableMods = [];
+
+    for (let i = 0; i < rawModules.length; i++) {
+        const m = rawModules[i];
+        moduleMap.set(m.id, m);
+        if (m.searchable) searchableMods.push(m);
+    }
+
+    return {
         pinnedModuleIds: [],
         recordPins: [],
 
@@ -13,50 +25,72 @@ export default function workspace(config = {}) {
         recordsOpen: false,
 
         pickerResource: '',
-        pickerTheme: 'from-slate-500 to-slate-600',
+        pickerTheme: DEFAULT_THEME,
         recordQuery: '',
         recordResults: [],
         recordLoading: false,
         recordError: false,
-        recordReqId: 0,
 
         editingKey: null,
         editingLabel: '',
 
+        _abortCtrl: null,
+
+        get modules() { return rawModules; },
+        get stats() { return rawStats; },
+        get recordsUrl() { return rawRecordsUrl; },
+
         init() {
-            const {modules, records} = this.readStorage();
-            const valid = new Set(this.modules.map(m => m.id));
-            this.pinnedModuleIds = modules.filter(id => valid.has(id));
-            this.recordPins = records.map(p => this.decorateRecord(p));
+            const { modules: savedMods, records: savedRecs } = this.readStorage();
+
+            const validPins = [];
+            for (let i = 0; i < savedMods.length; i++) {
+                if (moduleMap.has(savedMods[i])) validPins.push(savedMods[i]);
+            }
+            this.pinnedModuleIds = validPins;
+
+            const validRecords = [];
+            for (let i = 0; i < savedRecs.length; i++) {
+                validRecords.push(this.decorateRecord(savedRecs[i]));
+            }
+            this.recordPins = validRecords;
 
             this.modulesOpen = this.pinnedModuleIds.length > 0;
             this.recordsOpen = this.recordPins.length > 0;
 
-            const first = this.modules.find(m => m.searchable);
-            if (first) {
+            if (searchableMods.length > 0) {
+                const first = searchableMods[0];
                 this.pickerResource = first.id;
-                this.pickerTheme = first.theme;
+                this.pickerTheme = first.theme || DEFAULT_THEME;
             }
 
             this.$watch('recordsOpen', open => {
-                if (open && this.pickerResource && this.recordResults.length === 0) this.searchRecords();
+                if (open && this.pickerResource && this.recordResults.length === 0) {
+                    this.searchRecords();
+                }
             });
         },
 
         readStorage() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
-                if (!raw) return {modules: [], records: []};
+                if (!raw) return { modules: [], records: [] };
+
                 const parsed = JSON.parse(raw);
                 if (Array.isArray(parsed)) {
-                    return {modules: parsed.map(s => s && s.id).filter(Boolean), records: []};
+                    const validMods = [];
+                    for (let i = 0; i < parsed.length; i++) {
+                        if (parsed[i] && parsed[i].id) validMods.push(parsed[i].id);
+                    }
+                    return { modules: validMods, records: [] };
                 }
+
                 return {
                     modules: Array.isArray(parsed.modules) ? parsed.modules : [],
                     records: Array.isArray(parsed.records) ? parsed.records : [],
                 };
             } catch (e) {
-                return {modules: [], records: []};
+                return { modules: [], records: [] };
             }
         },
 
@@ -66,94 +100,135 @@ export default function workspace(config = {}) {
                     modules: this.pinnedModuleIds,
                     records: this.recordPins
                 }));
-            } catch (e) {
-            }
+            } catch (e) {}
         },
 
         searchableModules() {
-            return this.modules.filter(m => m.searchable);
+            return searchableMods;
         },
+
         pinnedModules() {
-            return this.modules.filter(m => this.pinnedModuleIds.includes(m.id));
+            const out = [];
+            for (let i = 0; i < this.pinnedModuleIds.length; i++) {
+                const m = moduleMap.get(this.pinnedModuleIds[i]);
+                if (m) out.push(m);
+            }
+            return out;
         },
+
         unpinnedModules() {
-            return this.modules.filter(m => !this.pinnedModuleIds.includes(m.id));
+            const pinned = new Set(this.pinnedModuleIds);
+            const out = [];
+            for (let i = 0; i < rawModules.length; i++) {
+                if (!pinned.has(rawModules[i].id)) out.push(rawModules[i]);
+            }
+            return out;
         },
+
         pinModule(id) {
-            if (!this.pinnedModuleIds.includes(id)) {
+            if (this.pinnedModuleIds.indexOf(id) === -1) {
                 this.pinnedModuleIds.push(id);
                 this.persist();
             }
         },
+
         unpinModule(id) {
-            this.pinnedModuleIds = this.pinnedModuleIds.filter(x => x !== id);
-            this.persist();
+            const idx = this.pinnedModuleIds.indexOf(id);
+            if (idx !== -1) {
+                this.pinnedModuleIds.splice(idx, 1);
+                this.persist();
+            }
         },
+
         moduleStat(id) {
-            return this.stats[id] || 0;
+            return rawStats[id] || 0;
         },
 
         decorateRecord(p) {
-            const parent = this.modules.find(m => m.id === p.resourceId) || {};
+            const parent = moduleMap.get(p.resourceId) || {};
             return {
-                key: p.key, resourceId: p.resourceId, recordId: p.recordId,
-                label: p.label, subtitle: p.subtitle, url: p.url,
+                key: p.key,
+                resourceId: p.resourceId,
+                recordId: p.recordId,
+                label: p.label,
+                subtitle: p.subtitle,
+                url: p.url,
                 icon: parent.icon || p.icon || '',
-                theme: parent.theme || p.theme || 'from-slate-500 to-slate-600',
+                theme: parent.theme || p.theme || DEFAULT_THEME,
             };
         },
+
         selectResource(id) {
-            const m = this.modules.find(x => x.id === id) || {};
+            const m = moduleMap.get(id) || {};
             this.pickerResource = id;
-            this.pickerTheme = m.theme || 'from-slate-500 to-slate-600';
+            this.pickerTheme = m.theme || DEFAULT_THEME;
             this.recordQuery = '';
             this.recordResults = [];
             this.searchRecords();
         },
+
         async searchRecords() {
+            if (this._abortCtrl) this._abortCtrl.abort();
+
             if (!this.pickerResource) {
                 this.recordResults = [];
                 return;
             }
-            const reqId = ++this.recordReqId;
+
+            this._abortCtrl = new AbortController();
             this.recordLoading = true;
             this.recordError = false;
-            const url = this.recordsUrl.replace('__RES__', this.pickerResource) + '?q=' + encodeURIComponent(this.recordQuery || '');
+
+            const url = rawRecordsUrl.replace('__RES__', this.pickerResource) + '?q=' + encodeURIComponent(this.recordQuery || '');
+
             try {
                 const r = await fetch(url, {
-                    headers: {Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
-                    credentials: 'same-origin'
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                    signal: this._abortCtrl.signal
                 });
+
                 if (!r.ok) throw r;
                 const json = await r.json();
-                if (reqId === this.recordReqId) this.recordResults = Array.isArray(json?.data) ? json.data : [];
+
+                this.recordResults = Array.isArray(json?.data) ? json.data : [];
             } catch (e) {
-                if (reqId === this.recordReqId) {
-                    this.recordError = true;
-                    this.recordResults = [];
-                }
+                if (e.name === 'AbortError') return;
+                this.recordError = true;
+                this.recordResults = [];
             } finally {
-                if (reqId === this.recordReqId) this.recordLoading = false;
+                if (this._abortCtrl && !this._abortCtrl.signal.aborted) {
+                    this.recordLoading = false;
+                }
             }
         },
+
         isRecordPinned(key) {
-            return this.recordPins.some(p => p.key === key);
+            return this.recordPins.findIndex(p => p.key === key) !== -1;
         },
+
         addRecord(rec) {
-            if (this.recordPins.some(p => p.key === rec.key)) return;
+            if (this.isRecordPinned(rec.key)) return;
             this.recordPins.push(this.decorateRecord(rec));
             this.persist();
         },
+
         removeRecord(key) {
-            this.recordPins = this.recordPins.filter(p => p.key !== key);
-            this.persist();
+            const idx = this.recordPins.findIndex(p => p.key === key);
+            if (idx !== -1) {
+                this.recordPins.splice(idx, 1);
+                this.persist();
+            }
         },
+
         renameRecord(key, newLabel) {
             const trimmed = (newLabel || '').trim();
-            const pin = this.recordPins.find(p => p.key === key);
-            if (pin && trimmed) {
-                pin.label = trimmed;
-                this.persist();
+            if (trimmed) {
+                const pin = this.recordPins.find(p => p.key === key);
+                if (pin) {
+                    pin.label = trimmed;
+                    this.persist();
+                }
             }
             this.editingKey = null;
         },
@@ -161,9 +236,11 @@ export default function workspace(config = {}) {
         initials(value) {
             const text = (value || '').toString().trim();
             if (!text) return '#';
-            const parts = text.split(/[\s\-_/.]+/).filter(Boolean);
+
+            const parts = text.split(REGEX_SPLIT).filter(Boolean);
             if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-            const alnum = text.replace(/[^a-zA-Z0-9]/g, '');
+
+            const alnum = text.replace(REGEX_ALNUM, '');
             return (alnum.slice(0, 2) || '#').toUpperCase();
         },
     };

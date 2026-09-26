@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\HasDocumentChecklist;
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
+use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\Shipment\HasFormattedName;
 use App\Models\Traits\Shipment\HasPartSelection;
@@ -24,6 +25,7 @@ class Shipment extends Model implements HasDocumentChecklist
         HasSearchableRelations,
         Relationships,
         SoftDeletes,
+        TracksStatusHistory,
         UserStamps;
 
     public const SCANNABLE_TABLE = 'shipments';
@@ -78,6 +80,11 @@ class Shipment extends Model implements HasDocumentChecklist
         'shipped_quantity' => 'decimal:5',
         'docs' => 'array',
     ];
+
+    public static function statusHistoryColumns(): array
+    {
+        return ['status_id', 'container_status_id', 'operation_status_id', 'shipment_status_id', 'doc_status_id'];
+    }
 
     public function documentChecklist(): array
     {

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('customs', function (Blueprint $table) {
             $table->id();
-            $table->string('custom_no')->unique()->nullable();
+            $table->string('custom_no')->nullable();
             $table->foreignId('shipment_id')->constrained('shipments')->cascadeOnDelete();
             $table->foreignId('registered_order_id')->constrained('registered_orders')->cascadeOnDelete();
 
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('declaration_no')->nullable();
             $table->string('clearance_type')->nullable();
 
-            $table->decimal('commitment_balance', 15, 5)->nullable();
+            $table->decimal('commitment_balance', 65, 5)->nullable();
 
             $table->date('clearance_date')->nullable();
             $table->date('doc_submission_date')->nullable();
@@ -43,6 +43,7 @@ return new class extends Migration
             $table->index('declaration_no');
             $table->index('shipment_no');
             $table->index('contract_no');
+            $table->index(['deleted_at', 'created_at'], 'idx_customs_deleted_created');
         });
     }
 

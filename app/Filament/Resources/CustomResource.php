@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\FormComponents;
+use App\Filament\Resources\General\InfoComponents;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\CustomResource\Exports\CustomExporter;
 use App\Filament\Resources\Operational\CustomResource\Pages\CreateCustom;
 use App\Filament\Resources\Operational\CustomResource\Pages\EditCustom;
@@ -17,6 +19,7 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\Custom;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
@@ -43,9 +46,14 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomResource extends Resource
 {
-    use CustomFilters, CustomForm, CustomInfolist, CustomTable, HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions;
+    use CustomFilters, CustomForm, CustomInfolist, CustomTable, HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow;
 
     protected static ?string $model = Custom::class;
+
+    public static function statusWorkflowType(): string
+    {
+        return Custom::TYPE_CLEARANCE_STATUS;
+    }
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
@@ -114,20 +122,25 @@ class CustomResource extends Resource
             ]);
     }
 
+    public static function eagerRelations(): array
+    {
+        return [
+            'creator',
+            'updater',
+            'extraAttributes',
+            'registeredOrder',
+            'clearanceStatus',
+            'bankGuaranteeStatus',
+            'commitmentStatus',
+            'attachments',
+            'shipment',
+        ];
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with([
-                'creator',
-                'updater',
-                'extraAttributes',
-                'registeredOrder',
-                'clearanceStatus',
-                'bankGuaranteeStatus',
-                'commitmentStatus',
-                'attachments',
-                'shipment',
-            ])
+            ->with(static::eagerRelations())
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
@@ -249,6 +262,7 @@ class CustomResource extends Resource
                                 $record?->attachments->count() ?? 0,
                                 'info'
                             )),
+                        InfoComponents::getStatusHistoryTab(),
                         static::getExtraAttributesInfolistTab(),
                     ])
                     ->columnSpanFull(),
@@ -257,7 +271,7 @@ class CustomResource extends Resource
 
     public static function table(FilamentTable $table): FilamentTable
     {
-        return $table
+        return TableComponents::emptyState($table
             ->columns([
                 static::showShipment(),
                 static::showCustomNo(),
@@ -272,6 +286,9 @@ class CustomResource extends Resource
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
+                static::getStatusWorkflowProgressColumn('clearance_status_id', Custom::TYPE_CLEARANCE_STATUS),
+                static::getStatusWorkflowProgressColumn('bank_guarantee_status_id', Custom::TYPE_BANK_GUARANTEE_STATUS, toggledHiddenByDefault: true),
+                static::getStatusWorkflowProgressColumn('commitment_status_id', Custom::TYPE_COMMITMENT_STATUS, toggledHiddenByDefault: true),
             ])
             ->filters([
                 static::getContractNoFilter(),
@@ -294,10 +311,10 @@ class CustomResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(CustomExporter::class),
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ])
             ->groups([
@@ -312,6 +329,6 @@ class CustomResource extends Resource
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

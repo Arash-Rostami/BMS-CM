@@ -18,7 +18,12 @@ class PurchaseRequestObserver
     public function updated(PurchaseRequest $purchaseRequest): void
     {
         if ($purchaseRequest->wasChanged('status_id')) {
-            $newStatusName = $purchaseRequest->status->english_name;
+            $newStatusName = $purchaseRequest->status?->english_name;
+
+            if (! $newStatusName) {
+                return;
+            }
+
             $actionableStatuses = ['Authorized', 'Declined'];
 
             if (in_array($newStatusName, $actionableStatuses, true)) {

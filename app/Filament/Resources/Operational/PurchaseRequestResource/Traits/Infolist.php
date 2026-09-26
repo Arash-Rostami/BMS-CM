@@ -2,7 +2,10 @@
 
 namespace App\Filament\Resources\Operational\PurchaseRequestResource\Traits;
 
+use App\Filament\Actions\RevertAttachmentAction;
+use App\Filament\Actions\SupersedeAttachmentAction;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Enums\Status;
+use App\Models\Attachment;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Support\Facades\Storage;
@@ -13,7 +16,7 @@ trait Infolist
     {
         return TextEntry::make('approval_date')
             ->label(__('resources/purchaseRequest/strings.form.approval_date'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->icon('heroicon-m-clock');
     }
 
@@ -35,9 +38,24 @@ trait Infolist
                     ->tooltip(fn ($record) => $record->name ?? '')
                     ->icon('heroicon-m-paper-clip')
                     ->color('primary')
-                    ->url(fn ($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
+                    ->url(fn ($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true)
+                    ->columnSpan(2),
+                TextEntry::make('status.name')
+                    ->hiddenLabel()
+                    ->badge()
+                    ->formatStateUsing(fn (Attachment $record) => $record->status?->getLocalizedNameAttribute())
+                    ->color(fn (Attachment $record): string => match (true) {
+                        $record->isArchived() => 'gray',
+                        $record->isSuperseded() => 'warning',
+                        default => 'success',
+                    })
+                    ->icon(fn (Attachment $record): ?string => $record->isArchived() ? 'heroicon-m-lock-closed' : null)
+                    ->suffixActions([
+                        SupersedeAttachmentAction::make(),
+                        RevertAttachmentAction::make(),
+                    ]),
             ])
-            ->columns(1);
+            ->columns(3);
     }
 
     public static function viewCostCenter(): TextEntry
@@ -51,7 +69,7 @@ trait Infolist
     {
         return TextEntry::make('created_at')
             ->label(__('resources/purchaseRequest/strings.table.created_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray');
     }
 
@@ -111,12 +129,7 @@ trait Infolist
                     ->label(__('resources/purchaseRequest/strings.infolist.item_status'))
                     ->badge()
                     ->formatStateUsing(fn ($record) => $record->status?->getLocalizedNameAttribute()),
-                TextEntry::make('notes')
-                    ->label(__('resources/purchaseRequest/strings.infolist.item_notes'))
-                    ->columnSpanFull()
-                    ->placeholder('—')
-                    ->color('gray'),
-            ])->columns(5);
+            ])->columns(6);
     }
 
     public static function viewRejectionReason(): TextEntry
@@ -139,7 +152,7 @@ trait Infolist
     {
         return TextEntry::make('required_by_date')
             ->label(__('resources/purchaseRequest/strings.form.required_by_date'))
-            ->date()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days');
     }
 
@@ -168,7 +181,7 @@ trait Infolist
     {
         return TextEntry::make('updated_at')
             ->label(__('resources/purchaseRequest/strings.table.updated_at'))
-            ->dateTime('M Y | D: H:i:s')
+            ->adaptiveDateTime('M Y | D: H:i:s')
             ->color('gray');
     }
 

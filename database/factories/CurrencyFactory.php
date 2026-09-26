@@ -13,9 +13,9 @@ class CurrencyFactory extends Factory
     {
         return [
             'name' => fake()->unique()->currencyCode(),
-            'english_name' => fake()->unique()->currency(),
+            'english_name' => fake()->unique()->currencyCode(),
             'description' => fake()->optional()->paragraph(),
-            'is_active' => fake()->boolean(90),
+            'is_active' => true,
             'user_id' => null,
             'updated_by_id' => null,
         ];

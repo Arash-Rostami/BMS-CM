@@ -14,6 +14,7 @@ return [
         'categories' => 'Categories',
         'targets' => 'Targets',
         'currencies' => 'Currencies',
+        'departments' => 'Departments',
         'purchase_requests' => 'Purchase requests',
         'purchase_orders' => 'Purchase orders',
         'proforma_invoices' => 'Proforma invoices',
@@ -67,6 +68,125 @@ return [
     'customize' => 'Customize',
     'workflow' => 'Workflow',
     'search' => 'Search',
+    'features' => 'Features',
+    'app_features' => [
+        'panel_title' => 'What Makes This System Different',
+        'panel_intro' => 'A living record of what this system does that generic procurement software does not — and proof it still covers everything solid business software should.',
+        'distinguishing' => [
+            'section_label' => 'What Sets Us Apart',
+            'section_note' => 'Automation, analytics, and cross-pipeline search you will not find in a generic form-based system.',
+            'groups' => [
+                [
+                    'tag' => 'Finds Anything',
+                    'title' => 'One search box, the whole deal\'s history',
+                    'items' => [
+                        ['title' => 'Search Once, Match Everywhere', 'description' => 'Type a number and get matches across all eight stages of the pipeline at once — no need to know which module a record lives in.'],
+                        ['title' => 'Full Deal X-Ray', 'description' => 'Select any one document and instantly see every other document connected to it, each flagged attached or missing so gaps are obvious at a glance.'],
+                        ['title' => 'Progress Rings in the Search View', 'description' => 'Every pipeline document shown in search or the deal X-ray carries an at-a-glance completion percentage, so incomplete paperwork is visible before it causes a delay.'],
+                        ['title' => '"Show Me Their Last Request"', 'description' => 'Search by a person\'s name even when it isn\'t on a document, and the system surfaces their most recent related record.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Does The Retyping',
+                    'title' => 'Automation that runs itself',
+                    'items' => [
+                        ['title' => 'Prepare-From Chain Reactions', 'description' => 'Create an order from a request, or an invoice from an order, and line items, prices, and terms auto-fill from the source document.'],
+                        ['title' => 'Auto-Numbered Documents', 'description' => 'Every request, order, payment, and shipment gets a clean reference number the instant it is created, with the database itself enforcing that no two records ever end up sharing one.'],
+                        ['title' => 'Status Cascades on Its Own', 'description' => 'Approve or decline a request once, and every line item inside it updates to match automatically.'],
+                        ['title' => 'Checklists That Tick Themselves', 'description' => 'Upload shipment paperwork and the system detects which required documents were provided just from the file names — including Persian-script spelling variants.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Sees It First',
+                    'title' => 'Business intelligence, not just record-keeping',
+                    'items' => [
+                        ['title' => 'Stalled Deals Radar', 'description' => 'Automatically lists every request, order, or shipment that has passed its own deadline, ranked by how overdue it is, linked straight to the record.'],
+                        ['title' => 'Supplier & Currency Concentration Score', 'description' => 'Calculates how dependent the business is on one supplier or currency, color-coded so no finance background is needed to read it.'],
+                        ['title' => 'Aging & Exposure Reports', 'description' => 'Unpaid invoices are automatically bucketed into 30/60/90+ day windows, with open currency exposure refreshed automatically per deal.'],
+                        ['title' => 'Deal Speed X-Ray', 'description' => 'Shows typical vs. slowest-10% turnaround time for every pipeline stage, so a slow deal is obvious before it becomes a crisis.'],
+                        ['title' => 'Notifications That Explain Themselves', 'description' => 'When a record you\'re watching changes, the emailed alert shows the actual before-and-after values in plain terms — not just "record updated."'],
+                        ['title' => '"Explain This Number" on Every Chart', 'description' => 'Every dashboard metric has a plain-language explanation built in — what it measures and why it matters — with a technical drill-down for anyone who wants it.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Bends To You',
+                    'title' => 'Configurable without a developer',
+                    'items' => [
+                        ['title' => 'Add Your Own Fields, No Code', 'description' => 'Any pipeline document — requests, orders, invoices, payments, shipments — can carry custom fields a user defines on the spot, like adding a column to a spreadsheet, with no IT ticket required.'],
+                        ['title' => 'Status-Driven Approval Workflows', 'description' => 'Turn any pipeline stage into a gated approval step — set the order it must happen in and pick exactly who can grant it, right from the status screen, changeable anytime with no code.'],
+                        ['title' => 'Role-Shaped Experience', 'description' => 'Every user sees and can do only what their role allows — approvers, clerks, and admins each get a workspace matched to their job.'],
+                        ['title' => 'Link Records Anytime, Not Just at Creation', 'description' => 'A request, order, or invoice can connect to multiple related documents, and those links can be added, changed, or removed at any point in the workflow — before or after the record was first created.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Built For Global Trade',
+                    'title' => 'Three languages, two calendars, one system',
+                    'items' => [
+                        ['title' => 'True Right-to-Left, Not Bolted On', 'description' => 'English, Persian, and French are all first-class — Persian renders in genuine right-to-left layout, not translated text forced into a left-to-right template.'],
+                        ['title' => 'Dual Calendar, One Toggle', 'description' => 'Every date switches instantly between Gregorian and Persian (Jalali) calendars, correctly anchored to the real Persian new year.'],
+                        ['title' => 'Invoices That Read Correctly Everywhere', 'description' => 'Generated PDFs automatically flip to right-to-left Persian formatting with the correct font.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Remembers You',
+                    'title' => 'A workspace that adapts to each person',
+                    'items' => [
+                        ['title' => 'Pin What You Actually Use', 'description' => 'Save frequent modules and specific records to a personal shortcut panel instead of navigating the same menu path every day.'],
+                        ['title' => 'In-Context Help, Not a Manual', 'description' => 'A tailored reference panel per module, with an unread flag that clears once you have seen it — and reappears automatically if the guidance itself is later updated.'],
+                        ['title' => 'A Greeting That Knows the Time of Day', 'description' => 'A small human touch generic procurement software never bothers with.'],
+                        ['title' => 'Sidebar, Your Way', 'description' => 'Switch the navigation menu between a side panel and a bottom dock with one click, and the app remembers your choice.'],
+                        ['title' => 'A Toolkit That Follows You', 'description' => 'A floating clock, a Pomodoro-style countdown timer to help you concentrate, and calming background music to ease tension — all one click away anywhere in the workspace, with your music picks and volume remembered between visits.'],
+                        ['title' => 'A Topbar That Works For You', 'description' => 'A quick-create button that lists only the documents your role may actually create, grouped by pipeline stage — plus a recent-records menu that remembers the last documents you opened, one click away from anywhere.'],
+                    ],
+                ],
+            ],
+        ],
+        'standard' => [
+            'section_label' => 'Everything Solid Trade Software Should Have',
+            'section_note' => 'The dependable basics, done right, so nothing falls through the cracks.',
+            'groups' => [
+                [
+                    'tag' => 'Data & Security',
+                    'title' => 'Built on a secure, accountable foundation',
+                    'items' => [
+                        ['title' => 'Role-Based Access Control', 'description' => 'Every action is checked against the user\'s assigned role before it is allowed, so people only see and do what their job requires.'],
+                        ['title' => 'Full Audit Trail', 'description' => 'The system automatically records who created and who last changed each pipeline record, so day-to-day business activity is never anonymous.'],
+                        ['title' => 'Soft-Delete with Trash & Restore', 'description' => 'Deleting a record moves it to a recoverable trash bin instead of erasing it forever.'],
+                        ['title' => 'Secure Authentication', 'description' => 'Standard, framework-hardened login protects every screen before any business data is shown.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Collaboration & Workflow',
+                    'title' => 'Built for teams, not just individuals',
+                    'items' => [
+                        ['title' => 'File Attachments on Every Order Record', 'description' => 'Supporting documents attach directly to every request, invoice, order, payment, and shipment record, so paperwork never gets separated from the data.'],
+                        ['title' => 'Internal Correspondence Log', 'description' => 'Team messages tied to a specific order keep context in one place instead of scattered across email.'],
+                        ['title' => 'Configurable Notifications', 'description' => 'Users are notified when records they care about change, with administrators able to configure what triggers an alert.'],
+                        ['title' => 'Multi-Company & Multi-Currency', 'description' => 'The same company can be a seller, buyer, or supplier, and every order can carry its own currency — built for real cross-border trade.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Reporting & Export',
+                    'title' => 'Get your data out whenever you need it',
+                    'items' => [
+                        ['title' => 'Excel/CSV Export Everywhere', 'description' => 'Almost every list in the system can be exported to a spreadsheet for offline reporting or sharing.'],
+                        ['title' => 'Professional PDF Documents', 'description' => 'Commercial invoices generate as properly formatted, print-ready PDF files, including right-to-left Persian layout.'],
+                        ['title' => 'Search & Filter on Every List', 'description' => 'Every table supports searching and filtering, so large lists never mean endless scrolling.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Usability',
+                    'title' => 'Consistent, wherever you work',
+                    'items' => [
+                        ['title' => 'Works on Any Device', 'description' => 'The whole system works the same way on desktop, tablet, and mobile, with no separate app required.'],
+                        ['title' => 'Uniform Record Views', 'description' => 'Every record type has a consistent detail view alongside its edit form, so information is always where you expect it.'],
+                        ['title' => 'Drill Into Related Records', 'description' => 'From any order, view its linked invoices, payments, and shipments right on the same page, with one click through to open and edit each one in full.'],
+                        ['title' => 'Guided, Validated Forms', 'description' => 'Form fields explain what is expected and catch mistakes before they are submitted, so users are guided rather than left guessing.'],
+                    ],
+                ],
+            ],
+        ],
+    ],
     'insights' => 'Insights',
     'insights_listen' => 'Listen',
     'insights_pause' => 'Pause',

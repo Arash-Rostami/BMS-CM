@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\SellerEntity;
+use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\PurchaseOrder\Accessors;
 use App\Models\Traits\PurchaseOrder\HasFormattedName;
@@ -25,9 +26,12 @@ class PurchaseOrder extends Model
         Relationships,
         SellerEntity,
         SoftDeletes,
+        TracksStatusHistory,
         UserStamps;
 
     const SCANNABLE_TABLE = 'purchase_orders';
+
+    public const SCANNABLE_IDENTIFIER = 'po_number';
 
     public const TYPE_PURCHASE_ORDER = 'Purchase Order Status';
 

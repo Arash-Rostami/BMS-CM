@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\Operational\ShipmentResource\RelationManagers;
 
 use App\Filament\Resources\CustomResource;
+use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\CustomResource\Exports\CustomExporter;
 use App\Filament\Resources\Operational\CustomResource\Traits\Filters as CustomFilters;
 use App\Filament\Resources\Operational\CustomResource\Traits\Table as CustomTable;
+use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -22,8 +24,11 @@ use Illuminate\Database\Eloquent\Model;
 class CustomsRelationManager extends RelationManager
 {
     use CustomFilters, CustomTable;
+    use HandlesActionExceptions;
 
     protected static string $relationship = 'customs';
+
+    protected static ?string $relatedResource = CustomResource::class;
 
     public static function getModelLabel(): string
     {
@@ -47,7 +52,8 @@ class CustomsRelationManager extends RelationManager
 
     public function table(FilamentTable $table): FilamentTable
     {
-        return $table
+        return TableComponents::gatedEmptyState($table
+            ->modifyQueryUsing(fn ($query) => $query->with(CustomResource::eagerRelations()))
             ->columns([
                 static::showShipment(),
                 static::showCustomNo(),
@@ -77,6 +83,8 @@ class CustomsRelationManager extends RelationManager
             ->headerActions([
                 Action::make('create')
                     ->label(__('resources/general/strings.actions.add_record'))
+                    ->tooltip(__('resources/general/strings.actions.add_record_tooltip'))
+                    ->visible(fn (): bool => in_array($this->getOwnerRecord()->status?->english_name, ['Processing', 'Approved']))
                     ->url(fn (): string => CustomResource::getUrl('create', ['shipment_id' => $this->getOwnerRecord()->getKey()])),
             ])
             ->recordActions([
@@ -98,6 +106,6 @@ class CustomsRelationManager extends RelationManager
             ->searchDebounce('1000ms')
             ->recordUrl(null)
             ->reorderableColumns()
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc'));
     }
 }

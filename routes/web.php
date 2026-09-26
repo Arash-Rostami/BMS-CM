@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\DeskReferenceController;
+use App\Http\Controllers\ExportDownloadController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\WorkspaceController;
@@ -27,6 +28,10 @@ Route::get('/workspace/records/{resource}', [WorkspaceController::class, 'record
 Route::get('/shipments/{shipment}/invoice/pdf', [InvoiceController::class, 'shipmentPdf'])
     ->middleware('auth')
     ->name('shipments.invoice.pdf');
+
+Route::get('/exports/{user}/{file}', [ExportDownloadController::class, 'download'])
+    ->middleware(['auth', 'signed'])
+    ->name('exports.download');
 
 Route::post('/desk-reference/acknowledge', [DeskReferenceController::class, 'acknowledge'])
     ->middleware('auth')

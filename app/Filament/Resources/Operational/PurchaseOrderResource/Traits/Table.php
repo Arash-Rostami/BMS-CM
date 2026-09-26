@@ -26,7 +26,7 @@ trait Table
     {
         return TextColumn::make('created_at')
             ->label(__('resources/purchaseOrder/strings.table.created_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -53,7 +53,7 @@ trait Table
     {
         return TextColumn::make('order_date')
             ->label(__('resources/purchaseOrder/strings.table.order_date'))
-            ->date()
+            ->adaptiveDate()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -110,7 +110,7 @@ trait Table
     {
         return TextColumn::make('updated_at')
             ->label(__('resources/purchaseOrder/strings.table.updated_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

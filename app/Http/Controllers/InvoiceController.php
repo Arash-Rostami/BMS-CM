@@ -11,7 +11,7 @@ class InvoiceController extends Controller
 {
     public function shipmentPdf(Request $request, Shipment $shipment): \Illuminate\Http\Response
     {
-        abort_unless(auth()->check(), 403);
+        abort_unless(userCan(Shipment::class), 403);
 
         $attr = EntityAttribute::where('entity_type', Shipment::class)
             ->where('entity_id', $shipment->id)

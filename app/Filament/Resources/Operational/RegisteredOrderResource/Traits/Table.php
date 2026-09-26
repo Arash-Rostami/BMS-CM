@@ -2,15 +2,51 @@
 
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\Traits;
 
+use App\Filament\Actions\GroupedImportAction;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Enums\Source;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Enums\Status;
+use App\Filament\Resources\Operational\RegisteredOrderResource\Imports\RegisteredOrderImporter;
+use App\Filament\Resources\RegisteredOrderResource;
+use App\Jobs\ExportRegisteredOrders;
 use App\Models\Company;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getImportAction(): GroupedImportAction
+    {
+        return GroupedImportAction::make('importRegisteredOrders')
+            ->label(__('resources/registeredOrder/strings.import.import_orders'))
+            ->modalHeading(__('resources/registeredOrder/strings.import.import_orders'))
+            ->icon('heroicon-o-arrow-up-tray')
+            ->importer(RegisteredOrderImporter::class)
+            ->resourceGate(RegisteredOrderResource::class)
+            ->itemDiscriminatorColumn('product_id')
+            ->itemOnlyColumns(['quantity', 'unit', 'unit_price', 'net_weight', 'gross_weight', 'entrance_fee', 'shipping_cost', 'extra_cost', 'packing_details', 'description']);
+    }
+
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportRegisteredOrders')
+            ->label(__('resources/registeredOrder/strings.export.export_orders'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => RegisteredOrderResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportRegisteredOrders::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showBuyer(): TextColumn
     {
         return TextColumn::make('buyerCompany.name')
@@ -26,8 +62,8 @@ trait Table
     public static function showCreationTime(): TextColumn
     {
         return TextColumn::make('created_at')
-            ->label(__('resources/registeredOrder/strings.table.created_at'))->dateTime()
-            ->dateTime()
+            ->label(__('resources/registeredOrder/strings.table.created_at'))->adaptiveDateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -54,8 +90,29 @@ trait Table
     {
         return TextColumn::make('order_date')
             ->label(__('resources/registeredOrder/strings.table.order_date'))
-            ->date()
-            ->formatStateUsing(fn ($record) => app()->getLocale() === 'fa' ? toPersianDate($record->order_date) : toGregorianDate($record->order_date))
+            ->adaptiveDate()
+            ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function isValidityLapsed($record): bool
+    {
+        return $record?->validity_date
+            && $record->validity_date->isPast()
+            && (int) ($record->purchase_orders_count ?? 0) === 0;
+    }
+
+    public static function showValidityDate(): TextColumn
+    {
+        return TextColumn::make('validity_date')
+            ->label(__('resources/registeredOrder/strings.form.validity_date'))
+            ->formatStateUsing(fn (?string $state, $record) => match (true) {
+                blank($state) => null,
+                static::isValidityLapsed($record) => __('resources/registeredOrder/strings.table.validity_expired'),
+                default => adaptiveDate($state),
+            })
+            ->badge(fn ($record): bool => static::isValidityLapsed($record))
+            ->color(fn ($record): ?string => static::isValidityLapsed($record) ? 'danger' : null)
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
@@ -76,7 +133,10 @@ trait Table
     {
         return TextColumn::make('ro_number')
             ->label(__('resources/registeredOrder/strings.table.ro_number'))
-            ->searchable()
+            ->searchable(query: fn (Builder $query, string $search): Builder => RegisteredOrderResource::orWhereExtraAttributesMatch(
+                $query->where('ro_number', 'like', "%{$search}%"),
+                $search
+            ))
             ->badge()
             ->copyable()
             ->sortable()
@@ -136,7 +196,7 @@ trait Table
     {
         return TextColumn::make('updated_at')
             ->label(__('resources/registeredOrder/strings.table.updated_at'))
-            ->dateTime()
+            ->adaptiveDateTime()
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

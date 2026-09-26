@@ -267,6 +267,14 @@ class Country
      * @param  string  $code  The 2-letter ISO country code.
      * @return string|null The localized country name, or English name, or null if not found.
      */
+    /**
+     * @return array<int, array{code: string, name: string, name_english: string}>
+     */
+    public function all(): array
+    {
+        return $this->countries;
+    }
+
     public function getCountryNameByCode(string $code): ?string
     {
         $code = strtoupper($code);

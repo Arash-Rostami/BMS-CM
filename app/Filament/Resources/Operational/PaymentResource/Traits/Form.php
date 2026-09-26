@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Operational\PaymentResource\Traits;
 
-use App\Models\Payment;
 use App\Models\PurchaseOrder;
 use App\Models\RegisteredOrder;
 use App\Services\CodeGenerator;
@@ -238,7 +237,7 @@ trait Form
             ->required()
             ->readOnly()
             ->maxLength(255)
-            ->unique(ignoreRecord: true)
+            ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->default(fn ($operation) => $operation == 'create' ? CodeGenerator::generate('payment_no') : null)
             ->validationMessages([
                 'required' => __('resources/payment/strings.form.validation_required'),
@@ -267,23 +266,17 @@ trait Form
 
     public static function getStatusField(): Select
     {
-        return Select::make('status_id')
+        return static::getStatusWorkflowField('status_id', fn (Select $field) => $field
             ->label(__('resources/payment/strings.form.status'))
-            ->relationship(
-                name: 'status',
-                titleAttribute: app()->getLocale() === 'fa' ? 'name' : 'english_name',
-                modifyQueryUsing: fn ($query) => $query->where('english_type', Payment::TYPE_PAYMENT)
-            )
             ->disabled(fn (Get $get): bool => empty($get('targetable_type')) || empty($get('targetable_id')))
             ->hidden(fn (Get $get): bool => empty($get('targetable_type')) || empty($get('targetable_id')))
             ->searchable()
             ->preload()
-            ->required()
             ->validationMessages([
                 'required' => __('resources/payment/strings.form.validation_required'),
             ])
             ->validationAttribute(__('resources/payment/strings.form.status'))
-            ->helperText(__('resources/payment/strings.form.helper_status'));
+            ->helperText(__('resources/payment/strings.form.helper_status')));
     }
 
     public static function getSummaryFields(): array
@@ -337,10 +330,16 @@ trait Form
             ->live()
             ->live(onBlur: true)
             ->columnSpanFull()
-            ->validationMessages([
-                'required' => __('resources/payment/strings.form.validation_required'),
-            ])
-            ->validationAttribute(__('resources/payment/strings.form.targetable'));
+            ->modifyTypeSelectUsing(fn (Select $select): Select => $select
+                ->validationAttribute(__('resources/payment/strings.form.targetable'))
+                ->validationMessages([
+                    'required' => __('resources/payment/strings.form.validation_required'),
+                ]))
+            ->modifyKeySelectUsing(fn (Select $select): Select => $select
+                ->validationAttribute(__('resources/payment/strings.form.targetable'))
+                ->validationMessages([
+                    'required' => __('resources/payment/strings.form.validation_required'),
+                ]));
     }
 
     public static function getTotalAmountField(): TextInput

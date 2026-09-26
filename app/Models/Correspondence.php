@@ -6,6 +6,7 @@ use App\Models\Traits\Correspondence\HasCorrespondenceBodyField;
 use App\Models\Traits\Correspondence\HasThreadGroup;
 use App\Models\Traits\Correspondence\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\Relationships;
+use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,6 +21,7 @@ class Correspondence extends Model
         HasThreadGroup,
         Relationships,
         SoftDeletes,
+        TracksStatusHistory,
         UserStamps;
 
     public const TYPE_CORRESPONDENCE_STATUS = 'Correspondence Status';

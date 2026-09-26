@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('payment_no')->unique()->nullable();
+            $table->string('payment_no')->nullable();
             $table->date('payment_date')->nullable();
             $table->date('payment_deadline')->nullable();
 
@@ -21,10 +21,10 @@ return new class extends Migration
 
             $table->morphs('targetable');
 
-            $table->decimal('payable_amount', 15, 5)->default(0);
-            $table->decimal('total_amount', 15, 5)->nullable()->default(0);
-            $table->decimal('exchange_rate', 15, 5)->nullable()->default(0);
-            $table->decimal('bank_charges', 15, 5)->nullable()->default(0);
+            $table->decimal('payable_amount', 65, 5)->default(0);
+            $table->decimal('total_amount', 65, 5)->nullable()->default(0);
+            $table->decimal('exchange_rate', 65, 5)->nullable()->default(0);
+            $table->decimal('bank_charges', 65, 5)->nullable()->default(0);
             $table->string('beneficiary_name')->nullable();
             $table->text('beneficiary_address')->nullable();
             $table->foreignId('bank_id')->nullable()->constrained('banks')->nullOnDelete();
@@ -42,6 +42,10 @@ return new class extends Migration
 
             $table->index(['targetable_type', 'targetable_id', 'deleted_at'], 'idx_payments_targetable_deleted');
             $table->index(['status_id', 'deleted_at']);
+            $table->index(['payment_date', 'payment_deadline'], 'idx_payments_date_deadline');
+            $table->index(['payee_id', 'deleted_at'], 'idx_payments_payee_deleted');
+            $table->index(['currency_id', 'deleted_at'], 'idx_payments_currency_deleted');
+            $table->index(['deleted_at', 'created_at'], 'idx_payments_deleted_created');
         });
     }
 
