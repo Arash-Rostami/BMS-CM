@@ -616,4 +616,12 @@ class BankResourceTest extends TestCase
 
         $this->assertSame($record->description, BankResource::showDescription()->record($record)->getTooltip());
     }
+
+    public function test_import_action_is_reachable_from_the_page_header(): void
+    {
+        $this->actingAsUserWithPermissions(['bank.view', 'bank.create']);
+
+        Livewire::test(ManageBanks::class)
+            ->assertActionExists('importBanks');
+    }
 }

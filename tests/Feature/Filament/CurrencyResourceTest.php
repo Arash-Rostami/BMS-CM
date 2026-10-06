@@ -688,4 +688,12 @@ class CurrencyResourceTest extends TestCase
         $this->assertTrue($imported[1]->getRecord()->is_active);
         $this->assertFalse($imported[3]->getRecord()->is_active);
     }
+
+    public function test_import_action_is_reachable_from_the_page_header(): void
+    {
+        $this->actingAsUserWithPermissions(['currency.view', 'currency.create']);
+
+        Livewire::test(ManageCurrencies::class)
+            ->assertActionExists('importCurrencies');
+    }
 }

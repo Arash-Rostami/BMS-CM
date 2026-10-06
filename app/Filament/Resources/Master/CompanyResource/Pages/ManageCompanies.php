@@ -13,6 +13,7 @@ class ManageCompanies extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
+            CompanyResource::getImportAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
         ];

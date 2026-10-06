@@ -766,4 +766,12 @@ class ProductResourceTest extends TestCase
         $this->assertSame(0, $imported[2]->getRecord()->specifications()->count());
         $this->assertNull($imported[3]->getRecord()->category_id);
     }
+
+    public function test_import_action_is_reachable_from_the_page_header(): void
+    {
+        $this->actingAsUserWithPermissions(['product.view', 'product.create']);
+
+        Livewire::test(ManageProducts::class)
+            ->assertActionExists('importProducts');
+    }
 }

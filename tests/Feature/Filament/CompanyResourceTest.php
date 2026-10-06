@@ -587,4 +587,12 @@ class CompanyResourceTest extends TestCase
         $this->assertSame(__('resources/company/strings.export.inactive'), $rows[1][$labels['is_active']]);
         $this->assertSame(jdate($active->created_at)->format('Y-m-d'), $rows[0][$labels['created_at']]);
     }
+
+    public function test_import_action_is_reachable_from_the_page_header(): void
+    {
+        $this->actingAsUserWithPermissions(['company.view', 'company.create']);
+
+        Livewire::test(ManageCompanies::class)
+            ->assertActionExists('importCompanies');
+    }
 }

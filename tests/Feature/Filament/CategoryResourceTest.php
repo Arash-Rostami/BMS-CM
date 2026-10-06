@@ -644,4 +644,12 @@ class CategoryResourceTest extends TestCase
         $this->assertNull($officeChairs->description);
         $this->assertFalse((bool) $officeChairs->active);
     }
+
+    public function test_import_action_is_reachable_from_the_page_header(): void
+    {
+        $this->actingAsUserWithPermissions(['category.view', 'category.create']);
+
+        Livewire::test(ManageCategories::class)
+            ->assertActionExists('importCategories');
+    }
 }
