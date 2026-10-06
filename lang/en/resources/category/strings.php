@@ -10,8 +10,11 @@ return [
             'line' => '❸ Line',
             'model' => '❹ Model',
         ],
+        'delete_blocked' => 'This category cannot be deleted — it still has :children sub-categories and :products products.',
+        'bulk_delete_blocked' => ':count of the selected categories still have sub-categories or products and cannot be deleted.',
     ],
     'export' => [
+        'export_categories' => 'Export Categories',
         'id' => 'ID',
         'name' => 'Name (Persian)',
         'english_name' => 'Name (English)',
@@ -22,6 +25,11 @@ return [
         'updater' => 'Last Updated By',
         'created_at' => 'Date Created',
         'updated_at' => 'Last Updated',
+    ],
+    'import' => [
+        'import_categories' => 'Import Categories',
+        'english_name_required' => 'Please provide an English name for this category.',
+        'duplicate_category' => 'A category named ":name" already exists.',
     ],
     'form' => [
         'name' => 'Name (Persian)',
@@ -45,6 +53,7 @@ return [
         'validation_level' => 'Level must be a number.',
         'validation_level_required' => 'Please set the level for this category.',
         'validation_level_numeric' => 'The level must be a number.',
+        'validation_parent_cycle' => 'A category cannot be nested under itself or one of its own sub-categories.',
         'helper_parent' => 'Leave empty for a top-level category; pick a parent to nest this one beneath it.',
         'name_placeholder' => 'Only Persian characters are allowed.',
         'english_name_placeholder' => 'Only English letters and spaces are allowed.',

@@ -68,4 +68,18 @@ trait Relationships
     {
         return $this->morphMany(Target::class, 'targetable');
     }
+
+    public static function descendantIdsOf(int $categoryId): array
+    {
+        return static::find($categoryId)?->descendants()->pluck('categories.id')->all() ?? [];
+    }
+
+    public static function wouldCreateCycle(?int $recordId, ?int $parentId): bool
+    {
+        if (! $recordId || ! $parentId) {
+            return false;
+        }
+
+        return $recordId === $parentId || in_array($parentId, static::descendantIdsOf($recordId), true);
+    }
 }

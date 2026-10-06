@@ -13,6 +13,7 @@ class ManageCategories extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
+            CategoryResource::getImportAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
         ];

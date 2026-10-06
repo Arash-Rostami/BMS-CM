@@ -10,8 +10,11 @@ return [
             'line' => '❸ Ligne',
             'model' => '❹ Modèle',
         ],
+        'delete_blocked' => 'Cette catégorie ne peut pas être supprimée — elle contient encore :children sous-catégories et :products produits.',
+        'bulk_delete_blocked' => ':count des catégories sélectionnées contiennent encore des sous-catégories ou des produits et ne peuvent pas être supprimées.',
     ],
     'export' => [
+        'export_categories' => 'Exporter les catégories',
         'id' => 'ID',
         'name' => 'Nom (Persan)',
         'english_name' => 'Nom (Anglais)',
@@ -22,6 +25,11 @@ return [
         'updater' => 'Dernière mise à jour par',
         'created_at' => 'Date de création',
         'updated_at' => 'Dernière mise à jour',
+    ],
+    'import' => [
+        'import_categories' => 'Importer les catégories',
+        'english_name_required' => 'Veuillez saisir le nom anglais de cette catégorie.',
+        'duplicate_category' => 'Une catégorie nommée ":name" existe déjà.',
     ],
     'form' => [
         'name' => 'Nom (Persan)',
@@ -44,6 +52,7 @@ return [
         'validation_level' => 'Le niveau doit être un entier.',
         'validation_level_required' => 'Veuillez définir le niveau de cette catégorie.',
         'validation_level_numeric' => 'Le niveau doit être un nombre.',
+        'validation_parent_cycle' => 'Une catégorie ne peut pas être imbriquée sous elle-même ou l\'une de ses propres sous-catégories.',
         'helper_parent' => 'Laissez vide pour une catégorie de premier niveau ; choisissez un parent pour l\'imbriquer en dessous.',
         'level_helper' => '0 = Catégorie de base ┆ 1 = Sous-catégorie ┆ 2 = Ligne ┆ 3 = Modèle ┆ 4+ = Niveaux supplémentaires',
         'name_placeholder' => 'Seuls les caractères persans sont autorisés.',

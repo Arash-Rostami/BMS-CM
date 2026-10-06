@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Category;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class CategoryObserver
@@ -54,43 +55,56 @@ class CategoryObserver
 
     protected function syncClosure(Category $category): void
     {
-        $this->removeOldLinks($category);
+        DB::table('category_closure')->updateOrInsert(
+            ['ancestor_id' => $category->id, 'descendant_id' => $category->id],
+            ['depth' => 0]
+        );
 
-        $this->createSelfLink($category);
+        $subtree = DB::table('category_closure')
+            ->where('ancestor_id', $category->id)
+            ->pluck('depth', 'descendant_id');
+
+        $subtreeIds = $subtree->keys()->all();
+
+        DB::table('category_closure')
+            ->whereIn('descendant_id', $subtreeIds)
+            ->whereNotIn('ancestor_id', $subtreeIds)
+            ->delete();
 
         if ($parentId = $category->parent_id) {
-            $this->createAncestorLinks($parentId, $category);
+            $this->createAncestorLinks($parentId, $subtree);
         }
     }
 
-    private function removeOldLinks(Category $category): void
+    /**
+     * Relinks an entire subtree (the reparented category plus every one of its
+     * own descendants) onto its new parent's ancestor chain. A reparent only
+     * ever changes how the subtree attaches to the rest of the tree — the
+     * relationships WITHIN the subtree are untouched, so this only needs to
+     * replace each node's links to ancestors OUTSIDE the subtree.
+     *
+     * @param  Collection<int, int>  $subtreeDepths  descendant_id => depth from the reparented category (0 for itself)
+     */
+    private function createAncestorLinks(mixed $parentId, Collection $subtreeDepths): void
     {
-        DB::table('category_closure')
-            ->where('descendant_id', $category->id)
-            ->delete();
-    }
-
-    private function createSelfLink(Category $category): void
-    {
-        DB::table('category_closure')->insert([
-            'ancestor_id' => $category->id,
-            'descendant_id' => $category->id,
-            'depth' => 0,
-        ]);
-    }
-
-    private function createAncestorLinks(mixed $parentId, Category $category): void
-    {
-        $ancestors = DB::table('category_closure')
+        $newAncestors = DB::table('category_closure')
             ->where('descendant_id', $parentId)
             ->get(['ancestor_id', 'depth']);
 
-        $batch = $ancestors->map(fn ($anc) => [
-            'ancestor_id' => $anc->ancestor_id,
-            'descendant_id' => $category->id,
-            'depth' => $anc->depth + 1,
-        ])->all();
+        $batch = [];
 
-        DB::table('category_closure')->insert($batch);
+        foreach ($newAncestors as $ancestor) {
+            foreach ($subtreeDepths as $descendantId => $depthFromCategory) {
+                $batch[] = [
+                    'ancestor_id' => $ancestor->ancestor_id,
+                    'descendant_id' => $descendantId,
+                    'depth' => $ancestor->depth + 1 + $depthFromCategory,
+                ];
+            }
+        }
+
+        if ($batch !== []) {
+            DB::table('category_closure')->insert($batch);
+        }
     }
 }

@@ -2,13 +2,99 @@
 
 namespace App\Filament\Resources\Master\CategoryResource\Traits;
 
+use App\Filament\Actions\ImportAction;
+use App\Filament\Resources\CategoryResource;
 use App\Filament\Resources\Master\CategoryResource\Enums\Level;
 use App\Filament\Resources\Master\CategoryResource\Enums\Status;
+use App\Filament\Resources\Master\CategoryResource\Imports\CategoryImporter;
+use App\Jobs\ExportCategories;
+use Filament\Actions\BulkAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getImportAction(): ImportAction
+    {
+        return ImportAction::make('importCategories')
+            ->label(__('resources/category/strings.import.import_categories'))
+            ->modalHeading(__('resources/category/strings.import.import_categories'))
+            ->icon('heroicon-o-arrow-up-tray')
+            ->importer(CategoryImporter::class)
+            ->resourceGate(CategoryResource::class);
+    }
+
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportCategories')
+            ->label(__('resources/category/strings.export.export_categories'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => CategoryResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportCategories::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
+    public static function getDeleteAction(): DeleteAction
+    {
+        return DeleteAction::make()
+            ->before(function (Model $record, DeleteAction $action): void {
+                if (! static::hasBlockingRelations($record)) {
+                    return;
+                }
+
+                static::sendDeleteBlockedNotification($record->children->count(), $record->products->count());
+
+                $action->halt();
+            });
+    }
+
+    public static function getDeleteBulkAction(): DeleteBulkAction
+    {
+        return DeleteBulkAction::make()
+            ->before(function (Collection $records, DeleteBulkAction $action): void {
+                $blocked = $records->filter(fn (Model $record): bool => static::hasBlockingRelations($record));
+
+                if ($blocked->isEmpty()) {
+                    return;
+                }
+
+                Notification::make()
+                    ->title(__('resources/category/strings.general.bulk_delete_blocked', ['count' => $blocked->count()]))
+                    ->danger()
+                    ->send();
+
+                $action->halt();
+            });
+    }
+
+    protected static function hasBlockingRelations(Model $record): bool
+    {
+        return $record->children->isNotEmpty() || $record->products->isNotEmpty();
+    }
+
+    protected static function sendDeleteBlockedNotification(int $childrenCount, int $productsCount): void
+    {
+        Notification::make()
+            ->title(__('resources/category/strings.general.delete_blocked', [
+                'children' => $childrenCount,
+                'products' => $productsCount,
+            ]))
+            ->danger()
+            ->send();
+    }
+
     public static function showName(): TextColumn
     {
         return TextColumn::make('name')
