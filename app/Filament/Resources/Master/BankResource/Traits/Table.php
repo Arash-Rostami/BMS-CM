@@ -2,11 +2,45 @@
 
 namespace App\Filament\Resources\Master\BankResource\Traits;
 
+use App\Filament\Actions\ImportAction;
+use App\Filament\Resources\BankResource;
+use App\Filament\Resources\Master\BankResource\Imports\BankImporter;
+use App\Jobs\ExportBanks;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getImportAction(): ImportAction
+    {
+        return ImportAction::make('importBanks')
+            ->label(__('resources/bank/strings.import.import_banks'))
+            ->modalHeading(__('resources/bank/strings.import.import_banks'))
+            ->icon('heroicon-o-arrow-up-tray')
+            ->importer(BankImporter::class)
+            ->resourceGate(BankResource::class);
+    }
+
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportBanks')
+            ->label(__('resources/bank/strings.export.export_banks'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => BankResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportBanks::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showName(): TextColumn
     {
         return TextColumn::make('name')

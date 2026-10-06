@@ -12,10 +12,10 @@ class BankFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->company(),
+            'name' => 'بانک '.fake()->unique()->numberBetween(100000, 999999),
             'english_name' => fake()->unique()->company(),
             'description' => fake()->optional()->paragraph(),
-            'is_active' => fake()->boolean(90),
+            'is_active' => true,
             'user_id' => null,
             'updated_by_id' => null,
         ];

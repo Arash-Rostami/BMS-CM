@@ -13,6 +13,7 @@ class ManageBanks extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
+            BankResource::getImportAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
         ];

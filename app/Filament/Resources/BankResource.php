@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Master\BankResource\Exports\BankExporter;
 use App\Filament\Resources\Master\BankResource\Pages\ManageBanks;
 use App\Filament\Resources\Master\BankResource\Traits\Filters as BankFilters;
 use App\Filament\Resources\Master\BankResource\Traits\Form as BankForm;
@@ -17,7 +16,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -156,8 +154,7 @@ class BankResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(BankExporter::class),
+                    static::getExportBulkAction(),
                     static::getActivateBulkAction(),
                     static::getDeactivateBulkAction(),
                     DeleteBulkAction::make(),
