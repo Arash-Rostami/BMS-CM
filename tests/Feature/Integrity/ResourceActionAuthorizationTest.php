@@ -1,17 +1,17 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Integrity;
 
+use App\Filament\Resources\PurchaseRequestResource;
 use App\Models\PurchaseRequest;
 use App\Models\Role;
-use App\Models\Shipment;
 use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
-class HttpEndpointAuthorizationTest extends TestCase
+class ResourceActionAuthorizationTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -88,34 +88,57 @@ class HttpEndpointAuthorizationTest extends TestCase
         return $user;
     }
 
-    public function test_user_can_helper_matches_the_model_specific_permission(): void
+    public function test_view_only_permission_denies_edit_delete_and_restore_authorization(): void
     {
-        $this->actingAsUserWithPermissions(['shipment.view']);
+        $this->actingAsUserWithPermissions(['purchase_request.view']);
 
-        $this->assertTrue(userCan(Shipment::class));
-        $this->assertFalse(userCan(PurchaseRequest::class));
-        $this->assertFalse(userCan(Shipment::class, 'edit'));
+        $record = new PurchaseRequest;
+
+        $this->assertTrue(PurchaseRequestResource::getViewAuthorizationResponse($record)->allowed());
+        $this->assertFalse(PurchaseRequestResource::getEditAuthorizationResponse($record)->allowed());
+        $this->assertFalse(PurchaseRequestResource::getDeleteAuthorizationResponse($record)->allowed());
+        $this->assertFalse(PurchaseRequestResource::getDeleteAnyAuthorizationResponse()->allowed());
+        $this->assertFalse(PurchaseRequestResource::getRestoreAuthorizationResponse($record)->allowed());
     }
 
-    public function test_user_can_helper_denies_a_guest(): void
+    public function test_delete_permission_grants_delete_authorization_only(): void
     {
-        $this->assertFalse(userCan(Shipment::class));
+        $this->actingAsUserWithPermissions(['purchase_request.delete']);
+
+        $record = new PurchaseRequest;
+
+        $this->assertTrue(PurchaseRequestResource::getDeleteAuthorizationResponse($record)->allowed());
+        $this->assertFalse(PurchaseRequestResource::getEditAuthorizationResponse($record)->allowed());
     }
 
-    public function test_endpoints_known_to_leak_cross_model_data_call_user_can(): void
+    public function test_no_permissions_denies_every_action(): void
     {
-        $violations = [];
-        $expected = [
-            app_path('Http/Controllers/InvoiceController.php') => 'userCan(Shipment::class)',
-            app_path('Services/SearchService.php') => 'userCan(',
-        ];
+        $this->actingAsUserWithPermissions([]);
 
-        foreach ($expected as $file => $needle) {
-            if (! str_contains(file_get_contents($file), $needle)) {
-                $violations[] = basename($file).' lost its userCan() gate — any authenticated user could read/download cross-model data again';
-            }
-        }
+        $record = new PurchaseRequest;
 
-        $this->assertEmpty($violations, implode("\n", $violations));
+        $this->assertFalse(PurchaseRequestResource::getViewAuthorizationResponse($record)->allowed());
+        $this->assertFalse(PurchaseRequestResource::getEditAuthorizationResponse($record)->allowed());
+        $this->assertFalse(PurchaseRequestResource::getDeleteAuthorizationResponse($record)->allowed());
+        $this->assertFalse(PurchaseRequestResource::getRestoreAuthorizationResponse($record)->allowed());
+    }
+
+    public function test_edit_page_blocks_access_to_trashed_records(): void
+    {
+        $method = (new \ReflectionClass(\App\Filament\Pages\EditRecord::class))->getMethod('authorizeAccess');
+
+        $this->assertSame(
+            \App\Filament\Pages\EditRecord::class,
+            $method->getDeclaringClass()->getName(),
+            'EditRecord no longer overrides authorizeAccess() — a trashed record\'s /edit URL would silently become editable again'
+        );
+
+        $source = file_get_contents((new \ReflectionClass(\App\Filament\Pages\EditRecord::class))->getFileName());
+
+        $this->assertStringContainsString(
+            'trashed()',
+            $source,
+            'authorizeAccess() no longer checks trashed() — a soft-deleted record could be edited via direct URL access'
+        );
     }
 }

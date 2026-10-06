@@ -8,9 +8,11 @@ use App\Filament\Resources\Master\CurrencyResource\Imports\CurrencyImporter;
 use App\Jobs\ExportCurrencies;
 use Filament\Actions\BulkAction;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 trait Table
 {
@@ -79,6 +81,20 @@ trait Table
             ->offColor('danger')
             ->toggleable()
             ->sortable();
+    }
+
+    public static function showInUse(): IconColumn
+    {
+        return IconColumn::make('in_use')
+            ->label(__('resources/currency/strings.table.in_use'))
+            ->getStateUsing(fn ($record) => collect(static::usageRelations())
+                ->sum(fn (string $relation) => (int) ($record->{Str::snake($relation).'_count'} ?? 0)) > 0)
+            ->boolean()
+            ->trueIcon('heroicon-o-link')
+            ->falseIcon('heroicon-o-link-slash')
+            ->trueColor('warning')
+            ->falseColor('gray')
+            ->toggleable(isToggledHiddenByDefault: true);
     }
 
     public static function showCreator(): TextColumn

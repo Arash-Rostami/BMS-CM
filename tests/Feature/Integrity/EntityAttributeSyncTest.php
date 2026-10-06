@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Integrity;
 
 use App\Models\Traits\General\HasCustomAttributes;
 use Illuminate\Database\Eloquent\Model;

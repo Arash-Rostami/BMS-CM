@@ -136,7 +136,7 @@ This `files` entry is what makes every function globally available without `use`
 | Format money ± currency in a Table column | `delimiter($value, $currency, $decimals)` | Fixed rounding is acceptable only in Tables — §1b. |
 | Format a price/quantity/rate/weight value anywhere else (Infolist, hint, `_display` field) | `preciseNumber($value, $currency, $maxDecimals)` | Shows meaningful precision, no padded/truncated zeros — §1/§1b. |
 | Make a date picker respect Jalali | `maybeJalali(DatePicker::make(...))` or `->adaptive()` | Keeps the `calendar_type` gate in one place — §2. |
-| Format a display date that follows the calendar toggle | `->adaptiveDate()` / `->adaptiveDateTime()` on the column/entry, or `adaptiveDate($date)` at a standalone site | Raw `->date()`/`->dateTime()` and locale ternaries ignore the toggle — enforced by `tests/Unit/AdaptiveDateTest.php`. |
+| Format a display date that follows the calendar toggle | `->adaptiveDate()` / `->adaptiveDateTime()` on the column/entry, or `adaptiveDate($date)` at a standalone site | Raw `->date()`/`->dateTime()` and locale ternaries ignore the toggle — enforced by `tests/Feature/Helpers/AdaptiveDateTest.php`. |
 | Add a count badge to a Tab/infolist header | `tabBadge($label, $count, $color)` | Only producer of `.tb-badge` markup — §1/§4. |
 | Clear all caches | `clearApplicationCaches()` | Backs `/clear`; also the first half of `resetApplicationCache()`. |
 | Rebuild all caches | `cacheApplicationConfig()` | Backs `/cache`; also the second half of `resetApplicationCache()`. |
@@ -147,7 +147,7 @@ This `files` entry is what makes every function globally available without `use`
 ## 7. Absolute Anti-Patterns
 
 - ❌ Inlining `session('calendar_type', ...)` in a resource or view — duplicates the load-bearing literal (§2); route through `isJalaliCalendar()`/`maybeJalali()`/`->adaptive()`.
-- ❌ A locale-ternary date branch (`app()->getLocale() === 'fa' ? toPersianDate(...) : toGregorianDate(...)`) or a raw `->date()`/`->dateTime()` on a display column/entry — both ignore the calendar toggle; use the adaptive macros (§2, enforced by `tests/Unit/AdaptiveDateTest.php`).
+- ❌ A locale-ternary date branch (`app()->getLocale() === 'fa' ? toPersianDate(...) : toGregorianDate(...)`) or a raw `->date()`/`->dateTime()` on a display column/entry — both ignore the calendar toggle; use the adaptive macros (§2, enforced by `tests/Feature/Helpers/AdaptiveDateTest.php`).
 - ❌ Calling `number_format()` directly for a money column — use `delimiter()` in a Table column, `preciseNumber()` everywhere else.
 - ❌ Rounding/truncating a price/quantity/rate/weight value to 2 decimals anywhere outside a Table column — the standard is up to 5 decimals at DB/model/computation layers; only Table display may round for readability (§1b).
 - ❌ Hand-writing `<span class="tb-badge tb-info">N</span>` — use `tabBadge()`.

@@ -50,6 +50,7 @@ return [
         'is_active' => 'وضعیت',
         'only_active' => 'فقط فعال‌ها',
         'only_inactive' => 'فقط غیرفعال‌ها',
+        'in_use' => 'در حال استفاده',
         'creator' => 'ایجاد شده توسط',
         'updater' => 'آخرین به‌روزرسانی توسط',
         'created_at' => 'تاریخ ایجاد',
@@ -61,6 +62,9 @@ return [
         'is_active' => 'وضعیت',
         'only_active' => 'فقط فعال‌ها',
         'only_inactive' => 'فقط غیرفعال‌ها',
+        'in_use' => 'در حال استفاده',
+        'only_in_use' => 'فقط در حال استفاده',
+        'only_unused' => 'فقط استفاده‌نشده‌ها',
     ],
     'infolist' => [
         'name' => 'نام (فارسی)',

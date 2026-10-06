@@ -1,10 +1,11 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature\Integrity;
 
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Permission;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use ReflectionClass;
@@ -12,6 +13,39 @@ use Tests\TestCase;
 
 class ResourceAuthorizationIntegrityTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->useMysql();
+        DB::beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        DB::rollBack();
+        parent::tearDown();
+    }
+
+    private function useMysql(): void
+    {
+        $env = base_path('.env');
+        if (is_file($env)) {
+            $vals = [];
+            foreach (explode("\n", (string) file_get_contents($env)) as $line) {
+                if (preg_match('/^\s*(DB_HOST|DB_PORT|DB_DATABASE|DB_USERNAME|DB_PASSWORD)\s*=\s*(.*)$/', $line, $m)) {
+                    $vals[$m[1]] = trim(preg_replace('/\s+#.*$/', '', trim($m[2])), "\"' \t");
+                }
+            }
+            $map = ['DB_HOST' => 'host', 'DB_PORT' => 'port', 'DB_DATABASE' => 'database', 'DB_USERNAME' => 'username', 'DB_PASSWORD' => 'password'];
+            foreach ($map as $envKey => $cfgKey) {
+                if (isset($vals[$envKey])) {
+                    config(['database.connections.mysql.'.$cfgKey => $vals[$envKey]]);
+                }
+            }
+        }
+        DB::purge('mysql');
+        config(['database.default' => 'mysql']);
+    }
     private const GUARDED_METHODS = [
         'canViewAny',
         'canView',

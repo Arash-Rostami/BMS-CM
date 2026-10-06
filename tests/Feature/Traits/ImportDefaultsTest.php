@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature\Traits;
 
 use App\Filament\Resources\Operational\PurchaseRequestResource\Imports\PurchaseRequestImporter;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Imports\PurchaseRequestItemImporter;

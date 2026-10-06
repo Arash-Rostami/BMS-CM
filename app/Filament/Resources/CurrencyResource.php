@@ -10,6 +10,7 @@ use App\Filament\Resources\Master\CurrencyResource\Traits\Infolist as CurrencyIn
 use App\Filament\Resources\Master\CurrencyResource\Traits\Table as CurrencyTable;
 use App\Filament\Traits\HandleActivation;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Filament\Traits\HasUsageGuard;
 use App\Models\Currency;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -29,7 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CurrencyResource extends Resource
 {
-    use CurrencyFilters, CurrencyForm, CurrencyInfolist, CurrencyTable, HandleActivation, HasResourcePermissions;
+    use CurrencyFilters, CurrencyForm, CurrencyInfolist, CurrencyTable, HandleActivation, HasResourcePermissions, HasUsageGuard;
 
     protected static ?string $model = Currency::class;
 
@@ -60,6 +61,7 @@ class CurrencyResource extends Resource
                 'creator',
                 'updater',
             ])
+            ->withCount(static::usageRelations())
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
@@ -105,6 +107,19 @@ class CurrencyResource extends Resource
         return __('resources/currency/strings.general.plural_model_label');
     }
 
+    protected static function usageRelations(): array
+    {
+        return [
+            'proformaInvoicesAsMain',
+            'proformaInvoicesAsSecondary',
+            'bankProfilesAsRequested',
+            'bankProfilesAsPurchased',
+            'payments',
+            'purchaseOrders',
+            'registeredOrders',
+        ];
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema
@@ -133,6 +148,7 @@ class CurrencyResource extends Resource
                 static::showEnglishName(),
                 static::showDescription(),
                 static::showIsActive(),
+                static::showInUse(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
@@ -140,6 +156,7 @@ class CurrencyResource extends Resource
             ])
             ->filters([
                 static::getActiveFilter(),
+                static::getInUseFilter(),
                 static::getThrashedFilter(),
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
@@ -148,7 +165,7 @@ class CurrencyResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    DeleteAction::make(),
+                    static::guardRecordAction(DeleteAction::make()),
                     RestoreAction::make(),
                 ]),
             ])
@@ -156,8 +173,8 @@ class CurrencyResource extends Resource
                 BulkActionGroup::make([
                     static::getExportBulkAction(),
                     static::getActivateBulkAction(),
-                    static::getDeactivateBulkAction(),
-                    DeleteBulkAction::make(),
+                    static::guardBulkAction(static::getDeactivateBulkAction()),
+                    static::guardBulkAction(DeleteBulkAction::make()),
                     RestoreBulkAction::make(),
                 ]),
             ])

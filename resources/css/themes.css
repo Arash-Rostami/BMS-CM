@@ -1,4 +1,4 @@
-/* Palettes: keep in sync with config/palettes.php + lang labels (PalettesTest trips on drift) */
+/* Palettes: keep in sync with config/palettes.php + lang labels (ConfigTest trips on drift) */
 
 html[data-theme="zinc"] {
     --primary-50: #F7F7F8;

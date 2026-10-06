@@ -4,20 +4,21 @@ namespace Tests\Feature\Traits;
 
 use App\Filament\Resources\PurchaseRequestResource;
 use App\Filament\Traits\HasExtraAttributesManagement;
+use App\Models\PurchaseRequest;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 use Tests\TestCase;
 
 /**
- * App\Filament\Traits\HasExtraAttributesManagement's two static search helpers
- * (withExtraAttributesSearch/orWhereExtraAttributesMatch) already have dedicated
- * coverage in tests/Unit/HasExtraAttributesManagementSearchTest.php. This file adds
- * the piece that isn't covered anywhere: the Tab-building contract and, specifically,
- * the infolist `value` entry's formatStateUsing() null/string/array branches —
- * filamentPattern.md §1.6 documents this exact null-handling as "a real bug,
- * reproduced live 2026-09-22" (json_encode(null) === "null", a 4-character string,
- * silently defeating the infolist's placeholder). Composed on every one of this
- * project's EAV-backed resources and RelationManagers — genuinely cross-cutting.
+ * App\Filament\Traits\HasExtraAttributesManagement's single master file — the trait
+ * is composed on every one of this project's EAV-backed resources and RelationManagers,
+ * genuinely cross-cutting. Covers both static search helpers
+ * (withExtraAttributesSearch/orWhereExtraAttributesMatch, folded in from the former
+ * tests/Unit/HasExtraAttributesManagementSearchTest companion 2026-10-06) and the
+ * Tab-building contract — specifically the infolist `value` entry's formatStateUsing()
+ * null/string/array branches; filamentPattern.md §1.6 documents this exact
+ * null-handling as "a real bug, reproduced live 2026-09-22" (json_encode(null) ===
+ * "null", a 4-character string, silently defeating the infolist's placeholder).
  * Reflection on `childComponents` (same technique as testPattern.md §3f) walks the
  * static schema tree without needing a live Livewire container.
  */
@@ -125,4 +126,41 @@ class HasExtraAttributesManagementTest extends TestCase
 
         return $property->getValue($entry);
     }
+
+    public function test_with_extra_attributes_search_appends_key_and_value_dot_paths(): void
+    {
+        $result = HasExtraAttributesManagementSearchDouble::withExtraAttributesSearch(['pr_number', 'rejection_reason']);
+
+        $this->assertSame(
+            ['pr_number', 'rejection_reason', 'extraAttributes.key', 'extraAttributes.value'],
+            $result
+        );
+    }
+
+    public function test_with_extra_attributes_search_does_not_mutate_an_empty_list(): void
+    {
+        $this->assertSame(
+            ['extraAttributes.key', 'extraAttributes.value'],
+            HasExtraAttributesManagementSearchDouble::withExtraAttributesSearch([])
+        );
+    }
+
+    public function test_or_where_extra_attributes_match_builds_a_where_has_on_the_extra_attributes_relation(): void
+    {
+        $query = PurchaseRequest::query()->where('pr_number', 'like', '%PR-1%');
+
+        $result = HasExtraAttributesManagementSearchDouble::orWhereExtraAttributesMatch($query, 'needle');
+
+        $sql = strtolower($result->toSql());
+        $bindings = $result->getBindings();
+
+        $this->assertStringContainsString('exists', $sql);
+        $this->assertStringContainsString('entity_attributes', $sql);
+        $this->assertContains('%needle%', $bindings);
+    }
+}
+
+class HasExtraAttributesManagementSearchDouble
+{
+    use HasExtraAttributesManagement;
 }

@@ -6,6 +6,7 @@ use App\Filament\Resources\CurrencyResource;
 use App\Filament\Resources\Master\CurrencyResource\Exports\CurrencyExporter;
 use App\Filament\Resources\Master\CurrencyResource\Imports\CurrencyImporter;
 use App\Filament\Resources\Master\CurrencyResource\Pages\ManageCurrencies;
+use App\Models\BankProfile;
 use App\Models\Currency;
 use App\Models\Permission;
 use App\Models\Role;
@@ -137,6 +138,20 @@ class CurrencyResourceTest extends TestCase
             ->filterTable('is_active', true)
             ->assertCanSeeTableRecords([$active])
             ->assertCanNotSeeTableRecords([$inactive]);
+    }
+
+    public function test_in_use_filter_narrows_the_table(): void
+    {
+        $this->actingAsUserWithPermissions(['currency.view']);
+
+        $used = Currency::factory()->create();
+        BankProfile::factory()->create(['requested_currency_id' => $used->id]);
+        $unused = Currency::factory()->create();
+
+        Livewire::test(ManageCurrencies::class)
+            ->filterTable('in_use', true)
+            ->assertCanSeeTableRecords([$used])
+            ->assertCanNotSeeTableRecords([$unused]);
     }
 
     public function test_creator_filter_narrows_the_table(): void
@@ -310,6 +325,75 @@ class CurrencyResourceTest extends TestCase
 
         $this->assertNull(Currency::find($one->id));
         $this->assertNull(Currency::find($two->id));
+    }
+
+    // Usage guard — delete
+
+    public function test_delete_action_is_blocked_with_a_notification_when_the_currency_is_referenced(): void
+    {
+        $this->actingAsUserWithPermissions(['currency.view', 'currency.delete']);
+        $record = Currency::factory()->create();
+        BankProfile::factory()->create(['requested_currency_id' => $record->id]);
+
+        Livewire::test(ManageCurrencies::class)
+            ->callTableAction('delete', $record)
+            ->assertNotified(__('resources/general/strings.usage_guard.blocked', ['count' => 1]));
+
+        $this->assertNotNull(Currency::find($record->id));
+    }
+
+    public function test_delete_bulk_action_is_blocked_when_a_selected_currency_is_referenced(): void
+    {
+        $this->actingAsUserWithPermissions(['currency.view', 'currency.delete']);
+        $record = Currency::factory()->create();
+        BankProfile::factory()->create(['purchased_currency_id' => $record->id]);
+
+        Livewire::test(ManageCurrencies::class)
+            ->callTableBulkAction('delete', [$record])
+            ->assertNotified(__('resources/general/strings.usage_guard.blocked', ['count' => 1]));
+
+        $this->assertNotNull(Currency::find($record->id));
+    }
+
+    // Usage guard — deactivate
+
+    public function test_deactivate_bulk_action_succeeds_when_the_currency_is_unused(): void
+    {
+        $this->actingAsUserWithPermissions(['currency.view', 'currency.edit']);
+        $record = Currency::factory()->create();
+
+        Livewire::test(ManageCurrencies::class)
+            ->callTableBulkAction('deactivate', [$record]);
+
+        $this->assertFalse((bool) $record->fresh()->is_active);
+    }
+
+    public function test_deactivate_bulk_action_is_blocked_when_the_currency_is_referenced(): void
+    {
+        $this->actingAsUserWithPermissions(['currency.view', 'currency.edit']);
+        $record = Currency::factory()->create();
+        BankProfile::factory()->create(['requested_currency_id' => $record->id]);
+
+        Livewire::test(ManageCurrencies::class)
+            ->callTableBulkAction('deactivate', [$record])
+            ->assertNotified(__('resources/general/strings.usage_guard.blocked', ['count' => 1]));
+
+        $this->assertTrue((bool) $record->fresh()->is_active);
+    }
+
+    // In-use column
+
+    public function test_in_use_column_reflects_whether_the_currency_is_referenced(): void
+    {
+        $this->actingAsUserWithPermissions(['currency.view']);
+
+        $used = Currency::factory()->create();
+        BankProfile::factory()->create(['requested_currency_id' => $used->id]);
+        $unused = Currency::factory()->create();
+
+        Livewire::test(ManageCurrencies::class)
+            ->assertTableColumnStateSet('in_use', true, $used)
+            ->assertTableColumnStateSet('in_use', false, $unused);
     }
 
     // Global search contract

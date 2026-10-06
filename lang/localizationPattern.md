@@ -28,7 +28,7 @@ infolist  → entry labels; tab labels tab_general / tab_items / tab_documents
 
 Referenced in code as `__('resources/{camelCaseResource}/strings.{section}.{key}')`. Tab labels always carry the `tab_` prefix, in both `form` and `infolist` groups.
 
-**Rule:** when adding a new form or infolist tab, add its `tab_*` key to all three locale files simultaneously — a missing locale renders the raw dot-key string to the user. A master test, `tests/Feature/LangKeyIntegrityTest.php`, enforces that every literal `resources/…` key referenced under `app/Filament` exists in all 3 locales — run it after adding keys.
+**Rule:** when adding a new form or infolist tab, add its `tab_*` key to all three locale files simultaneously — a missing locale renders the raw dot-key string to the user. A master test, `tests/Feature/Integrity/LangKeyIntegrityTest.php`, enforces that every literal `resources/…` key referenced under `app/Filament` exists in all 3 locales — run it after adding keys.
 
 ## 1b. Vendor Translation Overrides
 
@@ -184,7 +184,7 @@ Emoji and short-code labels (e.g. `Source::getLabel()`'s `'PR'`/`'PO'`/`'PI'`/`'
 
 ## 7. Calendar Helper Contract
 
-`maybeJalali($component)` / `->adaptive()` (date pickers) and `->adaptiveDate()` / `->adaptiveDateTime()` (display columns/entries) all gate on the shared `isJalaliCalendar()` predicate (`app/Utils/helpers.php`), which reads `session('calendar_type', app()->isLocale('fa') ? 'jalali' : 'gregorian')`. Full lifecycle is owned by `app/Utils/helpersPattern.md` §2. Localization-relevant halves: omitting either picker wrapper gives Gregorian to an `fa` user who has switched their session to Jalali, and a raw `->date()`/`->dateTime()` display column ignores the calendar toggle entirely — a locale-locked ternary (`app()->getLocale() === 'fa' ? toPersianDate(...) : toGregorianDate(...)`) is the known historical bug shape; display dates must go through the adaptive macros (enforced by `tests/Unit/AdaptiveDateTest.php`).
+`maybeJalali($component)` / `->adaptive()` (date pickers) and `->adaptiveDate()` / `->adaptiveDateTime()` (display columns/entries) all gate on the shared `isJalaliCalendar()` predicate (`app/Utils/helpers.php`), which reads `session('calendar_type', app()->isLocale('fa') ? 'jalali' : 'gregorian')`. Full lifecycle is owned by `app/Utils/helpersPattern.md` §2. Localization-relevant halves: omitting either picker wrapper gives Gregorian to an `fa` user who has switched their session to Jalali, and a raw `->date()`/`->dateTime()` display column ignores the calendar toggle entirely — a locale-locked ternary (`app()->getLocale() === 'fa' ? toPersianDate(...) : toGregorianDate(...)`) is the known historical bug shape; display dates must go through the adaptive macros (enforced by `tests/Feature/Helpers/AdaptiveDateTest.php`).
 
 ## 8. Playbook — Adding a Localized Field/Filter/Tab
 

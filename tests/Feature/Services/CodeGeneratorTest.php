@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature\Services;
 
 use App\Services\CodeGenerator;
 use Illuminate\Support\Facades\DB;

@@ -60,7 +60,7 @@ composer run dev
 composer run test
 
 # Run a single test class or method
-php artisan test --filter ExampleTest
+php artisan test --filter PurchaseRequestResourceTest
 
 # Lint / auto-fix code style (Laravel Pint)
 ./vendor/bin/pint

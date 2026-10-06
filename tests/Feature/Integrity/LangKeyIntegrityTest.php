@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Integrity;
 
 use Illuminate\Support\Facades\Lang;
 use Symfony\Component\Finder\Finder;

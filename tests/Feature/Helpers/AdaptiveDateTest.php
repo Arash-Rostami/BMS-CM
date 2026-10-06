@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature\Helpers;
 
 use App\Models\PurchaseRequest;
 use Filament\Infolists\Components\TextEntry;

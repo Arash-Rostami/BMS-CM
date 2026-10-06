@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature\Integrity;
 
 use App\Models\RegisteredOrder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

@@ -50,6 +50,7 @@ return [
         'is_active' => 'Status',
         'only_active' => 'Only Active',
         'only_inactive' => 'Only Inactive',
+        'in_use' => 'In Use',
         'creator' => 'Created By',
         'updater' => 'Last Updated By',
         'created_at' => 'Date Created',
@@ -61,6 +62,9 @@ return [
         'is_active' => 'Status',
         'only_active' => 'Only Active',
         'only_inactive' => 'Only Inactive',
+        'in_use' => 'In Use',
+        'only_in_use' => 'Only In Use',
+        'only_unused' => 'Only Unused',
     ],
     'infolist' => [
         'name' => 'Name (Persian)',
