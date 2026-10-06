@@ -2,10 +2,15 @@
 
 namespace App\Filament\Resources\Master\CategoryResource\Traits;
 
+use App\Models\Category;
+use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 trait Form
 {
@@ -93,10 +98,28 @@ trait Form
     {
         return Select::make('parent_id')
             ->label(__('resources/category/strings.form.parent'))
-            ->relationship('parent', 'name')
+            ->relationship(
+                'parent',
+                'name',
+                modifyQueryUsing: fn (Builder $query, ?Model $record) => $query
+                    ->when($record?->id, fn ($q, $id) => $q->whereNotIn('id', [$id, ...Category::descendantIdsOf($id)]))
+            )
             ->searchable()
             ->preload()
-            ->helperText(__('resources/category/strings.form.helper_parent'))
+            ->live()
+            ->afterStateUpdated(function (Set $set, $state): void {
+                $set('level', $state ? (Category::find($state)?->level ?? 0) + 1 : 0);
+            })
+            ->rule(function (?Model $record): Closure {
+                return function (string $attribute, $value, Closure $fail) use ($record): void {
+                    if ($value && Category::wouldCreateCycle($record?->id, (int) $value)) {
+                        $fail(__('resources/category/strings.form.validation_parent_cycle'));
+                    }
+                };
+            })
+            ->helperText(fn ($state) => $state
+                ? Category::find($state)?->sortAncestors()
+                : __('resources/category/strings.form.helper_parent'))
             ->nullable();
     }
 }

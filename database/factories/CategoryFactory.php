@@ -13,7 +13,7 @@ class CategoryFactory extends Factory
 {
     public function definition(): array
     {
-        $name = fake()->words(2, true);
+        $name = 'دسته '.fake()->unique()->numberBetween(1, 999999);
 
         return [
             'name' => $name,

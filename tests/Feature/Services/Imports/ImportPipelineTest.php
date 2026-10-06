@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Services\Imports;
 
+use App\Models\Category;
 use App\Models\Currency;
 use App\Models\Department;
 use App\Models\ProformaInvoice;
@@ -484,5 +485,20 @@ class ImportPipelineTest extends TestCase
 
         $this->assertSame($context, $result);
         $this->assertFalse($record->isDirty('notes'));
+    }
+
+    public function test_append_unresolved_match_notes_does_not_crash_for_a_model_with_no_notes_column(): void
+    {
+        $record = new Category(['parent_id' => null]);
+        $context = new ImportRowContext($record);
+        $context->columns = [
+            ImportColumnDefinition::match('parent_id', 'label', 'parent', Category::class, ['name', 'english_name'])
+                ->allowNullOnMismatch(),
+        ];
+        $context->rawData = ['parent_id' => 'No Such Category'];
+
+        (new AppendUnresolvedMatchNotes)->handle($context, fn ($c) => $c);
+
+        $this->assertNull($record->parent_id);
     }
 }

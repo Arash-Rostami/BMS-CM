@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Master\CategoryResource\Exports\CategoryExporter;
 use App\Filament\Resources\Master\CategoryResource\Pages\ManageCategories;
 use App\Filament\Resources\Master\CategoryResource\Traits\Filters as CategoryFilters;
 use App\Filament\Resources\Master\CategoryResource\Traits\Form as CategoryForm;
@@ -14,10 +13,7 @@ use App\Models\Category;
 use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -174,14 +170,14 @@ class CategoryResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    DeleteAction::make(),
+                    static::getDeleteAction(),
                     RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()->exporter(CategoryExporter::class),
-                    DeleteBulkAction::make(),
+                    static::getExportBulkAction(),
+                    static::getDeleteBulkAction(),
                     RestoreBulkAction::make(),
                 ]),
             ])
