@@ -308,8 +308,20 @@
     "browser_spot_check": {
       "result": "pass",
       "note": "User checked Currency at the browser level 2026-10-06: no issue found.",
-      "status": "no action needed — user's own condition for proceeding: contingent on the in-flight Resource-layer tests passing and the claude-reviewer pass finding nothing real"
+      "status": "condition met — Resource-layer tests passed (36) and the independent claude-reviewer pass came back GO 2026-10-06 (2 minor fixes applied: a static:: consistency nit, a doc correction). Merged."
     }
+  },
+  "product": {
+    "_note": "Full audit (architecture, tests, importer/exporter, 4/4 ideas, independent review) done and merged 2026-10-06. Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet."
+  },
+  "category": {
+    "_note": "Full audit (architecture, tests, importer/exporter, 3/4 ideas, independent review) done and merged 2026-10-06, including a real pre-existing closure-table bug fix found by review (see module-audit-playbook.md). Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet."
+  },
+  "bank": {
+    "_note": "Full audit (architecture, tests, importer/exporter, HasUsageGuard + tooltip, independent review) done and merged 2026-10-06. Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet."
+  },
+  "company": {
+    "_note": "Full audit (architecture, tests, importer/exporter, HasUsageGuard + types badge/filter + tooltip, independent review) done and merged 2026-10-06. Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet."
   },
   "app_wide_bulk_action_order": {
     "result": "fixed",
