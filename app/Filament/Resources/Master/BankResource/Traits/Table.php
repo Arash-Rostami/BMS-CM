@@ -65,8 +65,8 @@ trait Table
             ->label(__('resources/bank/strings.table.description'))
             ->searchable()
             ->toggleable(isToggledHiddenByDefault: false)
-            ->limit(50);
-
+            ->limit(50)
+            ->tooltip(fn ($record) => $record->description);
     }
 
     public static function showCreator(): TextColumn

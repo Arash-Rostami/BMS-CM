@@ -181,6 +181,8 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/status/strings.form.validation_english_type_custom_required'),
             ])
+            ->live(onBlur: true)
+            ->helperText(fn (?string $state) => static::similarValueWarning('english_type', $state))
             ->visible(fn (Get $get) => $get('custom_english_type'));
     }
 
@@ -246,6 +248,25 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/status/strings.form.validation_type_custom_required'),
             ])
+            ->live(onBlur: true)
+            ->helperText(fn (?string $state) => static::similarValueWarning('type', $state))
             ->visible(fn (Get $get) => $get('custom_type'));
+    }
+
+    public static function similarValueWarning(string $column, ?string $value): ?string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        $existing = Status::query()->where($column, $value)->value($column);
+
+        if ($existing === null) {
+            return null;
+        }
+
+        return __('resources/status/strings.form.helper_similar_value_warning', ['value' => $existing]);
     }
 }

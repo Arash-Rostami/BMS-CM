@@ -4,7 +4,9 @@ namespace App\Filament\Resources\Master\StatusResource\Traits;
 
 use App\Filament\Resources\StatusResource;
 use App\Jobs\ExportStatuses;
+use App\Models\Permission;
 use App\Models\Status;
+use App\Services\SmartCacheManager;
 use Filament\Actions\BulkAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
@@ -13,6 +15,51 @@ use Illuminate\Support\Collection;
 
 trait Table
 {
+    protected static function stageOrderProblemTypes(): array
+    {
+        return SmartCacheManager::remember('Status', ['type' => 'stage_order_problem_types'], 60, fn () => Status::query()
+            ->whereNotNull('stage_order')
+            ->get(['english_type', 'stage_order'])
+            ->groupBy('english_type')
+            ->filter(function (Collection $rows): bool {
+                $orders = $rows->pluck('stage_order')->map(fn ($value) => (int) $value);
+                $distinct = $orders->unique();
+
+                if ($distinct->count() !== $orders->count()) {
+                    return true;
+                }
+
+                return $distinct->max() - $distinct->min() + 1 !== $distinct->count();
+            })
+            ->keys()
+            ->all());
+    }
+
+    public static function hasStageOrderIssue(Status $record): bool
+    {
+        return filled($record->stage_order) && in_array($record->english_type, static::stageOrderProblemTypes(), true);
+    }
+
+    protected static function zeroUserApprovalPermissions(): array
+    {
+        return SmartCacheManager::remember('Status', ['type' => 'zero_user_approval_permissions'], 60, function () {
+            $names = Status::query()->whereNotNull('approval_permission')->distinct()->pluck('approval_permission');
+
+            if ($names->isEmpty()) {
+                return [];
+            }
+
+            $counts = Permission::query()->whereIn('name', $names)->withCount('users')->pluck('users_count', 'name');
+
+            return $names->filter(fn (string $name) => ($counts[$name] ?? 0) === 0)->values()->all();
+        });
+    }
+
+    public static function approvalGateUnreachable(Status $record): bool
+    {
+        return filled($record->approval_permission) && in_array($record->approval_permission, static::zeroUserApprovalPermissions(), true);
+    }
+
     public static function getExportBulkAction(): BulkAction
     {
         return BulkAction::make('exportStatuses')
@@ -35,11 +82,21 @@ trait Table
         return IconColumn::make('approval_permission')
             ->label(__('resources/status/strings.table.approval_gate'))
             ->state(fn (Status $record): bool => filled($record->approval_permission))
-            ->trueIcon('heroicon-o-lock-closed')
-            ->falseIcon('heroicon-o-lock-open')
-            ->trueColor('warning')
-            ->falseColor('gray')
-            ->tooltip(fn (Status $record): ?string => $record->approval_permission)
+            ->icon(fn (bool $state, Status $record): string => match (true) {
+                ! $state => 'heroicon-o-lock-open',
+                static::approvalGateUnreachable($record) => 'heroicon-o-exclamation-triangle',
+                default => 'heroicon-o-lock-closed',
+            })
+            ->color(fn (bool $state, Status $record): string => match (true) {
+                ! $state => 'gray',
+                static::approvalGateUnreachable($record) => 'danger',
+                default => 'warning',
+            })
+            ->tooltip(fn (bool $state, Status $record): ?string => match (true) {
+                ! $state => null,
+                static::approvalGateUnreachable($record) => __('resources/status/strings.table.approval_gate_unreachable'),
+                default => $record->approval_permission,
+            })
             ->toggleable();
     }
 
@@ -48,7 +105,11 @@ trait Table
         return TextColumn::make('stage_order')
             ->label(__('resources/status/strings.table.stage_order'))
             ->badge()
-            ->color('info')
+            ->color(fn (Status $record) => static::hasStageOrderIssue($record) ? 'danger' : 'info')
+            ->icon(fn (Status $record) => static::hasStageOrderIssue($record) ? 'heroicon-o-exclamation-triangle' : null)
+            ->tooltip(fn (Status $record) => static::hasStageOrderIssue($record)
+                ? __('resources/status/strings.table.stage_order_issue')
+                : null)
             ->placeholder('-')
             ->sortable()
             ->toggleable();

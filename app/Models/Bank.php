@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Bank\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\HasNameSearch;
 use App\Models\Traits\General\HasScope;
 use App\Models\Traits\General\Localization;
@@ -13,7 +14,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bank extends Model
 {
-    use HasFactory,
+    use ExclusiveRelationships,
+        HasFactory,
         HasNameSearch,
         HasScope,
         Localization,

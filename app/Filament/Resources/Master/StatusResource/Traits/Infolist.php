@@ -13,11 +13,21 @@ trait Infolist
         return TextEntry::make('approval_permission')
             ->label(__('resources/status/strings.infolist.approval_gate'))
             ->badge()
-            ->icon(fn (?string $state) => filled($state) ? 'heroicon-m-lock-closed' : 'heroicon-m-lock-open')
-            ->color(fn (?string $state) => filled($state) ? 'warning' : 'gray')
-            ->formatStateUsing(fn (?string $state) => filled($state)
-                ? __('resources/status/strings.infolist.approval_gate_on')
-                : __('resources/status/strings.infolist.approval_gate_off'))
+            ->icon(fn (?string $state, Status $record) => match (true) {
+                blank($state) => 'heroicon-m-lock-open',
+                static::approvalGateUnreachable($record) => 'heroicon-m-exclamation-triangle',
+                default => 'heroicon-m-lock-closed',
+            })
+            ->color(fn (?string $state, Status $record) => match (true) {
+                blank($state) => 'gray',
+                static::approvalGateUnreachable($record) => 'danger',
+                default => 'warning',
+            })
+            ->formatStateUsing(fn (?string $state, Status $record) => match (true) {
+                blank($state) => __('resources/status/strings.infolist.approval_gate_off'),
+                static::approvalGateUnreachable($record) => __('resources/status/strings.infolist.approval_gate_unreachable'),
+                default => __('resources/status/strings.infolist.approval_gate_on'),
+            })
             ->placeholder('-');
     }
 
@@ -37,7 +47,11 @@ trait Infolist
         return TextEntry::make('stage_order')
             ->label(__('resources/status/strings.infolist.stage_order'))
             ->badge()
-            ->color('info')
+            ->color(fn (Status $record) => static::hasStageOrderIssue($record) ? 'danger' : 'info')
+            ->icon(fn (Status $record) => static::hasStageOrderIssue($record) ? 'heroicon-m-exclamation-triangle' : null)
+            ->helperText(fn (Status $record) => static::hasStageOrderIssue($record)
+                ? __('resources/status/strings.infolist.stage_order_issue')
+                : null)
             ->placeholder('-');
     }
 

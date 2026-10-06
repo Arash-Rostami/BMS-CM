@@ -7,6 +7,8 @@ use App\Filament\Resources\Master\BankResource\Exports\BankExporter;
 use App\Filament\Resources\Master\BankResource\Imports\BankImporter;
 use App\Filament\Resources\Master\BankResource\Pages\ManageBanks;
 use App\Models\Bank;
+use App\Models\BankProfile;
+use App\Models\Payment;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -539,5 +541,79 @@ class BankResourceTest extends TestCase
         $this->assertSame('Export Creator', $rows[0][$labels['creator']]);
         $this->assertSame(__('resources/bank/strings.export.inactive'), $rows[1][$labels['is_active']]);
         $this->assertSame(jdate($active->created_at)->format('Y-m-d'), $rows[0][$labels['created_at']]);
+    }
+
+    // Usage guard — delete
+
+    public function test_delete_action_succeeds_when_the_bank_is_unused(): void
+    {
+        $this->actingAsUserWithPermissions(['bank.view', 'bank.delete']);
+        $record = Bank::factory()->create();
+
+        Livewire::test(ManageBanks::class)
+            ->callTableAction('delete', $record);
+
+        $this->assertNull(Bank::find($record->id));
+    }
+
+    public function test_delete_action_is_blocked_with_a_notification_when_the_bank_is_referenced(): void
+    {
+        $this->actingAsUserWithPermissions(['bank.view', 'bank.delete']);
+        $record = Bank::factory()->create();
+        BankProfile::factory()->create(['bank_id' => $record->id]);
+
+        Livewire::test(ManageBanks::class)
+            ->callTableAction('delete', $record)
+            ->assertNotified(__('resources/general/strings.usage_guard.blocked', ['count' => 1]));
+
+        $this->assertNotNull(Bank::find($record->id));
+    }
+
+    public function test_delete_bulk_action_is_blocked_when_a_selected_bank_is_referenced(): void
+    {
+        $this->actingAsUserWithPermissions(['bank.view', 'bank.delete']);
+        $record = Bank::factory()->create();
+        Payment::factory()->create(['bank_id' => $record->id]);
+
+        Livewire::test(ManageBanks::class)
+            ->callTableBulkAction('delete', [$record])
+            ->assertNotified(__('resources/general/strings.usage_guard.blocked', ['count' => 1]));
+
+        $this->assertNotNull(Bank::find($record->id));
+    }
+
+    // Usage guard — deactivate
+
+    public function test_deactivate_bulk_action_succeeds_when_the_bank_is_unused(): void
+    {
+        $this->actingAsUserWithPermissions(['bank.view', 'bank.edit']);
+        $record = Bank::factory()->create();
+
+        Livewire::test(ManageBanks::class)
+            ->callTableBulkAction('deactivate', [$record]);
+
+        $this->assertFalse((bool) $record->fresh()->is_active);
+    }
+
+    public function test_deactivate_bulk_action_is_blocked_when_the_bank_is_referenced(): void
+    {
+        $this->actingAsUserWithPermissions(['bank.view', 'bank.edit']);
+        $record = Bank::factory()->create();
+        BankProfile::factory()->create(['bank_id' => $record->id]);
+
+        Livewire::test(ManageBanks::class)
+            ->callTableBulkAction('deactivate', [$record])
+            ->assertNotified(__('resources/general/strings.usage_guard.blocked', ['count' => 1]));
+
+        $this->assertTrue((bool) $record->fresh()->is_active);
+    }
+
+    // Description tooltip
+
+    public function test_description_column_tooltip_shows_the_full_description(): void
+    {
+        $record = Bank::factory()->create(['description' => 'A fairly long description used for the tooltip test.']);
+
+        $this->assertSame($record->description, BankResource::showDescription()->record($record)->getTooltip());
     }
 }
