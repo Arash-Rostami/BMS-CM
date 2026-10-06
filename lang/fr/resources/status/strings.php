@@ -38,6 +38,7 @@ return [
         'helper_requires_approval' => 'Si activé, seuls les utilisateurs sélectionnés peuvent définir ce statut.',
         'approval_users' => 'Utilisateurs autorisés',
         'helper_approval_users' => 'Utilisateurs autorisés à définir ce statut.',
+        'helper_similar_value_warning' => 'Un statut existe déjà avec une valeur correspondante : ":value". Vérifiez que vous ne créez pas un quasi-doublon.',
     ],
     'table' => [
         'type' => 'Type',
@@ -50,7 +51,9 @@ return [
         'updated_at' => 'Dernière mise à jour',
         'deleted_at' => 'Date de suppression',
         'stage_order' => 'Étape',
+        'stage_order_issue' => 'Cet ordre d\'étape entre en collision ou laisse un écart avec un statut du même type — le flux d\'approbation peut s\'arrêter ici silencieusement.',
         'approval_gate' => 'Restreint',
+        'approval_gate_unreachable' => 'Restreint, mais aucun utilisateur ne détient la permission requise — ce statut ne pourra jamais être défini.',
     ],
     'infolist' => [
         'type' => 'Type (Persan)',
@@ -62,9 +65,11 @@ return [
         'created_at' => 'Date de création',
         'updated_at' => 'Dernière mise à jour',
         'stage_order' => 'Ordre d\'étape',
+        'stage_order_issue' => 'Cet ordre d\'étape entre en collision ou laisse un écart avec un statut du même type — le flux d\'approbation peut s\'arrêter ici silencieusement.',
         'approval_gate' => 'Verrou d\'approbation',
         'approval_gate_on' => 'Restreint',
         'approval_gate_off' => 'Libre',
+        'approval_gate_unreachable' => 'Restreint, mais inaccessible (aucun utilisateur ne détient la permission)',
         'approval_users' => 'Utilisateurs autorisés',
     ],
     'filters' => [

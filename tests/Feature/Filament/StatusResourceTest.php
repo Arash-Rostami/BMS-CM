@@ -10,6 +10,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Status;
 use App\Models\User;
+use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -24,10 +25,12 @@ class StatusResourceTest extends TestCase
         parent::setUp();
         $this->useMysql();
         DB::beginTransaction();
+        SmartCacheManager::invalidate('Status');
     }
 
     protected function tearDown(): void
     {
+        SmartCacheManager::invalidate('Status');
         DB::rollBack();
         parent::tearDown();
     }
@@ -581,5 +584,118 @@ class StatusResourceTest extends TestCase
         foreach ([...$headerActionNames, ...$bulkActionNames] as $name) {
             $this->assertStringNotContainsStringIgnoringCase('import', $name);
         }
+    }
+
+    // Idea 1 — stage-order gap/duplicate indicator
+
+    public function test_stage_order_issue_flags_a_duplicate_stage_order_within_the_same_type(): void
+    {
+        $type = 'StageDupType'.uniqid();
+
+        $first = Status::factory()->create(['type' => $type, 'english_type' => $type, 'stage_order' => 1]);
+        $second = Status::factory()->create(['type' => $type, 'english_type' => $type, 'stage_order' => 1]);
+
+        $this->assertTrue(StatusResource::hasStageOrderIssue($first->fresh()));
+        $this->assertTrue(StatusResource::hasStageOrderIssue($second->fresh()));
+    }
+
+    public function test_stage_order_issue_flags_a_gap_in_the_stage_order_sequence(): void
+    {
+        $type = 'StageGapType'.uniqid();
+
+        $first = Status::factory()->create(['type' => $type, 'english_type' => $type, 'stage_order' => 1]);
+        $second = Status::factory()->create(['type' => $type, 'english_type' => $type, 'stage_order' => 3]);
+
+        $this->assertTrue(StatusResource::hasStageOrderIssue($first->fresh()));
+        $this->assertTrue(StatusResource::hasStageOrderIssue($second->fresh()));
+    }
+
+    public function test_stage_order_issue_is_false_for_a_clean_contiguous_sequence(): void
+    {
+        $type = 'StageCleanType'.uniqid();
+
+        $first = Status::factory()->create(['type' => $type, 'english_type' => $type, 'stage_order' => 1]);
+        $second = Status::factory()->create(['type' => $type, 'english_type' => $type, 'stage_order' => 2]);
+
+        $this->assertFalse(StatusResource::hasStageOrderIssue($first->fresh()));
+        $this->assertFalse(StatusResource::hasStageOrderIssue($second->fresh()));
+    }
+
+    public function test_stage_order_issue_is_false_when_stage_order_is_blank(): void
+    {
+        $unordered = Status::factory()->create(['stage_order' => null]);
+
+        $this->assertFalse(StatusResource::hasStageOrderIssue($unordered->fresh()));
+    }
+
+    // Idea 2 — zero-approved-users warning
+
+    public function test_approval_gate_unreachable_when_the_permission_has_zero_users(): void
+    {
+        $permissionName = 'status.grant_zero_users_'.uniqid();
+        Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => 'web']);
+
+        $status = Status::factory()->create(['approval_permission' => $permissionName]);
+
+        $this->assertTrue(StatusResource::approvalGateUnreachable($status->fresh()));
+    }
+
+    public function test_approval_gate_reachable_when_a_user_holds_the_permission(): void
+    {
+        $permissionName = 'status.grant_has_users_'.uniqid();
+        $permission = Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => 'web']);
+        User::factory()->create()->givePermissionTo($permission);
+
+        $status = Status::factory()->create(['approval_permission' => $permissionName]);
+
+        $this->assertFalse(StatusResource::approvalGateUnreachable($status->fresh()));
+    }
+
+    public function test_approval_gate_unreachable_is_false_when_ungated(): void
+    {
+        $status = Status::factory()->create(['approval_permission' => null]);
+
+        $this->assertFalse(StatusResource::approvalGateUnreachable($status->fresh()));
+    }
+
+    // Idea 3 — typo-collision warning on custom type creation
+
+    public function test_similar_value_warning_flags_a_case_insensitive_match_on_type(): void
+    {
+        $value = 'DraftCollision'.uniqid();
+        Status::factory()->create(['type' => strtoupper($value), 'english_type' => strtoupper($value)]);
+
+        $warning = StatusResource::similarValueWarning('type', strtolower($value));
+
+        $this->assertNotNull($warning);
+        $this->assertStringContainsString(strtoupper($value), $warning);
+    }
+
+    public function test_similar_value_warning_is_null_for_a_genuinely_new_value(): void
+    {
+        $this->assertNull(StatusResource::similarValueWarning('type', 'BrandNewType'.uniqid()));
+    }
+
+    public function test_similar_value_warning_is_null_for_a_blank_value(): void
+    {
+        $this->assertNull(StatusResource::similarValueWarning('type', null));
+        $this->assertNull(StatusResource::similarValueWarning('type', '  '));
+    }
+
+    public function test_view_action_renders_the_stage_order_and_approval_gate_entries_without_error_when_flagged(): void
+    {
+        $this->actingAsUserWithPermissions(['status.view']);
+
+        $type = 'StageIssueRenderType'.uniqid();
+        Status::factory()->create(['type' => $type, 'english_type' => $type, 'stage_order' => 1]);
+        $record = Status::factory()->create(['type' => $type, 'english_type' => $type, 'stage_order' => 1]);
+
+        $permissionName = 'status.grant_render_zero_'.uniqid();
+        Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => 'web']);
+        $record->update(['approval_permission' => $permissionName]);
+
+        Livewire::test(ManageStatuses::class)
+            ->mountTableAction('view', $record)
+            ->assertSuccessful();
     }
 }

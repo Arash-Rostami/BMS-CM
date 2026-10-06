@@ -32,6 +32,9 @@ return [
             'notification' => 'Les éléments sélectionnés ont été désactivés avec succès.',
         ],
     ],
+    'usage_guard' => [
+        'blocked' => 'Cet enregistrement est encore référencé par :count autre(s) enregistrement(s) et ne peut pas être supprimé ou désactivé.',
+    ],
     'relevant_module' => [
         'form' => [
             'purchase_requests' => "Demandes d'achat",

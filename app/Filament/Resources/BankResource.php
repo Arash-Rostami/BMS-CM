@@ -10,6 +10,7 @@ use App\Filament\Resources\Master\BankResource\Traits\Infolist as BankInfolist;
 use App\Filament\Resources\Master\BankResource\Traits\Table as BankTable;
 use App\Filament\Traits\HandleActivation;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Filament\Traits\HasUsageGuard;
 use App\Models\Bank;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -29,7 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BankResource extends Resource
 {
-    use BankFilters, BankForm, BankInfolist, BankTable, HandleActivation, HasResourcePermissions;
+    use BankFilters, BankForm, BankInfolist, BankTable, HandleActivation, HasResourcePermissions, HasUsageGuard;
 
     protected static ?string $model = Bank::class;
 
@@ -105,6 +106,11 @@ class BankResource extends Resource
         return __('resources/bank/strings.general.plural_model_label');
     }
 
+    protected static function usageRelations(): array
+    {
+        return ['bankProfiles', 'payments'];
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema
@@ -148,7 +154,7 @@ class BankResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    DeleteAction::make(),
+                    static::guardRecordAction(DeleteAction::make()),
                     RestoreAction::make(),
                 ]),
             ])
@@ -156,8 +162,8 @@ class BankResource extends Resource
                 BulkActionGroup::make([
                     static::getExportBulkAction(),
                     static::getActivateBulkAction(),
-                    static::getDeactivateBulkAction(),
-                    DeleteBulkAction::make(),
+                    static::guardBulkAction(static::getDeactivateBulkAction()),
+                    static::guardBulkAction(DeleteBulkAction::make()),
                     RestoreBulkAction::make(),
                 ]),
             ])

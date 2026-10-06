@@ -38,6 +38,7 @@ return [
         'helper_requires_approval' => 'When enabled, only the selected users can set this status.',
         'approval_users' => 'Approved Users',
         'helper_approval_users' => 'Users allowed to set this status.',
+        'helper_similar_value_warning' => 'A status already exists with a matching value: ":value". Check you are not creating a near-duplicate.',
     ],
     'table' => [
         'type' => 'Type',
@@ -50,7 +51,9 @@ return [
         'updated_at' => 'Last Updated',
         'deleted_at' => 'Date Deleted',
         'stage_order' => 'Stage',
+        'stage_order_issue' => 'This stage order collides or leaves a gap with a sibling status in the same type — the approval workflow may silently stop here.',
         'approval_gate' => 'Gated',
+        'approval_gate_unreachable' => 'Gated, but no user holds the required permission — this status can never be set.',
     ],
     'infolist' => [
         'type' => 'Type',
@@ -62,9 +65,11 @@ return [
         'created_at' => 'Date Created',
         'updated_at' => 'Last Updated',
         'stage_order' => 'Stage Order',
+        'stage_order_issue' => 'This stage order collides or leaves a gap with a sibling status in the same type — the approval workflow may silently stop here.',
         'approval_gate' => 'Approval Gate',
         'approval_gate_on' => 'Gated',
         'approval_gate_off' => 'Ungated',
+        'approval_gate_unreachable' => 'Gated, but unreachable (no user holds the permission)',
         'approval_users' => 'Approved Users',
     ],
     'filters' => [
