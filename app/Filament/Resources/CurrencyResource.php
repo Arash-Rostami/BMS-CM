@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Master\CurrencyResource\Exports\CurrencyExporter;
 use App\Filament\Resources\Master\CurrencyResource\Pages\ManageCurrencies;
 use App\Filament\Resources\Master\CurrencyResource\Traits\Filters as CurrencyFilters;
 use App\Filament\Resources\Master\CurrencyResource\Traits\Form as CurrencyForm;
@@ -17,7 +16,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -156,8 +154,7 @@ class CurrencyResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(CurrencyExporter::class),
+                    static::getExportBulkAction(),
                     static::getActivateBulkAction(),
                     static::getDeactivateBulkAction(),
                     DeleteBulkAction::make(),

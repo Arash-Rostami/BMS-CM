@@ -2,11 +2,45 @@
 
 namespace App\Filament\Resources\Master\CurrencyResource\Traits;
 
+use App\Filament\Actions\ImportAction;
+use App\Filament\Resources\CurrencyResource;
+use App\Filament\Resources\Master\CurrencyResource\Imports\CurrencyImporter;
+use App\Jobs\ExportCurrencies;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getImportAction(): ImportAction
+    {
+        return ImportAction::make('importCurrencies')
+            ->label(__('resources/currency/strings.import.import_currencies'))
+            ->modalHeading(__('resources/currency/strings.import.import_currencies'))
+            ->icon('heroicon-o-arrow-up-tray')
+            ->importer(CurrencyImporter::class)
+            ->authorize(fn (): bool => CurrencyResource::canCreate());
+    }
+
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportCurrencies')
+            ->label(__('resources/currency/strings.export.export_currencies'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => CurrencyResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportCurrencies::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showName(): TextColumn
     {
         return TextColumn::make('name')
