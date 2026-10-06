@@ -6,15 +6,23 @@ return [
         'plural_model_label' => 'ارزها',
     ],
     'export' => [
+        'export_currencies' => 'خروجی گرفتن از ارزها',
         'id' => 'شناسه',
         'name' => 'نام (فارسی)',
         'english_name' => 'نام (انگلیسی)',
         'description' => 'نماد',
         'is_active' => 'فعال',
+        'active' => 'فعال',
+        'inactive' => 'غیرفعال',
         'creator' => 'ایجادکننده',
         'updater' => 'به‌روزرسان',
         'created_at' => 'تاریخ ایجاد',
         'updated_at' => 'آخرین به‌روزرسانی',
+    ],
+    'import' => [
+        'import_currencies' => 'وارد کردن ارزها',
+        'english_name_required' => 'لطفاً برای وارد کردن ارز، نام انگلیسی را وارد کنید.',
+        'duplicate_currency' => 'ارزی با نام ":name" قبلاً ثبت شده است. وارد کردن فقط ارزهای جدید را ایجاد می‌کند.',
     ],
     'form' => [
         'name' => 'نام (فارسی)',

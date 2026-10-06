@@ -13,6 +13,7 @@ class ManageCurrencies extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
+            CurrencyResource::getImportAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
         ];

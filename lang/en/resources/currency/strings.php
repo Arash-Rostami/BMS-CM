@@ -6,15 +6,23 @@ return [
         'plural_model_label' => 'Currencies',
     ],
     'export' => [
+        'export_currencies' => 'Export Currencies',
         'id' => 'ID',
         'name' => 'Name (Persian)',
         'english_name' => 'Name (English)',
         'description' => 'Symbol',
         'is_active' => 'Active',
+        'active' => 'Active',
+        'inactive' => 'Inactive',
         'creator' => 'Creator',
         'updater' => 'Updater',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
+    ],
+    'import' => [
+        'import_currencies' => 'Import Currencies',
+        'english_name_required' => 'Please provide the English name to import a currency.',
+        'duplicate_currency' => 'A currency named ":name" already exists. Import only creates new currencies.',
     ],
     'form' => [
         'name' => 'Name (Persian)',

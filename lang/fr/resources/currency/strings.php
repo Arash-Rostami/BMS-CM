@@ -6,15 +6,23 @@ return [
         'plural_model_label' => 'Devises',
     ],
     'export' => [
+        'export_currencies' => 'Exporter les devises',
         'id' => 'ID',
         'name' => 'Nom (Persan)',
         'english_name' => 'Nom (Anglais)',
         'description' => 'Symbole',
         'is_active' => 'Actif',
+        'active' => 'Actif',
+        'inactive' => 'Inactif',
         'creator' => 'Créateur',
         'updater' => 'Modificateur',
         'created_at' => 'Date de création',
         'updated_at' => 'Dernière mise à jour',
+    ],
+    'import' => [
+        'import_currencies' => 'Importer les devises',
+        'english_name_required' => 'Veuillez indiquer le nom anglais pour importer une devise.',
+        'duplicate_currency' => 'Une devise nommée ":name" existe déjà. L\'importation ne crée que de nouvelles devises.',
     ],
     'form' => [
         'name' => 'Nom (Persan)',
