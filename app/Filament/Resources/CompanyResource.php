@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Master\CompanyResource\Exports\CompanyExporter;
 use App\Filament\Resources\Master\CompanyResource\Pages\ManageCompanies;
 use App\Filament\Resources\Master\CompanyResource\Traits\Filters as CompanyFilters;
 use App\Filament\Resources\Master\CompanyResource\Traits\Form as CompanyForm;
@@ -11,13 +10,13 @@ use App\Filament\Resources\Master\CompanyResource\Traits\Infolist as CompanyInfo
 use App\Filament\Resources\Master\CompanyResource\Traits\Table as CompanyTable;
 use App\Filament\Traits\HandleActivation;
 use App\Filament\Traits\HasResourcePermissions;
+use App\Filament\Traits\HasUsageGuard;
 use App\Models\Company;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -33,7 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CompanyResource extends Resource
 {
-    use CompanyFilters, CompanyForm, CompanyInfolist, CompanyTable, HandleActivation, HasResourcePermissions;
+    use CompanyFilters, CompanyForm, CompanyInfolist, CompanyTable, HandleActivation, HasResourcePermissions, HasUsageGuard;
 
     protected static ?string $model = Company::class;
 
@@ -126,6 +125,17 @@ class CompanyResource extends Resource
         return __('resources/company/strings.general.plural_model_label');
     }
 
+    protected static function usageRelations(): array
+    {
+        return [
+            'proformaInvoicesAsSeller', 'proformaInvoicesAsBuyer',
+            'purchaseOrdersAsSeller', 'purchaseOrdersAsBuyer',
+            'registeredOrdersAsSeller', 'registeredOrdersAsBuyer',
+            'paymentsAsPayor', 'paymentsAsPayee',
+            'bankProfiles', 'shipments',
+        ];
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema
@@ -164,6 +174,7 @@ class CompanyResource extends Resource
             ->filters([
                 static::getActiveFilter(),
                 static::getCompanyTypeFilter(),
+                static::getNoTypesFilter(),
                 static::getThrashedFilter(),
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
@@ -172,17 +183,17 @@ class CompanyResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    DeleteAction::make(),
+                    static::guardRecordAction(DeleteAction::make()),
                     RestoreAction::make(),
                 ]),
             ])
             ->toolbarActions([
+                static::getImportAction(),
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(CompanyExporter::class),
+                    static::getExportBulkAction(),
                     static::getActivateBulkAction(),
-                    static::getDeactivateBulkAction(),
-                    DeleteBulkAction::make(),
+                    static::guardBulkAction(static::getDeactivateBulkAction()),
+                    static::guardBulkAction(DeleteBulkAction::make()),
                     RestoreBulkAction::make(),
                 ]),
             ])

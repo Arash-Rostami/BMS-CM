@@ -2,8 +2,13 @@
 
 namespace Tests\Feature\Models;
 
+use App\Models\BankProfile;
 use App\Models\Company;
+use App\Models\Payment;
+use App\Models\ProformaInvoice;
+use App\Models\PurchaseOrder;
 use App\Models\RegisteredOrder;
+use App\Models\Shipment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use ReflectionMethod;
@@ -173,5 +178,32 @@ class CompanyModelTest extends TestCase
 
         $this->assertNull(Company::find($company->id));
         $this->assertNotNull(Company::withTrashed()->find($company->id));
+    }
+
+    public function test_usage_guard_relations_resolve_the_correct_inverse_rows(): void
+    {
+        $company = Company::factory()->create();
+
+        $proformaInvoiceAsSeller = ProformaInvoice::factory()->create(['seller_id' => $company->id]);
+        $proformaInvoiceAsBuyer = ProformaInvoice::factory()->create(['buyer_id' => $company->id]);
+        $purchaseOrderAsSeller = PurchaseOrder::factory()->create(['seller_id' => $company->id]);
+        $purchaseOrderAsBuyer = PurchaseOrder::factory()->create(['buyer_id' => $company->id]);
+        $registeredOrderAsSeller = RegisteredOrder::factory()->create(['seller_id' => $company->id]);
+        $registeredOrderAsBuyer = RegisteredOrder::factory()->create(['buyer_id' => $company->id]);
+        $paymentAsPayor = Payment::factory()->create(['payor_id' => $company->id]);
+        $paymentAsPayee = Payment::factory()->create(['payee_id' => $company->id]);
+        $bankProfile = BankProfile::factory()->create(['company_id' => $company->id]);
+        $shipment = Shipment::factory()->create(['company_id' => $company->id]);
+
+        $this->assertTrue($company->proformaInvoicesAsSeller->pluck('id')->contains($proformaInvoiceAsSeller->id));
+        $this->assertTrue($company->proformaInvoicesAsBuyer->pluck('id')->contains($proformaInvoiceAsBuyer->id));
+        $this->assertTrue($company->purchaseOrdersAsSeller->pluck('id')->contains($purchaseOrderAsSeller->id));
+        $this->assertTrue($company->purchaseOrdersAsBuyer->pluck('id')->contains($purchaseOrderAsBuyer->id));
+        $this->assertTrue($company->registeredOrdersAsSeller->pluck('id')->contains($registeredOrderAsSeller->id));
+        $this->assertTrue($company->registeredOrdersAsBuyer->pluck('id')->contains($registeredOrderAsBuyer->id));
+        $this->assertTrue($company->paymentsAsPayor->pluck('id')->contains($paymentAsPayor->id));
+        $this->assertTrue($company->paymentsAsPayee->pluck('id')->contains($paymentAsPayee->id));
+        $this->assertTrue($company->bankProfiles->pluck('id')->contains($bankProfile->id));
+        $this->assertTrue($company->shipments->pluck('id')->contains($shipment->id));
     }
 }

@@ -168,4 +168,18 @@ class StatusModelTest extends TestCase
         $this->assertNotNull(Status::withTrashed()->find($status->id));
         $this->assertSame('recomputed', SmartCacheManager::remember('Status', $probe, 10, fn () => 'recomputed'));
     }
+
+    public function test_restoring_a_soft_deleted_status_invalidates_the_status_cache(): void
+    {
+        $probe = ['probe' => uniqid()];
+
+        $status = Status::factory()->create(['english_name' => 'Restorable']);
+        $status->delete();
+        SmartCacheManager::remember('Status', $probe, 10, fn () => 'warm');
+
+        $status->restore();
+
+        $this->assertNotNull(Status::find($status->id));
+        $this->assertSame('recomputed', SmartCacheManager::remember('Status', $probe, 10, fn () => 'recomputed'));
+    }
 }

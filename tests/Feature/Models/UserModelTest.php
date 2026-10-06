@@ -5,6 +5,8 @@ namespace Tests\Feature\Models;
 use App\Models\PurchaseOrder;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -168,5 +170,25 @@ class UserModelTest extends TestCase
     public function test_cache_minutes_pins_the_cache_ttl_contract(): void
     {
         $this->assertSame(60, User::CACHE_MINUTES);
+    }
+
+    // Login/Logout listeners
+
+    public function test_the_login_event_stamps_last_log_in(): void
+    {
+        $user = User::factory()->create();
+
+        event(new Login('web', $user, false));
+
+        $this->assertNotNull($user->fresh()->last_log_in, 'Dispatching the Login event must stamp last_log_in on the user.');
+    }
+
+    public function test_the_logout_event_stamps_last_log_out(): void
+    {
+        $user = User::factory()->create();
+
+        event(new Logout('web', $user));
+
+        $this->assertNotNull($user->fresh()->last_log_out, 'Dispatching the Logout event must stamp last_log_out on the user.');
     }
 }

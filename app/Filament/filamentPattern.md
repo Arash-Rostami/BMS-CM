@@ -26,7 +26,7 @@ app/Filament/Resources/
 app/Filament/Traits/
     HasResourcePermissions.php  HasExtraAttributesManagement.php
     HandleActivation.php  ExportDefaults.php  HasDeskReferenceAction.php
-    HasStatusWorkflow.php
+    HasStatusWorkflow.php  HasUsageGuard.php
 ```
 
 `DashboardPanelProvider` registers resources via `->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')`. Only root-level classes that extend `Resource` are registered. The `Operational/` and `Master/` subdirectories hold Traits/Pages/RelationManagers/Enums/Exports imported by the root file — they are NOT auto-registered as resources. **A new resource MUST create a top-level `app/Filament/Resources/{Name}Resource.php` with `namespace App\Filament\Resources`.**
@@ -221,16 +221,41 @@ protected static function getDeactivateBulkAction(): BulkAction
 
 Both execute `static::getModel()::whereIn('id', $records->pluck('id'))->update(['is_active' => 1|0])` and call `deselectRecordsAfterCompletion()`. Master resources only.
 
-### 1.7a `HasUsageGuard` — warn/block delete-or-deactivate on a record still referenced elsewhere
+### 1.7a `HasUsageGuard` — blocking delete/deactivate on a still-referenced master record
+
+`App\Filament\Traits\HasUsageGuard` is a generic, model-agnostic trait (no Company/Bank/Currency-specific code) solving a real gap: several master-data `belongsTo` relations on operational models are `->where('is_active', 1)`-scoped (`ProformaInvoice`/`PurchaseOrder`/`RegisteredOrder`'s `sellerCompany()`/`buyerCompany()`, `Payment`'s `payor()`/`payee()`, `BankProfile`/`Shipment`'s `company()`/`carrier()`) — deactivating or deleting the referenced master row silently blanks that display on every historical operational row, with zero warning.
 
 ```php
-protected static function usageRelations(): array        // override per resource — relation names on the model to sum usage across
-public static function usageCount(Model $record): int    // sum of ->{$relation}()->count() across usageRelations()
-protected static function guardRecordAction(Action $action): Action      // wrap a single-record Action (DeleteAction, the deactivate row action)
-protected static function guardBulkAction(Action $action): Action        // wrap a BulkAction (DeleteBulkAction, getDeactivateBulkAction())
+protected static function usageRelations(): array        // override per resource: relation METHOD NAMES on the model
+public static function usageCount(Model $record): int    // sums ->count() across each relation in usageRelations()
+protected static function guardRecordAction(Action $action): Action   // wraps a per-row Action (DeleteAction)
+protected static function guardBulkAction(Action $action): Action     // wraps a BulkAction (DeleteBulkAction, or an existing HandleActivation bulk action)
+protected static function haltIfInUse(Action $action, int $count): void
 ```
 
-Both guards hook `->before()` and call `$action->halt()` + a danger `Notification` (`resources/general/strings.usage_guard.blocked`) when the summed usage count is `>= 1`, blocking the action entirely rather than silently letting a still-referenced record disappear or go inactive underneath its consumers. Current consumers: Bank and Currency — every consumer's `table()` wraps `DeleteAction::make()`/the deactivate row action in `guardRecordAction()`, and `DeleteBulkAction::make()`/`getDeactivateBulkAction()` in `guardBulkAction()`, exactly mirroring `BankResource::table()`. **This file is shared and must stay byte-identical across consumers** — never fork a per-resource copy; a resource that needs usage-guarding overrides only `usageRelations()`. A new consumer should pair this with `withCount(static::usageRelations())` added to `getEloquentQuery()` so any table column surfacing "in use" state reads precomputed `{relation}_count` attributes instead of re-querying per row.
+**The block mechanism is `Action::before()` + `Action::halt()`, not a custom confirmation modal.** Verified against `vendor/filament/actions/src/Concerns/HasLifecycleHooks.php`/`Action.php` and `InteractsWithActions.php`: `$action->callBefore()` runs (and its `Halt` exception is caught) BEFORE `$action->call([...])` — so throwing `Halt` from inside a `before()` closure stops the action's own body from ever running, which is the real "block," not just a stronger confirmation. `before()`'s closure is evaluated via `evaluate()`, so a `Model $record` parameter resolves for a per-row action and a `Collection $records` parameter resolves for a bulk action (`Action::resolveDefaultClosureDependencyForEvaluationByName()`) — never both on the same closure (requesting `$records` on a non-bulk action throws, since it hasn't called `accessSelectedRecords()`), hence the two separate `guardRecordAction()`/`guardBulkAction()` wrappers rather than one combined helper.
+
+**Consumers (`Bank`, `Currency`, `Company` — all three compose this trait):**
+
+```php
+// BankResource::usageRelations()
+['bankProfiles', 'payments']
+
+// CurrencyResource::usageRelations()
+['proformaInvoicesAsMain', 'proformaInvoicesAsSecondary', 'bankProfilesAsRequested',
+    'bankProfilesAsPurchased', 'payments', 'purchaseOrders', 'registeredOrders']
+
+// CompanyResource::usageRelations()
+['proformaInvoicesAsSeller', 'proformaInvoicesAsBuyer', 'purchaseOrdersAsSeller', 'purchaseOrdersAsBuyer',
+    'registeredOrdersAsSeller', 'registeredOrdersAsBuyer', 'paymentsAsPayor', 'paymentsAsPayee', 'bankProfiles', 'shipments']
+
+// table(), all three:
+static::guardRecordAction(DeleteAction::make()),                     // recordActions
+static::guardBulkAction(static::getDeactivateBulkAction()),          // toolbarActions — wraps HandleActivation's shared action LOCALLY, HandleActivation itself is untouched
+static::guardBulkAction(DeleteBulkAction::make()),
+```
+
+`Activate` is deliberately never guarded — re-activating a record never costs any data, only Delete and Deactivate carry the silent-blanking risk. `resources/general/strings.usage_guard.blocked` (`:count` placeholder) is the single shared notification message for both the record and bulk paths, added to `general/strings.php` per §2 of `localizationPattern.md`. Each resource's `hasMany` inverse relations named in its own `usageRelations()` live on that model's own per-domain `Traits/{Model}/Relationships.php` (`Company`'s is aliased `as ExclusiveRelationships`, see `modelsPattern.md` §2/§4) — adopting this trait on a new master resource always means adding the matching inverse relations to that model first. `CurrencyResource` is the only consumer that also adds `->withCount(static::usageRelations())` to `getEloquentQuery()` — this does NOT feed `usageCount()` itself (the guard's `before()` check still re-queries `$record->{$relation}()->count()` live, same as `Bank`/`Company`), it exists purely so `CurrencyResource`'s own `showInUse()` table column can read the precomputed `{relation}_count` attributes instead of re-querying per row (see §1.2's table-column section) — a new consumer only needs this pairing if it adds an equivalent visibility column.
 
 ### 1.8 `ExportDefaults` — exporter classes (not resources)
 

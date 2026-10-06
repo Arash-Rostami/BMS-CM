@@ -60,6 +60,15 @@ trait Filters
             });
     }
 
+    public static function getNoTypesFilter(): Filter
+    {
+        return Filter::make('no_types')
+            ->label(__('resources/company/strings.filters.no_types'))
+            ->query(fn (Builder $query): Builder => $query->where(
+                fn (Builder $q) => $q->whereNull('types')->orWhereJsonLength('types', 0)
+            ));
+    }
+
     public static function getCreatorFilter(): SelectFilter
     {
         return SelectFilter::make('user_id')
