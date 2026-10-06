@@ -53,10 +53,22 @@ class AnalyticsServiceTest extends TestCase
 
     public function test_each_method_reads_through_its_exact_cache_key(): void
     {
-        $stub = ['stub' => true];
-        Cache::put('analytics:concentration', $stub, now()->addMinutes(5));
+        $methods = [
+            'concentration' => 'concentrationRisk',
+            'cycle_time' => 'cycleTimeByStage',
+            'exposure_aging' => 'exposureAging',
+            'open_exposure' => 'openCurrencyExposure',
+            'pipeline_stalls' => 'pipelineStalls',
+            'shipment_punctuality' => 'shipmentPunctuality',
+        ];
 
-        $this->assertSame($stub, AnalyticsService::concentrationRisk());
+        foreach ($methods as $key => $method) {
+            $stub = ['stub' => $key];
+            Cache::put("analytics:{$key}", $stub, now()->addMinutes(5));
+
+            $this->assertSame($stub, AnalyticsService::{$method}(), $method);
+            Cache::forget("analytics:{$key}");
+        }
     }
 
     public function test_a_cache_miss_writes_the_exact_key(): void

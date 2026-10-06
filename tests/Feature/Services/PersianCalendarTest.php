@@ -45,6 +45,7 @@ class PersianCalendarTest extends TestCase
 
     public function test_jalali_to_gregorian_round_trips_a_converted_year(): void
     {
+        app()->setLocale('fa');
         $service = app(PersianCalendar::class);
 
         $this->assertSame(2026, $service->jalaliToGregorian(1405));

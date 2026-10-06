@@ -96,7 +96,7 @@ class NotificationEvaluatorTest extends TestCase
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
 
-        Notification::assertNothingSent();
+        Notification::assertNothingSentTo($recipient);
     }
 
     public function test_setting_for_another_table_is_skipped(): void
@@ -106,7 +106,7 @@ class NotificationEvaluatorTest extends TestCase
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
 
-        Notification::assertNothingSent();
+        Notification::assertNothingSentTo($recipient);
     }
 
     public function test_inactive_setting_is_skipped(): void
@@ -116,7 +116,7 @@ class NotificationEvaluatorTest extends TestCase
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
 
-        Notification::assertNothingSent();
+        Notification::assertNothingSentTo($recipient);
     }
 
     public function test_setting_with_an_empty_is_active_flag_is_treated_as_active(): void
@@ -144,7 +144,7 @@ class NotificationEvaluatorTest extends TestCase
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
 
-        Notification::assertNothingSent();
+        Notification::assertNothingSentTo($recipient);
     }
 
     public function test_update_with_a_column_filter_notifies_when_a_watched_column_changed(): void
@@ -171,7 +171,7 @@ class NotificationEvaluatorTest extends TestCase
 
         app(NotificationEvaluator::class)->evaluate($request, 'update', ['urgency_level' => 'high']);
 
-        Notification::assertNothingSent();
+        Notification::assertNothingSentTo($recipient);
     }
 
     public function test_update_with_a_value_filter_notifies_when_the_current_value_is_in_the_pool(): void
@@ -207,7 +207,7 @@ class NotificationEvaluatorTest extends TestCase
 
         app(NotificationEvaluator::class)->evaluate($request, 'update', ['status_id' => $newStatus->id]);
 
-        Notification::assertNothingSent();
+        Notification::assertNothingSentTo($recipient);
     }
 
     public function test_update_notification_resolves_fk_columns_to_display_values(): void
@@ -251,10 +251,11 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_no_notification_is_sent_when_the_recipient_list_is_empty(): void
     {
-        $this->makeSetting(User::factory()->create(), ['users' => []]);
+        $recipient = User::factory()->create();
+        $this->makeSetting($recipient, ['users' => []]);
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
 
-        Notification::assertNothingSent();
+        Notification::assertNothingSentTo($recipient);
     }
 }

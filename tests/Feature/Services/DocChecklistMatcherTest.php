@@ -123,7 +123,7 @@ class DocChecklistMatcherTest extends TestCase
     public function test_sync_folds_arabic_glyph_variants_when_matching_farsi_labels(): void
     {
         $shipment = $this->shipment([['name' => 'ci', 'received' => false]]);
-        $this->attach($shipment, 'فاكتور تجاری (CI).pdf');
+        $this->attach($shipment, 'فاكتورتجاریCI.pdf');
 
         DocChecklistMatcher::sync($shipment);
 

@@ -33,6 +33,5 @@ class Currency extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'deleted_at' => 'datetime',
-        'is_active' => 'boolean',
     ];
 }

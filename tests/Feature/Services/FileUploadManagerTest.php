@@ -24,6 +24,7 @@ class FileUploadManagerTest extends TestCase
         $this->useMysql();
         SmartCacheManager::invalidate('Status');
         DB::beginTransaction();
+        Storage::fake('public');
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
     }
@@ -97,8 +98,8 @@ class FileUploadManagerTest extends TestCase
         $this->assertSame($manager, $manager->processTemporaryFiles($record, [$tempPath]));
 
         $attachment = $record->attachments()->first();
-        $this->paths[] = $attachment->path;
         $this->assertNotNull($attachment);
+        $this->paths[] = $attachment->path;
         $this->assertSame('my report.pdf', $attachment->name);
         $this->assertStringStartsWith('attachments/purchaseRequest/', $attachment->path);
         $this->assertSame($this->user->id, $attachment->user_id);
