@@ -4,3 +4,4 @@
 - The list and record view now show at a glance whether a status is ordered and/or requires approval.
 - On phones, lists now stack into readable cards instead of forcing you to scroll sideways; a new top-bar toggle (visible on desktop-width screens) switches back to the classic table.
 - Exported files are safer to open in Excel — cells that could act as hidden formulas are neutralized before writing.
+- Export now goes through the same queued, notification-with-download-link flow every other module uses (previously a different, older-style export).
