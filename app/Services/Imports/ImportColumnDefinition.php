@@ -25,6 +25,7 @@ final class ImportColumnDefinition
         public readonly bool $isNumber = false,
         public readonly bool $isDate = false,
         public readonly bool $isCountry = false,
+        public readonly bool $isBoolean = false,
     ) {}
 
     public static function match(string $name, string $labelKey, string $relation, string $model, array $resolveColumns): self
@@ -45,6 +46,11 @@ final class ImportColumnDefinition
     public static function matchCountry(string $name, string $labelKey): self
     {
         return new self($name, labelKey: $labelKey, isCountry: true);
+    }
+
+    public static function boolean(string $name, string $labelKey): self
+    {
+        return new self($name, labelKey: $labelKey, isBoolean: true);
     }
 
     public static function manualSet(string $name, string $labelKey, bool $isNumber = false, bool $isDate = false): self

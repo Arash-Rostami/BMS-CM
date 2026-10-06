@@ -28,10 +28,28 @@ final class ImportColumnFactory
             $definition->statusType !== null => self::applyStatusMatch($column, $definition),
             $definition->enumTranslationKey !== null => self::applyEnumMatch($column, $definition),
             $definition->isCountry => self::applyCountryMatch($column, $definition),
+            $definition->isBoolean => self::applyBoolean($column),
             $definition->isDate => self::applyDate($column),
             $definition->isNumber => self::applyNumber($column),
             default => self::applyPlainText($column),
         };
+    }
+
+    protected static function applyBoolean(ImportColumn $column): ImportColumn
+    {
+        return $column->castStateUsing(function ($originalState) {
+            if (! is_string($originalState) || trim($originalState) === '') {
+                return null;
+            }
+
+            $value = mb_strtolower(trim($originalState));
+
+            return match (true) {
+                in_array($value, ['1', 'true', 'yes', 'on'], true) => true,
+                in_array($value, ['0', 'false', 'no', 'off'], true) => false,
+                default => null,
+            };
+        });
     }
 
     protected static function applyCountryMatch(ImportColumn $column, ImportColumnDefinition $definition): ImportColumn

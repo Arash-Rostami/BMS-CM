@@ -93,4 +93,16 @@ trait Filters
                 );
             });
     }
+
+    public static function getCustomsReadyFilter(): TernaryFilter
+    {
+        return TernaryFilter::make('customs_ready')
+            ->label(__('resources/product/strings.table.customs_ready'))
+            ->trueLabel(__('resources/product/strings.filters.customs_ready_true'))
+            ->falseLabel(__('resources/product/strings.filters.customs_ready_false'))
+            ->queries(
+                true: fn (Builder $query) => $query->whereHas('specifications', fn (Builder $q) => $q->whereNotNull('hs_code')),
+                false: fn (Builder $query) => $query->whereDoesntHave('specifications', fn (Builder $q) => $q->whereNotNull('hs_code')),
+            );
+    }
 }

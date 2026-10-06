@@ -5,11 +5,18 @@ namespace App\Services\Imports\Stages;
 use App\Services\Imports\ImportColumnFactory;
 use App\Services\Imports\ImportRowContext;
 use Closure;
+use Illuminate\Support\Facades\Schema;
 
 class AppendUnresolvedMatchNotes
 {
+    protected static array $hasNotesColumn = [];
+
     public function handle(ImportRowContext $context, Closure $next): ImportRowContext
     {
+        if (! static::recordHasNotesColumn($context)) {
+            return $next($context);
+        }
+
         $lines = [];
 
         foreach ($context->columns as $column) {
@@ -34,5 +41,12 @@ class AppendUnresolvedMatchNotes
         }
 
         return $next($context);
+    }
+
+    protected static function recordHasNotesColumn(ImportRowContext $context): bool
+    {
+        $table = $context->record->getTable();
+
+        return static::$hasNotesColumn[$table] ??= Schema::hasColumn($table, 'notes');
     }
 }

@@ -10,6 +10,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\Lang;
@@ -17,46 +18,131 @@ use Illuminate\Support\Str;
 
 trait Form
 {
-    public static function doubleCheckCode(): TextInput
+    public static function getInquiryCodeField(): TextInput
     {
-        return TextInput::make('code')
-            ->label(__('resources/product/strings.form.code'))
-            ->required()
-            ->live()
+        return TextInput::make('inquiry_code')
+            ->label(__('resources/product/strings.form.inquiry_code'))
+            ->helperText(__('resources/product/strings.form.helper_inquiry_code'))
+            ->live(onBlur: true)
             ->dehydrated(false)
-            ->validationMessages([
-                'required' => __('resources/product/strings.form.validation_code_required'),
-            ])
-            ->validationAttribute(__('resources/product/strings.form.code'))
-            ->afterStateUpdated(function ($state, Get $get, Set $set) {
-                if ($get('action') !== 'check') {
-                    $set('check_result', null);
+            ->visibleOn('create')
+            ->afterStateUpdated(function ($state, Set $set) {
+                $set('confirmed_create', false);
+
+                if (blank($state)) {
+                    $set('inquiry_result', null);
 
                     return;
                 }
 
-                if (empty($state)) {
-                    $set('check_result', null);
+                $code = Product::normalizeCode($state);
 
-                    return;
-                }
-
-                $set('check_result', Product::where('code', $state)->exists() ? '✅' : '❌');
+                $set('inquiry_result', match (true) {
+                    Product::where('code', $code)->exists() => 'found',
+                    Product::onlyTrashed()->where('code', $code)->exists() => 'trashed',
+                    default => 'not_found',
+                });
             });
     }
 
-    public static function enquiryResponse(): TextEntry
+    public static function getExistingProductDetails(): Section
     {
-        return TextEntry::make('check_result_view')
-            ->label(__('resources/product/strings.form.check_result'))
-            ->state(fn (Get $get) => $get('check_result'))
-            ->visible(fn (Get $get) => $get('action') === 'check' && $get('check_result') !== null);
+        return Section::make(__('resources/product/strings.form.existing_product_title'))
+            ->icon('heroicon-o-exclamation-triangle')
+            ->schema([
+                TextEntry::make('existing_name')
+                    ->label(__('resources/product/strings.form.name'))
+                    ->state(fn (Get $get) => static::findByInquiryCode($get('inquiry_code'))?->getLocalizedNameAttribute() ?? '-'),
+                TextEntry::make('existing_category')
+                    ->label(__('resources/product/strings.form.category'))
+                    ->state(fn (Get $get) => static::findByInquiryCode($get('inquiry_code'))?->category?->getLocalizedNameAttribute() ?? '-'),
+                TextEntry::make('existing_in_stock')
+                    ->label(__('resources/product/strings.form.in_stock'))
+                    ->state(fn (Get $get) => static::findByInquiryCode($get('inquiry_code'))?->in_stock
+                        ? __('resources/product/strings.table.in_stock_true')
+                        : __('resources/product/strings.table.in_stock_false')),
+                TextEntry::make('existing_is_active')
+                    ->label(__('resources/product/strings.form.is_active'))
+                    ->state(fn (Get $get) => static::findByInquiryCode($get('inquiry_code'))?->is_active
+                        ? __('resources/product/strings.table.only_active')
+                        : __('resources/product/strings.table.only_inactive')),
+            ])
+            ->columns(2)
+            ->visible(fn (Get $get, $operation) => $operation === 'create' && $get('inquiry_result') === 'found');
+    }
+
+    public static function getTrashedProductDetails(): Section
+    {
+        return Section::make(__('resources/product/strings.form.trashed_product_title'))
+            ->description(__('resources/product/strings.form.trashed_product_description'))
+            ->icon('heroicon-o-archive-box-x-mark')
+            ->schema([
+                TextEntry::make('trashed_product_link')
+                    ->hiddenLabel()
+                    ->state(__('resources/product/strings.form.view_trashed_products'))
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->color('warning')
+                    ->url(fn () => static::getUrl('index', [
+                        'tableFilters' => ['trashed' => ['value' => '0']],
+                    ]))
+                    ->openUrlInNewTab(),
+            ])
+            ->visible(fn (Get $get, $operation) => $operation === 'create' && $get('inquiry_result') === 'trashed');
+    }
+
+    public static function getNotFoundConfirmation(): Section
+    {
+        return Section::make(__('resources/product/strings.form.not_found_title'))
+            ->description(__('resources/product/strings.form.not_found_description'))
+            ->icon('heroicon-o-question-mark-circle')
+            ->schema([
+                Toggle::make('confirmed_create')
+                    ->label(__('resources/product/strings.form.confirm_create'))
+                    ->live()
+                    ->dehydrated(false)
+                    ->default(false)
+                    ->afterStateUpdated(function ($state, Get $get, Set $set) {
+                        if ($state) {
+                            $set('code', Product::normalizeCode($get('inquiry_code')));
+                        }
+                    }),
+            ])
+            ->visible(fn (Get $get, $operation) => $operation === 'create' && $get('inquiry_result') === 'not_found' && ! $get('confirmed_create'));
+    }
+
+    protected static array $inquiryCodeLookupCache = [];
+
+    public static function findByInquiryCode(?string $code): ?Product
+    {
+        $normalized = Product::normalizeCode($code);
+
+        if (blank($normalized)) {
+            return null;
+        }
+
+        return static::$inquiryCodeLookupCache[$normalized] ??= Product::where('code', $normalized)->first();
+    }
+
+    public static function specificationHasData(array $data): bool
+    {
+        foreach (['hs_code', 'import_duty', 'packing_type', 'tax_id', 'manufacturer', 'import_licenses'] as $field) {
+            if (filled($data[$field] ?? null)) {
+                return true;
+            }
+        }
+
+        if (($data['vat_exempt'] ?? false) === true) {
+            return true;
+        }
+
+        return filled($data['extra'] ?? null);
     }
 
     public static function getAttributesJsonField(): TagsInput
     {
         return TagsInput::make('attributes')
             ->label(__('resources/product/strings.form.attributes'))
+            ->helperText(__('resources/product/strings.form.helper_attributes'))
             ->nullable();
     }
 
@@ -83,7 +169,10 @@ trait Form
     {
         return TextInput::make('code')
             ->label(__('resources/product/strings.form.code'))
+            ->live(onBlur: true)
+            ->afterStateUpdated(fn ($state, Set $set) => $set('code', Product::normalizeCode($state)))
             ->unique(table: 'products', column: 'code', ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
+            ->dehydrateStateUsing(fn ($state) => Product::normalizeCode($state))
             ->maxLength(255)
             ->required()
             ->placeholder(__('resources/product/strings.form.validation_code_placeholder'))
@@ -139,9 +228,10 @@ trait Form
     {
         return KeyValue::make('extra')
             ->label(__('resources/product/strings.form.extra'))
+            ->helperText(__('resources/product/strings.form.helper_extra'))
             ->keyLabel(__('resources/product/strings.form.key_label'))
             ->valueLabel(__('resources/product/strings.form.value_label'))
-            ->addActionLabel(__('resources/product/strings.form.add_spec_button'))
+            ->addActionLabel(__('resources/product/strings.form.add_extra_field_button'))
             ->columnSpan(2);
     }
 

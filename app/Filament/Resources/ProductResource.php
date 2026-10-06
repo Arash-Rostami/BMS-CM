@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Master\ProductResource\Exports\ProductExporter;
 use App\Filament\Resources\Master\ProductResource\Pages\ManageProducts;
 use App\Filament\Resources\Master\ProductResource\Traits\CategoryDrilldown;
 use App\Filament\Resources\Master\ProductResource\Traits\Filters as ProductFilters;
@@ -18,12 +17,10 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -50,27 +47,10 @@ class ProductResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('action')
-                    ->options([
-                        'check' => __('resources/product/strings.form.action_check'),
-                        'create' => __('resources/product/strings.form.action_create'),
-                    ])
-                    ->required()
-                    ->live()
-                    ->visibleOn('create')
-                    ->validationMessages([
-                        'required' => __('resources/product/strings.form.validation_action_required'),
-                    ])
-                    ->label(__('resources/product/strings.form.choose_action')),
-                // checking code
-                Group::make([
-                    Section::make(__('resources/product/strings.form.action_check'))
-                        ->schema([
-                            self::doubleCheckCode(),
-                            self::enquiryResponse(),
-                        ])
-                        ->columns(2),
-                ])->columnSpanFull()->visible(fn (Get $get) => $get('action') === 'check'),
+                self::getInquiryCodeField(),
+                self::getExistingProductDetails(),
+                self::getTrashedProductDetails(),
+                self::getNotFoundConfirmation(),
                 // creating new product
                 Tabs::make('Tabs')
                     ->tabs([
@@ -108,9 +88,13 @@ class ProductResource extends Resource
                                         Repeater::make('specifications')
                                             ->hiddenLabel()
                                             ->relationship('specifications')
+                                            ->defaultItems(0)
                                             ->maxItems(1)
                                             ->deletable()
                                             ->columns(2)
+                                            ->addActionLabel(__('resources/product/strings.form.add_specification_button'))
+                                            ->mutateRelationshipDataBeforeCreateUsing(fn (array $data): ?array => static::specificationHasData($data) ? $data : null)
+                                            ->mutateRelationshipDataBeforeSaveUsing(fn (array $data): ?array => static::specificationHasData($data) ? $data : null)
                                             ->validationMessages([
                                                 'max' => __('resources/product/strings.form.validation_specifications_max'),
                                             ])
@@ -128,7 +112,7 @@ class ProductResource extends Resource
                             ])->icon('heroicon-o-list-bullet'),
                     ])
                     ->columnSpanFull()
-                    ->visible(fn (Get $get, $operation) => $get('action') === 'create' || $operation == 'edit'),
+                    ->visible(fn (Get $get, $operation) => $operation === 'edit' || $get('confirmed_create') === true),
             ]);
     }
 
@@ -229,6 +213,7 @@ class ProductResource extends Resource
                                     static::viewUpdater(),
                                     static::viewCreatedAt(),
                                     static::viewUpdatedAt(),
+                                    static::viewNotes(),
                                 ])->columns(2),
                             ]),
                         // Specifications
@@ -266,6 +251,7 @@ class ProductResource extends Resource
                 static::showCategory(),
                 static::showRollSheetType(),
                 static::showProductAttributes(),
+                static::showCustomsReady(),
                 static::showInStock(),
                 static::showIsActive(),
                 static::showCreator(),
@@ -278,6 +264,7 @@ class ProductResource extends Resource
                 static::getCategoryFilter(),
                 static::getInStockFilter(),
                 static::getRollSheetFilter(),
+                static::getCustomsReadyFilter(),
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
                 static::getTrashedFilter(),
@@ -293,7 +280,7 @@ class ProductResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()->exporter(ProductExporter::class),
+                    static::getExportBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
