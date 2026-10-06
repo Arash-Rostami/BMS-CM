@@ -74,6 +74,7 @@ return [
         'updater' => 'Last Updated By',
     ],
     'export' => [
+        'export_statuses' => 'Export Statuses',
         'id' => 'ID',
         'name' => 'Name',
         'english_name' => 'Name (English)',

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Master\StatusResource\Exports\StatusExporter;
 use App\Filament\Resources\Master\StatusResource\Pages\ManageStatuses;
 use App\Filament\Resources\Master\StatusResource\Traits\Filters as StatusFilters;
 use App\Filament\Resources\Master\StatusResource\Traits\Form as StatusForm;
@@ -16,7 +15,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -183,8 +181,7 @@ class StatusResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(StatusExporter::class),
+                    static::getExportBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),

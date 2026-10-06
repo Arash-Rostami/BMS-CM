@@ -2,12 +2,34 @@
 
 namespace App\Filament\Resources\Master\StatusResource\Traits;
 
+use App\Filament\Resources\StatusResource;
+use App\Jobs\ExportStatuses;
 use App\Models\Status;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportStatuses')
+            ->label(__('resources/status/strings.export.export_statuses'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => StatusResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportStatuses::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showApprovalGate(): IconColumn
     {
         return IconColumn::make('approval_permission')
