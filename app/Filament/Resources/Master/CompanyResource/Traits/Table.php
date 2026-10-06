@@ -2,12 +2,46 @@
 
 namespace App\Filament\Resources\Master\CompanyResource\Traits;
 
+use App\Filament\Actions\ImportAction;
+use App\Filament\Resources\CompanyResource;
 use App\Filament\Resources\Master\CompanyResource\Enums\Type;
+use App\Filament\Resources\Master\CompanyResource\Imports\CompanyImporter;
+use App\Jobs\ExportCompanies;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getImportAction(): ImportAction
+    {
+        return ImportAction::make('importCompanies')
+            ->label(__('resources/company/strings.import.import_companies'))
+            ->modalHeading(__('resources/company/strings.import.import_companies'))
+            ->icon('heroicon-o-arrow-up-tray')
+            ->importer(CompanyImporter::class)
+            ->resourceGate(CompanyResource::class);
+    }
+
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportCompanies')
+            ->label(__('resources/company/strings.export.export_companies'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => CompanyResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportCompanies::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showName(): TextColumn
     {
         return TextColumn::make('name')
@@ -33,7 +67,8 @@ trait Table
             ->label(__('resources/company/strings.table.description'))
             ->searchable()
             ->toggleable(isToggledHiddenByDefault: false)
-            ->limit(50);
+            ->limit(50)
+            ->tooltip(fn ($record) => $record->description);
 
     }
 
@@ -48,6 +83,7 @@ trait Table
             ->icon(fn (?string $state): ?string => Type::tryFromLocalised($state)?->getIcon() ?? 'heroicon-o-question-mark-circle')
             ->searchable(query: fn ($query, $search) => $query->whereJsonContains('types', strtolower($search)))
             ->sortable(query: fn ($query, string $direction) => $query->orderByRaw("JSON_LENGTH(types) {$direction}"))
+            ->placeholder(__('resources/company/strings.table.no_types'))
             ->toggleable(isToggledHiddenByDefault: true);
     }
 

@@ -30,6 +30,9 @@ return [
             'notification' => 'Selected items have been deactivated successfully.',
         ],
     ],
+    'usage_guard' => [
+        'blocked' => 'This record is still referenced by :count other record(s) and cannot be deleted or deactivated.',
+    ],
     'relevant_module' => [
         'form' => [
             'purchase_requests' => 'Purchase Requests',

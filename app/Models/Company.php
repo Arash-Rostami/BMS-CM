@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\Company\HasCustomSorts;
 use App\Models\Traits\Company\HasSearchableRelations;
+use App\Models\Traits\Company\Relationships as ExclusiveRelationships;
 use App\Models\Traits\Company\TypeScopes;
 use App\Models\Traits\General\HasNameSearch;
 use App\Models\Traits\General\HasScope;
@@ -16,7 +17,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Company extends Model
 {
-    use HasCustomSorts,
+    use ExclusiveRelationships,
+        HasCustomSorts,
         HasFactory,
         HasNameSearch,
         HasScope,
