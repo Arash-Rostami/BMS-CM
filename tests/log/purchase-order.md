@@ -20,3 +20,4 @@
 - The "Attach" button when linking an existing Purchase Request now has a clear label and tooltip and matches the app's other action-button colors instead of the default gray.
 - A new topbar toggle lets you switch whether clicking a row in the list opens the record (as before) or jumps straight to editing it.
 - Importing a file missing a required value now shows a clear message instead of a technical error.
+- The "View Record" button in notifications about a purchase order now opens the record's page — it previously led to a page-not-found.

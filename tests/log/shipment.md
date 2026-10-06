@@ -16,3 +16,4 @@
 - Saving a shipment now also quietly saves any unsaved Commercial Invoice changes alongside it — no extra click needed, and it no longer risks being lost or wiping an unrelated custom field.
 - Picking a Proforma Invoice to pre-fill the Commercial Invoice no longer leaves the Incoterms field with an invalid, unmatched value.
 - Importing a file that's missing a required value (like which Registered Order or Carrier it belongs to) now shows a clear message instead of a technical error.
+- The "View Record" button in notifications about a shipment now opens the record's page — it previously led to a page-not-found.

@@ -104,7 +104,7 @@ class ModelEventNotificationTest extends TestCase
         $this->assertSame([
             'name' => 'view',
             'label' => 'View Record',
-            'url' => '/dashboard/purchase_requests/5/edit',
+            'url' => '/dashboard/purchase-requests/5/edit',
             'shouldMarkAsRead' => true,
         ], $database['actions'][0], 'The database notification carries a single edit action for the record.');
         $this->assertSame('filament', $database['format']);
@@ -129,7 +129,7 @@ class ModelEventNotificationTest extends TestCase
         $this->assertSame('Hello Arash,', $mail->greeting, 'The greeting addresses the notifiable by name.');
         $this->assertContains('A new Purchase Request **PR-2601-001** has been created.🟢', $mail->introLines);
         $this->assertSame('View Record', $mail->actionText);
-        $this->assertSame(config('app.url').'/dashboard/purchase_requests/5/edit', $mail->actionUrl, 'The action button links to the record edit page on the app URL.');
+        $this->assertSame(config('app.url').'/dashboard/purchase-requests/5/edit', $mail->actionUrl, 'The action button links to the record edit page on the app URL.');
         $this->assertContains('This notification was sent based on your notification settings.', $mail->outroLines);
         $this->assertNotContains('**Additional Notes:**', $mail->introLines, 'No notes block is rendered when the setting has no notes.');
     }

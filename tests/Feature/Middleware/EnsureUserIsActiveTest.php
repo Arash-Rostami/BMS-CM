@@ -3,22 +3,39 @@
 namespace Tests\Feature\Middleware;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class EnsureUserIsActiveTest extends TestCase
 {
+    private const ANALYTICS_KEYS = ['concentration', 'cycle_time', 'exposure_aging', 'open_exposure', 'pipeline_stalls', 'shipment_punctuality'];
+
+    private int $panelUserId = 0;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->useMysql();
         DB::beginTransaction();
+        $this->forgetDashboardCaches();
     }
 
     protected function tearDown(): void
     {
+        $this->forgetDashboardCaches();
         DB::rollBack();
         parent::tearDown();
+    }
+
+    private function forgetDashboardCaches(): void
+    {
+        foreach (self::ANALYTICS_KEYS as $key) {
+            Cache::forget("analytics:{$key}");
+        }
+        if ($this->panelUserId > 0) {
+            Cache::forget("dashboard_counts:{$this->panelUserId}");
+        }
     }
 
     private function useMysql(): void
@@ -45,6 +62,7 @@ class EnsureUserIsActiveTest extends TestCase
     public function test_an_active_user_reaches_the_panel(): void
     {
         $user = User::factory()->create(['email' => 'active-user@persolco.com']);
+        $this->panelUserId = $user->id;
 
         $response = $this->actingAs($user)->get('/dashboard');
 

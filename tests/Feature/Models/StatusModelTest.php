@@ -4,6 +4,7 @@ namespace Tests\Feature\Models;
 
 use App\Models\Attachment;
 use App\Models\PurchaseRequest;
+use App\Observers\StatusObserver;
 use App\Models\PurchaseRequestItem;
 use App\Models\Status;
 use App\Services\SmartCacheManager;
@@ -175,11 +176,16 @@ class StatusModelTest extends TestCase
 
         $status = Status::factory()->create(['english_name' => 'Restorable']);
         $status->delete();
-        SmartCacheManager::remember('Status', $probe, 10, fn () => 'warm');
-
         $status->restore();
 
         $this->assertNotNull(Status::find($status->id));
+
+        // restore() fires saved() before restored(), so the hook itself must
+        // be invoked for the probe to pin restored() and not saved() again.
+        SmartCacheManager::remember('Status', $probe, 10, fn () => 'warm');
+
+        (new StatusObserver)->restored($status);
+
         $this->assertSame('recomputed', SmartCacheManager::remember('Status', $probe, 10, fn () => 'recomputed'));
     }
 }

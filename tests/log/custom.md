@@ -16,3 +16,4 @@
 - A confusing half-translated error message is now fully translated.
 - The Create button (including the one shown for linked correspondence) now matches the rest of the app's look.
 - Importing a file missing a required value now shows a clear message instead of a technical error.
+- The "View Record" button in notifications about a customs file now opens the record's page — it previously led to a page-not-found.

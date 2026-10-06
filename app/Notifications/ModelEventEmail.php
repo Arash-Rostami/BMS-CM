@@ -11,8 +11,6 @@ class ModelEventEmail extends BaseModelEventNotification
     {
         $modelName = Str::headline(class_basename($this->model));
         $identifier = $this->getModelIdentifier();
-        $tableName = $this->model->getTable();
-        $recordId = $this->model->getKey();
 
         $mail = (new MailMessage)
             ->subject($this->getSubject($modelName, $identifier))
@@ -33,7 +31,7 @@ class ModelEventEmail extends BaseModelEventNotification
             $mail->line('')->line('**Additional Notes:**')->line($this->setting->notes);
         }
 
-        $url = config('app.url')."/dashboard/{$tableName}/{$recordId}/edit";
+        $url = config('app.url').$this->getRecordUrl();
         $mail->action('View Record', $url);
 
         return $mail->line('This notification was sent based on your notification settings.');

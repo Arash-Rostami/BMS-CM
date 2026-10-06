@@ -3,8 +3,8 @@
 namespace Tests\Feature\Rules;
 
 use App\Rules\ValidAttachment;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
-use Storage;
 use Tests\TestCase;
 
 class ValidAttachmentTest extends TestCase

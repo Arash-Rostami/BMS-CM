@@ -17,3 +17,4 @@
 - The list now shows whether a payment's entered total matches the system-calculated total, at a glance, without opening the record.
 - Typing an IBAN now warns you if it differs from the last IBAN used for that payee — a quick check against entering the wrong bank details.
 - Importing a file missing a required value now shows a clear message instead of a technical error.
+- The "View Record" button in notifications about a payment now opens the record's page — it previously led to a page-not-found.

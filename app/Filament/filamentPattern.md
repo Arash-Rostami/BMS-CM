@@ -1022,6 +1022,8 @@ Resolution chain:
 
 Content lives in `lang/{locale}/deskReference/{group}.php` (fa+en+fr; `covers` holds resource-key identifiers, not display strings), registered in `config/desk-reference.php` (8 resources → 4 group keys: `request_approval`/`order_processing`/`procurement_payment`/`logistics`).
 
+The sibling `App\Filament\Traits\HasDeskReferenceTab::getDeskReferenceInfolistTab(): ?Tab` (an infolist-Tab variant with the same config+lang+`DeskReference`-seen resolution chain, a `●` badge while unread) is **composed on no resource anywhere — currently unwired code** (verified 2026-10-06, repo-wide grep; only the header-Action sibling above is used). Its static contract is pinned by `Tests\Feature\Traits\HasDeskReferenceActionTest` via a probe class. Pending decision: compose it onto the operational infolists or delete it together with its tests.
+
 **Wiring a new resource (2 edits):**
 1. Resource root — add `HasDeskReferenceAction` to the class `use` list.
 2. List page `getHeaderActions()` — prepend `...array_filter([XxxResource::getDeskReferenceHeaderAction()])` before `CreateAction::make()` (the base `ListRecords` does not merge resource-level header actions, so this is per-page).

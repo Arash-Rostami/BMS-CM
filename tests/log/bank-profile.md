@@ -22,3 +22,4 @@
 - Fixed a rare issue where two people creating a record at the exact same moment could occasionally get the same reference number, causing one save to fail. Numbers are now generated safely even when this happens — no more errors from this.
 - A new topbar toggle lets you switch whether clicking a row in the list opens the record (as before) or jumps straight to editing it.
 - Importing a file missing a required value now shows a clear message instead of a technical error.
+- The "View Record" button in notifications about a bank profile now opens the record's page — it previously led to a page-not-found.

@@ -78,6 +78,13 @@ abstract class BaseModelEventNotification extends Notification
         };
     }
 
+    protected function getRecordUrl(): string
+    {
+        $slug = Str::kebab(Str::pluralStudly(class_basename($this->model)));
+
+        return "/dashboard/{$slug}/{$this->model->getKey()}/edit";
+    }
+
     protected function getModelIdentifier(): string
     {
         $modelClass = get_class($this->model);

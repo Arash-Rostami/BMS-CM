@@ -6,10 +6,15 @@ use App\Filament\Resources\CustomResource;
 use App\Filament\Resources\PurchaseRequestResource;
 use App\Filament\Resources\ShipmentResource;
 use App\Filament\Traits\HasDeskReferenceAction;
+use App\Filament\Traits\HasDeskReferenceTab;
 use App\Models\Bank;
 use App\Models\DeskReference;
+use App\Models\PurchaseRequest;
 use App\Models\User;
+use Filament\Schemas\Components\View;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use ReflectionProperty;
 use Tests\TestCase;
 
 /**
@@ -20,6 +25,11 @@ use Tests\TestCase;
  * other resource sharing that group (filamentPattern.md §1.27). Composed on 7
  * unrelated resources (BankProfile, Custom, Payment, RegisteredOrder, PurchaseRequest,
  * PurchaseOrder, Shipment) — cross-cutting, no existing coverage.
+ *
+ * The HasDeskReferenceTab::getDeskReferenceInfolistTab() tests below pin the
+ * infolist-tab sibling: config+lang driven, version-pinned "●" dot badge, null
+ * without a config entry or without reference content. The trait is currently
+ * composed on no resource, so its contract runs through the probe class.
  */
 class HasDeskReferenceActionTest extends TestCase
 {
@@ -117,6 +127,87 @@ class HasDeskReferenceActionTest extends TestCase
         $this->assertSame('gray', ShipmentResource::getDeskReferenceHeaderAction()->getColor());
         $this->assertSame('gray', CustomResource::getDeskReferenceHeaderAction()->getColor());
     }
+
+    // HasDeskReferenceTab
+
+    public function test_the_infolist_tab_returns_null_for_a_resource_not_registered_in_config(): void
+    {
+        HasDeskReferenceTabProbe::$model = Bank::class;
+
+        $this->assertNull(HasDeskReferenceTabProbe::getDeskReferenceInfolistTab());
+    }
+
+    public function test_the_infolist_tab_is_an_unread_dot_badged_tab_for_an_unseen_user(): void
+    {
+        $this->actingAs(User::factory()->create());
+        HasDeskReferenceTabProbe::$model = PurchaseRequest::class;
+
+        $tab = HasDeskReferenceTabProbe::getDeskReferenceInfolistTab();
+
+        $this->assertNotNull($tab, 'A registered resource with real lang content must resolve a desk-reference tab.');
+        $this->assertSame('desk-reference', $tab->getKey(isAbsolute: false), 'The tab must carry the fixed desk-reference key.');
+        $this->assertSame(config('desk-reference.purchaseRequest.icon'), $tab->getIcon());
+        $this->assertSame('●', $tab->getBadge(), 'An unseen user must get the unread dot badge.');
+        $this->assertSame('warning', $tab->getBadgeColor());
+
+        $view = $tab->getDefaultChildComponents()[0] ?? null;
+        $this->assertInstanceOf(View::class, $view, 'The tab body must be the desk-reference panel view.');
+
+        $viewName = new ReflectionProperty(View::class, 'view');
+        $viewName->setAccessible(true);
+
+        $this->assertSame('filament.desk-reference.panel', $viewName->getValue($view));
+        $this->assertSame([
+            'group' => 'request_approval',
+            'version' => config('desk-reference.purchaseRequest.version'),
+            'currentModule' => 'purchaseRequest',
+        ], Arr::only($view->getViewData(), ['group', 'version', 'currentModule']));
+    }
+
+    public function test_the_infolist_tab_clears_the_dot_badge_once_the_user_acknowledged_that_version(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        HasDeskReferenceTabProbe::$model = PurchaseRequest::class;
+
+        DeskReference::factory()->create([
+            'user_id' => $user->id,
+            'group_key' => 'request_approval',
+            'version' => config('desk-reference.purchaseRequest.version'),
+        ]);
+
+        $tab = HasDeskReferenceTabProbe::getDeskReferenceInfolistTab();
+
+        $this->assertNotNull($tab);
+        $this->assertNull($tab->getBadge(), 'An acknowledged version must clear the unread dot.');
+    }
+
+    public function test_acknowledging_a_different_version_keeps_the_unread_dot(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        HasDeskReferenceTabProbe::$model = PurchaseRequest::class;
+
+        DeskReference::factory()->create([
+            'user_id' => $user->id,
+            'group_key' => 'request_approval',
+            'version' => config('desk-reference.purchaseRequest.version') + 1,
+        ]);
+
+        $tab = HasDeskReferenceTabProbe::getDeskReferenceInfolistTab();
+
+        $this->assertNotNull($tab);
+        $this->assertSame('●', $tab->getBadge(), 'Only the exact current version counts as seen — an older or newer acknowledgment keeps the dot.');
+    }
+
+    public function test_the_infolist_tab_returns_null_when_the_group_lang_has_no_reference_content(): void
+    {
+        app('translator')->addLines(['deskReference/empty_group.tab_label' => 'Synthetic Empty Group'], 'en');
+        config(['desk-reference.bank' => ['group' => 'empty_group', 'icon' => 'heroicon-o-book-open', 'version' => 1]]);
+        HasDeskReferenceTabProbe::$model = Bank::class;
+
+        $this->assertNull(HasDeskReferenceTabProbe::getDeskReferenceInfolistTab(), 'A group whose lang content has no terms, process, dos or donts must not produce a tab.');
+    }
 }
 
 class HasDeskReferenceActionBankProbe
@@ -126,5 +217,17 @@ class HasDeskReferenceActionBankProbe
     public static function getModel(): string
     {
         return Bank::class;
+    }
+}
+
+class HasDeskReferenceTabProbe
+{
+    use HasDeskReferenceTab;
+
+    public static string $model = Bank::class;
+
+    public static function getModel(): string
+    {
+        return static::$model;
     }
 }

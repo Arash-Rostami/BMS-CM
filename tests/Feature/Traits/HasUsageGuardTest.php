@@ -7,16 +7,19 @@ use App\Models\Bank;
 use App\Models\BankProfile;
 use App\Models\Payment;
 use Filament\Actions\Action;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Support\Facades\DB;
+use ReflectionProperty;
 use Tests\TestCase;
 
 /**
  * App\Filament\Traits\HasUsageGuard's unit contract: usageCount() sums the
- * composing resource's declared usageRelations(), and the guarded action's
- * before hook sends the blocked-notification and halts on any in-use record.
+ * composing resource's declared usageRelations(), and both guarded before
+ * hooks (record + bulk) send the blocked-notification and halt on in-use
+ * records — the bulk hook sums usage across the whole selection.
  * The Livewire-level delete/deactivate behavior (halted notification, unused
  * delete succeeding) is already covered per-resource in BankResourceTest,
  * CompanyResourceTest and CurrencyResourceTest — only the trait contract is
@@ -99,6 +102,26 @@ class HasUsageGuardTest extends TestCase
 
         Notification::assertNotNotified();
     }
+
+    public function test_guarded_bulk_action_halts_when_any_record_in_the_selection_is_in_use(): void
+    {
+        app()->setLocale('en');
+        $inUse = Bank::factory()->create();
+        BankProfile::factory()->count(2)->create(['bank_id' => $inUse->id]);
+        $unused = Bank::factory()->create();
+        $action = HasUsageGuardBankResource::exposeGuardBulkAction(DeleteAction::make());
+
+        $before = new ReflectionProperty($action, 'before');
+        $before->setAccessible(true);
+
+        try {
+            ($before->getValue($action))($action, new Collection([$inUse, $unused]));
+            $this->fail('A bulk action over a selection containing an in-use record must halt before running.');
+        } catch (Halt) {
+        }
+
+        Notification::assertNotified(__('resources/general/strings.usage_guard.blocked', ['count' => 2]));
+    }
 }
 
 class HasUsageGuardBankResource extends BankResource
@@ -106,5 +129,10 @@ class HasUsageGuardBankResource extends BankResource
     public static function exposeGuardRecordAction(Action $action): Action
     {
         return static::guardRecordAction($action);
+    }
+
+    public static function exposeGuardBulkAction(Action $action): Action
+    {
+        return static::guardBulkAction($action);
     }
 }

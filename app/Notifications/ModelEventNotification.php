@@ -7,8 +7,6 @@ class ModelEventNotification extends BaseModelEventNotification
     public function toDatabase($notifiable): array
     {
         $modelName = class_basename($this->model);
-        $tableName = $this->model->getTable();
-        $recordId = $this->model->getKey();
 
         return [
             'title' => $this->buildTitle($modelName),
@@ -17,7 +15,7 @@ class ModelEventNotification extends BaseModelEventNotification
                 [
                     'name' => 'view',
                     'label' => 'View Record',
-                    'url' => "/dashboard/{$tableName}/{$recordId}/edit",
+                    'url' => $this->getRecordUrl(),
                     'shouldMarkAsRead' => true,
                 ],
             ],

@@ -27,3 +27,4 @@
 - Marking a file as Superseded (or seeing it's Archived) is now a plain dropdown next to each attachment, with a short note explaining what to do. It only shows the extra detail/link once a file's status actually changes.
 - Fixed a rare issue where two people creating an invoice at the exact same moment could occasionally get the same invoice number, causing one save to fail. Numbers are now generated safely even when this happens — no more errors from this.
 - A new topbar toggle lets you switch whether clicking a row in the list opens the record (as before) or jumps straight to editing it.
+- The "View Record" button in notifications about a proforma invoice now opens the record's page — it previously led to a page-not-found.
