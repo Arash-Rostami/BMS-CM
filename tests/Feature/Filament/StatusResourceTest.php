@@ -2,13 +2,18 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Filament\Resources\Master\StatusResource\Exports\StatusExporter;
 use App\Filament\Resources\Master\StatusResource\Pages\ManageStatuses;
 use App\Filament\Resources\StatusResource;
+use App\Jobs\ExportStatuses;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Status;
 use App\Models\User;
+use Filament\Actions\ActionGroup;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -243,5 +248,338 @@ class StatusResourceTest extends TestCase
         $this->assertSame('Stage Order', StatusResource::viewStageOrder()->getLabel());
         $this->assertSame('Approval Gate', StatusResource::viewApprovalGate()->getLabel());
         $this->assertSame('Approved Users', StatusResource::viewApprovalUsers()->getLabel());
+    }
+
+    // Permissions
+
+    public function test_full_permissions_allow_every_gated_action(): void
+    {
+        $this->actingAsUserWithPermissions([
+            'status.view',
+            'status.create',
+            'status.edit',
+            'status.delete',
+            'status.restore',
+        ]);
+
+        $record = Status::factory()->create();
+
+        $this->assertTrue(StatusResource::canViewAny());
+        $this->assertTrue(StatusResource::canCreate());
+        $this->assertTrue(StatusResource::canEdit($record));
+        $this->assertTrue(StatusResource::canDelete($record));
+        $this->assertTrue(StatusResource::canRestore($record));
+    }
+
+    public function test_no_permissions_denies_every_gated_action(): void
+    {
+        $this->actingAsUserWithPermissions([]);
+
+        $record = Status::factory()->create();
+
+        $this->assertFalse(StatusResource::canViewAny());
+        $this->assertFalse(StatusResource::canCreate());
+        $this->assertFalse(StatusResource::canEdit($record));
+        $this->assertFalse(StatusResource::canDelete($record));
+        $this->assertFalse(StatusResource::canRestore($record));
+    }
+
+    // List — search
+
+    public function test_manage_page_renders_and_search_finds_by_english_name(): void
+    {
+        $this->actingAsUserWithPermissions(['status.view']);
+
+        $target = Status::factory()->create();
+        $other = Status::factory()->create();
+
+        $term = 'STATUS-SEARCH-TARGET-'.$target->id;
+        Status::whereKey($target->id)->update(['english_name' => $term]);
+        Status::whereKey($other->id)->update(['english_name' => 'STATUS-SEARCH-OTHER-'.$other->id]);
+        $target->refresh();
+        $other->refresh();
+
+        Livewire::test(ManageStatuses::class)
+            ->assertCanSeeTableRecords([$target, $other])
+            ->searchTable($term)
+            ->assertCanSeeTableRecords([$target])
+            ->assertCanNotSeeTableRecords([$other]);
+    }
+
+    // Filters
+
+    public function test_type_filter_narrows_the_table_by_english_type(): void
+    {
+        app()->setLocale('en');
+        $this->actingAsUserWithPermissions(['status.view']);
+
+        $typeA = 'FilterTypeA'.uniqid();
+        $typeB = 'FilterTypeB'.uniqid();
+        $matching = Status::factory()->create(['type' => $typeA, 'english_type' => $typeA]);
+        $other = Status::factory()->create(['type' => $typeB, 'english_type' => $typeB]);
+
+        Livewire::test(ManageStatuses::class)
+            ->filterTable('english_type', [$typeA])
+            ->assertCanSeeTableRecords([$matching])
+            ->assertCanNotSeeTableRecords([$other]);
+    }
+
+    public function test_creator_filter_narrows_the_table(): void
+    {
+        $userA = $this->actingAsUserWithPermissions(['status.view']);
+        $withA = Status::factory()->create();
+
+        $userB = User::factory()->create();
+        $this->actingAs($userB);
+        $withB = Status::factory()->create();
+
+        $this->actingAs($userA);
+
+        Livewire::test(ManageStatuses::class)
+            ->filterTable('created_by_id', $userA->id)
+            ->assertCanSeeTableRecords([$withA])
+            ->assertCanNotSeeTableRecords([$withB]);
+    }
+
+    public function test_updater_filter_narrows_the_table(): void
+    {
+        $userA = $this->actingAsUserWithPermissions(['status.view']);
+        $withA = Status::factory()->create();
+        $withA->update(['stage_order' => 1]);
+
+        $userB = User::factory()->create();
+        $this->actingAs($userB);
+        $withB = Status::factory()->create();
+        $withB->update(['stage_order' => 1]);
+
+        $this->actingAs($userA);
+
+        Livewire::test(ManageStatuses::class)
+            ->filterTable('updated_by_id', $userA->id)
+            ->assertCanSeeTableRecords([$withA])
+            ->assertCanNotSeeTableRecords([$withB]);
+    }
+
+    // Create — happy path + validation
+
+    public function test_create_action_creates_a_new_status_reusing_an_existing_type(): void
+    {
+        $this->actingAsUserWithPermissions(['status.view', 'status.create']);
+
+        $type = 'CreateHappyType'.uniqid();
+        Status::factory()->create(['type' => $type, 'english_type' => $type]);
+
+        $name = 'نام تازه '.random_int(1000, 9999);
+        $englishName = 'New Status '.uniqid();
+
+        Livewire::test(ManageStatuses::class)
+            ->mountAction('create')
+            ->fillForm([
+                'type' => $type,
+                'english_type' => $type,
+                'name' => $name,
+                'english_name' => $englishName,
+                'requires_approval' => false,
+            ])
+            ->callMountedAction()
+            ->assertHasNoActionErrors();
+
+        $record = Status::where('english_name', $englishName)->first();
+
+        $this->assertNotNull($record);
+        $this->assertSame($name, $record->name);
+        $this->assertSame($type, $record->type);
+        $this->assertNull($record->approval_permission);
+    }
+
+    public function test_create_action_requires_name_and_english_name(): void
+    {
+        $this->actingAsUserWithPermissions(['status.view', 'status.create']);
+
+        $type = 'ValidationType'.uniqid();
+        Status::factory()->create(['type' => $type, 'english_type' => $type]);
+
+        Livewire::test(ManageStatuses::class)
+            ->mountAction('create')
+            ->fillForm([
+                'type' => $type,
+                'english_type' => $type,
+                'name' => '',
+                'english_name' => '',
+            ])
+            ->callMountedAction()
+            ->assertHasActionErrors(['name' => 'required', 'english_name' => 'required']);
+    }
+
+    // Edit — plain field update, independent of the approval workflow
+
+    public function test_edit_action_updates_the_name_and_english_name(): void
+    {
+        $this->actingAsUserWithPermissions(['status.view', 'status.edit']);
+
+        $status = Status::factory()->create(['name' => 'وضعیت آزمایشی '.random_int(1000, 9999)]);
+        $newName = 'وضعیت ویرایش شده '.random_int(1000, 9999);
+        $newEnglishName = 'Edited Status '.uniqid();
+
+        Livewire::test(ManageStatuses::class)
+            ->mountTableAction('edit', $status)
+            ->fillForm([
+                'name' => $newName,
+                'english_name' => $newEnglishName,
+            ])
+            ->callMountedTableAction()
+            ->assertHasNoTableActionErrors();
+
+        $status->refresh();
+
+        $this->assertSame($newName, $status->name);
+        $this->assertSame($newEnglishName, $status->english_name);
+    }
+
+    // Bulk actions — toolbar order
+
+    public function test_bulk_actions_toolbar_orders_export_before_delete_and_restore(): void
+    {
+        $this->actingAsUserWithPermissions(['status.view', 'status.delete', 'status.restore']);
+
+        Livewire::test(ManageStatuses::class)
+            ->assertTableBulkActionsExistInOrder(['exportStatuses', 'delete', 'restore']);
+    }
+
+    // Soft delete / restore lifecycle
+
+    public function test_delete_then_restore_lifecycle_via_table_actions(): void
+    {
+        $this->actingAsUserWithPermissions(['status.view', 'status.delete', 'status.restore']);
+        $record = Status::factory()->create();
+
+        Livewire::test(ManageStatuses::class)
+            ->callTableAction('delete', $record);
+
+        $this->assertNull(Status::find($record->id));
+        $this->assertTrue(Status::withTrashed()->find($record->id)->trashed());
+
+        Livewire::test(ManageStatuses::class)
+            ->filterTable('trashed')
+            ->callTableAction('restore', $record);
+
+        $this->assertNotNull(Status::find($record->id));
+    }
+
+    public function test_bulk_delete_soft_deletes_every_selected_record(): void
+    {
+        $this->actingAsUserWithPermissions(['status.view', 'status.delete']);
+        $one = Status::factory()->create();
+        $two = Status::factory()->create();
+
+        Livewire::test(ManageStatuses::class)
+            ->callTableBulkAction('delete', [$one, $two]);
+
+        $this->assertNull(Status::find($one->id));
+        $this->assertNull(Status::find($two->id));
+    }
+
+    // Global search contract
+
+    public function test_global_search_title_uses_the_translated_template(): void
+    {
+        app()->setLocale('en');
+        $record = Status::factory()->create(['english_name' => 'Global Search Status '.uniqid()]);
+
+        $expected = __('resources/status/strings.general.global_search_title', [
+            'name' => $record->getLocalizedNameAttribute(),
+            'date' => toYmdDate($record),
+        ]);
+
+        $this->assertSame($expected, StatusResource::getGlobalSearchResultTitle($record));
+    }
+
+    // Export — bulk action dispatches the queued job
+
+    public function test_export_bulk_action_dispatches_the_queued_export_job(): void
+    {
+        Queue::fake();
+        $this->actingAsUserWithPermissions(['status.view']);
+
+        $record = Status::factory()->create();
+
+        Livewire::test(ManageStatuses::class)
+            ->callTableBulkAction('exportStatuses', [$record]);
+
+        Queue::assertPushed(ExportStatuses::class, fn ($job) => $job->ids === [$record->id]);
+    }
+
+    // Export — flat single-row round trip
+
+    private function exportToRows(Builder $query): array
+    {
+        $path = tempnam(sys_get_temp_dir(), 'status_export_').'.csv';
+        StatusExporter::write($query, $path);
+
+        $csv = (string) file_get_contents($path);
+        unlink($path);
+
+        $this->assertStringStartsWith("\xEF\xBB\xBF", $csv);
+
+        $lines = array_values(array_filter(explode("\n", str_replace("\r\n", "\n", trim(ltrim($csv, "\xEF\xBB\xBF"))))));
+        $header = str_getcsv($lines[0]);
+        $rows = array_map(fn (string $line) => array_combine($header, str_getcsv($line)), array_slice($lines, 1));
+
+        return ['header' => $header, 'rows' => $rows];
+    }
+
+    public function test_exporter_write_emits_one_row_per_record_with_localized_values(): void
+    {
+        app()->setLocale('en');
+        $creator = User::factory()->create(['name' => 'Export Creator']);
+
+        $this->actingAs($creator);
+        $record = Status::factory()->create([
+            'name' => 'وضعیت صادراتی',
+            'english_name' => 'Export Status '.uniqid(),
+        ]);
+
+        ['header' => $header, 'rows' => $rows] = $this->exportToRows(Status::whereKey($record->id));
+
+        $labels = StatusExporter::columnLabels();
+
+        $this->assertCount(9, $header);
+        $this->assertSame($record->english_name, $rows[0][$labels['english_name']]);
+        $this->assertSame('Export Creator', $rows[0][$labels['creator']]);
+        $this->assertSame(jdate($record->created_at)->format('Y-m-d'), $rows[0][$labels['created_at']]);
+    }
+
+    public function test_export_column_count_is_pinned(): void
+    {
+        // Pinned count — a silent column drop during a future refactor must fail
+        // this test, not slip through unnoticed (see importsPattern's settled policy).
+        $this->assertCount(9, StatusExporter::columnLabels());
+    }
+
+    // Status gets export only — no bulk import action exists
+
+    public function test_no_import_action_exists_alongside_create_and_export(): void
+    {
+        $this->actingAsUserWithPermissions(['status.view', 'status.create', 'status.delete', 'status.restore']);
+
+        $test = Livewire::test(ManageStatuses::class);
+
+        $test->assertActionExists('create');
+        $test->assertTableBulkActionExists('exportStatuses');
+
+        $headerActionNames = collect($test->instance()->getCachedHeaderActions())
+            ->flatMap(fn ($action) => $action instanceof ActionGroup ? $action->getFlatActions() : [$action])
+            ->map(fn ($action) => $action->getName())
+            ->all();
+
+        $this->assertNotEmpty($headerActionNames);
+
+        $bulkActionNames = array_keys($test->instance()->getTable()->getFlatBulkActions());
+
+        $this->assertNotEmpty($bulkActionNames);
+
+        foreach ([...$headerActionNames, ...$bulkActionNames] as $name) {
+            $this->assertStringNotContainsStringIgnoringCase('import', $name);
+        }
     }
 }

@@ -74,6 +74,7 @@ return [
         'updater' => 'Dernière mise à jour par',
     ],
     'export' => [
+        'export_statuses' => 'Exporter les statuts',
         'id' => 'ID',
         'name' => 'Nom',
         'english_name' => 'Nom (anglais)',
