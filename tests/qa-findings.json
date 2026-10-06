@@ -321,7 +321,13 @@
     "_note": "Full audit (architecture, tests, importer/exporter, HasUsageGuard + tooltip, independent review) done and merged 2026-10-06. Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet."
   },
   "company": {
-    "_note": "Full audit (architecture, tests, importer/exporter, HasUsageGuard + types badge/filter + tooltip, independent review) done and merged 2026-10-06. Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet."
+    "_note": "Not run as a formal 12-item checklist pass, but the user did spot-check this module live in the browser 2026-10-06 and raised one real finding via direct comment rather than the checklist.",
+    "X02_import_button_missing": {
+      "result": "fail",
+      "note": "User asked \"company does not have any import?\" after checking the live app — no Import button was visible on the Companies list page at all.",
+      "scope": "company",
+      "status": "fixed — root cause: ManageCompanies::getHeaderActions() only ever returned CreateAction::make(); CompanyResource::getImportAction() (Traits/Table.php) existed and was fully covered by 45 green CompanyResourceTest assertions, but every one of them invoked CompanyImporter directly and never mounted the real page, so the missing wiring passed a full green suite undetected. Fixed by adding CompanyResource::getImportAction() to ManageCompanies::getHeaderActions() (matches every sibling Manage*Page). A permanent regression test (test_import_action_is_reachable_from_the_page_header) was added to ALL 5 importer-having modules (Product/Category/Bank/Currency/Company), not just Company, since the same page-wiring gap could exist invisibly on any of them — see app/Services/Imports/importsPattern.md's new section on this. Full 294-test combined suite across all 6 Master Data modules green after the fix."
+    }
   },
   "app_wide_bulk_action_order": {
     "result": "fixed",

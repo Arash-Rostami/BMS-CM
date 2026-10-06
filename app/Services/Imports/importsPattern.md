@@ -151,6 +151,12 @@ The actual date-parsing logic (`ImportColumnFactory::applyDate()`) IS fully cove
 
 **The general rule going forward**: `getImportAction()`/`GroupedImportAction` must never be wired into a `RelationManager`'s `headerActions()` for ANY module, current or future, unless the import pipeline is first given real owner-record awareness (scoped `resolveRecord()` matching + auto-attach). Until that plumbing exists, a relation manager gets `AttachAction` (existing records) and/or a `Prepares*From*`-driven single auto-populate create (new records) — never bulk import.
 
+## A built, fully-tested importer can still have no visible Import button — fixed on Company, 2026-10-06
+
+`CompanyImporter` existed, its `getImportAction()` was correctly defined on `Traits/Table.php`, and `CompanyResourceTest.php` had 45 green tests covering it — but `ManageCompanies::getHeaderActions()` only ever returned `CreateAction::make()`, so the button was never reachable from the real page. Every one of those 45 tests constructed `CompanyImporter` directly (`new CompanyImporter(new Import, ...)`) and asserted against its internal logic (`resolveRecord()`, column plan, duplicate rejection) — none of them ever mounted the actual `ManageCompanies` Livewire page and checked what header actions it exposes, so a page-wiring gap this size passed a full green suite undetected. Found only because the user asked "company does not have any import?" after browsing the live app.
+
+**Every module with an importer now has `test_import_action_is_reachable_from_the_page_header`** (`Livewire::test(ManageXxxPage::class)->assertActionExists('importXxx')`, with the module's `view`/`create` permissions granted first) — a cheap, page-level assertion that would have caught this immediately. A new import-having module's resource test must include this alongside its importer-internals tests; testing the importer class in isolation is necessary but not sufficient.
+
 ## Settled policy — decided 2026-09-25, do not re-ask in future module work
 
 These are final design decisions for any future module adopting this pipeline (Registered Order's own importer — **built 2026-09-25**, see the pivot-attach and denylist-fix notes below — was the first to apply them). Don't re-litigate them per-module — apply directly.
