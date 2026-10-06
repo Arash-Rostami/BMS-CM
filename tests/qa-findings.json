@@ -170,6 +170,92 @@
       "status": "user approved all 3 (no partial acceptance, unlike RO's 1-and-3-of-3) — implementation dispatched, pending completion + review."
     }
   },
+  "purchase_order": {
+    "_note": "First formal browser pass 2026-10-03, against 8 seeded records. Resource+Model automated suite (55 tests) already green and reviewed before this pass; export-row-shape and search-EAV-wiring fixes (L01/X01 below) were already caught and fixed while writing the automated tests, before the user ran this checklist.",
+    "L01_list_search": {
+      "result": "fail",
+      "note": "Two issues, both app-wide not PO-specific: (1) the column-toggle modal is too long on this resource's wide column set — can't reach the Apply button without shrinking the viewport; (2) toggled column visibility doesn't persist across navigation, resets to default.",
+      "scope": "app_wide",
+      "status": "(2) is not a bug — the topbar 'remember my table setup' toggle (TableStateToggle/persist_table_state session flag) already covers this, it just defaults off; told user to enable it. (1) is a real unaddressed UX gap, recorded under app_wide_requests.column_toggle_modal_height, not yet designed/built."
+    },
+    "L02_filters": { "result": "pass" },
+    "L03_sort_pagination": { "result": "pass" },
+    "C01_create_happy_path": { "result": "pass" },
+    "C02_create_validation": { "result": "pass" },
+    "E01_edit_loads_relations": {
+      "result": "fail",
+      "note": "User flagged the Purchase Requests relation-manager tab's header button as inconsistent with sibling tabs' styled 'add_record' create-draft button.",
+      "scope": "purchase_order",
+      "status": "investigated, not yet resolved — PurchaseOrderResource\\RelationManagers\\PurchaseRequestsRelationManager.php deliberately uses AttachAction::make() (not the shared add_record create-draft action its 3 siblings use), because purchaseRequests is a belongsToMany — attaching an EXISTING PR, not drafting a new one from inside a PO page; this mirrors the identical AttachAction choice on every other module's own PurchaseRequestsRelationManager. Filament's own vendor Farsi label for AttachAction is 'افزودن' (Add), not 'ایجاد' (Create) as the user described, and the button is also conditionally hidden unless the PO's status is 'Approved' — unclear if the user saw a genuinely mislabeled button or is asking for visual-only parity with the create-styled siblings despite the different underlying action. Needs user clarification before touching code."
+    },
+    "I01_infolist_tabs": {
+      "result": "fail",
+      "note": "Not actually an infolist defect — user likes the current click-to-view popup, but wants a new GLOBAL (app-wide, not PO-specific) button giving direct edit/delete access from that popup.",
+      "scope": "app_wide",
+      "status": "open — flagged to user: a conceptually adjacent feature (row click-to-edit/right-click action popover) was already built, reviewed, and then fully reverted app-wide in an earlier session at the user's own request (still not working reliably without browser console access) — see CLAUDE.md Standing Gotchas / resources/js/scriptPattern.md 'Row click gestures'. Needs explicit user decision before re-attempting any shape of this."
+    },
+    "A01_eav_custom_attributes": {
+      "result": "fail",
+      "note": "User believes this was already fixed once and wants a single project-wide sweep across every remaining unaudited module so it stops resurfacing module-by-module.",
+      "scope": "app_wide",
+      "status": "open — recorded under app_wide_requests.eav_sweep_remaining_modules; not yet scoped (which exact sub-issue — null-literal rendering, or EAV search wiring, or both — needs confirming against each remaining module first)."
+    },
+    "P01_role_permissions": {
+      "result": "skipped_manual",
+      "note": "User asked Claude to confirm this one directly.",
+      "status": "covered — test_full_permissions_allow_every_gated_action / test_no_permissions_denies_every_gated_action, both green, same shape as PR/PI/RO/BankProfile."
+    },
+    "B01_bulk_actions": {
+      "result": "pass",
+      "note": "User pre-confirmed the match/fallback/null/note-as-log import column shape proposed earlier in discussion; wants bulk-action-order consistency confirmed before testing.",
+      "status": "confirmed — toolbar order is Export/Delete/Restore app-wide (app_wide_bulk_action_order), covered by test_bulk_actions_toolbar_orders_export_before_delete_and_restore, green."
+    },
+    "X01_export": {
+      "result": "pass",
+      "note": "Wanted export consistency confirmed, and nested items as real rows like PR/RO.",
+      "status": "confirmed — PurchaseOrderExporter converted from Filament's native blob-column Exporter to the real parent-row+item-row write() shape this same session, reviewed, 2 dedicated tests green (row-shape + column-count pin)."
+    },
+    "N01_badge_locale": {
+      "result": "pass",
+      "note": "User confirms filters/badges work; flags no plain numeric column in the table as a maybe-non-issue.",
+      "status": "no action needed unless user finds something concrete — table intentionally has no bare numeric display column for this module."
+    }
+  },
+  "payment": {
+    "_note": "First formal browser pass 2026-10-04, after the full module audit (exporter conversion, importer build, test growth, 4 ideator features) was already done and reviewed. User marked 5 of 12 items 'fail' as a deliberate flag asking Claude to double-check them, not as an observed browser defect — clarified by the user afterward ('no they did not fail i wanted U to check'). All 5 verified clean below; none needed a fix.",
+    "L01_list_search": { "result": "pass" },
+    "L02_filters": { "result": "pass" },
+    "L03_sort_pagination": { "result": "pass" },
+    "C01_create_happy_path": {
+      "result": "pass",
+      "note": "Flagged by user for double-checking, not an observed failure.",
+      "status": "verified clean — all 57 PaymentResourceTest create-path tests pass, including the 2 new auto-fill-on-target-pick tests and the 2 new duplicate-warning tests added this session."
+    },
+    "C02_create_validation": {
+      "result": "pass",
+      "note": "Flagged by user for double-checking, not an observed failure.",
+      "status": "verified clean — all validation tests pass (required targetable/payor/payee/currency/payable_amount, payment_deadline >= payment_date, unique payment_no)."
+    },
+    "E01_edit_loads_relations": {
+      "result": "pass",
+      "note": "Flagged by user for double-checking ('absolute consistency with other modules'), not an observed failure.",
+      "status": "verified clean — compared EditPayment's header actions against EditPurchaseOrder/EditRegisteredOrder/EditBankProfile: no inconsistency found (ManageCustomAttributesAction is BankProfile-only by design, not an app-wide convention; PurchaseOrder is actually the one missing a ViewAction that Payment/RO both have)."
+    },
+    "I01_infolist_tabs": { "result": "pass" },
+    "A01_eav_custom_attributes": { "result": "pass" },
+    "P01_role_permissions": {
+      "result": "pass",
+      "note": "Flagged by user for double-checking, not an observed failure.",
+      "status": "verified clean — all 5 payment.{view,create,edit,delete,restore} Permission rows exist and are granted to the expected roles in the real dev DB; test_full_permissions_allow_every_gated_action/test_no_permissions_denies_every_gated_action both pass."
+    },
+    "B01_bulk_actions": { "result": "pass" },
+    "X01_export": { "result": "pass" },
+    "N01_badge_locale": {
+      "result": "pass",
+      "note": "Flagged by user for double-checking; also asked what 'badge' refers to here.",
+      "status": "clarified, not a bug — N01 means the sidebar NAVIGATION badge (count next to the 'Payments' nav-menu entry), not the table's own badge-styled columns (Status/Targetable/Total Match). Confirmed: NONE of the 8 canonical operational-pipeline resources implement getNavigationBadge() — only 4 Master Data resources do (Correspondence, Product, NotificationSetting, Category). Payment showing no nav badge is consistent app-wide, not a defect (same conclusion already reached for Purchase Order's N01 above). EN/FA/FR lang keys for every string added this session confirmed present in all 3 locale files. A nav badge is a new feature request if ever wanted, not a fix."
+    }
+  },
   "app_wide_requests": {
     "date_filter_inline_row": {
       "note": "Every resource's date-range filter — should be one inline row (start/end side by side) instead of two stacked DatePickers, via a shared component.",
@@ -186,6 +272,18 @@
     "bulk_import": {
       "note": "New feature: a strictly-validated bulk import mechanism/service, app-wide, not resource-specific. Must cleanly reject corrupted/unnormalized/unvalidated rows rather than partially insert.",
       "status": "open — Complex lane, needs a design pass before building"
+    },
+    "column_toggle_modal_height": {
+      "note": "Found during Purchase Order's browser pass 2026-10-03: on a resource with a wide column set, the column-toggle modal's list is too long — the Apply button is unreachable without shrinking the browser viewport (phone-width). Likely affects every resource with a similarly long column list, not just Purchase Order.",
+      "status": "open — not yet scoped/designed"
+    },
+    "eav_sweep_remaining_modules": {
+      "note": "User wants a single project-wide sweep confirming EAV custom-attribute behavior (null-literal rendering, search wiring, or both) is correct on every module not yet through its own formal audit pass, rather than rediscovering the same class of bug module-by-module.",
+      "status": "open — needs scoping: which exact sub-issue(s) to check, and against which remaining modules"
+    },
+    "row_popup_edit_delete_button": {
+      "note": "User likes the click-to-view record popup but wants a global (not resource-specific) button inside it giving direct edit/delete access.",
+      "status": "open — a related feature (row click-to-edit/right-click action popover) was built, reviewed, then fully reverted app-wide at the user's own request earlier in the project (see CLAUDE.md Standing Gotchas, resources/js/scriptPattern.md 'Row click gestures') — needs explicit user decision before any new attempt, not a blind rebuild."
     }
   },
   "shipment": {
@@ -195,6 +293,22 @@
       "note": "Client reported: in the Logistics module (Shipment), the selected Proforma Invoice (پیش‌فاکتور) on the Commercial Invoice tab does not persist after saving.",
       "scope": "shipment",
       "status": "Root cause: the Commercial Invoice tab's fields are all ->dehydrated(false), and the tab had its OWN separate 'Save Invoice' footer action, entirely disconnected from the Shipment record's normal Save button — a user filling the tab then clicking the NORMAL Save button silently lost the selection. Fixed by moving Save/Download/Restore CI out of the schema-level footerActions() (app/Filament/Resources/Operational/ShipmentResource/Traits/InvoiceForm.php) and into EditShipment::getFormActions() (app/Filament/Resources/Operational/ShipmentResource/Pages/EditShipment.php), sitting directly beside — and preceding, for accent — the record's own Save/Cancel buttons, reading the page's live $this->data array instead of a schema Get closure. persistInvoiceToEav() signature changed from (Get $get, $record) to (array $formData, $record) to support this. All three CI actions are disabled via blank($this->data['_inv_pi_id'] ?? null) until a Proforma Invoice is actually selected. A third action, 'Restore CI', was added — reverts unsaved in-progress edits back to the last saved EAV state (or blanks the tab if nothing was ever saved) via a new shared EditShipment::hydrateInvoiceData() + $this->form->fill(). The 'Download CI' action's persist-then-open-PDF race (action + ->url()->openUrlInNewTab() could open the PDF before the AJAX save finished) was fixed by dropping ->url() and opening the tab via $this->js('window.open(...)') only after persistInvoiceToEav() completes. The Notes card was also relocated from the right column to the left column, directly under the Items/products section, per user request. Verified via tests/Feature/Filament/ShipmentResourceTest.php (5 passed, including a Livewire::test(...)->callAction(TestAction::make('saveInvoice')->schemaComponent('form-actions', 'content')) end-to-end action test — see testPattern.md §3e for why page-level getFormActions() actions need schemaComponent() targeting) and a claude-reviewer pass."
+    }
+  },
+  "status": {
+    "_note": "Pending its own formal 12-item checklist pass (resource-test/ideator/QA lanes for Status not yet started per module-audit-playbook.md). This single entry is an early spot-check the user ran ahead of that.",
+    "browser_spot_check": {
+      "result": "pass",
+      "note": "User checked Status at the browser level 2026-10-06: no issue found.",
+      "status": "no action needed"
+    }
+  },
+  "currency": {
+    "_note": "Pending its own formal 12-item checklist pass (resource-test/ideator/QA lanes for Currency not yet started/in-progress per module-audit-playbook.md). This single entry is an early spot-check the user ran ahead of that.",
+    "browser_spot_check": {
+      "result": "pass",
+      "note": "User checked Currency at the browser level 2026-10-06: no issue found.",
+      "status": "no action needed — user's own condition for proceeding: contingent on the in-flight Resource-layer tests passing and the claude-reviewer pass finding nothing real"
     }
   },
   "app_wide_bulk_action_order": {

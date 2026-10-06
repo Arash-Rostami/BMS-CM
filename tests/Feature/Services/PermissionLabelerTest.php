@@ -67,7 +67,7 @@ class PermissionLabelerTest extends TestCase
         $label = PermissionLabeler::getLabel('status.grant_purchase_request_sales_manager_approval');
 
         $this->assertStringNotContainsString('Sales Manager Approval', $label);
-        $this->assertStringContainsString('تأیید مدیر فروش', $label);
+        $this->assertStringContainsString('تاییدیه ابتدایی', $label);
     }
 
     public function test_status_grant_permission_with_no_matching_status_falls_back_gracefully(): void

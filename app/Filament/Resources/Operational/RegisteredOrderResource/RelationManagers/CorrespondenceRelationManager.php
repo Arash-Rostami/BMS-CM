@@ -88,6 +88,7 @@ class CorrespondenceRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->label(__('resources/correspondence/strings.general.create_new'))
+                    ->icon('heroicon-o-sparkles')
                     ->modalWidth('7xl')
                     ->mutateDataUsing(function (array $data): array {
                         $data['user_id'] = auth()->id();

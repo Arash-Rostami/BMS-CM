@@ -40,5 +40,6 @@ class Company extends Model
     protected $casts = [
         'deleted_at' => 'datetime',
         'types' => 'array',
+        'is_active' => 'boolean',
     ];
 }

@@ -64,14 +64,17 @@ trait HasStatusWorkflow
             ->modalWidth('xl');
     }
 
-    public static function getStatusWorkflowProgressColumn(string $column = 'status_id', ?string $type = null, bool $toggledHiddenByDefault = false): TextColumn
+    public static function getStatusWorkflowProgressColumn(string $column = 'status_id', ?string $type = null, bool $toggledHiddenByDefault = false, ?string $qualifierLabel = null): TextColumn
     {
         $relation = static::statusWorkflowRelation($column);
         $type ??= static::statusWorkflowType();
         $toggledHiddenByDefault = $toggledHiddenByDefault || ! StatusWorkflow::initialFor($type);
+        $label = $qualifierLabel
+            ? __('resources/general/strings.status_workflow.progress_label_for', ['label' => $qualifierLabel])
+            : __('resources/general/strings.status_workflow.progress_label');
 
         return TextColumn::make($column.'_progress')
-            ->label(__('resources/general/strings.status_workflow.progress_label'))
+            ->label($label)
             ->state(fn (Model $record) => static::statusWorkflowProgress($record, $relation, $type)['percent'])
             ->formatStateUsing(fn (?int $state): string => is_null($state) ? '—' : "{$state}%")
             ->badge()

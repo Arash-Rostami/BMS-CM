@@ -2,12 +2,23 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Filament\Resources\Operational\CorrespondenceResource\Pages\ListCorrespondences;
+use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\CreatePurchaseRequest;
+use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\EditPurchaseRequest;
+use App\Filament\Resources\Master\DepartmentResource\Pages\ManageDepartments;
+use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\ListPurchaseOrders;
 use App\Livewire\CalendarToggle;
+use App\Livewire\RowClickToggle;
+use App\Livewire\TableStateToggle;
+use App\Models\Department;
 use App\Models\Permission;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseRequest;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
+use ReflectionMethod;
 use Tests\TestCase;
 
 class TopbarTest extends TestCase
@@ -160,7 +171,7 @@ class TopbarTest extends TestCase
         $this->assertStringContainsString('setTheme(', $panel);
         // the order attr must land raw in the html — building it as
         // {{ $isPanel ? 'style="…"' : '' }} gets the quotes escaped to &quot; and silently kills the style
-        $this->assertStringContainsString('style="order: 6"', $panel);
+        $this->assertStringContainsString('style="order: 7"', $panel);
         $this->assertStringNotContainsString('&quot;order', $panel);
 
         $this->assertStringContainsString('lp-surface-hover', $lp);
@@ -196,5 +207,186 @@ class TopbarTest extends TestCase
                 );
             }
         }
+    }
+
+    public function test_create_and_edit_pages_bind_mod_s_to_the_primary_save_action_only(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_request.create', 'purchase_request.edit']);
+        $record = PurchaseRequest::factory()->create();
+
+        $bindings = function (object $page, string $method): array {
+            $reflection = new ReflectionMethod($page, $method);
+            $reflection->setAccessible(true);
+
+            return $reflection->invoke($page)->getKeyBindings();
+        };
+
+        $create = Livewire::test(CreatePurchaseRequest::class)->instance();
+        $this->assertSame(['mod+s'], $bindings($create, 'getCreateFormAction'));
+        // createAnother keeps Filament's own distinct vendor default — no mod+s double-fire
+        $this->assertSame(['mod+shift+s'], $bindings($create, 'getCreateAnotherFormAction'));
+
+        $edit = Livewire::test(EditPurchaseRequest::class, ['record' => $record->getRouteKey()])->instance();
+        $this->assertSame(['mod+s'], $bindings($edit, 'getSaveFormAction'));
+    }
+
+    public function test_table_state_toggle_flips_the_persist_session_flag(): void
+    {
+        session()->forget('persist_table_state');
+
+        $component = Livewire::test(TableStateToggle::class)
+            ->assertSet('persisted', false)
+            ->assertSee(__('resources/general/strings.table_state.enable'))
+            ->call('toggle')
+            ->assertSet('persisted', true)
+            ->assertSee(__('resources/general/strings.table_state.disable'));
+
+        $this->assertTrue(session('persist_table_state'));
+
+        $component->call('toggle')->assertSet('persisted', false);
+        $this->assertFalse(session('persist_table_state'));
+    }
+
+    public function test_table_search_persists_across_mounts_only_while_the_flag_is_on(): void
+    {
+        $this->actingAsUserWithPermissions(['correspondence.view']);
+
+        session(['persist_table_state' => true]);
+        Livewire::test(ListCorrespondences::class)
+            ->set('tableSearch', 'zzz-unmatched')
+            ->assertSuccessful();
+
+        Livewire::test(ListCorrespondences::class)
+            ->assertSet('tableSearch', 'zzz-unmatched');
+
+        session()->forget('persist_table_state');
+        Livewire::test(ListCorrespondences::class)
+            ->assertSet('tableSearch', '');
+    }
+
+    public function test_table_state_lang_keys_exist_in_all_three_locales(): void
+    {
+        foreach (['en', 'fa', 'fr'] as $locale) {
+            foreach (['enable', 'disable'] as $key) {
+                $this->assertTrue(
+                    trans()->has("resources/general/strings.table_state.{$key}", $locale),
+                    "Missing table_state.{$key} in {$locale}"
+                );
+            }
+        }
+    }
+
+    public function test_row_click_toggle_flips_the_session_flag(): void
+    {
+        session()->forget('row_click_edit');
+
+        $component = Livewire::test(RowClickToggle::class)
+            ->assertSet('editOnClick', false)
+            ->call('toggle')
+            ->assertSet('editOnClick', true);
+
+        $this->assertTrue(session('row_click_edit'));
+
+        $component->call('toggle')->assertSet('editOnClick', false);
+        $this->assertFalse(session('row_click_edit'));
+    }
+
+    public function test_row_click_wraps_more_cells_in_the_edit_link_when_toggled_on(): void
+    {
+        // The row's own "..." dropdown already contains one real <a href> to the edit page
+        // (Operational EditAction navigates, it isn't a modal) — that link exists regardless
+        // of this feature, so presence alone can't distinguish on/off. recordUrl() additionally
+        // wraps every data cell in its own <a> to the same href, so the toggled-on render must
+        // contain strictly MORE occurrences of that URL than the toggled-off render of the
+        // exact same record.
+        $this->actingAsUserWithPermissions(['purchase_order.view', 'purchase_order.edit']);
+        $record = PurchaseOrder::factory()->create();
+        $editUrl = route('filament.dashboard.resources.purchase-orders.edit', ['record' => $record]);
+
+        session()->forget('row_click_edit');
+        $htmlOff = Livewire::test(ListPurchaseOrders::class)->assertSuccessful()->html();
+        $countOff = substr_count($htmlOff, $editUrl);
+
+        session(['row_click_edit' => true]);
+        $htmlOn = Livewire::test(ListPurchaseOrders::class)->assertSuccessful()->html();
+        $countOn = substr_count($htmlOn, $editUrl);
+
+        session()->forget('row_click_edit');
+
+        $this->assertGreaterThan($countOff, $countOn);
+    }
+
+    public function test_row_click_respects_edit_authorization(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_order.view']);
+        $record = PurchaseOrder::factory()->create();
+        session(['row_click_edit' => true]);
+
+        $html = Livewire::test(ListPurchaseOrders::class)->assertSuccessful()->html();
+
+        $this->assertStringNotContainsString(
+            route('filament.dashboard.resources.purchase-orders.edit', ['record' => $record]),
+            $html
+        );
+
+        session()->forget('row_click_edit');
+    }
+
+    public function test_row_click_is_scoped_to_operational_resources_only(): void
+    {
+        // Master Data has no dedicated edit route at all (Edit is a modal) — this feature's
+        // override lives on App\Filament\Pages\ListRecords, which ManageDepartments never
+        // extends (it extends the separate App\Filament\Pages\ManageRecords), so toggling
+        // row_click_edit on must have zero effect: the page still renders successfully,
+        // vendor's own unrelated default recordAction (view-first-else-edit) still resolves.
+        $this->actingAsUserWithPermissions(['department.view', 'department.edit']);
+        $record = Department::factory()->create();
+        session(['row_click_edit' => true]);
+
+        $component = Livewire::test(ManageDepartments::class)->assertSuccessful()->instance();
+
+        $this->assertSame('view', $component->getTable()->getRecordAction($record));
+
+        session()->forget('row_click_edit');
+    }
+
+    public function test_row_click_lang_keys_exist_in_all_three_locales(): void
+    {
+        foreach (['en', 'fa', 'fr'] as $locale) {
+            foreach (['view', 'edit'] as $key) {
+                $this->assertTrue(
+                    trans()->has("resources/general/strings.row_click.{$key}", $locale),
+                    "Missing row_click.{$key} in {$locale}"
+                );
+            }
+        }
+    }
+
+    public function test_tables_render_stacked_on_mobile_by_default(): void
+    {
+        $this->actingAsUserWithPermissions(['correspondence.view']);
+
+        $rendered = Livewire::test(ListCorrespondences::class)->assertSuccessful();
+
+        $this->assertStringContainsString('fi-ta-table-stacked-on-mobile', $rendered->html());
+    }
+
+    public function test_stacked_table_lang_keys_exist_in_all_three_locales(): void
+    {
+        foreach (['en', 'fa', 'fr'] as $locale) {
+            foreach (['enable', 'disable'] as $key) {
+                $this->assertTrue(
+                    trans()->has("resources/general/strings.stacked_table.{$key}", $locale),
+                    "Missing stacked_table.{$key} in {$locale}"
+                );
+            }
+        }
+    }
+
+    public function test_language_switch_sits_between_calendar_and_work_actions(): void
+    {
+        $html = view('language-switch::language-switch')->render();
+
+        $this->assertStringContainsString('style="order: 9"', $html);
     }
 }

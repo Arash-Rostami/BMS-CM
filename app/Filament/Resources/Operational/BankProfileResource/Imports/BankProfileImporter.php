@@ -45,7 +45,8 @@ class BankProfileImporter extends Importer implements Importable
 
         return [
             ImportColumnDefinition::optional('bp_number', $labels['bp_number']),
-            ImportColumnDefinition::match('registered_order_id', $labels['registered_order_id'], 'registeredOrder', RegisteredOrder::class, ['ro_number']),
+            ImportColumnDefinition::match('registered_order_id', $labels['registered_order_id'], 'registeredOrder', RegisteredOrder::class, ['ro_number'])
+                ->withFallback(fn () => null, rejectIfStillBlank: true),
             ImportColumnDefinition::match('company_id', $labels['company_id'], 'company', Company::class, ['name', 'english_name'])
                 ->allowNullOnMismatch(),
             ImportColumnDefinition::match('bank_id', $labels['bank_id'], 'bank', Bank::class, ['name', 'english_name'])

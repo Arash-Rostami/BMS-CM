@@ -27,7 +27,22 @@ trait Form
             ->validationMessages([
                 'max' => __('resources/shipment/strings.form.validation.max'),
             ])
-            ->validationAttribute(__('resources/shipment/strings.form.bl_number'));
+            ->validationAttribute(__('resources/shipment/strings.form.bl_number'))
+            ->live(onBlur: true)
+            ->helperText(fn (Get $get, ?Model $record) => static::blNumberDuplicateWarning($get('bl_number'), $record));
+    }
+
+    private static function blNumberDuplicateWarning(?string $blNumber, ?Model $record): ?string
+    {
+        if (blank($blNumber)) {
+            return null;
+        }
+
+        $exists = Shipment::where('bl_number', $blNumber)
+            ->when($record, fn ($query) => $query->whereKeyNot($record->getKey()))
+            ->exists();
+
+        return $exists ? __('resources/shipment/strings.form.bl_number_duplicate_warning') : null;
     }
 
     public static function getBookingNoField(): TextInput

@@ -25,6 +25,8 @@ return [
         'helper_is_active' => 'برای پنهان کردن این شرکت از لیست‌ها بدون حذف سوابق آن، این گزینه را خاموش کنید.',
         'basic_information' => 'عمومی',
         'company_classification' => 'طبقه‌بندی',
+        'tab_general' => 'عمومی',
+        'tab_classification' => 'طبقه‌بندی',
         'classification_description' => 'نوع یا نقش‌های این شرکت را تعریف کنید.',
         'company_types' => 'انواع شرکت',
         'company_types_description' => 'برای تعیین نوع کسب‌وکار این شرکت، چندین نوع را انتخاب کنید.',

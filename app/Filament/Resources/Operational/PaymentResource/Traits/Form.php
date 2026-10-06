@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Operational\PaymentResource\Traits;
 
+use App\Models\Payment;
 use App\Models\PurchaseOrder;
 use App\Models\RegisteredOrder;
 use App\Services\CodeGenerator;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 
 trait Form
 {
-    use Calculation;
+    use Calculation, PreparePaymentFromTargetable;
 
     public static function getAccountNoField(): TextInput
     {
@@ -142,10 +143,32 @@ trait Form
         return TextInput::make('iban')
             ->label(__('resources/payment/strings.form.iban'))
             ->maxLength(255)
+            ->live(onBlur: true)
             ->validationMessages([
                 'max' => __('resources/payment/strings.form.validation_max_length'),
             ])
             ->helperText(__('resources/payment/strings.form.helper_iban'))
+            ->hint(function (Get $get, ?Model $record): ?string {
+                $payeeId = $get('payee_id');
+                $iban = $get('iban');
+
+                if (blank($payeeId) || blank($iban)) {
+                    return null;
+                }
+
+                $last = Payment::where('payee_id', $payeeId)
+                    ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
+                    ->whereNotNull('iban')
+                    ->latest()
+                    ->first();
+
+                if (! $last || mb_strtoupper(trim($last->iban)) === mb_strtoupper(trim($iban))) {
+                    return null;
+                }
+
+                return __('resources/payment/strings.form.hint_iban_changed');
+            })
+            ->hintColor('warning')
             ->validationAttribute(__('resources/payment/strings.form.iban'));
     }
 
@@ -193,6 +216,7 @@ trait Form
             ->searchable(['name', 'english_name'])
             ->preload()
             ->required()
+            ->live()
             ->validationMessages([
                 'required' => __('resources/payment/strings.form.validation_required'),
             ])
@@ -339,7 +363,26 @@ trait Form
                 ->validationAttribute(__('resources/payment/strings.form.targetable'))
                 ->validationMessages([
                     'required' => __('resources/payment/strings.form.validation_required'),
-                ]));
+                ])
+                ->afterStateUpdated(function (Get $get, Set $set, $state): void {
+                    if (blank($state) || blank($get('targetable_type'))) {
+                        return;
+                    }
+
+                    $model = $get('targetable_type')::find($state);
+
+                    if (! $model) {
+                        return;
+                    }
+
+                    $data = static::copyTargetableAttributes($model, []);
+
+                    foreach (['payee_id', 'payor_id', 'bank_id', 'currency_id'] as $field) {
+                        if (blank($get($field))) {
+                            $set($field, $data[$field]);
+                        }
+                    }
+                }));
     }
 
     public static function getTotalAmountField(): TextInput

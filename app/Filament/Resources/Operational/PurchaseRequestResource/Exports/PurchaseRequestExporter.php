@@ -6,6 +6,7 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Imports\PurchaseR
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestItem;
 use Illuminate\Database\Eloquent\Builder;
+use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 
 class PurchaseRequestExporter
@@ -99,7 +100,7 @@ class PurchaseRequestExporter
 
     protected static function escapeCsvFormula(string $value): string
     {
-        return preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
+        return (new EscapeFormula)->escapeRecord([$value])[0];
     }
 
     protected static function jalaliDate(mixed $date): string

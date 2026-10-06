@@ -6,6 +6,7 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\Imports\Registere
 use App\Models\RegisteredOrder;
 use App\Models\RegisteredOrderItem;
 use Illuminate\Database\Eloquent\Builder;
+use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 
 class RegisteredOrderExporter
@@ -114,7 +115,7 @@ class RegisteredOrderExporter
 
     protected static function escapeCsvFormula(string $value): string
     {
-        return preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
+        return (new EscapeFormula)->escapeRecord([$value])[0];
     }
 
     protected static function jalaliDate(mixed $date): string

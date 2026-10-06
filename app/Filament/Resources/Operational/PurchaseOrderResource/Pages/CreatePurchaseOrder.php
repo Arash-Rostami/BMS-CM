@@ -7,6 +7,8 @@ use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\PreparesPurc
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\PreparesPurchaseOrderFromPurchaseRequest;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\PreparesPurchaseOrderFromRegisteredOrder;
 use App\Filament\Resources\PurchaseOrderResource;
+use App\Models\PurchaseOrder;
+use Filament\Notifications\Notification;
 
 class CreatePurchaseOrder extends CreateRecord
 {
@@ -37,6 +39,30 @@ class CreatePurchaseOrder extends CreateRecord
 
         PurchaseOrderResource::assertStatusTransitionAllowed(null, 'status_id', $data['status_id'] ?? null);
 
+        $this->warnIfRecentDuplicateExists($data['seller_id'] ?? null, $data['buyer_id'] ?? null);
+
         return $data;
+    }
+
+    protected function warnIfRecentDuplicateExists(?int $sellerId, ?int $buyerId): void
+    {
+        if (! $sellerId || ! $buyerId) {
+            return;
+        }
+
+        $exists = PurchaseOrder::where('seller_id', $sellerId)
+            ->where('buyer_id', $buyerId)
+            ->where('created_at', '>=', now()->subDay())
+            ->exists();
+
+        if (! $exists) {
+            return;
+        }
+
+        Notification::make()
+            ->title(__('resources/purchaseOrder/strings.notifications.duplicate_title'))
+            ->body(__('resources/purchaseOrder/strings.notifications.duplicate_body'))
+            ->warning()
+            ->send();
     }
 }

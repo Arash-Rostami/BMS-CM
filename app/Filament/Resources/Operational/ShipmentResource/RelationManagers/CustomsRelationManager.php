@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Operational\ShipmentResource\RelationManagers;
 
 use App\Filament\Resources\CustomResource;
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\CustomResource\Exports\CustomExporter;
 use App\Filament\Resources\Operational\CustomResource\Traits\Filters as CustomFilters;
 use App\Filament\Resources\Operational\CustomResource\Traits\Table as CustomTable;
 use App\Filament\Traits\HandlesActionExceptions;
@@ -13,7 +12,6 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -98,8 +96,7 @@ class CustomsRelationManager extends RelationManager
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(CustomExporter::class),
+                    CustomResource::getExportBulkAction(),
                 ]),
             ])
             ->striped()

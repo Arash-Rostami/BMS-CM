@@ -72,6 +72,19 @@ class ExportBankProfilesTest extends TestCase
         });
     }
 
+    public function test_handle_neutralizes_leading_formula_characters_in_free_text_fields(): void
+    {
+        $user = User::factory()->create();
+        $record = BankProfile::factory()->create(['notes' => '=cmd|/c calc']);
+
+        $job = new ExportBankProfiles([$record->id], $user->id, 'en');
+        $job->handle();
+
+        $csv = Storage::disk('local')->get(Storage::disk('local')->files("exports/{$user->id}")[0]);
+        $this->assertStringNotContainsString(",=cmd", $csv);
+        $this->assertStringContainsString(",\"'=cmd", $csv);
+    }
+
     public function test_handle_writes_an_empty_csv_and_still_succeeds_when_no_records_match(): void
     {
         $user = User::factory()->create();

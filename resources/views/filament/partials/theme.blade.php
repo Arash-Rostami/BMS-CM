@@ -5,8 +5,8 @@
 @endphp
 
 <div x-data="{ open: false, active: document.documentElement.dataset.theme || 'slate' }"
-     class="relative {{ $isPanel ? 'hidden shrink-0 items-center lg:flex' : ($surface === 'login' ? 'fixed top-4 end-4 z-50 hidden sm:block' : '') }}"
-     style="{{ $isPanel ? 'order: 6' : '' }}">
+     class="relative {{ $isPanel ? 'hidden shrink-0 items-center lg:flex' : '' }}"
+     style="{{ $isPanel ? 'order: 7' : '' }}">
     @if ($isPanel)
         <x-icon-button x-on:click="open = !open" tooltip="{{ __('resources/general/strings.theme_palette.button') }}" aria-haspopup="true" x-bind:aria-expanded="open">
             <x-heroicon-o-swatch class="h-[22px] w-[22px] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />

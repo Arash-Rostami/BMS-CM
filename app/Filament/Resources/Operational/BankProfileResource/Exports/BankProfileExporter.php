@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Operational\BankProfileResource\Exports;
 
 use App\Models\BankProfile;
 use Illuminate\Database\Eloquent\Builder;
+use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 
 class BankProfileExporter
@@ -131,8 +132,8 @@ class BankProfileExporter
         $values['total_rial'] = static::numberValue($record->total_rial_remittance);
         $values['total_purchased_remittance'] = static::numberValue($record->total_purchased_remittance);
         $values['total_requested_remittance'] = static::numberValue($record->total_requested_remittance);
-        $values['creator'] = (string) ($record->creator?->name ?? '');
-        $values['updater'] = (string) ($record->updater?->name ?? '');
+        $values['creator'] = static::plainText($record->creator?->name ?? '');
+        $values['updater'] = static::plainText($record->updater?->name ?? '');
         $values['created_at'] = static::jalaliDate($record->created_at);
         $values['updated_at'] = static::jalaliDate($record->updated_at);
 
@@ -153,7 +154,7 @@ class BankProfileExporter
 
     protected static function escapeCsvFormula(string $value): string
     {
-        return preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
+        return (new EscapeFormula)->escapeRecord([$value])[0];
     }
 
     protected static function jalaliDate(mixed $date): string

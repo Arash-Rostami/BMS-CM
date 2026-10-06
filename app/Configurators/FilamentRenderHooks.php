@@ -34,6 +34,11 @@ class FilamentRenderHooks
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+            fn (): View => view('filament.partials.stacked-table-toggle')
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::GLOBAL_SEARCH_AFTER,
             fn (): View => view('filament.partials.table-density-toggle')
         );
 
@@ -55,6 +60,16 @@ class FilamentRenderHooks
         FilamentView::registerRenderHook(
             PanelsRenderHook::GLOBAL_SEARCH_AFTER,
             fn (): View => view('filament.partials.topbar-divider')
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+            fn (): View => view('filament.partials.row-click-toggle')
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+            fn (): View => view('filament.partials.table-state-toggle')
         );
 
         FilamentView::registerRenderHook(

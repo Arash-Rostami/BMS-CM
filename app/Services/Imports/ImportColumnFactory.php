@@ -118,16 +118,23 @@ final class ImportColumnFactory
     protected static function applyStatusMatch(ImportColumn $column, ImportColumnDefinition $definition): ImportColumn
     {
         $type = $definition->statusType;
+        $resolved = [];
 
-        return $column->castStateUsing(function ($originalState) use ($type, $definition) {
+        return $column->castStateUsing(function ($originalState) use ($type, $definition, &$resolved) {
             if (! is_string($originalState) || trim($originalState) === '') {
                 return null;
             }
 
             $value = trim($originalState);
-            $status = Status::where('english_type', $type)
-                ->where(fn ($query) => $query->where('english_name', $value)->orWhere('name', $value))
-                ->first();
+            $key = $type.'|'.$value;
+
+            if (! array_key_exists($key, $resolved)) {
+                $resolved[$key] = Status::where('english_type', $type)
+                    ->where(fn ($query) => $query->where('english_name', $value)->orWhere('name', $value))
+                    ->first();
+            }
+
+            $status = $resolved[$key];
 
             if (! $status) {
                 if (! $definition->rejectOnMismatch()) {

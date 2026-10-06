@@ -39,7 +39,7 @@ trait Infolist
                     ->icon('heroicon-m-paper-clip')
                     ->color('primary')
                     ->url(fn ($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true)
-                    ->columnSpan(2),
+                    ->columnSpan(3),
                 TextEntry::make('status.name')
                     ->hiddenLabel()
                     ->badge()
@@ -53,9 +53,10 @@ trait Infolist
                     ->suffixActions([
                         SupersedeAttachmentAction::make(),
                         RevertAttachmentAction::make(),
-                    ]),
+                    ])
+                    ->columnSpan(2),
             ])
-            ->columns(3);
+            ->columns(5);
     }
 
     public static function viewCostCenter(): TextEntry

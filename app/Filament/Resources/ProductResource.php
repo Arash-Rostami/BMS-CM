@@ -23,7 +23,6 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -50,27 +49,9 @@ class ProductResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('action')
-                    ->options([
-                        'check' => __('resources/product/strings.form.action_check'),
-                        'create' => __('resources/product/strings.form.action_create'),
-                    ])
-                    ->required()
-                    ->live()
-                    ->visibleOn('create')
-                    ->validationMessages([
-                        'required' => __('resources/product/strings.form.validation_action_required'),
-                    ])
-                    ->label(__('resources/product/strings.form.choose_action')),
-                // checking code
-                Group::make([
-                    Section::make(__('resources/product/strings.form.action_check'))
-                        ->schema([
-                            self::doubleCheckCode(),
-                            self::enquiryResponse(),
-                        ])
-                        ->columns(2),
-                ])->columnSpanFull()->visible(fn (Get $get) => $get('action') === 'check'),
+                self::getInquiryCodeField(),
+                self::getExistingProductDetails(),
+                self::getNotFoundConfirmation(),
                 // creating new product
                 Tabs::make('Tabs')
                     ->tabs([
@@ -108,9 +89,13 @@ class ProductResource extends Resource
                                         Repeater::make('specifications')
                                             ->hiddenLabel()
                                             ->relationship('specifications')
+                                            ->defaultItems(0)
                                             ->maxItems(1)
                                             ->deletable()
                                             ->columns(2)
+                                            ->addActionLabel(__('resources/product/strings.form.add_specification_button'))
+                                            ->mutateRelationshipDataBeforeCreateUsing(fn (array $data): ?array => static::specificationHasData($data) ? $data : null)
+                                            ->mutateRelationshipDataBeforeSaveUsing(fn (array $data): ?array => static::specificationHasData($data) ? $data : null)
                                             ->validationMessages([
                                                 'max' => __('resources/product/strings.form.validation_specifications_max'),
                                             ])
@@ -128,7 +113,7 @@ class ProductResource extends Resource
                             ])->icon('heroicon-o-list-bullet'),
                     ])
                     ->columnSpanFull()
-                    ->visible(fn (Get $get, $operation) => $get('action') === 'create' || $operation == 'edit'),
+                    ->visible(fn (Get $get, $operation) => $operation === 'edit' || $get('confirmed_create') === true),
             ]);
     }
 

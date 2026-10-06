@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\PaymentResource\Exports\PaymentExporter;
 use App\Filament\Resources\Operational\PaymentResource\Traits\Filters as PaymentFilters;
 use App\Filament\Resources\Operational\PaymentResource\Traits\Table as PaymentTable;
 use App\Filament\Resources\PaymentResource;
@@ -14,7 +13,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -97,8 +95,7 @@ class PaymentsRelationManager extends RelationManager
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(PaymentExporter::class),
+                    PaymentResource::getExportBulkAction(),
                 ]),
             ])
             ->striped()

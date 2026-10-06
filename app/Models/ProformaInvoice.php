@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Traits\General\HasCustomAttributes;
+use App\Models\Traits\General\HasReliableCodeGeneration;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\ProformaInvoice\HasFormattedName;
@@ -18,6 +19,7 @@ class ProformaInvoice extends Model
         HasCustomAttributes,
         HasFactory,
         HasFormattedName,
+        HasReliableCodeGeneration,
         HasSearchableRelations,
         Relationships,
         SoftDeletes,

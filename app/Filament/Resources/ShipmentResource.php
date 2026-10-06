@@ -6,7 +6,6 @@ use App\Filament\Resources\General\FormComponents;
 use App\Filament\Resources\General\InfoComponents;
 use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\CorrespondenceRelationManager;
-use App\Filament\Resources\Operational\ShipmentResource\Exports\ShipmentExporter;
 use App\Filament\Resources\Operational\ShipmentResource\Pages\CreateShipment;
 use App\Filament\Resources\Operational\ShipmentResource\Pages\EditShipment;
 use App\Filament\Resources\Operational\ShipmentResource\Pages\ListShipments;
@@ -28,7 +27,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -106,6 +104,7 @@ class ShipmentResource extends Resource
                                             ->schema([
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
+                                                FormComponents::getAttachmentStatusManager(),
                                             ]),
                                     ])->columnSpan(['lg' => 1]),
                             ])->columns(3),
@@ -207,7 +206,7 @@ class ShipmentResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['shipment_no', 'bl_number', 'booking_no', 'container_no'];
+        return static::withExtraAttributesSearch(['shipment_no', 'bl_number', 'booking_no', 'container_no']);
     }
 
     public static function getModelLabel(): string
@@ -339,14 +338,19 @@ class ShipmentResource extends Resource
                 static::showCarrier(),
                 static::showPart(),
                 static::showBlNumber(),
+                static::showEtaStatus(),
+                static::showDocsProgress(),
                 static::showStatus(),
                 static::showTrackingStatus(),
+                static::showContainerStatus(),
+                static::showOperationStatus(),
+                static::showDocStatus(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
-                static::getStatusWorkflowProgressColumn('status_id', Shipment::TYPE_SHIPMENT_STATUS),
-                static::getStatusWorkflowProgressColumn('shipment_status_id', Shipment::TYPE_TRACKING_STATUS, toggledHiddenByDefault: true),
+                static::getStatusWorkflowProgressColumn('status_id', Shipment::TYPE_SHIPMENT_STATUS, qualifierLabel: __('resources/shipment/strings.table.status')),
+                static::getStatusWorkflowProgressColumn('shipment_status_id', Shipment::TYPE_TRACKING_STATUS, toggledHiddenByDefault: true, qualifierLabel: __('resources/shipment/strings.table.tracking_status')),
             ])
             ->filters([
                 static::getCarrierFilter(),
@@ -356,6 +360,7 @@ class ShipmentResource extends Resource
                 static::getDocStatusFilter(),
                 static::getOperationStatusFilter(),
                 static::getEtaFilter(),
+                static::getOverdueFilter(),
                 static::getCreationDateFilter(),
                 static::getTrashedFilter(),
             ])
@@ -370,8 +375,7 @@ class ShipmentResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(ShipmentExporter::class),
+                    static::getExportBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),

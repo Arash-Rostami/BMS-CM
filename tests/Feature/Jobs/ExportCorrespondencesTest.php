@@ -1,0 +1,82 @@
+<?php
+
+namespace Tests\Feature\Jobs;
+
+use App\Jobs\ExportCorrespondences;
+use App\Models\Correspondence;
+use App\Models\User;
+use Filament\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
+
+class ExportCorrespondencesTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->useMysql();
+        DB::beginTransaction();
+        Notification::fake();
+    }
+
+    protected function tearDown(): void
+    {
+        DB::rollBack();
+        parent::tearDown();
+    }
+
+    private function useMysql(): void
+    {
+        $env = base_path('.env');
+        if (is_file($env)) {
+            $vals = [];
+            foreach (explode("\n", (string) file_get_contents($env)) as $line) {
+                if (preg_match('/^\s*(DB_HOST|DB_PORT|DB_DATABASE|DB_USERNAME|DB_PASSWORD)\s*=\s*(.*)$/', $line, $m)) {
+                    $vals[$m[1]] = trim(preg_replace('/\s+#.*$/', '', trim($m[2])), "\"' \t");
+                }
+            }
+            $map = ['DB_HOST' => 'host', 'DB_PORT' => 'port', 'DB_DATABASE' => 'database', 'DB_USERNAME' => 'username', 'DB_PASSWORD' => 'password'];
+            foreach ($map as $envKey => $cfgKey) {
+                if (isset($vals[$envKey])) {
+                    config(['database.connections.mysql.'.$cfgKey => $vals[$envKey]]);
+                }
+            }
+        }
+        DB::purge('mysql');
+        config(['database.default' => 'mysql']);
+    }
+
+    public function test_handle_writes_the_file_and_sends_a_success_notification_with_a_download_link(): void
+    {
+        $user = User::factory()->create();
+        $record = Correspondence::factory()->create();
+
+        $job = new ExportCorrespondences([$record->id], $user->id, 'en');
+        $job->handle();
+
+        $files = Storage::disk('local')->files("exports/{$user->id}");
+        $this->assertNotEmpty($files);
+
+        $csv = Storage::disk('local')->get($files[0]);
+        $this->assertStringStartsWith("\xEF\xBB\xBF", $csv);
+
+        Notification::assertSentTo($user, DatabaseNotification::class, function (DatabaseNotification $notification) {
+            return $notification->toArray(null)['status'] === 'success';
+        });
+    }
+
+    public function test_handle_neutralizes_leading_formula_characters_in_free_text_fields(): void
+    {
+        $user = User::factory()->create();
+        $record = Correspondence::factory()->create(['subject' => '=cmd|/c calc']);
+
+        $job = new ExportCorrespondences([$record->id], $user->id, 'en');
+        $job->handle();
+
+        $csv = Storage::disk('local')->get(Storage::disk('local')->files("exports/{$user->id}")[0]);
+        $this->assertStringNotContainsString(",=cmd", $csv);
+        $this->assertStringContainsString(",\"'=cmd", $csv);
+    }
+}

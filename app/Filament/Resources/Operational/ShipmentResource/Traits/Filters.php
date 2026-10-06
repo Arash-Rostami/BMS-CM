@@ -7,6 +7,7 @@ use App\Models\Shipment;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Database\Eloquent\Builder;
 
 trait Filters
 {
@@ -63,6 +64,13 @@ trait Filters
             __('resources/shipment/strings.filters.eta_from'),
             __('resources/shipment/strings.filters.eta_until'),
         );
+    }
+
+    public static function getOverdueFilter(): Filter
+    {
+        return Filter::make('overdue')
+            ->label(__('resources/shipment/strings.filters.overdue'))
+            ->query(fn (Builder $query): Builder => $query->whereNull('exit_date')->where('eta', '<', today()));
     }
 
     public static function getStatusFilter(): SelectFilter

@@ -23,6 +23,8 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,23 +45,32 @@ class CompanyResource extends Resource
     {
         return $schema
             ->components([
-                Section::make(__('resources/company/strings.form.basic_information'))
-                    ->schema([
-                        static::getName(),
-                        static::getEnglishName(),
-                        static::getDescription(),
-                        static::getIsActive(),
+                Tabs::make('Company')
+                    ->tabs([
+                        Tab::make(__('resources/company/strings.form.tab_general'))
+                            ->icon('heroicon-o-building-office-2')
+                            ->schema([
+                                Section::make(__('resources/company/strings.form.basic_information'))
+                                    ->schema([
+                                        static::getName(),
+                                        static::getEnglishName(),
+                                        static::getDescription(),
+                                        static::getIsActive(),
+                                    ])
+                                    ->columns(2),
+                            ]),
+                        Tab::make(__('resources/company/strings.form.tab_classification'))
+                            ->icon('heroicon-o-tag')
+                            ->schema([
+                                Section::make(__('resources/company/strings.form.company_classification'))
+                                    ->schema([
+                                        static::getCompanyTypes(),
+                                    ])
+                                    ->description(__('resources/company/strings.form.classification_description'))
+                                    ->columnSpanFull(),
+                            ]),
                     ])
-                    ->columnSpanFull()
-                    ->columns(2),
-
-                Section::make(__('resources/company/strings.form.company_classification'))
-                    ->schema([
-                        static::getCompanyTypes(),
-                    ])
-                    ->collapsed()
-                    ->persistCollapsed()
-                    ->description(__('resources/company/strings.form.classification_description')),
+                    ->columnSpanFull(),
             ]);
     }
 

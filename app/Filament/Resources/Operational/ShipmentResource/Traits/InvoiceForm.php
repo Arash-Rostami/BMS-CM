@@ -65,7 +65,7 @@ trait InvoiceForm
                                         $set('_inv_buyer_comm_card_no', $pi->buyer_comm_card_num);
                                         $set('_inv_currency', $pi->mainCurrency?->english_name ?? $pi->mainCurrency?->name);
                                         $set('_inv_transport_mode', $pi->transport_mode);
-                                        $set('_inv_incoterms', $pi->delivery_terms);
+                                        $set('_inv_incoterms', $pi->delivery_terms ? strtoupper($pi->delivery_terms) : null);
                                         $set('_inv_port_of_loading', $pi->port_of_loading);
                                         $set('_inv_port_of_discharge', $pi->port_of_discharge);
                                         $set('_inv_origin_country', $pi->origin_country);
@@ -353,7 +353,7 @@ trait InvoiceForm
             ])->columns(3);
     }
 
-    public static function persistInvoiceToEav(array $formData, $record): void
+    public static function buildInvoiceEavData(array $formData): array
     {
         $items = collect($formData['_inv_items'] ?? [])->map(fn ($item) => [
             'description' => $item['description'] ?? null,
@@ -373,7 +373,7 @@ trait InvoiceForm
         $freight = (float) ($formData['_inv_freight_charges'] ?? 0);
         $other = (float) ($formData['_inv_other_charges'] ?? 0);
 
-        $data = [
+        return [
             'proforma_invoice_id' => $formData['_inv_pi_id'] ?? null,
             'invoice_no' => $formData['_inv_invoice_no'] ?? null,
             'invoice_date' => $formData['_inv_invoice_date'] ?? null,
@@ -403,6 +403,11 @@ trait InvoiceForm
             'total_gross_weight' => (float) ($formData['_inv_total_gross_weight'] ?? 0),
             'notes' => $formData['_inv_notes'] ?? null,
         ];
+    }
+
+    public static function persistInvoiceToEav(array $formData, $record): void
+    {
+        $data = static::buildInvoiceEavData($formData);
 
         $attr = EntityAttribute::where('entity_type', Shipment::class)
             ->where('entity_id', $record->id)

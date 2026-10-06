@@ -301,6 +301,96 @@ class ImportPipelineTest extends TestCase
         $this->assertSame(321, $record->status_id);
     }
 
+    public function test_status_match_column_with_reject_if_still_blank_rejects_when_the_fallback_itself_resolves_to_null_on_a_new_record(): void
+    {
+        $record = new RegisteredOrder(['status_id' => null]);
+        $context = new ImportRowContext($record);
+        $context->columns = [
+            ImportColumnDefinition::matchStatus('status_id', 'label', RegisteredOrder::TYPE_REGISTERED_ORDER)
+                ->withFallback(fn () => null, rejectIfStillBlank: true),
+        ];
+
+        (new ApplyColumnFallbacks)->handle($context, fn ($c) => $c);
+
+        $this->expectException(RowImportFailedException::class);
+
+        (new RejectMissingManualColumns)->handle($context, fn ($c) => $c);
+    }
+
+    public function test_status_match_column_with_reject_if_still_blank_does_not_reject_existing_records(): void
+    {
+        $record = new RegisteredOrder(['status_id' => 999]);
+        $record->exists = true;
+        $context = new ImportRowContext($record);
+        $context->columns = [
+            ImportColumnDefinition::matchStatus('status_id', 'label', RegisteredOrder::TYPE_REGISTERED_ORDER)
+                ->withFallback(fn () => null, rejectIfStillBlank: true),
+        ];
+
+        (new ApplyColumnFallbacks)->handle($context, fn ($c) => $c);
+        $result = (new RejectMissingManualColumns)->handle($context, fn ($c) => $c);
+
+        $this->assertSame($context, $result);
+        $this->assertSame(999, $record->status_id);
+    }
+
+    public function test_status_match_column_memoizes_lookups_for_the_lifetime_of_the_built_column(): void
+    {
+        $status = Status::factory()->create([
+            'type' => RegisteredOrder::TYPE_REGISTERED_ORDER,
+            'english_type' => RegisteredOrder::TYPE_REGISTERED_ORDER,
+        ]);
+
+        $column = ImportColumnFactory::build(
+            ImportColumnDefinition::matchStatus('status_id', 'label', RegisteredOrder::TYPE_REGISTERED_ORDER)
+        );
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        foreach (range(1, 5) as $_) {
+            $this->assertSame($status->id, $column->castState($status->english_name));
+        }
+
+        $statusQueries = collect(DB::getQueryLog())
+            ->filter(fn (array $query) => str_contains($query['query'], 'from `statuses`'))
+            ->count();
+
+        DB::disableQueryLog();
+
+        $this->assertSame(1, $statusQueries);
+    }
+
+    public function test_status_match_column_cache_does_not_leak_across_separately_built_columns(): void
+    {
+        $status = Status::factory()->create([
+            'type' => RegisteredOrder::TYPE_REGISTERED_ORDER,
+            'english_type' => RegisteredOrder::TYPE_REGISTERED_ORDER,
+        ]);
+
+        $firstRunColumn = ImportColumnFactory::build(
+            ImportColumnDefinition::matchStatus('status_id', 'label', RegisteredOrder::TYPE_REGISTERED_ORDER)
+        );
+        $firstRunColumn->castState($status->english_name);
+
+        $secondRunColumn = ImportColumnFactory::build(
+            ImportColumnDefinition::matchStatus('status_id', 'label', RegisteredOrder::TYPE_REGISTERED_ORDER)
+        );
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $secondRunColumn->castState($status->english_name);
+
+        $statusQueries = collect(DB::getQueryLog())
+            ->filter(fn (array $query) => str_contains($query['query'], 'from `statuses`'))
+            ->count();
+
+        DB::disableQueryLog();
+
+        $this->assertSame(1, $statusQueries);
+    }
+
     public function test_enum_match_column_rejects_unresolved_value_by_default(): void
     {
         $column = ImportColumnFactory::build(

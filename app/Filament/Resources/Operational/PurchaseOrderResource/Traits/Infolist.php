@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Traits;
 
+use App\Filament\Actions\RevertAttachmentAction;
+use App\Filament\Actions\SupersedeAttachmentAction;
+use App\Models\Attachment;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Support\Facades\Storage;
@@ -19,9 +22,25 @@ trait Infolist
                     ->tooltip(fn ($record) => $record->name ?? '')
                     ->icon('heroicon-m-paper-clip')
                     ->color('primary')
-                    ->url(fn ($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
+                    ->url(fn ($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true)
+                    ->columnSpan(3),
+                TextEntry::make('status.name')
+                    ->hiddenLabel()
+                    ->badge()
+                    ->formatStateUsing(fn (Attachment $record) => $record->status?->getLocalizedNameAttribute())
+                    ->color(fn (Attachment $record): string => match (true) {
+                        $record->isArchived() => 'gray',
+                        $record->isSuperseded() => 'warning',
+                        default => 'success',
+                    })
+                    ->icon(fn (Attachment $record): ?string => $record->isArchived() ? 'heroicon-m-lock-closed' : null)
+                    ->suffixActions([
+                        SupersedeAttachmentAction::make(),
+                        RevertAttachmentAction::make(),
+                    ])
+                    ->columnSpan(2),
             ])
-            ->columns(1);
+            ->columns(5);
     }
 
     public static function viewBuyer(): TextEntry

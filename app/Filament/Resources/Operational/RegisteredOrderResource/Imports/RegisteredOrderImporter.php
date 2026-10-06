@@ -83,10 +83,12 @@ class RegisteredOrderImporter extends Importer implements Importable
             ImportColumnDefinition::optional('ro_number', $labels['ro_number']),
             ImportColumnDefinition::optional('contract_no', $labels['contract_no']),
             ImportColumnDefinition::optional('official_registration_no', $labels['official_registration_no']),
-            ImportColumnDefinition::match('seller_id', $labels['seller_id'], 'sellerCompany', Company::class, ['name', 'english_name']),
-            ImportColumnDefinition::match('buyer_id', $labels['buyer_id'], 'buyerCompany', Company::class, ['name', 'english_name']),
+            ImportColumnDefinition::match('seller_id', $labels['seller_id'], 'sellerCompany', Company::class, ['name', 'english_name'])
+                ->withFallback(fn () => null, rejectIfStillBlank: true),
+            ImportColumnDefinition::match('buyer_id', $labels['buyer_id'], 'buyerCompany', Company::class, ['name', 'english_name'])
+                ->withFallback(fn () => null, rejectIfStillBlank: true),
             ImportColumnDefinition::matchStatus('status_id', $labels['status_id'], RegisteredOrder::TYPE_REGISTERED_ORDER)
-                ->withFallback(fn (ImportRowContext $ctx) => Status::findBy(RegisteredOrder::TYPE_REGISTERED_ORDER, 'Submitted')?->id),
+                ->withFallback(fn (ImportRowContext $ctx) => Status::findBy(RegisteredOrder::TYPE_REGISTERED_ORDER, 'Submitted')?->id, rejectIfStillBlank: true),
             ImportColumnDefinition::optional('order_date', $labels['order_date'], isDate: true)
                 ->withFallback(fn (ImportRowContext $ctx) => now()->toDateString()),
             ImportColumnDefinition::optional('validity_date', $labels['validity_date'], isDate: true)

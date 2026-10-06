@@ -2,16 +2,50 @@
 
 namespace App\Filament\Resources\Operational\PaymentResource\Traits;
 
+use App\Filament\Actions\ImportAction;
 use App\Filament\Resources\Operational\PaymentResource\Enums\Target;
+use App\Filament\Resources\Operational\PaymentResource\Imports\PaymentImporter;
+use App\Filament\Resources\PaymentResource;
+use App\Jobs\ExportPayments;
 use App\Models\PurchaseOrder;
 use App\Models\RegisteredOrder;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getImportAction(): ImportAction
+    {
+        return ImportAction::make('importPayments')
+            ->label(__('resources/payment/strings.import.import_payments'))
+            ->modalHeading(__('resources/payment/strings.import.import_payments'))
+            ->icon('heroicon-o-arrow-up-tray')
+            ->importer(PaymentImporter::class)
+            ->resourceGate(PaymentResource::class);
+    }
+
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportPayments')
+            ->label(__('resources/payment/strings.export.export_payments'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => PaymentResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportPayments::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showCreationTime(): TextColumn
     {
         return TextColumn::make('created_at')
@@ -64,7 +98,10 @@ trait Table
     {
         return TextColumn::make('payment_no')
             ->label(__('resources/payment/strings.table.payment_no'))
-            ->searchable()
+            ->searchable(query: fn (Builder $query, string $search): Builder => PaymentResource::orWhereExtraAttributesMatch(
+                $query->where('payment_no', 'like', "%{$search}%"),
+                $search
+            ))
             ->badge()
             ->copyable()
             ->sortable()
@@ -146,6 +183,26 @@ trait Table
             ->formatStateUsing(fn ($state, $record) => delimiter($state))
             ->sortable()
             ->toggleable();
+    }
+
+    public static function showTotalMatch(): TextColumn
+    {
+        return TextColumn::make('total_ratio')
+            ->label(__('resources/payment/strings.table.total_match'))
+            ->state(fn (Model $record): ?float => $record->total_ratio)
+            ->formatStateUsing(fn (?float $state): string => match (true) {
+                $state === null => __('resources/payment/strings.table.total_match_unknown'),
+                abs($state - 1) < 0.0001 => __('resources/payment/strings.table.total_match_yes'),
+                default => __('resources/payment/strings.table.total_match_no'),
+            })
+            ->badge()
+            ->color(fn (?float $state): string => match (true) {
+                $state === null => 'gray',
+                abs($state - 1) < 0.0001 => 'success',
+                default => 'warning',
+            })
+            ->toggleable()
+            ->sortable(false);
     }
 
     public static function showUpdateTime(): TextColumn

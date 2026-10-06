@@ -14,6 +14,7 @@ class ListShipments extends ListRecords
     {
         return [
             ...array_filter([ShipmentResource::getDeskReferenceHeaderAction()]),
+            ShipmentResource::getImportAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
         ];

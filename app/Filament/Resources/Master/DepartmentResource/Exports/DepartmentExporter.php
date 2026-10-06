@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Master\DepartmentResource\Exports;
 
 use App\Models\Department;
 use Illuminate\Database\Eloquent\Builder;
+use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 
 class DepartmentExporter
@@ -71,8 +72,8 @@ class DepartmentExporter
         $values['is_active'] = $record->is_active
             ? __('resources/department/strings.export.active')
             : __('resources/department/strings.export.inactive');
-        $values['creator'] = (string) ($record->creator?->name ?? '');
-        $values['updater'] = (string) ($record->updater?->name ?? '');
+        $values['creator'] = static::plainText($record->creator?->name ?? '');
+        $values['updater'] = static::plainText($record->updater?->name ?? '');
         $values['created_at'] = static::jalaliDate($record->created_at);
         $values['updated_at'] = static::jalaliDate($record->updated_at);
 
@@ -88,7 +89,7 @@ class DepartmentExporter
 
     protected static function escapeCsvFormula(string $value): string
     {
-        return preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
+        return (new EscapeFormula)->escapeRecord([$value])[0];
     }
 
     protected static function jalaliDate(mixed $date): string

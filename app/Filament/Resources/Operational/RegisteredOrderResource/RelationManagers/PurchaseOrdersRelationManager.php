@@ -3,17 +3,16 @@
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrderExporter;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Filters as PurchaseOrderFilters;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as PurchaseOrderTable;
 use App\Filament\Resources\PurchaseOrderResource;
 use App\Filament\Traits\HandlesActionExceptions;
+use App\Filament\Traits\HasExtraAttributesManagement;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DetachAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -23,7 +22,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrdersRelationManager extends RelationManager
 {
-    use HandlesActionExceptions;
+    use HandlesActionExceptions, HasExtraAttributesManagement;
     use PurchaseOrderFilters, PurchaseOrderTable;
 
     protected static string $relationship = 'purchaseOrders';
@@ -96,8 +95,7 @@ class PurchaseOrdersRelationManager extends RelationManager
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(PurchaseOrderExporter::class),
+                    PurchaseOrderResource::getExportBulkAction(),
                 ]),
             ])
             ->groups([

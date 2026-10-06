@@ -1,0 +1,1 @@
+@livewire('table-state-toggle')

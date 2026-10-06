@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\ShipmentResource\Exports\ShipmentExporter;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Filters as ShipmentFilters;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Table as ShipmentTable;
 use App\Filament\Resources\ShipmentResource;
@@ -14,7 +13,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -102,8 +100,7 @@ class ShipmentsRelationManager extends RelationManager
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(ShipmentExporter::class),
+                    ShipmentResource::getExportBulkAction(),
                 ]),
             ])
             ->groups([

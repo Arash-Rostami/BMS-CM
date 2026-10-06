@@ -14,6 +14,7 @@ class ListCustoms extends ListRecords
     {
         return [
             ...array_filter([CustomResource::getDeskReferenceHeaderAction()]),
+            CustomResource::getImportAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles'),
         ];

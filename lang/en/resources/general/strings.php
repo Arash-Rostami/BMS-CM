@@ -14,6 +14,8 @@ return [
         'create' => 'Create',
         'add_record' => '˙⋆✮ Create New',
         'add_record_tooltip' => 'Add a new related record',
+        'attach_record' => '˙⋆✮ Attach Existing',
+        'attach_record_tooltip' => 'Attach an existing related record',
         'view' => 'View',
         'edit' => 'Update',
         'delete' => 'Delete',
@@ -76,6 +78,9 @@ return [
         'revert' => 'Revert',
         'revert_success' => 'Attachment reverted to uploaded.',
         'revert_hint' => "An archived file's Delete button disappears once a case closes. Use Revert to bring it back to Uploaded if you need to make changes.",
+        'status_label' => 'Attachment Status',
+        'status_hint' => 'Mark as Superseded once you upload a replacement file above.',
+        'superseded_hint' => 'This file will be archived automatically once the case is closed.',
     ],
     'export' => [
         'completed' => 'Your export has completed and :successful row(s) exported.',
@@ -115,6 +120,8 @@ return [
             'title' => 'Import Guide',
             'lookup_title' => 'Matching by name',
             'lookup_body' => 'Lookup columns (company, currency, status, etc.) match by their exact name — check the spelling against an existing record.',
+            'grouped_rows_title' => 'One row, one thing',
+            'grouped_rows_body' => 'Each row is either the order\'s own information, or a single product line — never both. The order\'s row leaves every product column blank, and each product row — including the first product — leaves every order column blank.',
             'date_defaults_title' => 'If a date is left blank',
             'eav_title' => 'Custom attributes',
             'eav_body' => 'Extra key/value pairs are merged into the record\'s custom attributes and never overwrite ones the file does not mention.',
@@ -156,6 +163,18 @@ return [
     'fullscreen' => [
         'enter' => 'Enter fullscreen',
         'exit' => 'Exit fullscreen',
+    ],
+    'table_state' => [
+        'enable' => 'Remember my table filters, sort and columns',
+        'disable' => 'Stop remembering my table setup',
+    ],
+    'row_click' => [
+        'view' => 'Clicking a row opens it in the view modal',
+        'edit' => 'Clicking a row takes you to its edit page',
+    ],
+    'stacked_table' => [
+        'enable' => 'Stack table rows as cards on mobile',
+        'disable' => 'Use classic scrollable table on mobile',
     ],
     'theme_palette' => [
         'button' => 'Theme palette',
@@ -200,6 +219,7 @@ return [
         'resubmit_success' => 'Resubmitted successfully.',
         'pipeline_label' => 'Approval Pipeline',
         'progress_label' => 'Progress',
+        'progress_label_for' => ':label Progress',
         'pipeline_automatic' => 'automatic',
         'pipeline_anyone' => 'anyone',
         'pipeline_requires' => 'requires: :names',

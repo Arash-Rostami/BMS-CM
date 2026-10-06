@@ -25,6 +25,8 @@ return [
         'helper_is_active' => 'Indique le statut actif/inactif de cet enregistrement.',
         'basic_information' => 'Informations Générales',
         'company_classification' => 'Classification',
+        'tab_general' => 'Informations Générales',
+        'tab_classification' => 'Classification',
         'classification_description' => 'Définir les types d\'activités et les rôles de cette entreprise.',
         'company_types' => 'Types d\'entreprise',
         'company_types_description' => 'Choisissez plusieurs types pour définir le type d\'activité de cette entreprise.',

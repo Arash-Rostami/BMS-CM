@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Custom\HasComputedAttributes;
 use App\Models\Traits\Custom\HasFormattedName;
 use App\Models\Traits\Custom\HasSearchableRelations;
 use App\Models\Traits\Custom\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\HasCustomAttributes;
+use App\Models\Traits\General\HasReliableCodeGeneration;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
@@ -16,9 +18,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Custom extends Model
 {
     use ExclusiveRelationships,
+        HasComputedAttributes,
         HasCustomAttributes,
         HasFactory,
         HasFormattedName,
+        HasReliableCodeGeneration,
         HasSearchableRelations,
         Relationships,
         SoftDeletes,
@@ -36,6 +40,10 @@ class Custom extends Model
     public const TYPE_COMMITMENT_STATUS = 'Commitment Fulfillment Status';
 
     protected $table = 'customs';
+
+    protected $appends = [
+        'clearance_aging_days',
+    ];
 
     protected $fillable = [
         'custom_no',

@@ -35,7 +35,7 @@
     window.BMS_RESOURCE_MAP = @json($resourceMap);
 </script>
 
-<div class="hidden shrink-0 items-center lg:flex" style="order: 7">
+<div class="hidden shrink-0 items-center lg:flex" style="order: 8">
     <div class="w-px self-stretch my-1.5 me-3 bg-black/10 dark:bg-white/10" aria-hidden="true"></div>
 
     @if ($createGroups)

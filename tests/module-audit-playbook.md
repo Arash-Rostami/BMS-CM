@@ -1,0 +1,121 @@
+Entry point for "audit module X" with no further hand-holding. Read this file fully before touching any module below — it tells you exactly what "done" means and where to look for each sub-task. It doesn't repeat conventions already written elsewhere; it orchestrates them. Where this file conflicts with a doc it points to, the pointed-to doc wins (it's the deeper source).
+
+## 0. Status — check this first, don't ask the user "which module"
+
+**This table is a frozen snapshot (2026-10-03) — it is a claim, not a fact. Re-run the verification block below yourself before acting on any row; don't trust the ✅/❌ marks just because they're written down.**
+
+### Verification block — run this, don't eyeball the source
+
+```bash
+# Resource/Model test-method counts (thin baseline vs. real audit — anything under ~15/~10 is a baseline, not a finished audit)
+for m in PurchaseRequest ProformaInvoice RegisteredOrder PurchaseOrder BankProfile Payment Shipment Custom Correspondence Department Status; do
+  r=$(grep -c "public function test_" "tests/Feature/Filament/${m}ResourceTest.php" 2>/dev/null || echo "MISSING")
+  mo=$(grep -c "public function test_" "tests/Feature/Models/${m}ModelTest.php" 2>/dev/null || echo "none")
+  echo "$m : resource=$r model=$mo"
+done
+
+# Exporter shape — a native Filament Exporter (old/unconverted) vs. the shared write()-based class (converted)
+for f in app/Filament/Resources/Operational/*/Exports/*.php; do
+  shape=$(grep -qE "extends\s+Exporter\b" "$f" && echo "NATIVE (needs conversion)" || (grep -q "function write(" "$f" && echo "converted" || echo "unknown — read it"))
+  echo "$f : $shape"
+done
+
+# Importer existence per module (absence is only a gap if §3's decision logic says this module should have one)
+ls app/Filament/Resources/Operational/*/Imports/*.php 2>/dev/null
+
+# EAV search wiring — root resources live directly under Resources/, NOT under Resources/Operational/
+for f in app/Filament/Resources/*Resource.php; do
+  grep -q "withExtraAttributesSearch" "$f" && echo "$f : EAV-wired" || echo "$f : not wired"
+done
+```
+
+If any row's result disagrees with the table below, **the live command output is correct and this table is stale** — update the table in the same edit (don't just act on the fresh numbers and leave the table lying to the next session).
+
+**The EAV-wiring check is a signal, not a verdict** — "not wired" is only a real bug for a module whose resource actually exposes EAV/`extraAttributes` search as a feature (confirmed so far: the big-5 operational pipeline resources — PR/PI/RO/PO/BankProfile — are wired; everything else currently shows "not wired," including most Master Data resources, which may legitimately not need it). Read `app/Filament/filamentPattern.md`'s EAV section before treating any "not wired" result as a fix-it item.
+
+**Already re-run once (2026-10-05) — real findings folded into the table below:** `CustomExporter.php`, `ShipmentExporter.php`, and `TargetExporter.php` are still the NATIVE (unconverted) Filament `Exporter` shape — the same drift class fixed on Purchase Order and, as of 2026-10-04, on Payment. Flag this explicitly in Step 2 of whichever module you audit next; don't rediscover it from scratch.
+
+| Module | Resource tests | Model tests | Exporter converted? | Importer built? | Ideator pass done? | Status |
+|---|---|---|---|---|---|---|
+| Purchase Request | ✅ full | ✅ full | ✅ | ✅ (+ item importer) | ✅ | **Done** |
+| Proforma Invoice | ✅ full | ✅ full | ✅ | ✅ (+ item importer) | ✅ | **Done** |
+| Registered Order | ✅ full | ✅ full | ✅ | ✅ (+ item importer) | ✅ | **Done** |
+| Purchase Order | ✅ 61 tests | ✅ 10 tests | ✅ (rewritten from native `Exporter` 2026-10-03) | ✅ (+ item importer, 2026-10-03) | ✅ (3/3 ideas accepted + shipped) | **Done** |
+| BankProfile | ✅ 53 tests | ✅ 28 tests | ✅ | ✅ | ✅ | **Done** |
+| Department (Master) | ✅ 20 tests | ✅ 9 tests | n/a (master data, no exporter) | n/a | ✅ | **Done** |
+| Status (Master) | ✅ 11 tests | ✅ dedicated `StatusModelTest` added 2026-10-06 (StatusFinder, scopeSearchStatus word-expansion, consumer relations, Observer→SmartCacheManager invalidation) — previously folded into Observer coverage only | n/a | n/a | — | **Done** |
+| Correspondence | 41 tests | 15 tests | ✅ converted | **Deliberately none** — settled decision, keeps export parity with PR/PI/RO/BankProfile but gets no bulk import (see §4 below, don't re-propose) | ❓ not confirmed | **Likely near-done — EAV search check shows "not wired" (may be a non-issue, see §0's EAV caveat before treating as a bug) + run the ideator pass before marking done** |
+| Payment | ✅ 68 tests (2026-10-04) | ✅ 18 tests (2026-10-04) | ✅ converted 2026-10-04 (flat `write()`, mirrors BankProfile; reviewer fixed a CSV formula-injection gap on `account_no`/`swift`/`iban` + an N+1 on the morphed `targetable` eager load) | ✅ built 2026-10-04 — first module to resolve a polymorphic `targetable` on import, see importsPattern.md's new Payment section | ✅ 4 ideas relayed 2026-10-04, all 4 accepted + built (auto-fill on target pick, duplicate-payment warning, total-mismatch badge, IBAN-changed hint) | **Done** — manual browser QA cleared 2026-10-04 (`tests/qa-findings.json`), changelog updated (`tests/log/payment.md`). Open, non-blocking: `Enums/Target.php`'s dead BankProfile-target vestige, user's call pending. |
+| Shipment | ✅ 68 tests | ✅ 14 tests | ✅ converted 2026-10-05 (mirrors RegisteredOrder/Payment; 2 sibling RMs repointed) | ✅ built 2026-10-05 — flat (no item rows; `contract_no` fallback derives from the linked RegisteredOrder) | ✅ 4/4 ideas accepted + built 2026-10-05 (overdue badge+filter, docs-progress badge, container/operation/doc status columns, BL-number duplicate warning) | **Audit + enhancements done (both reviewed, 1 flaky-test fix + 2 boundary tests applied) — pending browser QA + changelog** |
+| Custom | ✅ 49 tests | ✅ 20 tests | ✅ converted 2026-10-05 (preserved the `"CustomsClearance-"` filename convention; 2 sibling RMs repointed) | ✅ built 2026-10-05 — flat; `registered_order_id`/`contract_no` deliberately NOT importable, derived from the matched Shipment | ✅ 4/4 ideas accepted + built 2026-10-05 (open-exposure flag, clearance-aging indicator, conditional percentage-only fields, declaration-no uniqueness) | **Audit + enhancements done (both reviewed, 1 type-hint fix applied) — pending browser QA + changelog**. Real bug fixed in-pass: `clearance_type` vocabulary mismatch (Table/Infolist/Filters hardcoded a vocabulary that never matched any saved row). |
+| Product (Master) | 🔄 in progress (coder agent dispatched 2026-10-06) | 🔄 in progress (same agent) | 🔄 converting from NATIVE to flat `write()` shape, no item-row split (`specifications` capped at `maxItems(1)`) | 🔄 building — **create-only, rejects a duplicate `code` instead of updating** (deliberate deviation from the standard match-then-update flow, matches the live form's own `->unique()` validation — see §4) | ✅ done 2026-10-06, all 4 ideas accepted (fix `import_licenses` is_string→is_array display bug, normalize inquiry-code trim/case, trashed-code restore detection, Customs-ready badge+filter) — folded into the in-progress build | **In progress** — also landed this session outside the agent: `getInquiryCodeField()`/`getExistingProductDetails()`/`getNotFoundConfirmation()` duplicate-check UX rebuild, `Repeater::defaultItems(0)` + `specificationHasData()` blank-specification guard (real bug: every create was silently writing an empty `product_specifications` row — see `filamentPattern.md`'s Repeater-default-items gotcha), `add_specification_button`/`add_extra_field_button` lang-key split, use-case-framed helper text on `attributes`/`extra` fields |
+| Category (Master) | 🔄 in progress (coder agent dispatched 2026-10-06) | 🔄 in progress (same agent) | 🔄 converting from NATIVE to flat `write()` shape | 🔄 building — **create-only, rejects a duplicate `slug`** (computed from `english_name` the same way `HasSlug`'s boot hook does, since `slug` itself is never user input) instead of updating; `level` is **derived server-side from `parent_id`** (`parent.level + 1`, or `0` if root) and excluded from the CSV entirely — a deliberate risk-reduction call, since the live form lets a human free-type `level` with no cross-check, but bulk import must not | ✅ done 2026-10-06, ranked ideas: (1) **real data-integrity fix, not just UX** — cycle guard on the parent picker, since nothing currently stops setting a category as its own descendant's parent, corrupting `category_closure` and feeding an unguarded recursive `maxDepth()` in Product's drilldown; (2) block delete when children/products exist; (3) breadcrumb display — **rejected as a UI change**, approved only as plain helper-text/hint, never a new column/entry; (4) `level` auto-suggest from parent — **approved as a non-forcing live-form suggestion only** (separate from the import's hard derivation above, don't conflate the two) | **In progress** — ideas 1, 2, 4 folded into the agent's build; idea 3 scaled back per the user's explicit "helper text only, not a UI/UX change" |
+| Bank (Master) | 🔄 in progress (coder agent dispatched 2026-10-06) | ✅ written by the user | 🔄 converting from NATIVE to flat `write()` shape | 🔄 building — create-only, rejects a duplicate `english_name` (same policy as Product/Category; both `name`/`english_name` are `->unique()` on the live form) | ✅ done 2026-10-06 (combined pass with Company, see below) | **In progress** |
+| Currency (Master) | 🔄 in progress (coder agent dispatched 2026-10-06) | ✅ written by the user | 🔄 converting from NATIVE to flat `write()` shape | 🔄 building — create-only, rejects a duplicate `english_name` | — (not yet run standalone) | **In progress** — foundational FK target of BankProfile/Payment/ProformaInvoice/etc., treat with the same strictness as Product/Category, not under-tested |
+| Company (Master) | not started | ✅ written by the user | not started (still NATIVE) | not started — same create-only/reject-on-duplicate policy will apply (`name`/`english_name` both `->unique()`); `types` is a fixed 8-value vocabulary (`TypeScopes::getAvailableTypes()`), plan is a comma-separated `matchEnum`-style column, invalid values dropped with a note (not rejected, since nullable) | ✅ done 2026-10-06 (combined with Bank): (1) **build first** — warn/block deactivating or deleting a Bank/Company that's still referenced by BankProfile/PI/PO/RO/Payment/Shipment (currently silent, no check at all); (2) flag Companies with no `types` assigned (invisible to every seller/buyer picker downstream); (3) tooltip on the truncated description column (both modules) | **Not started** — form UI already restructured this session (create form split into General/Classification tabs, `types` CheckboxList now full-width in its own tab, no longer collapsed) |
+| Other Master Data (EntityAttribute, NotificationSetting, Permission, Role, Status, User, Target) | not started | ✅ all 10 written by the user 2026-10-06 (68 tests; includes Status's own dedicated file too) | Target's exporter confirmed **NATIVE, needs conversion**; others unchecked | **Deliberately none for any of these seven** — settled 2026-10-06, see §4 | not started | **Model-test lane done; resource-test/ideator/QA lanes not started.** EntityAttribute/Permission/Role have no Create action at all (nothing to import into); NotificationSetting/User/Status do have Create but bulk import was explicitly declined for all three (low value for per-user config / security-sensitive for User / cache-dependency risk for Status) |
+
+**Pipeline order to follow** (per `CLAUDE.md`'s Project Domain section): Purchase Request → Proforma Invoice → Registered Order → Purchase Order → Payment → Shipment → Custom → Correspondence/BankProfile (already done) → Master Data. Shipment and Custom have both now completed Steps 2–6 (architecture-drift fixed, tests grown, reviewed, ideated) — each is pending Step 7 (user's browser QA) + Step 8 (changelog) before being marked fully **Done**. **Two cross-cutting, not-yet-fixed gaps surfaced during this review pass** (CSV formula-injection escaping missing on exporters' `creator`/`updater` columns; a blank value on a strict-match NOT-NULL FK import column reaches the DB instead of being rejected cleanly) — see `app/Services/Imports/importsPattern.md`'s "Known gaps" section, affects multiple already-"Done" modules, not just these two. Master Data audits are next once QA clears both Shipment and Custom.
+
+## 1. The per-module procedure — run every step, in order, for the module you're on
+
+### Step 1 — Data
+If the module's table is empty in the real dev MySQL DB, generate realistic mockup rows first (use the model's factory + relations; see how Purchase Order's mockup batch was built as the reference shape — check `git log --oneline -- database/factories` around 2026-10-03 if you need the exact script). Skip if rows already exist.
+
+### Step 2 — Architecture-drift audit (do this BEFORE writing tests — tests should lock in correct behavior, not a bug)
+Read the module's own `Resource.php` + its `Traits/{Form,Table,Infolist,Filters}.php` against `app/Filament/filamentPattern.md`'s canonical shape. Specifically check, because these exact gaps were found and fixed on Purchase Order and will likely recur:
+- **Exporter shape**: is `Exports/<X>Exporter.php` still a native Filament `Exporter` (blob-column `getColumns()`/`getRecords()` shape), or already converted to the shared plain-class `write(Builder, string): int` shape (parent/item-row split, BOM, formula-escaping, Jalali dates, own `columnLabels()`)? Compare against `PurchaseOrderExporter.php` or `RegisteredOrderExporter.php` as the reference. If still native, convert it + add `app/Jobs/Export<X>s.php` mirroring `ExportRegisteredOrders.php`, and repoint every RelationManager that references the old `ExportBulkAction::make()->exporter(...)` to `<X>Resource::getExportBulkAction()`.
+- **EAV search wiring**: does `getGloballySearchableAttributes()` call `withExtraAttributesSearch(...)`? Does the table's identifier column search also check `orWhereExtraAttributesMatch`? Purchase Order was missing this entirely before 2026-10-03 — check every remaining module for the same gap, it's a copy-paste-era omission, not module-specific.
+- **`HasExtraAttributesManagement`**: is it in the Resource's (and every sibling RelationManager's) `use` list? Required the moment EAV search is wired into a shared table-column method those RMs also use.
+
+### Step 3 — Bulk import decision (don't default to "build it," don't default to "skip it" — check)
+Read `app/Services/Imports/importsPattern.md`'s "Settled policy" section first — if this module is already explicitly decided there (like Correspondence's "export yes, import no"), follow that, don't re-litigate. If it's silent on this module:
+- A RelationManager-only child model never gets bulk import (industry-standard reason, see CLAUDE.md's Standing Gotchas — a RM has no way to scope an uploaded row to its specific owner).
+- A top-level list-page resource with a parent+repeatable-child-items shape (check its `Form.php` for a `Repeater` on line items) is the shape the existing importer pipeline is built for — mirror `RegisteredOrderImporter.php` + `RegisteredOrderItemImporter.php` exactly: one `<X>Importer.php` (parent columns, identifier column, strict-match FKs, fallback dates/enums) + one `<X>ItemImporter.php` (child rows), plus a `storage/app/import-examples/<x>-filled-example.csv` with 2-3 items per group, using the project's real localized enum labels (not invented ones — a wrong label throws `GroupRowFailedException`).
+- If the module has no repeatable child rows at all, it likely doesn't need the *Item importer half — check whether a single-level importer even makes sense for it before building one; if unsure whether to build any importer for this module at all, that's an architecturally significant call — follow CLAUDE.md's Complex lane (Fable 5 enrichment) rather than guessing silently.
+
+### Step 4 — Tests (per `tests/testPattern.md` §1, the authoritative convention — don't duplicate what's written there)
+Grow the existing `tests/Feature/Filament/<X>ResourceTest.php` and `tests/Feature/Models/<X>ModelTest.php` in place — never a companion file, even for import/export (see testPattern.md's explicit rule on this, it was violated once and reverted). Cover: permissions, list/search/EAV-search, every filter, create+validation, edit, infolist tabs, bulk actions, soft-delete, stacked-table, global-search, exporter round-trip, importer round-trip (success + at least one reject-path), and model-layer accessors/scopes/casts per the Model-layer bar in testPattern.md §2.
+
+### Step 5 — Review
+Spawn a `claude-reviewer` subagent (no model override) on the new/changed code — mandatory per CLAUDE.md's Review model, not optional for a Standard/Complex-lane change.
+
+### Step 6 — Ideation
+Spawn a `claude-ideator` subagent per `testPattern.md` §3b. It never implements — relay its ranked ideas to the user. An accepted idea re-enters the normal delegation flow (plan if non-trivial → code → test → review), it is not built inline during the ideation step.
+
+### Step 7 — Manual browser QA
+The user runs `tests/qa-checklist.html`'s 12-item checklist for this module in a real browser (this sandbox has no browser access). When they paste findings, record them into `tests/qa-findings.json` keyed by module+item code, including what's already fixed vs. still open. Act on anything actionable the same session.
+
+### Step 8 — Changelog
+Add one bullet per genuinely user-facing change (not test-only fixes, not refactors) to `tests/log/<module>.md`, written plainly per that file's convention (see `testPattern.md` §6) — only once the change is verified done, not while still in flight.
+
+### Step 9 — Sync, then move on
+All three lanes — tests+review, ideation, manual QA — finish before starting the next module (`testPattern.md` §3a). Update the status table in §0 of THIS file once a module is fully done, so the next session doesn't have to re-derive it.
+
+## 2. File location map
+
+| What you need | Where |
+|---|---|
+| Test-writing conventions, DB wiring, layer rules, trait-test-folder rule | `tests/testPattern.md` |
+| Bulk-import pipeline architecture (column taxonomy, pre/post-save stages, settled per-module import decisions) | `app/Services/Imports/importsPattern.md` |
+| Filament resource architecture, EAV, permissions, caching, the `FilamentViewActionDefaults`/other Configurators | `app/Filament/filamentPattern.md` |
+| Manual browser QA checklist (published Artifact + source) | `tests/qa-checklist.html` |
+| Raw QA investigation trail per module | `tests/qa-findings.json` |
+| User-facing changelog per module | `tests/log/<module>.md` |
+| Model trait composition, migrations | `app/Models/modelsPattern.md` |
+| Services inventory | `app/Services/servicesPattern.md` |
+| Full delegation-lane rules (Trivial/Standard/Complex, when Fable 5 is required) | `CLAUDE.md`'s "Agent pipeline policy" section |
+
+## 3. Test-run discipline — don't re-derive this, just follow it
+
+`testPattern.md` §3b (the one titled "Test-run discipline — settled protocol"): filtered single-method runs while iterating, the exact file(s) touched once at the end of a unit of work, full-suite only on explicit user request. Never a sweeping multi-module run as a self-invented "safety check."
+
+## 4. Settled per-module decisions — don't re-ask the user these
+
+- **Correspondence**: export yes (parity with PR/PI/RO/BankProfile), bulk import no — final, not a gap.
+- **Department**: excluded from `HasReliableCodeGeneration` (no auto-generated identifier column needing the race-condition fix).
+- **TargetResource**: Master-shaped (single `ManageTargets` page) but its folder lives under `Operational/`, not `Master/` — a naming mismatch, not a bug, don't "fix" the folder location.
+- **RelationManager child models** (Attachment, the `*Item` models, Specification, CorrespondenceRecipient): never get bulk import, inherit their parent's permission, never get their own `{child}.{action}` seeder rows.
+- **No bulk import, decided 2026-10-06 — Permission, Role, Target, EntityAttribute, NotificationSetting, User, Status** (alongside Correspondence above — 8 total). Permission/Role/EntityAttribute have no reason to re-litigate: no `CreateAction` exists on any of the three, so there's nothing to import into. Target, NotificationSetting, User, and Status DO have a real Create action — their exclusion is a judgment call, not a structural fact, each for its own reason: Target has no unique constraint at all so a generic importer would need a from-scratch dedup design for no clear payoff; NotificationSetting is per-user config, not shared reference data; User is a different risk class entirely (bulk account creation touches auth/password/role assignment); Status is referenced everywhere and `StatusObserver` invalidates `SmartCacheManager`/`StatusWorkflow` caches on save, so a bad bulk upload has wide blast radius for unclear benefit. All eight still get export where one doesn't already exist.
+- **A flat Master Data resource whose live form enforces real `->unique()` validation on its identifying column(s) (with no resubmission-as-update path — editing only ever happens through the Edit action) gets a CREATE-ONLY importer that REJECTS a matching row instead of updating it.** This is a deliberate deviation from the standard `ImportDefaults::resolveRecord()` match-then-update flow BankProfile/Department/Payment/Shipment use — override `resolveRecord()` directly to throw `RowImportFailedException` on a match rather than returning the existing record. Confirmed 2026-10-06 on Product (`code`), Category (computed `slug`, since `slug` itself is never user input — matched via `Str::slug($english_name)`), Bank (`english_name`), Currency (`english_name`); same policy will apply to Company (`name`/`english_name`, both `->unique()`) when its importer is built. Don't re-ask per module — check whether the live form's identifying field(s) carry a real `->unique()` rule with no update-via-resubmission UX; if so, this is the policy, not the generic match-or-create one.
+- **Category's `level` column is derived server-side from the resolved `parent_id` on import (`parent.level + 1`, or `0` if root) — never read from the CSV, never a template column.** The live form lets a human free-type `level` with no cross-check against `parent_id` (an acceptable single-record risk), but a bulk import multiplies one bad value across many rows with no error ever thrown, silently corrupting hierarchy-depth data. Decided 2026-10-06 specifically to minimize that blast radius — don't relax this to a plain passthrough column even if it would simplify the importer.

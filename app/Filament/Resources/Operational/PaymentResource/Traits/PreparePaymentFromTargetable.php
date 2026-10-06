@@ -32,7 +32,7 @@ trait PreparePaymentFromTargetable
                 continue;
             }
 
-            $data = $this->prepareData($model, []);
+            $data = static::prepareData($model, []);
             $data['targetable_type'] = $class;
             $data['targetable_id'] = $id;
 
@@ -42,18 +42,25 @@ trait PreparePaymentFromTargetable
         }
     }
 
-    protected function prepareData($targetModel, array $dataToFill): array
+    protected static function prepareData($targetModel, array $dataToFill): array
     {
         if (! $targetModel) {
             return $dataToFill;
         }
 
+        $dataToFill = static::copyTargetableAttributes($targetModel, $dataToFill);
+        $dataToFill['payment_no'] = CodeGenerator::generate('payment_no') ?? null;
+        $dataToFill['payment_date'] = now();
+
+        return $dataToFill;
+    }
+
+    protected static function copyTargetableAttributes($targetModel, array $dataToFill): array
+    {
         $dataToFill['payee_id'] = $targetModel->seller_id ?? null;
         $dataToFill['payor_id'] = $targetModel->company_id ?? $targetModel->buyer_id ?? null;
         $dataToFill['bank_id'] = $targetModel->bank_id ?? null;
         $dataToFill['currency_id'] = $targetModel->currency_id ?? null;
-        $dataToFill['payment_no'] = CodeGenerator::generate('payment_no') ?? null;
-        $dataToFill['payment_date'] = now();
 
         return $dataToFill;
     }

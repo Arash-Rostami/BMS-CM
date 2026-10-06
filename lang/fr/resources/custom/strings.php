@@ -27,7 +27,11 @@ return [
             'percentage' => 'Dédouanement en pourcentage',
         ],
     ],
+    'import' => [
+        'import_customs' => 'Importer Douanes et Dédouanement',
+    ],
     'export' => [
+        'export_customs' => 'Exporter Douanes et Dédouanement',
         'id' => 'ID',
         'custom_no' => 'N° de Douane',
         'declaration_no' => 'N° de Déclaration',
@@ -88,11 +92,13 @@ return [
         'helper_commitment_balance' => 'Solde d\'engagement en devise restant pour ce dédouanement.',
 
         'validation_required' => 'Ce champ est requis.',
+        'validation_exists' => "La valeur sélectionnée n'est pas valide.",
         'validation_unique' => 'Cette valeur existe déjà.',
         'validation_numeric' => 'Ce champ doit être un nombre.',
         'validation_date' => 'Veuillez entrer une date valide.',
         'validation_contract_no_max' => 'Le numéro de contrat ne doit pas dépasser 255 caractères.',
         'validation_declaration_no_max' => 'Le numéro de déclaration ne doit pas dépasser 255 caractères.',
+        'validation_declaration_no_unique' => 'Ce numéro de déclaration existe déjà.',
         'helper_clearance_type' => 'Sélectionnez le type de processus de dédouanement.',
     ],
     'table' => [
@@ -101,6 +107,9 @@ return [
         'updated_by' => 'Mis à jour par',
         'created_at' => 'Créé le',
         'updated_at' => 'Mis à jour le',
+        'exposure_flag' => 'Exposition Ouverte',
+        'clearance_aging_days' => 'Ancienneté du Dédouanement',
+        'days' => 'jours',
     ],
     'filters' => [
         'contract_no' => 'N° de Contrat',

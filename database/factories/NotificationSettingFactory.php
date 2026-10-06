@@ -14,7 +14,7 @@ class NotificationSettingFactory extends Factory
     {
         return [
             'settings' => [
-                'is_active' => fake()->boolean(),
+                'is_active' => true,
                 'actions' => fake()->randomElements(['create', 'update', 'delete'], fake()->numberBetween(1, 3)),
                 'columns' => fake()->randomElements(['name', 'status_id', 'user_id', 'created_at'], fake()->numberBetween(1, 4)),
                 'tables' => [fake()->word()],

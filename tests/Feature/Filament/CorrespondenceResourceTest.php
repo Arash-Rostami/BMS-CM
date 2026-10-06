@@ -7,6 +7,7 @@ use App\Filament\Resources\Operational\CorrespondenceResource\Exports\Correspond
 use App\Filament\Resources\Operational\CorrespondenceResource\Pages\CreateCorrespondence;
 use App\Filament\Resources\Operational\CorrespondenceResource\Pages\EditCorrespondence;
 use App\Filament\Resources\Operational\CorrespondenceResource\Pages\ListCorrespondences;
+use App\Models\Attachment;
 use App\Models\Correspondence;
 use App\Models\Permission;
 use App\Models\RegisteredOrder;
@@ -15,6 +16,7 @@ use App\Models\Status;
 use App\Models\User;
 use App\Services\SmartCacheManager;
 use App\Services\StatusWorkflow;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
@@ -120,6 +122,14 @@ class CorrespondenceResourceTest extends TestCase
         return ($reflection->getValue($tab))($record);
     }
 
+    private function repeatableItemComponents(RepeatableEntry $entry): array
+    {
+        $reflection = new ReflectionProperty($entry, 'childComponents');
+        $reflection->setAccessible(true);
+
+        return $reflection->getValue($entry)['default'];
+    }
+
     public function test_infolist_status_history_tab_renders_and_badge_matches_history_count(): void
     {
         app()->setLocale('en');
@@ -165,6 +175,18 @@ class CorrespondenceResourceTest extends TestCase
         $this->assertFalse(CorrespondenceResource::canEdit($record));
         $this->assertFalse(CorrespondenceResource::canDelete($record));
         $this->assertFalse(CorrespondenceResource::canRestore($record));
+    }
+
+    public function test_list_page_create_action_matches_the_app_wide_sparkles_icon(): void
+    {
+        $this->actingAsUserWithPermissions(['correspondence.view', 'correspondence.create']);
+
+        $component = Livewire::test(ListCorrespondences::class);
+        $reflection = new ReflectionMethod($component->instance(), 'getHeaderActions');
+        $reflection->setAccessible(true);
+        $actions = $reflection->invoke($component->instance());
+
+        $this->assertSame('heroicon-o-sparkles', $actions[0]->getIcon());
     }
 
     // List — search
@@ -336,12 +358,11 @@ class CorrespondenceResourceTest extends TestCase
 
     public function test_edit_page_loads_existing_values_and_persists_a_status_update(): void
     {
-        $this->markTestSkipped('fillForm() harness quirk — see tests/testPattern.md §3d. The required recipients_to Select is a plain (non-relationship) field alongside the relationship-bound status_id Select, so fillForm() nulls it out and blocks save.');
-
         $this->actingAsUserWithPermissions(['correspondence.edit', 'correspondence.view']);
         $statusA = $this->correspondenceStatus('EditStatusA');
         $statusB = $this->correspondenceStatus('EditStatusB');
         $record = Correspondence::factory()->create(['status_id' => $statusA->id]);
+        $record->recipients()->attach(User::factory()->create()->id, ['type' => 'to']);
 
         Livewire::test(EditCorrespondence::class, ['record' => $record->getRouteKey()])
             ->assertFormSet(['status_id' => $statusA->id])
@@ -397,13 +418,13 @@ class CorrespondenceResourceTest extends TestCase
     // Status workflow — HasStatusWorkflow wiring is a no-op today (no admin-configured stage_order/approval_permission
     // exists for Correspondence Status), and becomes a real gate once one is temporarily configured — see filamentPattern.md §1.12b
 
-    public function test_list_and_edit_pages_expose_the_status_workflow_pipeline_header_action(): void
+    public function test_only_the_edit_page_exposes_the_status_workflow_pipeline_header_action(): void
     {
         $this->actingAsUserWithPermissions(['correspondence.create', 'correspondence.view', 'correspondence.edit']);
         $record = Correspondence::factory()->create();
 
         Livewire::test(ListCorrespondences::class)
-            ->assertActionExists('statusWorkflowPipeline');
+            ->assertActionDoesNotExist('statusWorkflowPipeline');
 
         Livewire::test(EditCorrespondence::class, ['record' => $record->getRouteKey()])
             ->assertActionExists('statusWorkflowPipeline');
@@ -645,7 +666,7 @@ class CorrespondenceResourceTest extends TestCase
     }
 
     // Edit page save — warning notification fires only when a CC name fails to resolve
-    // (uses ->set('data.x', ...) rather than fillForm() to avoid the §3d harness bug)
+    // (uses ->set('data.x', ...); was a §3d fillForm() workaround, kept as a valid pattern)
 
     public function test_edit_page_save_warns_about_unresolved_cc_names(): void
     {
@@ -704,6 +725,26 @@ class CorrespondenceResourceTest extends TestCase
         $this->assertCount(17, CorrespondenceExporter::columnLabels());
     }
 
+    public function test_exporter_escapes_formula_injection_in_creator_and_updater_names(): void
+    {
+        app()->setLocale('en');
+        $ro = RegisteredOrder::factory()->create();
+
+        $creator = User::factory()->create(['name' => '=1+1']);
+        $this->actingAs($creator);
+        $record = Correspondence::factory()->forCorrespondable($ro)->create();
+
+        $updater = User::factory()->create(['name' => '+SUM(1,2)']);
+        $this->actingAs($updater);
+        $record->update(['subject' => 'Updated Subject For Stamp']);
+
+        ['rows' => [$row]] = $this->exportToRows(Correspondence::query()->whereKey($record->id));
+        $labels = CorrespondenceExporter::columnLabels();
+
+        $this->assertSame("'=1+1", $row[$labels['creator']]);
+        $this->assertSame("'+SUM(1,2)", $row[$labels['updater']]);
+    }
+
     public function test_exporter_write_emits_every_documented_column_with_resolved_values(): void
     {
         app()->setLocale('en');
@@ -753,5 +794,49 @@ class CorrespondenceResourceTest extends TestCase
 
         $this->assertSame(__('resources/correspondence/strings.export.thread_role_reply'), $replyRow[__('resources/correspondence/strings.export.thread_role')]);
         $this->assertSame('Root Export Subject', $replyRow[__('resources/correspondence/strings.export.parent_subject')]);
+    }
+
+    public function test_edit_form_shows_a_status_select_for_each_attachment(): void
+    {
+        $this->actingAsUserWithPermissions(['correspondence.view', 'correspondence.edit']);
+        $record = Correspondence::factory()->create();
+        $uploaded = Status::findBy(Attachment::TYPE_ATTACHMENT, Attachment::STATUS_UPLOADED);
+        $attachment = Attachment::factory()->forAttachable($record)->create(['status_id' => $uploaded->id]);
+
+        Livewire::test(EditCorrespondence::class, ['record' => $record->getRouteKey()])
+            ->assertSee($attachment->name ?: basename($attachment->path))
+            ->assertSee($uploaded->getLocalizedNameAttribute());
+    }
+
+    public function test_attachments_infolist_entry_wires_the_supersede_and_revert_actions(): void
+    {
+        $entry = collect($this->repeatableItemComponents(CorrespondenceResource::viewAttachments()))
+            ->first(fn ($component) => $component->getName() === 'status.name');
+
+        $reflection = new ReflectionProperty($entry, 'suffixActions');
+        $reflection->setAccessible(true);
+
+        $names = collect($reflection->getValue($entry))->map(fn ($action) => $action->getName())->all();
+
+        $this->assertSame(['supersedeAttachment', 'revertAttachment'], $names);
+    }
+
+    public function test_attachments_infolist_entry_splits_filename_and_status_three_to_two(): void
+    {
+        $entry = CorrespondenceResource::viewAttachments();
+
+        $columnsReflection = new ReflectionProperty($entry, 'columns');
+        $columnsReflection->setAccessible(true);
+        $this->assertSame(['lg' => 5], $columnsReflection->getValue($entry));
+
+        $components = collect($this->repeatableItemComponents($entry))->keyBy(fn ($component) => $component->getName());
+
+        $spanReflection = new ReflectionProperty($components['path'], 'columnSpan');
+        $spanReflection->setAccessible(true);
+        $this->assertSame(['default' => 1, 'lg' => 3], $spanReflection->getValue($components['path']));
+
+        $spanReflection = new ReflectionProperty($components['status.name'], 'columnSpan');
+        $spanReflection->setAccessible(true);
+        $this->assertSame(['default' => 1, 'lg' => 2], $spanReflection->getValue($components['status.name']));
     }
 }

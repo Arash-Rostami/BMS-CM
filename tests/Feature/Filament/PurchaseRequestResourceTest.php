@@ -3,6 +3,7 @@
 namespace Tests\Feature\Filament;
 
 use App\Filament\Actions\GroupedImportAction;
+use App\Filament\Actions\ImportAction;
 use App\Filament\Actions\RevertAttachmentAction;
 use App\Filament\Actions\SupersedeAttachmentAction;
 use App\Filament\Resources\General\FormComponents;
@@ -12,16 +13,20 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Imports\PurchaseR
 use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\CreatePurchaseRequest;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\EditPurchaseRequest;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\ListPurchaseRequests;
+use App\Filament\Resources\Operational\PurchaseRequestResource\RelationManagers\PurchaseOrdersRelationManager;
 use App\Filament\Resources\Operational\PurchaseRequestResource\RelationManagers\RegisteredOrderRelationManager as PurchaseRequestRegisteredOrderRelationManager;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\HandleStatusMutation;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\EditRegisteredOrder;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\PurchaseRequestsRelationManager;
+use App\Filament\Resources\PurchaseOrderResource;
 use App\Filament\Resources\PurchaseRequestResource;
+use App\Jobs\ExportPurchaseOrders;
 use App\Jobs\ImportGroupedCsv;
 use App\Models\Attachment;
 use App\Models\Department;
 use App\Models\Permission;
 use App\Models\Product;
+use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestItem;
 use App\Models\RegisteredOrder;
@@ -31,12 +36,15 @@ use App\Models\User;
 use App\Services\Imports\GroupRowFailedException;
 use App\Services\SmartCacheManager;
 use App\Services\StatusWorkflow;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\Imports\Models\Import;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -393,10 +401,20 @@ class PurchaseRequestResourceTest extends TestCase
 
     // Create
 
+    public function test_jalali_calendar_session_renders_the_jalali_date_picker_view(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.create', 'purchase_request.view']);
+        session(['calendar_type' => 'jalali']);
+
+        // Guards the app-level jalali-date-time-picker view override: Filament ≥4.13's
+        // DateTimePicker no longer injects $defaultFocusedDate, so the overridden view
+        // must provide it or every Jalali-session form render crashes.
+        Livewire::test(CreatePurchaseRequest::class)
+            ->assertSuccessful();
+    }
+
     public function test_create_happy_path_saves_with_server_forced_requester_and_department(): void
     {
-        $this->markTestSkipped('fillForm() harness quirk — see tests/testPattern.md §3d. Verified working in real browser QA.');
-
         $dept = Department::factory()->create();
         $user = $this->actingAsUserWithPermissions(['purchase_request.create', 'purchase_request.view']);
         $user->forceFill(['department_id' => $dept->id])->save();
@@ -433,8 +451,6 @@ class PurchaseRequestResourceTest extends TestCase
 
     public function test_create_requires_cost_center_and_a_future_required_by_date(): void
     {
-        $this->markTestSkipped('fillForm() harness quirk — see tests/testPattern.md §3d. Verified working in real browser QA.');
-
         $this->actingAsUserWithPermissions(['purchase_request.create', 'purchase_request.view']);
         $status = $this->prStatus('Under Review');
 
@@ -500,8 +516,6 @@ class PurchaseRequestResourceTest extends TestCase
 
     public function test_declined_status_requires_a_rejection_reason(): void
     {
-        $this->markTestSkipped('fillForm() harness quirk — see tests/testPattern.md §3d. Verified working in real browser QA.');
-
         $this->actingAsUserWithPermissions(['purchase_request.create', 'purchase_request.view']);
         $declined = $this->prStatus('Declined');
         $costCenter = Department::factory()->create();
@@ -518,10 +532,8 @@ class PurchaseRequestResourceTest extends TestCase
             ->assertHasFormErrors(['rejection_reason' => 'required']);
     }
 
-    public function test_declined_status_with_a_rejection_reason_saves_successfully(): void
+    public function test_create_page_forces_workflow_initial_status_overriding_a_filled_declined_status(): void
     {
-        $this->markTestSkipped('fillForm() harness quirk — see tests/testPattern.md §3d. Verified working in real browser QA.');
-
         $dept = Department::factory()->create();
         $user = $this->actingAsUserWithPermissions(['purchase_request.create', 'purchase_request.view']);
         $user->forceFill(['department_id' => $dept->id])->save();
@@ -552,13 +564,19 @@ class PurchaseRequestResourceTest extends TestCase
             ->assertHasNoErrors();
 
         $record = PurchaseRequest::where('cost_center_id', $costCenter->id)->firstOrFail();
-        $this->assertSame('Budget exceeded', $record->rejection_reason);
+
+        // Status-workflow: create always forces the workflow-initial status
+        // (applyInitialStatusOnCreate), and since that status is not Declined,
+        // mutateStatusData nulls the filled rejection_reason — do not "simplify"
+        // that nulling away, it is the guard making Declined impossible on create.
+        $initial = StatusWorkflow::initialFor(PurchaseRequestResource::statusWorkflowType());
+        $this->assertNotNull($initial);
+        $this->assertTrue($initial->is($record->status));
+        $this->assertNull($record->rejection_reason);
     }
 
     public function test_creating_a_second_recent_request_for_the_same_cost_center_warns_but_does_not_block(): void
     {
-        $this->markTestSkipped('fillForm() harness quirk — see tests/testPattern.md §3d. Verified working in real browser QA.');
-
         $dept = Department::factory()->create();
         $user = $this->actingAsUserWithPermissions(['purchase_request.create', 'purchase_request.view']);
         $user->forceFill(['department_id' => $dept->id])->save();
@@ -589,6 +607,13 @@ class PurchaseRequestResourceTest extends TestCase
             ->call('create')
             ->assertHasNoErrors();
 
+        // Filament ≥4.13's Livewire dehydrate hook claims session notifications
+        // into `filament.claimed_notifications` on every non-redirect request —
+        // including the second component's initial mount — and assertNotified()'s
+        // internal mount pulls `claimed ?? notifications`, so the stale claimed
+        // array short-circuits and hides the second create's own notification.
+        session()->forget(['filament.notifications', 'filament.claimed_notifications']);
+
         Livewire::test(CreatePurchaseRequest::class)
             ->fillForm($formData())
             ->call('create')
@@ -602,8 +627,6 @@ class PurchaseRequestResourceTest extends TestCase
 
     public function test_edit_page_loads_existing_values_and_persists_an_update(): void
     {
-        $this->markTestSkipped('fillForm() harness quirk — see tests/testPattern.md §3d. Verified working in real browser QA.');
-
         $this->actingAsUserWithPermissions(['purchase_request.edit', 'purchase_request.view']);
         $status = $this->prStatus('Under Review');
         $record = PurchaseRequest::factory()->create([
@@ -836,35 +859,51 @@ class PurchaseRequestResourceTest extends TestCase
         );
     }
 
-    public function test_list_and_edit_pages_expose_the_status_workflow_pipeline_header_action(): void
+    public function test_only_the_edit_page_exposes_the_status_workflow_pipeline_header_action(): void
     {
         $this->actingAsUserWithPermissions(['purchase_request.create', 'purchase_request.view', 'purchase_request.edit']);
         $record = PurchaseRequest::factory()->create();
 
         Livewire::test(ListPurchaseRequests::class)
-            ->assertActionExists('statusWorkflowPipeline');
+            ->assertActionDoesNotExist('statusWorkflowPipeline');
 
         Livewire::test(EditPurchaseRequest::class, ['record' => $record->getRouteKey()])
             ->assertActionExists('statusWorkflowPipeline');
     }
 
-    public function test_edit_form_shows_the_attachment_status_repeater_with_supersede_and_revert_actions(): void
+    public function test_edit_form_shows_a_status_select_for_each_attachment(): void
     {
         $this->actingAsUserWithPermissions(['purchase_request.edit', 'purchase_request.view']);
         $record = PurchaseRequest::factory()->create();
         $uploaded = Status::findBy(Attachment::TYPE_ATTACHMENT, Attachment::STATUS_UPLOADED);
-        Attachment::factory()->forAttachable($record)->create(['status_id' => $uploaded->id]);
+        $attachment = Attachment::factory()->forAttachable($record)->create(['status_id' => $uploaded->id]);
 
         Livewire::test(EditPurchaseRequest::class, ['record' => $record->getRouteKey()])
-            ->assertSee(__('resources/general/strings.attachments.mark_superseded'));
+            ->assertSee($attachment->name ?: basename($attachment->path))
+            ->assertSee($uploaded->getLocalizedNameAttribute());
     }
 
-    public function test_create_form_does_not_show_the_attachment_status_repeater_before_a_record_exists(): void
+    public function test_edit_form_shows_a_link_card_only_once_an_attachment_status_has_changed(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.edit', 'purchase_request.view']);
+        $record = PurchaseRequest::factory()->create();
+        $superseded = Status::findBy(Attachment::TYPE_ATTACHMENT, Attachment::STATUS_SUPERSEDED);
+        $attachment = Attachment::factory()->forAttachable($record)->create(['status_id' => $superseded->id]);
+
+        $html = Livewire::test(EditPurchaseRequest::class, ['record' => $record->getRouteKey()])->html();
+
+        $this->assertStringContainsString('href="'.Storage::disk('public')->url($attachment->path).'"', $html);
+        $this->assertStringContainsString($superseded->getLocalizedNameAttribute(), $html);
+    }
+
+    public function test_create_form_does_not_show_the_attachment_status_manager_before_a_record_exists(): void
     {
         $this->actingAsUserWithPermissions(['purchase_request.create']);
 
+        $superseded = Status::findBy(Attachment::TYPE_ATTACHMENT, Attachment::STATUS_SUPERSEDED);
+
         Livewire::test(CreatePurchaseRequest::class)
-            ->assertDontSee(__('resources/general/strings.attachments.mark_superseded'));
+            ->assertDontSee($superseded->getLocalizedNameAttribute());
     }
 
     public function test_editing_status_forward_without_the_gating_permission_is_rejected_server_side(): void
@@ -988,6 +1027,19 @@ class PurchaseRequestResourceTest extends TestCase
         $this->assertTrue($field->isDeletable());
     }
 
+    public function test_attachments_field_prevents_file_path_tampering_but_allows_temp_and_owned_paths(): void
+    {
+        $record = PurchaseRequest::factory()->create();
+        Attachment::factory()->forAttachable($record)->create(['path' => 'attachments/purchaseRequest/real-file.pdf']);
+        $record->load('attachments');
+
+        $field = FormComponents::getAttachmentsField()->model($record);
+
+        $this->assertTrue($field->isFilePathAuthorized('attachments/purchaseRequest/real-file.pdf'));
+        $this->assertTrue($field->isFilePathAuthorized('temp/some-upload.pdf'));
+        $this->assertFalse($field->isFilePathAuthorized('attachments/otherModel/secret.pdf'));
+    }
+
     public function test_mark_as_superseded_and_revert_actions_transition_the_attachment_status(): void
     {
         $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_request.edit']);
@@ -1047,6 +1099,25 @@ class PurchaseRequestResourceTest extends TestCase
         $names = collect($reflection->getValue($entry))->map(fn ($action) => $action->getName())->all();
 
         $this->assertSame(['supersedeAttachment', 'revertAttachment'], $names);
+    }
+
+    public function test_attachments_infolist_entry_splits_filename_and_status_three_to_two(): void
+    {
+        $entry = PurchaseRequestResource::viewAttachments();
+
+        $columnsReflection = new ReflectionProperty($entry, 'columns');
+        $columnsReflection->setAccessible(true);
+        $this->assertSame(['lg' => 5], $columnsReflection->getValue($entry));
+
+        $components = collect($this->repeatableItemComponents($entry))->keyBy(fn ($component) => $component->getName());
+
+        $spanReflection = new ReflectionProperty($components['path'], 'columnSpan');
+        $spanReflection->setAccessible(true);
+        $this->assertSame(['default' => 1, 'lg' => 3], $spanReflection->getValue($components['path']));
+
+        $spanReflection = new ReflectionProperty($components['status.name'], 'columnSpan');
+        $spanReflection->setAccessible(true);
+        $this->assertSame(['default' => 1, 'lg' => 2], $spanReflection->getValue($components['status.name']));
     }
 
     public function test_return_for_revision_requires_a_reason(): void
@@ -1284,6 +1355,7 @@ class PurchaseRequestResourceTest extends TestCase
         $product = Product::factory()->create();
 
         $countBefore = PurchaseRequest::withTrashed()->count();
+        $itemCountBefore = PurchaseRequestItem::withTrashed()->where('product_id', $product->id)->count();
 
         try {
             $this->invokeMergedImporter([
@@ -1304,6 +1376,7 @@ class PurchaseRequestResourceTest extends TestCase
             $this->fail('Expected GroupRowFailedException was not thrown.');
         } catch (GroupRowFailedException) {
             $this->assertSame($countBefore, PurchaseRequest::withTrashed()->count(), 'A failed item row must roll back the parent record too — no orphan purchase request should be persisted.');
+            $this->assertSame($itemCountBefore, PurchaseRequestItem::withTrashed()->where('product_id', $product->id)->count(), 'The first (successfully-inserted-then-rolled-back) item row must not survive the parent savepoint rollback either — zero rows committed for the whole failed group.');
         }
     }
 
@@ -2085,6 +2158,16 @@ class PurchaseRequestResourceTest extends TestCase
         $this->assertSame('', $itemRow[$labels['item_notes']]);
     }
 
+    public function test_exporter_escapes_formula_injection_in_notes(): void
+    {
+        $record = PurchaseRequest::factory()->create(['notes' => '=1+1']);
+
+        ['rows' => [$parentRow]] = $this->exportToRows(PurchaseRequest::query()->whereKey($record->id));
+        $labels = PurchaseRequestImporter::columnLabels();
+
+        $this->assertSame("'=1+1", $parentRow[$labels['notes']]);
+    }
+
     public function test_export_then_reimport_round_trip_produces_no_changes_and_no_failures(): void
     {
         $requester = User::factory()->create();
@@ -2232,6 +2315,41 @@ class PurchaseRequestResourceTest extends TestCase
         $this->assertSame($pr->statusHistories->count(), $this->statusHistoryTabBadge($tab, $pr));
     }
 
+    // Filament v4.13 pilot features
+
+    public function test_extra_attributes_form_tab_defers_loading_of_the_repeater_schema(): void
+    {
+        $tab = PurchaseRequestResource::getExtraAttributesFormTab();
+
+        $reflection = new ReflectionProperty($tab, 'childComponents');
+        $reflection->setAccessible(true);
+        $schema = $reflection->getValue($tab)['default'];
+
+        $this->assertInstanceOf(Schema::class, $schema);
+        $this->assertTrue($schema->isLoadingDeferred());
+    }
+
+    public function test_extra_attributes_infolist_tab_defers_loading_of_the_repeater_schema(): void
+    {
+        $tab = PurchaseRequestResource::getExtraAttributesInfolistTab();
+
+        $reflection = new ReflectionProperty($tab, 'childComponents');
+        $reflection->setAccessible(true);
+        $schema = $reflection->getValue($tab)['default'];
+
+        $this->assertInstanceOf(Schema::class, $schema);
+        $this->assertTrue($schema->isLoadingDeferred());
+    }
+
+    public function test_table_is_stacked_on_mobile(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.view']);
+
+        $instance = Livewire::test(ListPurchaseRequests::class);
+
+        $this->assertTrue($instance->instance()->getTable()->isStackedOnMobile());
+    }
+
     // Global search contract
 
     public function test_global_search_title_uses_cart_emoji_prefix_and_pr_number(): void
@@ -2244,5 +2362,129 @@ class PurchaseRequestResourceTest extends TestCase
     public function test_globally_searchable_attributes_include_pr_number(): void
     {
         $this->assertContains('pr_number', PurchaseRequestResource::getGloballySearchableAttributes());
+    }
+
+    // PurchaseOrdersRelationManager — the PO tab on the PR edit page (create gated on owner status)
+
+    public function test_purchase_orders_relation_manager_renders_and_shows_only_rows_linked_to_the_owner(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_order.view']);
+
+        $owner = PurchaseRequest::factory()->create();
+        $linked = PurchaseOrder::factory()->create();
+        $unlinked = PurchaseOrder::factory()->create();
+        $owner->purchaseOrders()->attach($linked->id);
+
+        Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditPurchaseRequest::class,
+        ])
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$linked])
+            ->assertCanNotSeeTableRecords([$unlinked]);
+    }
+
+    public function test_purchase_orders_relation_manager_search_narrows_the_table(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_order.view']);
+
+        $owner = PurchaseRequest::factory()->create();
+        $match = PurchaseOrder::factory()->create();
+        $noMatch = PurchaseOrder::factory()->create();
+        $owner->purchaseOrders()->attach([$match->id, $noMatch->id]);
+
+        PurchaseOrder::whereKey($match->id)->update(['po_number' => 'PRRM-PO-TARGET-'.$match->id]);
+        PurchaseOrder::whereKey($noMatch->id)->update(['po_number' => 'PRRM-PO-OTHER-'.$noMatch->id]);
+
+        Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditPurchaseRequest::class,
+        ])
+            ->searchTable('PRRM-PO-TARGET-'.$match->id)
+            ->assertCanSeeTableRecords([$match])
+            ->assertCanNotSeeTableRecords([$noMatch]);
+    }
+
+    public function test_purchase_orders_relation_manager_sort_toggles_a_sortable_column(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_order.view']);
+
+        $owner = PurchaseRequest::factory()->create();
+        $first = PurchaseOrder::factory()->create();
+        $second = PurchaseOrder::factory()->create();
+        $owner->purchaseOrders()->attach([$first->id, $second->id]);
+
+        Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditPurchaseRequest::class,
+        ])
+            ->sortTable('id', 'asc')
+            ->assertCanSeeTableRecords([$first, $second], inOrder: true)
+            ->sortTable('id', 'desc')
+            ->assertCanSeeTableRecords([$second, $first], inOrder: true);
+    }
+
+    public function test_purchase_orders_relation_manager_create_action_links_to_the_create_page_with_the_owner_prefill(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_order.view']);
+
+        $owner = PurchaseRequest::factory()->create(['status_id' => $this->prStatus('Authorized')->id]);
+
+        Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditPurchaseRequest::class,
+        ])->assertTableActionHasUrl('create', PurchaseOrderResource::getUrl('create', ['purchase_request_id' => $owner->id]));
+    }
+
+    public function test_purchase_orders_relation_manager_export_bulk_action_runs_without_error(): void
+    {
+        Queue::fake();
+        $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_order.view']);
+
+        $owner = PurchaseRequest::factory()->create();
+        $record = PurchaseOrder::factory()->create();
+        $owner->purchaseOrders()->attach($record->id);
+
+        Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditPurchaseRequest::class,
+        ])
+            ->callTableBulkAction('exportPurchaseOrders', [$record])
+            ->assertHasNoTableActionErrors();
+
+        Queue::assertPushed(ExportPurchaseOrders::class, fn (ExportPurchaseOrders $job) => $job->ids === [$record->id]);
+    }
+
+    public function test_purchase_orders_relation_manager_offers_no_bulk_import_action(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_order.view']);
+
+        $owner = PurchaseRequest::factory()->create();
+
+        $table = Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditPurchaseRequest::class,
+        ])->instance()->getTable();
+
+        $headerActions = collect($table->getHeaderActions())
+            ->flatMap(fn ($action) => $action instanceof ActionGroup ? $action->getActions() : [$action]);
+
+        $this->assertTrue($headerActions->contains(fn ($action) => $action->getName() === 'create'));
+
+        $this->assertCount(0, $headerActions->filter(
+            fn ($action) => $action instanceof ImportAction || str_contains(mb_strtolower($action->getName()), 'import')
+        ), 'A RelationManager must never offer bulk import (importsPattern.md).');
+    }
+
+    public function test_purchase_orders_relation_manager_create_action_stays_hidden_until_the_owner_is_authorized(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_order.view']);
+
+        $owner = PurchaseRequest::factory()->create(['status_id' => $this->prStatus('Draft')->id]);
+
+        Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditPurchaseRequest::class,
+        ])->assertTableActionHidden('create');
     }
 }

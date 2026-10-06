@@ -1,4 +1,4 @@
-<div class="hidden shrink-0 items-center lg:flex" style="order: 2">
+<div class="hidden shrink-0 items-center lg:flex" style="order: 1">
     <x-icon-button
         x-cloak
         x-show="!$store.isFullscreen"

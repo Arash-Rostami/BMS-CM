@@ -137,6 +137,7 @@ class RegisteredOrderResource extends Resource
                                                 ]),
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
+                                                FormComponents::getAttachmentStatusManager(),
                                             ]),
                                     ])
                                     ->columnSpan(['lg' => 1]),

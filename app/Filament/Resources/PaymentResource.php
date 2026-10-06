@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\General\FormComponents;
 use App\Filament\Resources\General\InfoComponents;
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\PaymentResource\Exports\PaymentExporter;
 use App\Filament\Resources\Operational\PaymentResource\Pages\CreatePayment;
 use App\Filament\Resources\Operational\PaymentResource\Pages\EditPayment;
 use App\Filament\Resources\Operational\PaymentResource\Pages\ListPayments;
@@ -30,7 +29,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -105,6 +103,7 @@ class PaymentResource extends Resource
                                             ->schema([
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
+                                                FormComponents::getAttachmentStatusManager(),
                                             ])
                                             ->disabled(fn (Get $get): bool => ! static::isTargetSelected($get))
                                             ->hidden(fn (Get $get): bool => ! static::isTargetSelected($get))
@@ -208,7 +207,7 @@ class PaymentResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['payment_no', 'beneficiary_name', 'account_no', 'swift', 'iban'];
+        return static::withExtraAttributesSearch(['payment_no', 'beneficiary_name', 'account_no', 'swift', 'iban']);
     }
 
     public static function getModelLabel(): string
@@ -324,13 +323,13 @@ class PaymentResource extends Resource
                 static::showPayor(),
                 static::showPayee(),
                 static::showTotalAmount(),
+                static::showTotalMatch(),
                 static::showStatus(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
                 static::getStatusWorkflowProgressColumn(),
-
             ])
             ->filters([
                 static::getTargetableFilter(),
@@ -353,8 +352,7 @@ class PaymentResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(PaymentExporter::class),
+                    static::getExportBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),

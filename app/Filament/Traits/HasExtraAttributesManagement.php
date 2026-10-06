@@ -9,6 +9,7 @@ use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
 
 trait HasExtraAttributesManagement
 {
@@ -28,9 +29,12 @@ trait HasExtraAttributesManagement
     {
         return Tab::make(__('resources/entityAttribute/strings.general.plural_model_label'))
             ->icon('heroicon-o-puzzle-piece')
-            ->schema([
-                static::buildExtraAttributesRepeater(),
-            ]);
+            ->schema(
+                Schema::make()
+                    ->key('extraAttributesRepeater')
+                    ->components([static::buildExtraAttributesRepeater()])
+                    ->deferLoading()
+            );
     }
 
     public static function getExtraAttributesFormSection(): Section
@@ -51,29 +55,34 @@ trait HasExtraAttributesManagement
             ->icon('heroicon-o-puzzle-piece')
             ->badge(fn ($record) => $record?->extraAttributes->count() ?: null)
             ->badgeColor('primary')
-            ->schema([
-                Section::make()->schema([
-                    RepeatableEntry::make('extraAttributes')
-                        ->hiddenLabel()
-                        ->schema([
-                            TextEntry::make('key')
-                                ->label(__('resources/general/strings.extra_attributes.key'))
-                                ->badge()
-                                ->color('gray')
-                                ->icon('heroicon-m-key'),
-                            TextEntry::make('value')
-                                ->label(__('resources/general/strings.extra_attributes.value'))
-                                ->formatStateUsing(fn ($state): string => match (true) {
-                                    is_string($state) => $state,
-                                    is_null($state) => '',
-                                    default => json_encode($state, JSON_UNESCAPED_UNICODE),
-                                })
-                                ->icon('heroicon-m-document-text')
-                                ->placeholder('-'),
-                        ])
-                        ->columns(2),
-                ]),
-            ]);
+            ->schema(
+                Schema::make()
+                    ->key('extraAttributesInfolist')
+                    ->components([
+                        Section::make()->schema([
+                            RepeatableEntry::make('extraAttributes')
+                                ->hiddenLabel()
+                                ->schema([
+                                    TextEntry::make('key')
+                                        ->label(__('resources/general/strings.extra_attributes.key'))
+                                        ->badge()
+                                        ->color('gray')
+                                        ->icon('heroicon-m-key'),
+                                    TextEntry::make('value')
+                                        ->label(__('resources/general/strings.extra_attributes.value'))
+                                        ->formatStateUsing(fn ($state): string => match (true) {
+                                            is_string($state) => $state,
+                                            is_null($state) => '',
+                                            default => json_encode($state, JSON_UNESCAPED_UNICODE),
+                                        })
+                                        ->icon('heroicon-m-document-text')
+                                        ->placeholder('-'),
+                                ])
+                                ->columns(2),
+                        ]),
+                    ])
+                    ->deferLoading()
+            );
     }
 
     protected static function buildExtraAttributesRepeater(): Repeater

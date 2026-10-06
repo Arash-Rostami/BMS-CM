@@ -22,6 +22,7 @@ class FilamentAssets
             Js::make('topbar-autohide-js', Vite::asset('resources/js/filament/topbar-autohide.js')),
             Js::make('auto-close-js', Vite::asset('resources/js/filament/auto-close.js')),
             Js::make('table-density-js', Vite::asset('resources/js/filament/table-density.js')),
+            Js::make('table-stacking-js', Vite::asset('resources/js/filament/table-stacking.js')),
             Js::make('fullscreen-js', Vite::asset('resources/js/filament/fullscreen.js')),
             Js::make('recents-js', Vite::asset('resources/js/filament/recents.js')),
             Js::make('filepond-locale-js', Vite::asset('resources/js/filament/filepond-locale.js')),

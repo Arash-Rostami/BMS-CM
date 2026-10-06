@@ -1,4 +1,4 @@
-<div class="hidden shrink-0 items-center lg:flex" style="order: 4">
+<div class="hidden shrink-0 items-center lg:flex" style="order: 5">
     <x-icon-button
         x-cloak
         x-show="$store.navDock === 'side'"

@@ -32,7 +32,11 @@ trait Form
             ->disableOptionWhen(fn ($value, ?Model $record): bool => ! ($target = Status::find($value))
                 || ! StatusWorkflow::canSet(auth()->user(), $target, $record?->{$relation}))
             ->searchable()
-            ->preload();
+            ->preload()
+            ->validationAttribute($label)
+            ->validationMessages([
+                'in' => __('resources/custom/strings.form.validation_exists'),
+            ]);
     }
 
     protected static function availableWorkflowStatusIds(string $type, string $relation, ?Model $record): array
@@ -94,6 +98,7 @@ trait Form
             ->native(false)
             ->searchable()
             ->preload()
+            ->live()
             ->helperText(__('resources/custom/strings.form.helper_clearance_type'));
     }
 
@@ -156,9 +161,11 @@ trait Form
         return TextInput::make('declaration_no')
             ->label(__('resources/custom/strings.form.declaration_no'))
             ->maxLength(255)
+            ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
             ->validationAttribute(__('resources/custom/strings.form.declaration_no'))
             ->validationMessages([
                 'max' => __('resources/custom/strings.form.validation_declaration_no_max'),
+                'unique' => __('resources/custom/strings.form.validation_declaration_no_unique'),
             ])
             ->helperText(__('resources/custom/strings.form.helper_declaration_no'));
     }
@@ -196,6 +203,7 @@ trait Form
             ->validationAttribute(__('resources/custom/strings.form.registered_order'))
             ->validationMessages([
                 'required' => __('resources/custom/strings.form.validation_required'),
+                'in' => __('resources/custom/strings.form.validation_exists'),
             ]);
     }
 
@@ -205,6 +213,7 @@ trait Form
             ->label(__('resources/custom/strings.form.rial_return_date'))
             ->native(false)
             ->adaptive()
+            ->visible(fn (Get $get) => $get('clearance_type') === 'percentage')
             ->validationAttribute(__('resources/custom/strings.form.rial_return_date'))
             ->validationMessages([
                 'date' => __('resources/custom/strings.form.validation_date'),
@@ -231,6 +240,7 @@ trait Form
             ->validationAttribute(__('resources/custom/strings.form.shipment'))
             ->validationMessages([
                 'required' => __('resources/custom/strings.form.validation_required'),
+                'in' => __('resources/custom/strings.form.validation_exists'),
             ]);
     }
 
@@ -240,6 +250,7 @@ trait Form
             ->label(__('resources/custom/strings.form.ten_percent_exit_date'))
             ->native(false)
             ->adaptive()
+            ->visible(fn (Get $get) => $get('clearance_type') === 'percentage')
             ->validationAttribute(__('resources/custom/strings.form.ten_percent_exit_date'))
             ->validationMessages([
                 'date' => __('resources/custom/strings.form.validation_date'),

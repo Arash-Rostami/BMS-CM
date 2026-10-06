@@ -72,6 +72,41 @@ class ExportDepartmentsTest extends TestCase
         });
     }
 
+    public function test_handle_neutralizes_leading_formula_characters_in_free_text_fields(): void
+    {
+        $user = User::factory()->create();
+        $record = Department::factory()->create(['description' => '=cmd|/c calc']);
+
+        $job = new ExportDepartments([$record->id], $user->id, 'en');
+        $job->handle();
+
+        $csv = Storage::disk('local')->get(Storage::disk('local')->files("exports/{$user->id}")[0]);
+        $this->assertStringNotContainsString(",=cmd", $csv);
+        $this->assertStringContainsString(",\"'=cmd", $csv);
+    }
+
+    public function test_handle_neutralizes_formula_characters_in_creator_and_updater_names(): void
+    {
+        $exportingUser = User::factory()->create();
+
+        $creator = User::factory()->create(['name' => '=1+1']);
+        $this->actingAs($creator);
+        $record = Department::factory()->create();
+
+        $updater = User::factory()->create(['name' => '+SUM(1,2)']);
+        $this->actingAs($updater);
+        $record->update(['description' => 'triggers updated_by_id']);
+
+        $job = new ExportDepartments([$record->id], $exportingUser->id, 'en');
+        $job->handle();
+
+        $csv = Storage::disk('local')->get(Storage::disk('local')->files("exports/{$exportingUser->id}")[0]);
+        $this->assertStringNotContainsString(',=1+1', $csv);
+        $this->assertStringContainsString("'=1+1", $csv);
+        $this->assertStringNotContainsString(',+SUM(1,2)', $csv);
+        $this->assertStringContainsString(",\"'+SUM(1,2)", $csv);
+    }
+
     public function test_handle_writes_an_empty_csv_and_still_succeeds_when_no_records_match(): void
     {
         $user = User::factory()->create();

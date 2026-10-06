@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Operational\CustomResource\RelationManagers;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\ShipmentResource\Exports\ShipmentExporter;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Filters as ShipmentFilters;
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Table as ShipmentTable;
 use App\Filament\Resources\ShipmentResource;
@@ -11,7 +10,6 @@ use App\Filament\Traits\HandlesActionExceptions;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -86,8 +84,7 @@ class ShipmentRelationManager extends RelationManager
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(ShipmentExporter::class),
+                    ShipmentResource::getExportBulkAction(),
                 ]),
             ])
             ->striped()

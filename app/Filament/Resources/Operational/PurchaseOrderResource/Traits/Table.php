@@ -2,14 +2,50 @@
 
 namespace App\Filament\Resources\Operational\PurchaseOrderResource\Traits;
 
+use App\Filament\Actions\GroupedImportAction;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Enums\Source;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Enums\Status;
+use App\Filament\Resources\Operational\PurchaseOrderResource\Imports\PurchaseOrderImporter;
+use App\Filament\Resources\PurchaseOrderResource;
+use App\Jobs\ExportPurchaseOrders;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getImportAction(): GroupedImportAction
+    {
+        return GroupedImportAction::make('importPurchaseOrders')
+            ->label(__('resources/purchaseOrder/strings.import.import_orders'))
+            ->modalHeading(__('resources/purchaseOrder/strings.import.import_orders'))
+            ->icon('heroicon-o-arrow-up-tray')
+            ->importer(PurchaseOrderImporter::class)
+            ->resourceGate(PurchaseOrderResource::class)
+            ->itemDiscriminatorColumn('product_id')
+            ->itemOnlyColumns(['quantity', 'unit', 'unit_price', 'net_weight', 'gross_weight', 'description']);
+    }
+
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportPurchaseOrders')
+            ->label(__('resources/purchaseOrder/strings.export.export_orders'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => PurchaseOrderResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportPurchaseOrders::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showBuyer(): TextColumn
     {
         return TextColumn::make('buyerCompany.name')
@@ -58,11 +94,36 @@ trait Table
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
+    public static function isValidityLapsed($record): bool
+    {
+        return $record?->validity_date
+            && $record->validity_date->isPast()
+            && (int) ($record->payments_count ?? 0) === 0;
+    }
+
+    public static function showValidityDate(): TextColumn
+    {
+        return TextColumn::make('validity_date')
+            ->label(__('resources/purchaseOrder/strings.form.validity_date'))
+            ->formatStateUsing(fn (?string $state, $record) => match (true) {
+                blank($state) => null,
+                static::isValidityLapsed($record) => __('resources/purchaseOrder/strings.table.validity_expired'),
+                default => adaptiveDate($state),
+            })
+            ->badge(fn ($record): bool => static::isValidityLapsed($record))
+            ->color(fn ($record): ?string => static::isValidityLapsed($record) ? 'danger' : null)
+            ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
     public static function showPoNumber(): TextColumn
     {
         return TextColumn::make('po_number')
             ->label(__('resources/purchaseOrder/strings.table.po_number'))
-            ->searchable()
+            ->searchable(query: fn (Builder $query, string $search): Builder => PurchaseOrderResource::orWhereExtraAttributesMatch(
+                $query->where('po_number', 'like', "%{$search}%"),
+                $search
+            ))
             ->badge()
             ->copyable()
             ->sortable()

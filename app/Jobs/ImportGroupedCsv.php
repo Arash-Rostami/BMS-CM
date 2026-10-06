@@ -8,6 +8,7 @@ use Filament\Actions\Imports\Exceptions\RowImportFailedException;
 use Filament\Actions\Imports\Jobs\ImportCsv as BaseImportCsv;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Query\Expression;
+use Illuminate\Database\QueryException;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -48,6 +49,10 @@ class ImportGroupedCsv extends BaseImportCsv
         $groups = is_array($this->rows) ? $this->rows : unserialize(base64_decode($this->rows));
 
         DB::transaction(function () use (&$processedRows, $groups, &$successfulRows): void {
+            $processedRows = 0;
+            $successfulRows = 0;
+            $this->failedRows = [];
+
             foreach ($groups as $group) {
                 $physicalRowCount = 1 + count($group['items']);
 
@@ -68,6 +73,13 @@ class ImportGroupedCsv extends BaseImportCsv
                     $this->logGroupFailure($group, null, $exception->getMessage());
                 } catch (ValidationException $exception) {
                     $this->logGroupFailure($group, null, collect($exception->errors())->flatten()->implode(' '));
+                } catch (QueryException $exception) {
+                    if ($this->importer::isDeadlock($exception)) {
+                        throw $exception;
+                    }
+
+                    report($exception);
+                    $this->logGroupFailure($group, null, null);
                 } catch (Throwable $exception) {
                     report($exception);
                     $this->logGroupFailure($group, null, null);
@@ -101,7 +113,7 @@ class ImportGroupedCsv extends BaseImportCsv
                 ]);
 
             $this->import->failedRows()->createMany($this->failedRows);
-        });
+        }, 3);
 
         $this->import->refresh();
 

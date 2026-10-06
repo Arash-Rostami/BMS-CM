@@ -2,16 +2,54 @@
 
 namespace App\Filament\Resources\Operational\CustomResource\Traits;
 
+use App\Filament\Actions\ImportAction;
+use App\Filament\Resources\CustomResource;
 use App\Filament\Resources\Operational\CustomResource\Enums\ClearanceStatus;
 use App\Filament\Resources\Operational\CustomResource\Enums\CommitmentStatus;
 use App\Filament\Resources\Operational\CustomResource\Enums\GuaranteeStatus;
+use App\Filament\Resources\Operational\CustomResource\Imports\CustomImporter;
+use App\Jobs\ExportCustoms;
 use App\Models\Custom;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    private const AGING_WARNING_THRESHOLD_DAYS = 7;
+
+    private const AGING_DANGER_THRESHOLD_DAYS = 14;
+
+    public static function getImportAction(): ImportAction
+    {
+        return ImportAction::make('importCustoms')
+            ->label(__('resources/custom/strings.import.import_customs'))
+            ->modalHeading(__('resources/custom/strings.import.import_customs'))
+            ->icon('heroicon-o-arrow-up-tray')
+            ->importer(CustomImporter::class)
+            ->resourceGate(CustomResource::class);
+    }
+
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportCustoms')
+            ->label(__('resources/custom/strings.export.export_customs'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => CustomResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportCustoms::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showBankGuaranteeStatus(): TextColumn
     {
         return TextColumn::make('bankGuaranteeStatus.name')
@@ -19,6 +57,27 @@ trait Table
             ->badge()
             ->formatStateUsing(fn ($record): ?string => $record->bankGuaranteeStatus?->getLocalizedNameAttribute())
             ->color(fn ($record): string => GuaranteeStatus::tryFrom($record->bankGuaranteeStatus?->english_name)?->getColor() ?? 'gray')
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function clearanceAgingColor(?int $days): string
+    {
+        return match (true) {
+            $days === null => 'gray',
+            $days > self::AGING_DANGER_THRESHOLD_DAYS => 'danger',
+            $days >= self::AGING_WARNING_THRESHOLD_DAYS => 'warning',
+            default => 'success',
+        };
+    }
+
+    public static function showClearanceAgingDays(): TextColumn
+    {
+        return TextColumn::make('clearance_aging_days')
+            ->label(__('resources/custom/strings.table.clearance_aging_days'))
+            ->formatStateUsing(fn (?int $state) => $state === null ? '-' : $state.' '.__('resources/custom/strings.table.days'))
+            ->badge()
+            ->color(fn (?int $state): string => static::clearanceAgingColor($state))
+            ->icon('heroicon-o-clock')
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -50,15 +109,13 @@ trait Table
     {
         return TextColumn::make('clearance_type')
             ->label(__('resources/custom/strings.form.clearance_type'))
-            ->formatStateUsing(fn (string $state) => match ($state) {
-                '90_percent' => '90%',
-                '10_percent' => '10%',
-                default => '-'
-            })
+            ->formatStateUsing(fn (?string $state) => $state
+                ? (__('resources/custom/strings.general.clearance_types')[$state] ?? $state)
+                : '-')
             ->badge()
-            ->color(fn (string $state) => match ($state) {
-                '90_percent' => 'success',
-                '10_percent' => 'warning',
+            ->color(fn (?string $state) => match ($state) {
+                'definitive' => 'success',
+                'percentage' => 'warning',
                 default => 'gray'
             })
             ->sortable()
@@ -106,7 +163,10 @@ trait Table
     {
         return TextColumn::make('custom_no')
             ->label(__('resources/custom/strings.form.custom_no'))
-            ->searchable()
+            ->searchable(query: fn (Builder $query, string $search): Builder => CustomResource::orWhereExtraAttributesMatch(
+                $query->where('custom_no', 'like', "%{$search}%"),
+                $search
+            ))
             ->badge()
             ->copyable()
             ->sortable()
@@ -120,6 +180,26 @@ trait Table
             ->searchable()
             ->copyable()
             ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function isOpenExposure(?Custom $record): bool
+    {
+        return $record?->clearance_type === 'percentage'
+            && (GuaranteeStatus::tryFrom($record->bankGuaranteeStatus?->english_name) !== GuaranteeStatus::Returned
+                || CommitmentStatus::tryFrom($record->commitmentStatus?->english_name) !== CommitmentStatus::Completed);
+    }
+
+    public static function showExposureFlag(): TextColumn
+    {
+        return TextColumn::make('exposure_flag')
+            ->label(__('resources/custom/strings.table.exposure_flag'))
+            ->getStateUsing(fn ($record): ?string => static::isOpenExposure($record)
+                ? __('resources/custom/strings.table.exposure_flag')
+                : null)
+            ->badge()
+            ->color('danger')
+            ->icon('heroicon-o-exclamation-triangle')
             ->toggleable(isToggledHiddenByDefault: true);
     }
 

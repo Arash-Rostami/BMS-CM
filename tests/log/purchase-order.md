@@ -2,3 +2,21 @@
 
 - The record view has a new "History" tab showing every status change: from, to, who, and when.
 - Next to the status field, a collapsed "Approval Pipeline" panel shows every possible status and who (if anyone) needs to approve it — ready for when an admin sets up a staged approval flow for this module, same as Purchase Request already has.
+- On phones, lists now stack into readable cards instead of forcing you to scroll sideways; a new top-bar toggle (visible on desktop-width screens) switches back to the classic table.
+- Exported files are safer to open in Excel — cells that could act as hidden formulas are neutralized before writing.
+- Create and edit forms open faster — the Extra Attributes tab now loads its contents only when you open it.
+- Attachment uploads got a security hardening that rejects tampered file paths.
+- The "Approval Pipeline" info button no longer shows twice — it's now only on the record page, not the main list.
+- Marking a file as Superseded (or seeing it's Archived) is now a plain dropdown next to each attachment, with a short note explaining what to do. It only shows the extra detail/link once a file's status actually changes.
+- Export now lists every item on its own row (same as the other operational modules), instead of cramming all items into a single crowded cell — and the file now also includes Incoterms, shipping address, notes, and full item detail (product, unit, unit price, weights, description), which weren't exported before.
+- Searching Purchase Orders (including from inside a linked Purchase Request, Proforma Invoice, Registered Order, or Payment's own page) now also matches anything you've saved in that record's custom fields, not just the PO number.
+- Fixed a rare issue where two people creating a Purchase Order at the exact same moment could occasionally get the same PO number, causing one save to fail. Numbers are now generated safely even when this happens — no more errors from this.
+- You can now bulk-upload Purchase Orders from a spreadsheet, same as Purchase Request/Proforma Invoice/Registered Order already support — an example file is available from the Import button.
+- A Purchase Order whose validity date has passed now shows a clear "Expired" badge on the list, so you don't have to open the record to notice.
+- Creating a Purchase Order for a seller/buyer pair you've already used recently now shows a warning so you can catch an accidental duplicate before saving.
+- A new "Needs Payment" filter on the list shows only Purchase Orders that don't have a payment recorded against them yet.
+- The record details popup now has quick Edit, Create, and Delete buttons — both at the bottom of the popup and as small icons next to its close button, for a faster click when you already know what you want to do.
+- The column-visibility dropdown (the icon next to the table filters) no longer runs off the bottom of the screen on long lists — it now scrolls internally with a thin, unobtrusive scrollbar, and the sideways scrollbar some screens showed is gone.
+- The "Attach" button when linking an existing Purchase Request now has a clear label and tooltip and matches the app's other action-button colors instead of the default gray.
+- A new topbar toggle lets you switch whether clicking a row in the list opens the record (as before) or jumps straight to editing it.
+- Importing a file missing a required value now shows a clear message instead of a technical error.

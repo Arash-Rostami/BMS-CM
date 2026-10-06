@@ -7,6 +7,7 @@ use App\Filament\Resources\Operational\CorrespondenceResource\Enums\Type;
 use App\Models\Correspondence;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
+use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 
 class CorrespondenceExporter
@@ -88,8 +89,8 @@ class CorrespondenceExporter
             : __('resources/correspondence/strings.export.thread_role_root');
         $values['parent_subject'] = $record->parent ? static::plainText($record->parent->subject) : '';
         $values['recipients'] = static::recipientsSummary($record);
-        $values['creator'] = (string) ($record->creator?->name ?? '');
-        $values['updater'] = (string) ($record->updater?->name ?? '');
+        $values['creator'] = static::plainText($record->creator?->name ?? '');
+        $values['updater'] = static::plainText($record->updater?->name ?? '');
         $values['created_at'] = (string) ($record->created_at?->format('Y-m-d H:i:s') ?? '');
         $values['updated_at'] = (string) ($record->updated_at?->format('Y-m-d H:i:s') ?? '');
 
@@ -122,6 +123,6 @@ class CorrespondenceExporter
 
     protected static function escapeCsvFormula(string $value): string
     {
-        return preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
+        return (new EscapeFormula)->escapeRecord([$value])[0];
     }
 }

@@ -6,6 +6,7 @@ use App\Filament\Resources\Operational\ProformaInvoiceResource\Imports\ProformaI
 use App\Models\ProformaInvoice;
 use App\Models\ProformaInvoiceItem;
 use Illuminate\Database\Eloquent\Builder;
+use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 
 class ProformaInvoiceExporter
@@ -116,7 +117,7 @@ class ProformaInvoiceExporter
 
     protected static function escapeCsvFormula(string $value): string
     {
-        return preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
+        return (new EscapeFormula)->escapeRecord([$value])[0];
     }
 
     protected static function jalaliDate(mixed $date): string

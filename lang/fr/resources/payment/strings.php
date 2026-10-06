@@ -5,7 +5,17 @@ return [
         'model_label' => 'Paiement',
         'plural_model_label' => 'Paiements',
     ],
+    'import' => [
+        'import_payments' => 'Importer les paiements',
+        'date_defaults' => 'La date de paiement est fixée par défaut à la date d\'importation si elle est laissée vide.',
+        'purchase_order_number' => 'Numéro du bon de commande',
+        'registered_order_number' => 'Numéro de la commande enregistrée',
+        'targetable_ambiguous' => 'Indiquez soit un numéro de bon de commande, soit un numéro de commande enregistrée, jamais les deux.',
+        'targetable_not_found' => 'Aucun enregistrement correspondant à ":value" n\'a été trouvé.',
+        'targetable_required' => 'Un numéro de bon de commande ou de commande enregistrée est requis pour un nouveau paiement.',
+    ],
     'export' => [
+        'export_payments' => 'Exporter les paiements',
         'id' => 'ID',
         'payment_no' => 'N° de paiement',
         'payment_date' => 'Date de paiement',
@@ -90,6 +100,7 @@ return [
         'validation_date' => 'Veuillez entrer une date valide.',
         'helper_iban' => 'Vérifiez bien l\'IBAN avant d\'enregistrer ; un seul chiffre erroné peut envoyer les fonds vers le mauvais compte.',
         'helper_status' => 'Statut actuel du paiement dans le pipeline.',
+        'hint_iban_changed' => 'Les coordonnées bancaires diffèrent du dernier paiement à ce bénéficiaire — vérifiez avant de continuer.',
     ],
     'table' => [
         'id' => 'ID',
@@ -101,6 +112,10 @@ return [
         'payee' => 'Bénéficiaire',
         'status' => 'Statut',
         'total_amount' => 'Montant total',
+        'total_match' => 'Correspondance du total',
+        'total_match_yes' => '✅ Conforme',
+        'total_match_no' => '⚠️ Écart',
+        'total_match_unknown' => '—',
         'created_by' => 'Créé par',
         'updater' => 'Modificateur',
         'created_at' => 'Créé le',
@@ -133,5 +148,9 @@ return [
         'updater' => 'Mise à jour par',
         'created_at' => 'Créé le',
         'updated_at' => 'Mis à jour le',
+    ],
+    'notifications' => [
+        'duplicate_title' => 'Doublon de paiement possible',
+        'duplicate_body' => 'Un paiement au même bénéficiaire pour la même commande a déjà été créé au cours des dernières 24 heures.',
     ],
 ];

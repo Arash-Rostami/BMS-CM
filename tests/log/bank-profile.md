@@ -13,3 +13,12 @@
 - Creating a Bank Profile from inside a Registered Order now auto-fills its Registered Order field instead of asking you to pick it again; creating one on its own still lets you pick it.
 - The record view has a new "History" tab showing every status change: from, to, who, and when.
 - Next to the status field, a collapsed "Approval Pipeline" panel shows every possible status and who (if anyone) needs to approve it — ready for when an admin sets up a staged approval flow for this module, same as Purchase Request already has.
+- On phones, lists now stack into readable cards instead of forcing you to scroll sideways; a new top-bar toggle (visible on desktop-width screens) switches back to the classic table.
+- Exported files are safer to open in Excel — cells that could act as hidden formulas are neutralized before writing.
+- Create and edit forms open faster — the Extra Attributes tab now loads its contents only when you open it.
+- Attachment uploads got a security hardening that rejects tampered file paths.
+- The "Approval Pipeline" info button no longer shows twice — it's now only on the record page, not the main list.
+- Marking a file as Superseded (or seeing it's Archived) is now a plain dropdown next to each attachment, with a short note explaining what to do. It only shows the extra detail/link once a file's status actually changes.
+- Fixed a rare issue where two people creating a record at the exact same moment could occasionally get the same reference number, causing one save to fail. Numbers are now generated safely even when this happens — no more errors from this.
+- A new topbar toggle lets you switch whether clicking a row in the list opens the record (as before) or jumps straight to editing it.
+- Importing a file missing a required value now shows a clear message instead of a technical error.

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Filament\Actions\ImportAction;
+use App\Filament\Resources\CustomResource;
 use App\Filament\Resources\Operational\BankProfileResource\Pages\EditBankProfile;
 use App\Filament\Resources\Operational\BankProfileResource\RelationManagers\RegisteredOrdersRelationManager as BankProfileRegisteredOrdersRelationManager;
 use App\Filament\Resources\Operational\CustomResource\Pages\EditCustom;
@@ -20,13 +22,28 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\Imports\Registere
 use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\CreateRegisteredOrder;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\EditRegisteredOrder;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\ListRegisteredOrders;
+use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\CorrespondenceRelationManager;
+use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\CustomsRelationManager;
+use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\PaymentsRelationManager;
+use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\ProformaInvoicesRelationManager;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\PurchaseRequestsRelationManager;
+use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\ShipmentsRelationManager;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\HandleStatusMutation;
 use App\Filament\Resources\Operational\ShipmentResource\Pages\EditShipment;
 use App\Filament\Resources\Operational\ShipmentResource\RelationManagers\RegisteredOrderRelationManager as ShipmentRegisteredOrderRelationManager;
+use App\Filament\Resources\PaymentResource;
+use App\Filament\Resources\ProformaInvoiceResource;
 use App\Filament\Resources\RegisteredOrderResource;
+use App\Filament\Resources\ShipmentResource;
+use App\Jobs\ExportCorrespondences;
+use App\Jobs\ExportCustoms;
+use App\Jobs\ExportPayments;
+use App\Jobs\ExportProformaInvoices;
+use App\Jobs\ExportShipments;
+use App\Models\Attachment;
 use App\Models\BankProfile;
 use App\Models\Company;
+use App\Models\Correspondence;
 use App\Models\Currency;
 use App\Models\Custom;
 use App\Models\Payment;
@@ -43,11 +60,14 @@ use App\Models\Status;
 use App\Models\User;
 use App\Services\Imports\GroupRowFailedException;
 use App\Services\SmartCacheManager;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\Imports\Models\Import;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use ReflectionMethod;
@@ -135,6 +155,14 @@ class RegisteredOrderResourceTest extends TestCase
         $reflection->setAccessible(true);
 
         return ($reflection->getValue($tab))($record);
+    }
+
+    private function repeatableItemComponents(RepeatableEntry $entry): array
+    {
+        $reflection = new ReflectionProperty($entry, 'childComponents');
+        $reflection->setAccessible(true);
+
+        return $reflection->getValue($entry)['default'];
     }
 
     // Permissions
@@ -375,6 +403,163 @@ class RegisteredOrderResourceTest extends TestCase
             ->assertSee(__('resources/general/strings.empty_state.gated_heading'));
     }
 
+    // CorrespondenceRelationManager — the correspondence tab on the RO edit page (also embedded on
+    // Shipment and Custom edit pages; tested here on its owning resource per testPattern.md §1)
+
+    public function test_correspondence_relation_manager_renders_for_a_real_registered_order_owner(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'correspondence.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+
+        Livewire::test(CorrespondenceRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->assertSuccessful();
+    }
+
+    public function test_correspondence_relation_manager_shows_only_rows_linked_to_the_owner(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'correspondence.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $stranger = RegisteredOrder::factory()->create();
+        $linked = Correspondence::factory()->forCorrespondable($owner)->create(['subject' => 'RM linked row']);
+        $unlinked = Correspondence::factory()->forCorrespondable($stranger)->create(['subject' => 'RM unlinked row']);
+
+        Livewire::test(CorrespondenceRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$linked])
+            ->assertCanNotSeeTableRecords([$unlinked]);
+    }
+
+    public function test_correspondence_relation_manager_search_narrows_the_table(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'correspondence.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $match = Correspondence::factory()->forCorrespondable($owner)->create(['subject' => 'RM3 Searchable Alpha']);
+        $noMatch = Correspondence::factory()->forCorrespondable($owner)->create(['subject' => 'RM3 Unmatched Beta']);
+
+        Livewire::test(CorrespondenceRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->searchTable('RM3 Searchable Alpha')
+            ->assertCanSeeTableRecords([$match])
+            ->assertCanNotSeeTableRecords([$noMatch]);
+    }
+
+    public function test_correspondence_relation_manager_sort_toggles_a_sortable_column(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'correspondence.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $zebra = Correspondence::factory()->forCorrespondable($owner)->create(['subject' => 'RM4 Zebra', 'priority' => 'normal']);
+        $alpha = Correspondence::factory()->forCorrespondable($owner)->create(['subject' => 'RM4 Alpha', 'priority' => 'normal']);
+
+        Livewire::test(CorrespondenceRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            // The default 'thread' group's orderQueryUsing (id desc) dominates any column sort,
+            // so flip to the plain 'priority' group first — there the column sort is the tiebreak.
+            ->set('tableGrouping', 'priority:asc')
+            ->sortTable('subject', 'asc')
+            ->assertCanSeeTableRecords([$alpha, $zebra], inOrder: true)
+            ->sortTable('subject', 'desc')
+            ->assertCanSeeTableRecords([$zebra, $alpha], inOrder: true);
+    }
+
+    public function test_correspondence_relation_manager_create_action_uses_the_sparkles_icon(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'correspondence.view', 'correspondence.create']);
+
+        $owner = RegisteredOrder::factory()->create();
+
+        Livewire::test(CorrespondenceRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->assertTableActionHasIcon('create', 'heroicon-o-sparkles');
+    }
+
+    public function test_correspondence_relation_manager_create_persists_and_attaches_to_the_owner(): void
+    {
+        $user = $this->actingAsUserWithPermissions(['registered_order.view', 'correspondence.view', 'correspondence.create']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $status = Status::factory()->create([
+            'type' => Correspondence::TYPE_CORRESPONDENCE_STATUS,
+            'english_type' => Correspondence::TYPE_CORRESPONDENCE_STATUS,
+            'name' => 'RmCreatedStatus',
+            'english_name' => 'RmCreatedStatus',
+        ]);
+        $recipient = User::factory()->create();
+
+        Livewire::test(CorrespondenceRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->callTableAction('create', data: [
+                'subject' => 'RM6 created subject',
+                'body' => '<p>RM6 body content</p>',
+                'status_id' => $status->id,
+                'recipients_to' => [$recipient->id],
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $created = Correspondence::query()->where('subject', 'RM6 created subject')->first();
+
+        $this->assertNotNull($created);
+        $this->assertTrue($owner->correspondences()->whereKey($created->id)->exists());
+        $this->assertSame($user->id, $created->user_id);
+        $this->assertTrue($created->recipients()->wherePivot('user_id', $recipient->id)->wherePivot('type', 'to')->exists());
+    }
+
+    public function test_correspondence_relation_manager_export_bulk_action_runs_without_error(): void
+    {
+        Queue::fake();
+        $this->actingAsUserWithPermissions(['registered_order.view', 'correspondence.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $record = Correspondence::factory()->forCorrespondable($owner)->create();
+
+        Livewire::test(CorrespondenceRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->callTableBulkAction('exportCorrespondences', [$record])
+            ->assertHasNoTableActionErrors();
+
+        Queue::assertPushed(ExportCorrespondences::class, fn (ExportCorrespondences $job) => $job->ids === [$record->id]);
+    }
+
+    public function test_correspondence_relation_manager_offers_no_bulk_import_action(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'correspondence.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+
+        $table = Livewire::test(CorrespondenceRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->instance()->getTable();
+
+        $headerActions = collect($table->getHeaderActions())
+            ->flatMap(fn ($action) => $action instanceof ActionGroup ? $action->getActions() : [$action]);
+
+        $this->assertTrue($headerActions->contains(fn ($action) => $action->getName() === 'create'));
+
+        $importActions = $headerActions->filter(
+            fn ($action) => $action instanceof ImportAction || str_contains(mb_strtolower($action->getName()), 'import')
+        );
+
+        $this->assertCount(0, $importActions, 'A RelationManager must never offer bulk import (importsPattern.md).');
+    }
+
     public function test_globally_searchable_attributes_include_extra_attribute_columns(): void
     {
         $this->assertContains('extraAttributes.key', RegisteredOrderResource::getGloballySearchableAttributes());
@@ -507,7 +692,7 @@ class RegisteredOrderResourceTest extends TestCase
         $this->assertSame('hello', $map['filled_field']);
     }
 
-    // Create — validation only (relationship-bound fields; §3d plain-scalar fillForm() quirk doesn't affect assertHasFormErrors)
+    // Create — validation only (§3d fillForm() quirk resolved 2026-09-26; this test predates it)
 
     public function test_create_requires_seller_buyer_status_and_order_date(): void
     {
@@ -538,7 +723,7 @@ class RegisteredOrderResourceTest extends TestCase
             ->assertHasFormErrors(['seller_id' => 'different']);
     }
 
-    // Edit — relationship-bound field only; see testPattern.md §3d for why plain-scalar fields are skipped here
+    // Edit — relationship-bound field only (§3d fillForm() quirk resolved 2026-09-26; plain scalars may be added here again)
 
     public function test_edit_page_loads_existing_values_and_persists_a_status_update(): void
     {
@@ -562,13 +747,13 @@ class RegisteredOrderResourceTest extends TestCase
 
     // HasStatusWorkflow wiring — safe no-op today (no admin-configured stage_order exists for Registered Order Status), activates once configured
 
-    public function test_list_and_edit_pages_expose_the_status_workflow_pipeline_header_action(): void
+    public function test_only_the_edit_page_exposes_the_status_workflow_pipeline_header_action(): void
     {
         $this->actingAsUserWithPermissions(['registered_order.create', 'registered_order.view', 'registered_order.edit']);
         $record = RegisteredOrder::factory()->create();
 
         Livewire::test(ListRegisteredOrders::class)
-            ->assertActionExists('statusWorkflowPipeline');
+            ->assertActionDoesNotExist('statusWorkflowPipeline');
 
         Livewire::test(EditRegisteredOrder::class, ['record' => $record->getRouteKey()])
             ->assertActionExists('statusWorkflowPipeline');
@@ -820,6 +1005,88 @@ class RegisteredOrderResourceTest extends TestCase
         }
     }
 
+    public function test_import_rejects_a_blank_seller_on_a_new_record_cleanly(): void
+    {
+        app()->setLocale('en');
+        $buyer = Company::factory()->create(['english_name' => 'BlankSeller Buyer']);
+        $currency = Currency::factory()->create(['english_name' => 'IMU8']);
+        $status = $this->roStatus('ImportBlankSellerStatus');
+        $beforeOrders = RegisteredOrder::count();
+        $beforeItems = RegisteredOrderItem::count();
+
+        try {
+            $this->invokeMergedImporter($this->baseParentRow([
+                'buyer_id' => $buyer->english_name,
+                'status_id' => $status->english_name,
+                'currency_id' => $currency->english_name,
+            ]));
+
+            $this->fail('Expected RowImportFailedException was not thrown.');
+        } catch (\Filament\Actions\Imports\Exceptions\RowImportFailedException $exception) {
+            $this->assertSame(__('resources/general/strings.import.required_for_new_record', [
+                'label' => __('resources/registeredOrder/strings.form.seller'),
+            ]), $exception->getMessage());
+        }
+
+        $this->assertSame($beforeOrders, RegisteredOrder::count());
+        $this->assertSame($beforeItems, RegisteredOrderItem::count());
+    }
+
+    public function test_import_rejects_a_blank_buyer_on_a_new_record_cleanly(): void
+    {
+        app()->setLocale('en');
+        $seller = Company::factory()->create(['english_name' => 'BlankBuyer Seller']);
+        $currency = Currency::factory()->create(['english_name' => 'IMU9']);
+        $status = $this->roStatus('ImportBlankBuyerStatus');
+        $beforeOrders = RegisteredOrder::count();
+        $beforeItems = RegisteredOrderItem::count();
+
+        try {
+            $this->invokeMergedImporter($this->baseParentRow([
+                'seller_id' => $seller->english_name,
+                'status_id' => $status->english_name,
+                'currency_id' => $currency->english_name,
+            ]));
+
+            $this->fail('Expected RowImportFailedException was not thrown.');
+        } catch (\Filament\Actions\Imports\Exceptions\RowImportFailedException $exception) {
+            $this->assertSame(__('resources/general/strings.import.required_for_new_record', [
+                'label' => __('resources/registeredOrder/strings.form.buyer'),
+            ]), $exception->getMessage());
+        }
+
+        $this->assertSame($beforeOrders, RegisteredOrder::count());
+        $this->assertSame($beforeItems, RegisteredOrderItem::count());
+    }
+
+    public function test_import_reupload_with_a_blank_seller_and_buyer_preserves_the_existing_values(): void
+    {
+        $seller = Company::factory()->create(['english_name' => 'Preserve RO Seller']);
+        $buyer = Company::factory()->create(['english_name' => 'Preserve RO Buyer']);
+        $currency = Currency::factory()->create(['english_name' => 'IMUA']);
+        $status = $this->roStatus('ImportPreserveSellerBuyerStatus');
+
+        $first = $this->invokeMergedImporter($this->baseParentRow([
+            'seller_id' => $seller->english_name,
+            'buyer_id' => $buyer->english_name,
+            'status_id' => $status->english_name,
+            'currency_id' => $currency->english_name,
+        ]));
+        $record = $first->getRecord();
+
+        $row = $this->baseParentRow([
+            'ro_number' => $record->ro_number,
+            'contract_no' => $record->contract_no,
+            'notes' => 'Second upload, seller and buyer left blank',
+        ]);
+
+        $second = $this->invokeMergedImporter($row);
+
+        $this->assertSame($record->id, $second->getRecord()->id);
+        $this->assertSame($seller->id, $second->getRecord()->seller_id);
+        $this->assertSame($buyer->id, $second->getRecord()->buyer_id);
+    }
+
     public function test_import_new_record_with_unresolvable_incoterms_saves_via_null_fallback_and_logs_a_note(): void
     {
         $seller = Company::factory()->create(['english_name' => 'Note Seller']);
@@ -905,6 +1172,36 @@ class RegisteredOrderResourceTest extends TestCase
             $this->fail('Expected GroupRowFailedException was not thrown for a blank unit_price.');
         } catch (GroupRowFailedException) {
             $this->assertSame($countBefore, RegisteredOrder::withTrashed()->count());
+        }
+    }
+
+    public function test_import_second_item_failing_rolls_back_the_first_already_persisted_item_and_the_parent(): void
+    {
+        $seller = Company::factory()->create(['english_name' => 'Atomicity Seller']);
+        $buyer = Company::factory()->create(['english_name' => 'Atomicity Buyer']);
+        $currency = Currency::factory()->create(['english_name' => 'IMU7']);
+        $status = $this->roStatus('ImportAtomicityStatus');
+        $productOne = Product::factory()->create();
+        $productTwo = Product::factory()->create();
+
+        $countBefore = RegisteredOrder::withTrashed()->count();
+        $itemCountBefore = RegisteredOrderItem::withTrashed()->whereIn('product_id', [$productOne->id, $productTwo->id])->count();
+
+        try {
+            $this->invokeMergedImporter($this->baseParentRow([
+                'seller_id' => $seller->english_name,
+                'buyer_id' => $buyer->english_name,
+                'status_id' => $status->english_name,
+                'currency_id' => $currency->english_name,
+            ]), [
+                ['product_id' => $productOne->code, 'quantity' => '2', 'unit' => 'kg', 'unit_price' => '10', 'net_weight' => '', 'gross_weight' => '', 'entrance_fee' => '', 'shipping_cost' => '', 'extra_cost' => '', 'packing_details' => '', 'description' => ''],
+                ['product_id' => $productTwo->code, 'quantity' => '2', 'unit' => '', 'unit_price' => '10', 'net_weight' => '', 'gross_weight' => '', 'entrance_fee' => '', 'shipping_cost' => '', 'extra_cost' => '', 'packing_details' => '', 'description' => ''],
+            ]);
+
+            $this->fail('Expected GroupRowFailedException was not thrown.');
+        } catch (GroupRowFailedException) {
+            $this->assertSame($countBefore, RegisteredOrder::withTrashed()->count(), 'A failed second item row must roll back the parent record too.');
+            $this->assertSame($itemCountBefore, RegisteredOrderItem::withTrashed()->whereIn('product_id', [$productOne->id, $productTwo->id])->count(), 'The first item (already inserted before the second item failed) must not survive the savepoint rollback — zero rows committed for the whole failed group.');
         }
     }
 
@@ -1125,5 +1422,528 @@ class RegisteredOrderResourceTest extends TestCase
     public function test_globally_searchable_attributes_include_ro_number(): void
     {
         $this->assertContains('ro_number', RegisteredOrderResource::getGloballySearchableAttributes());
+    }
+
+    public function test_edit_form_shows_a_status_select_for_each_attachment(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'registered_order.edit']);
+        $record = RegisteredOrder::factory()->create();
+        $uploaded = Status::findBy(Attachment::TYPE_ATTACHMENT, Attachment::STATUS_UPLOADED);
+        $attachment = Attachment::factory()->forAttachable($record)->create(['status_id' => $uploaded->id]);
+
+        Livewire::test(EditRegisteredOrder::class, ['record' => $record->getRouteKey()])
+            ->assertSee($attachment->name ?: basename($attachment->path))
+            ->assertSee($uploaded->getLocalizedNameAttribute());
+    }
+
+    public function test_attachments_infolist_entry_wires_the_supersede_and_revert_actions(): void
+    {
+        $entry = collect($this->repeatableItemComponents(RegisteredOrderResource::viewAttachments()))
+            ->first(fn ($component) => $component->getName() === 'status.name');
+
+        $reflection = new ReflectionProperty($entry, 'suffixActions');
+        $reflection->setAccessible(true);
+
+        $names = collect($reflection->getValue($entry))->map(fn ($action) => $action->getName())->all();
+
+        $this->assertSame(['supersedeAttachment', 'revertAttachment'], $names);
+    }
+
+    public function test_attachments_infolist_entry_splits_filename_and_status_three_to_two(): void
+    {
+        $entry = RegisteredOrderResource::viewAttachments();
+
+        $columnsReflection = new ReflectionProperty($entry, 'columns');
+        $columnsReflection->setAccessible(true);
+        $this->assertSame(['lg' => 5], $columnsReflection->getValue($entry));
+
+        $components = collect($this->repeatableItemComponents($entry))->keyBy(fn ($component) => $component->getName());
+
+        $spanReflection = new ReflectionProperty($components['path'], 'columnSpan');
+        $spanReflection->setAccessible(true);
+        $this->assertSame(['default' => 1, 'lg' => 3], $spanReflection->getValue($components['path']));
+
+        $spanReflection = new ReflectionProperty($components['status.name'], 'columnSpan');
+        $spanReflection->setAccessible(true);
+        $this->assertSame(['default' => 1, 'lg' => 2], $spanReflection->getValue($components['status.name']));
+    }
+
+    // CustomsRelationManager / PaymentsRelationManager / ProformaInvoicesRelationManager / ShipmentsRelationManager —
+    // the four pipeline tabs on the RO edit page (same minimal checklist as the Correspondence tab above)
+
+    public function test_customs_relation_manager_renders_and_shows_only_rows_linked_to_the_owner(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'custom.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $linked = Custom::factory()->create(['registered_order_id' => $owner->id, 'declaration_no' => 'ROCRM-CST-LINKED']);
+        $unlinked = Custom::factory()->create(['declaration_no' => 'ROCRM-CST-UNLINKED']);
+
+        Livewire::test(CustomsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$linked])
+            ->assertCanNotSeeTableRecords([$unlinked]);
+    }
+
+    public function test_customs_relation_manager_search_narrows_the_table(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'custom.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $match = Custom::factory()->create(['registered_order_id' => $owner->id, 'declaration_no' => 'ROCRM-CST-TARGET-'.$owner->id]);
+        $noMatch = Custom::factory()->create(['registered_order_id' => $owner->id, 'declaration_no' => 'ROCRM-CST-OTHER-'.$owner->id]);
+
+        Livewire::test(CustomsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->searchTable('ROCRM-CST-TARGET-'.$owner->id)
+            ->assertCanSeeTableRecords([$match])
+            ->assertCanNotSeeTableRecords([$noMatch]);
+    }
+
+    public function test_customs_relation_manager_sort_toggles_a_sortable_column(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'custom.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $late = Custom::factory()->create(['registered_order_id' => $owner->id, 'declaration_no' => 'ROCRM-CST-ZZZ']);
+        $early = Custom::factory()->create(['registered_order_id' => $owner->id, 'declaration_no' => 'ROCRM-CST-AAA']);
+
+        Livewire::test(CustomsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->sortTable('declaration_no', 'asc')
+            ->assertCanSeeTableRecords([$early, $late], inOrder: true)
+            ->sortTable('declaration_no', 'desc')
+            ->assertCanSeeTableRecords([$late, $early], inOrder: true);
+    }
+
+    public function test_customs_relation_manager_create_action_redirects_to_the_custom_create_page_with_the_chosen_shipment(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'custom.view']);
+
+        $owner = RegisteredOrder::factory()->create(['status_id' => $this->roStatus('Submitted')->id]);
+        $shipment = Shipment::factory()->create(['registered_order_id' => $owner->id]);
+
+        Livewire::test(CustomsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->callTableAction('create', data: ['shipment_id' => $shipment->id])
+            ->assertRedirect(CustomResource::getUrl('create', ['shipment_id' => $shipment->id]));
+    }
+
+    public function test_customs_relation_manager_export_bulk_action_runs_without_error(): void
+    {
+        Queue::fake();
+        $this->actingAsUserWithPermissions(['registered_order.view', 'custom.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $record = Custom::factory()->create(['registered_order_id' => $owner->id]);
+
+        Livewire::test(CustomsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->callTableBulkAction('exportCustoms', [$record])
+            ->assertHasNoTableActionErrors();
+
+        Queue::assertPushed(ExportCustoms::class, fn (ExportCustoms $job) => $job->ids === [$record->id]);
+    }
+
+    public function test_customs_relation_manager_offers_no_bulk_import_action(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'custom.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+
+        $table = Livewire::test(CustomsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->instance()->getTable();
+
+        $headerActions = collect($table->getHeaderActions())
+            ->flatMap(fn ($action) => $action instanceof ActionGroup ? $action->getActions() : [$action]);
+
+        $this->assertTrue($headerActions->contains(fn ($action) => $action->getName() === 'create'));
+
+        $this->assertCount(0, $headerActions->filter(
+            fn ($action) => $action instanceof ImportAction || str_contains(mb_strtolower($action->getName()), 'import')
+        ), 'A RelationManager must never offer bulk import (importsPattern.md).');
+    }
+
+    public function test_payments_relation_manager_renders_and_shows_only_rows_linked_to_the_owner(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'payment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $linked = Payment::factory()->forTargetable($owner)->create();
+        $unlinked = Payment::factory()->create();
+
+        Livewire::test(PaymentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$linked])
+            ->assertCanNotSeeTableRecords([$unlinked]);
+    }
+
+    public function test_payments_relation_manager_search_narrows_the_table(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'payment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $match = Payment::factory()->forTargetable($owner)->create();
+        $noMatch = Payment::factory()->forTargetable($owner)->create();
+
+        Payment::whereKey($match->id)->update(['payment_no' => 'ROCRM-PAY-TARGET-'.$match->id]);
+        Payment::whereKey($noMatch->id)->update(['payment_no' => 'ROCRM-PAY-OTHER-'.$noMatch->id]);
+
+        Livewire::test(PaymentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->searchTable('ROCRM-PAY-TARGET-'.$match->id)
+            ->assertCanSeeTableRecords([$match])
+            ->assertCanNotSeeTableRecords([$noMatch]);
+    }
+
+    public function test_payments_relation_manager_sort_toggles_a_sortable_column(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'payment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $first = Payment::factory()->forTargetable($owner)->create();
+        $second = Payment::factory()->forTargetable($owner)->create();
+
+        Livewire::test(PaymentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->sortTable('id', 'asc')
+            ->assertCanSeeTableRecords([$first, $second], inOrder: true)
+            ->sortTable('id', 'desc')
+            ->assertCanSeeTableRecords([$second, $first], inOrder: true);
+    }
+
+    public function test_payments_relation_manager_create_action_links_to_the_create_page_with_the_owner_prefill(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'payment.view']);
+
+        $owner = RegisteredOrder::factory()->create(['status_id' => $this->roStatus('Submitted')->id]);
+
+        Livewire::test(PaymentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->assertTableActionHasUrl('create', PaymentResource::getUrl('create', ['registered_order_id' => $owner->id]));
+    }
+
+    public function test_payments_relation_manager_export_bulk_action_runs_without_error(): void
+    {
+        Queue::fake();
+        $this->actingAsUserWithPermissions(['registered_order.view', 'payment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $record = Payment::factory()->forTargetable($owner)->create();
+
+        Livewire::test(PaymentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->callTableBulkAction('exportPayments', [$record])
+            ->assertHasNoTableActionErrors();
+
+        Queue::assertPushed(ExportPayments::class, fn (ExportPayments $job) => $job->ids === [$record->id]);
+    }
+
+    public function test_customs_relation_manager_create_action_stays_hidden_until_the_owner_is_submitted(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'custom.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+
+        Livewire::test(CustomsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->assertTableActionHidden('create');
+    }
+
+    public function test_payments_relation_manager_offers_no_bulk_import_action(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'payment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+
+        $table = Livewire::test(PaymentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->instance()->getTable();
+
+        $headerActions = collect($table->getHeaderActions())
+            ->flatMap(fn ($action) => $action instanceof ActionGroup ? $action->getActions() : [$action]);
+
+        $this->assertTrue($headerActions->contains(fn ($action) => $action->getName() === 'create'));
+
+        $this->assertCount(0, $headerActions->filter(
+            fn ($action) => $action instanceof ImportAction || str_contains(mb_strtolower($action->getName()), 'import')
+        ), 'A RelationManager must never offer bulk import (importsPattern.md).');
+    }
+
+    public function test_proforma_invoices_relation_manager_renders_and_shows_only_rows_linked_to_the_owner(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'proforma_invoice.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $linked = ProformaInvoice::factory()->create();
+        $unlinked = ProformaInvoice::factory()->create();
+        $owner->proformaInvoices()->attach($linked->id);
+
+        Livewire::test(ProformaInvoicesRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$linked])
+            ->assertCanNotSeeTableRecords([$unlinked]);
+    }
+
+    public function test_proforma_invoices_relation_manager_search_narrows_the_table(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'proforma_invoice.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $match = ProformaInvoice::factory()->create();
+        $noMatch = ProformaInvoice::factory()->create();
+        $owner->proformaInvoices()->attach([$match->id, $noMatch->id]);
+
+        ProformaInvoice::whereKey($match->id)->update(['invoice_no' => 'ROCRM-PI-TARGET-'.$match->id]);
+        ProformaInvoice::whereKey($noMatch->id)->update(['invoice_no' => 'ROCRM-PI-OTHER-'.$noMatch->id]);
+
+        Livewire::test(ProformaInvoicesRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->searchTable('ROCRM-PI-TARGET-'.$match->id)
+            ->assertCanSeeTableRecords([$match])
+            ->assertCanNotSeeTableRecords([$noMatch]);
+    }
+
+    public function test_proforma_invoices_relation_manager_sort_toggles_a_sortable_column(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'proforma_invoice.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $first = ProformaInvoice::factory()->create();
+        $second = ProformaInvoice::factory()->create();
+        $owner->proformaInvoices()->attach([$first->id, $second->id]);
+
+        Livewire::test(ProformaInvoicesRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->sortTable('id', 'asc')
+            ->assertCanSeeTableRecords([$first, $second], inOrder: true)
+            ->sortTable('id', 'desc')
+            ->assertCanSeeTableRecords([$second, $first], inOrder: true);
+    }
+
+    public function test_proforma_invoices_relation_manager_create_action_links_to_the_create_page_with_the_owner_prefill(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'proforma_invoice.view']);
+
+        $owner = RegisteredOrder::factory()->create(['status_id' => $this->roStatus('Submitted')->id]);
+
+        Livewire::test(ProformaInvoicesRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->assertTableActionHasUrl('create', ProformaInvoiceResource::getUrl('create', ['registered_order_id' => $owner->id]));
+    }
+
+    public function test_proforma_invoices_relation_manager_export_bulk_action_runs_without_error(): void
+    {
+        Queue::fake();
+        $this->actingAsUserWithPermissions(['registered_order.view', 'proforma_invoice.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $record = ProformaInvoice::factory()->create();
+        $owner->proformaInvoices()->attach($record->id);
+
+        Livewire::test(ProformaInvoicesRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->callTableBulkAction('exportProformaInvoices', [$record])
+            ->assertHasNoTableActionErrors();
+
+        Queue::assertPushed(ExportProformaInvoices::class, fn (ExportProformaInvoices $job) => $job->ids === [$record->id]);
+    }
+
+    public function test_payments_relation_manager_create_action_stays_hidden_until_the_owner_is_submitted(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'payment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+
+        Livewire::test(PaymentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->assertTableActionHidden('create');
+    }
+
+    public function test_proforma_invoices_relation_manager_offers_no_bulk_import_action(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'proforma_invoice.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+
+        $table = Livewire::test(ProformaInvoicesRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->instance()->getTable();
+
+        $headerActions = collect($table->getHeaderActions())
+            ->flatMap(fn ($action) => $action instanceof ActionGroup ? $action->getActions() : [$action]);
+
+        $this->assertTrue($headerActions->contains(fn ($action) => $action->getName() === 'create'));
+
+        $this->assertCount(0, $headerActions->filter(
+            fn ($action) => $action instanceof ImportAction || str_contains(mb_strtolower($action->getName()), 'import')
+        ), 'A RelationManager must never offer bulk import (importsPattern.md).');
+    }
+
+    public function test_shipments_relation_manager_renders_and_shows_only_rows_linked_to_the_owner(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'shipment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $linked = Shipment::factory()->create(['registered_order_id' => $owner->id]);
+        $unlinked = Shipment::factory()->create();
+
+        Livewire::test(ShipmentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$linked])
+            ->assertCanNotSeeTableRecords([$unlinked]);
+    }
+
+    public function test_shipments_relation_manager_search_narrows_the_table(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'shipment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $match = Shipment::factory()->create(['registered_order_id' => $owner->id]);
+        $noMatch = Shipment::factory()->create(['registered_order_id' => $owner->id]);
+
+        Shipment::whereKey($match->id)->update(['shipment_no' => 'ROCRM-SHP-TARGET-'.$match->id]);
+        Shipment::whereKey($noMatch->id)->update(['shipment_no' => 'ROCRM-SHP-OTHER-'.$noMatch->id]);
+
+        Livewire::test(ShipmentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->searchTable('ROCRM-SHP-TARGET-'.$match->id)
+            ->assertCanSeeTableRecords([$match])
+            ->assertCanNotSeeTableRecords([$noMatch]);
+    }
+
+    public function test_shipments_relation_manager_sort_toggles_a_sortable_column(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'shipment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $first = Shipment::factory()->create(['registered_order_id' => $owner->id]);
+        $second = Shipment::factory()->create(['registered_order_id' => $owner->id]);
+
+        Livewire::test(ShipmentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->sortTable('id', 'asc')
+            ->assertCanSeeTableRecords([$first, $second], inOrder: true)
+            ->sortTable('id', 'desc')
+            ->assertCanSeeTableRecords([$second, $first], inOrder: true);
+    }
+
+    public function test_shipments_relation_manager_create_action_links_to_the_create_page_with_the_owner_prefill(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'shipment.view']);
+
+        $owner = RegisteredOrder::factory()->create(['status_id' => $this->roStatus('Submitted')->id]);
+
+        Livewire::test(ShipmentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->assertTableActionHasUrl('create', ShipmentResource::getUrl('create', ['registered_order_id' => $owner->id]));
+    }
+
+    public function test_shipments_relation_manager_export_bulk_action_runs_without_error(): void
+    {
+        Queue::fake();
+        $this->actingAsUserWithPermissions(['registered_order.view', 'shipment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+        $record = Shipment::factory()->create(['registered_order_id' => $owner->id]);
+
+        Livewire::test(ShipmentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])
+            ->callTableBulkAction('exportShipments', [$record])
+            ->assertHasNoTableActionErrors();
+
+        Queue::assertPushed(ExportShipments::class, fn (ExportShipments $job) => $job->ids === [$record->id]);
+    }
+
+    public function test_proforma_invoices_relation_manager_create_action_stays_hidden_until_the_owner_is_submitted(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'proforma_invoice.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+
+        Livewire::test(ProformaInvoicesRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->assertTableActionHidden('create');
+    }
+
+    public function test_shipments_relation_manager_offers_no_bulk_import_action(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'shipment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+
+        $table = Livewire::test(ShipmentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->instance()->getTable();
+
+        $headerActions = collect($table->getHeaderActions())
+            ->flatMap(fn ($action) => $action instanceof ActionGroup ? $action->getActions() : [$action]);
+
+        $this->assertTrue($headerActions->contains(fn ($action) => $action->getName() === 'create'));
+
+        $this->assertCount(0, $headerActions->filter(
+            fn ($action) => $action instanceof ImportAction || str_contains(mb_strtolower($action->getName()), 'import')
+        ), 'A RelationManager must never offer bulk import (importsPattern.md).');
+    }
+
+    public function test_shipments_relation_manager_create_action_stays_hidden_until_the_owner_is_submitted(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'shipment.view']);
+
+        $owner = RegisteredOrder::factory()->create();
+
+        Livewire::test(ShipmentsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditRegisteredOrder::class,
+        ])->assertTableActionHidden('create');
     }
 }

@@ -125,8 +125,7 @@ class PurchaseRequestResource extends Resource
                                                 static::getApprovalDateField(),
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
-                                                static::viewAttachments()
-                                                    ->visible(fn (?Model $record): bool => (bool) $record),
+                                                FormComponents::getAttachmentStatusManager(),
                                             ]),
                                     ])
                                     ->columnSpan(['lg' => 1]),

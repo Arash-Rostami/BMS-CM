@@ -3,10 +3,15 @@
 namespace Tests\Feature\Filament;
 
 use App\Filament\Actions\GroupedImportAction;
+use App\Filament\Actions\ImportAction;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Exports\ProformaInvoiceExporter;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Imports\ProformaInvoiceImporter;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Imports\ProformaInvoiceItemImporter;
+use App\Filament\Resources\Operational\ProformaInvoiceResource\Pages\EditProformaInvoice;
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Pages\ListProformaInvoices;
+use App\Filament\Resources\Operational\ProformaInvoiceResource\RelationManagers\PurchaseOrdersRelationManager;
+use App\Filament\Resources\Operational\ProformaInvoiceResource\RelationManagers\PurchaseRequestsRelationManager;
+use App\Filament\Resources\Operational\ProformaInvoiceResource\RelationManagers\RegisteredOrderRelationManager as ProformaInvoiceRegisteredOrderRelationManager;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\EditPurchaseOrder;
 use App\Filament\Resources\Operational\PurchaseOrderResource\RelationManagers\ProformaInvoicesRelationManager as PurchaseOrderProformaInvoicesRelationManager;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\EditPurchaseRequest;
@@ -14,7 +19,14 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\RelationManagers\
 use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\EditRegisteredOrder;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\ProformaInvoicesRelationManager as RegisteredOrderProformaInvoicesRelationManager;
 use App\Filament\Resources\ProformaInvoiceResource;
+use App\Filament\Resources\PurchaseOrderResource;
+use App\Filament\Resources\PurchaseRequestResource;
+use App\Filament\Resources\RegisteredOrderResource;
+use App\Jobs\ExportPurchaseOrders;
+use App\Jobs\ExportPurchaseRequests;
+use App\Jobs\ExportRegisteredOrders;
 use App\Jobs\ImportGroupedCsv;
+use App\Models\Attachment;
 use App\Models\Company;
 use App\Models\Currency;
 use App\Models\Permission;
@@ -25,12 +37,15 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrder;
 use App\Models\Role;
+use App\Models\Status;
 use App\Models\User;
 use App\Services\Imports\GroupRowFailedException;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\Imports\Models\Import;
 use Filament\Infolists\Components\RepeatableEntry;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -475,7 +490,6 @@ class ProformaInvoiceResourceTest extends TestCase
 
     public function test_create_happy_path_saves_a_new_proforma_invoice(): void
     {
-        $this->markTestSkipped('fillForm() harness quirk — see tests/testPattern.md §3d. Verified working in real browser QA.');
 
         $this->actingAsUserWithPermissions(['proforma_invoice.create', 'proforma_invoice.view']);
         $seller = Company::factory()->seller()->create();
@@ -1050,5 +1064,387 @@ class ProformaInvoiceResourceTest extends TestCase
         $this->assertContains('invoice_no', $attributes);
         $this->assertContains('extraAttributes.key', $attributes);
         $this->assertContains('extraAttributes.value', $attributes);
+    }
+
+    public function test_edit_form_shows_a_status_select_for_each_attachment(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'proforma_invoice.edit']);
+        $record = ProformaInvoice::factory()->create();
+        $uploaded = Status::findBy(Attachment::TYPE_ATTACHMENT, Attachment::STATUS_UPLOADED);
+        $attachment = Attachment::factory()->forAttachable($record)->create(['status_id' => $uploaded->id]);
+
+        Livewire::test(EditProformaInvoice::class, ['record' => $record->getRouteKey()])
+            ->assertSee($attachment->name ?: basename($attachment->path))
+            ->assertSee($uploaded->getLocalizedNameAttribute());
+    }
+
+    public function test_attachments_infolist_entry_wires_the_supersede_and_revert_actions(): void
+    {
+        $entry = collect($this->repeatableItemComponents(ProformaInvoiceResource::viewAttachments()))
+            ->first(fn ($component) => $component->getName() === 'status.name');
+
+        $reflection = new ReflectionProperty($entry, 'suffixActions');
+        $reflection->setAccessible(true);
+
+        $names = collect($reflection->getValue($entry))->map(fn ($action) => $action->getName())->all();
+
+        $this->assertSame(['supersedeAttachment', 'revertAttachment'], $names);
+    }
+
+    public function test_attachments_infolist_entry_splits_filename_and_status_three_to_two(): void
+    {
+        $entry = ProformaInvoiceResource::viewAttachments();
+
+        $columnsReflection = new ReflectionProperty($entry, 'columns');
+        $columnsReflection->setAccessible(true);
+        $this->assertSame(['lg' => 5], $columnsReflection->getValue($entry));
+
+        $components = collect($this->repeatableItemComponents($entry))->keyBy(fn ($component) => $component->getName());
+
+        $spanReflection = new ReflectionProperty($components['path'], 'columnSpan');
+        $spanReflection->setAccessible(true);
+        $this->assertSame(['default' => 1, 'lg' => 3], $spanReflection->getValue($components['path']));
+
+        $spanReflection = new ReflectionProperty($components['status.name'], 'columnSpan');
+        $spanReflection->setAccessible(true);
+        $this->assertSame(['default' => 1, 'lg' => 2], $spanReflection->getValue($components['status.name']));
+    }
+
+    // PurchaseOrders / PurchaseRequests / RegisteredOrder RelationManagers — the three
+    // pipeline tabs on the PI edit page (same minimal checklist as the other RM suites)
+
+    public function test_purchase_orders_relation_manager_renders_and_shows_only_rows_linked_to_the_owner(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $linked = PurchaseOrder::factory()->create();
+        $unlinked = PurchaseOrder::factory()->create();
+        $owner->purchaseOrders()->attach($linked->id);
+
+        Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$linked])
+            ->assertCanNotSeeTableRecords([$unlinked]);
+    }
+
+    public function test_purchase_orders_relation_manager_search_narrows_the_table(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $match = PurchaseOrder::factory()->create();
+        $noMatch = PurchaseOrder::factory()->create();
+        $owner->purchaseOrders()->attach([$match->id, $noMatch->id]);
+
+        PurchaseOrder::whereKey($match->id)->update(['po_number' => 'PIRM-PO-TARGET-'.$match->id]);
+        PurchaseOrder::whereKey($noMatch->id)->update(['po_number' => 'PIRM-PO-OTHER-'.$noMatch->id]);
+
+        Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->searchTable('PIRM-PO-TARGET-'.$match->id)
+            ->assertCanSeeTableRecords([$match])
+            ->assertCanNotSeeTableRecords([$noMatch]);
+    }
+
+    public function test_purchase_orders_relation_manager_sort_toggles_a_sortable_column(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $first = PurchaseOrder::factory()->create();
+        $second = PurchaseOrder::factory()->create();
+        $owner->purchaseOrders()->attach([$first->id, $second->id]);
+
+        Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->sortTable('id', 'asc')
+            ->assertCanSeeTableRecords([$first, $second], inOrder: true)
+            ->sortTable('id', 'desc')
+            ->assertCanSeeTableRecords([$second, $first], inOrder: true);
+    }
+
+    public function test_purchase_orders_relation_manager_create_action_links_to_the_create_page_with_the_owner_prefill(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+
+        Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])->assertTableActionHasUrl('create', PurchaseOrderResource::getUrl('create', ['proforma_invoice_id' => $owner->id]));
+    }
+
+    public function test_purchase_orders_relation_manager_export_bulk_action_runs_without_error(): void
+    {
+        Queue::fake();
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $record = PurchaseOrder::factory()->create();
+        $owner->purchaseOrders()->attach($record->id);
+
+        Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->callTableBulkAction('exportPurchaseOrders', [$record])
+            ->assertHasNoTableActionErrors();
+
+        Queue::assertPushed(ExportPurchaseOrders::class, fn (ExportPurchaseOrders $job) => $job->ids === [$record->id]);
+    }
+
+    public function test_purchase_orders_relation_manager_offers_no_bulk_import_action(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+
+        $table = Livewire::test(PurchaseOrdersRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])->instance()->getTable();
+
+        $headerActions = collect($table->getHeaderActions())
+            ->flatMap(fn ($action) => $action instanceof ActionGroup ? $action->getActions() : [$action]);
+
+        $this->assertTrue($headerActions->contains(fn ($action) => $action->getName() === 'create'));
+
+        $this->assertCount(0, $headerActions->filter(
+            fn ($action) => $action instanceof ImportAction || str_contains(mb_strtolower($action->getName()), 'import')
+        ), 'A RelationManager must never offer bulk import (importsPattern.md).');
+    }
+
+    public function test_purchase_requests_relation_manager_renders_and_shows_only_rows_linked_to_the_owner(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_request.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $linked = PurchaseRequest::factory()->create();
+        $unlinked = PurchaseRequest::factory()->create();
+        $owner->purchaseRequests()->attach($linked->id);
+
+        Livewire::test(PurchaseRequestsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$linked])
+            ->assertCanNotSeeTableRecords([$unlinked]);
+    }
+
+    public function test_purchase_requests_relation_manager_search_narrows_the_table(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_request.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $match = PurchaseRequest::factory()->create();
+        $noMatch = PurchaseRequest::factory()->create();
+        $owner->purchaseRequests()->attach([$match->id, $noMatch->id]);
+
+        User::whereKey($match->requester_id)->update(['name' => 'PIRM-PR-TARGET-'.$match->id]);
+        User::whereKey($noMatch->requester_id)->update(['name' => 'PIRM-PR-OTHER-'.$noMatch->id]);
+
+        Livewire::test(PurchaseRequestsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->searchTable('PIRM-PR-TARGET-'.$match->id)
+            ->assertCanSeeTableRecords([$match])
+            ->assertCanNotSeeTableRecords([$noMatch]);
+    }
+
+    public function test_purchase_requests_relation_manager_sort_toggles_a_sortable_column(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_request.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $first = PurchaseRequest::factory()->create();
+        $second = PurchaseRequest::factory()->create();
+        $owner->purchaseRequests()->attach([$first->id, $second->id]);
+
+        Livewire::test(PurchaseRequestsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->sortTable('id', 'asc')
+            ->assertCanSeeTableRecords([$first, $second], inOrder: true)
+            ->sortTable('id', 'desc')
+            ->assertCanSeeTableRecords([$second, $first], inOrder: true);
+    }
+
+    public function test_purchase_requests_relation_manager_attach_action_persists_the_pivot_link(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_request.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $record = PurchaseRequest::factory()->create();
+
+        Livewire::test(PurchaseRequestsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->callTableAction('attach', data: ['recordId' => $record->id])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertTrue($owner->purchaseRequests()->whereKey($record->id)->exists());
+    }
+
+    public function test_purchase_requests_relation_manager_export_bulk_action_runs_without_error(): void
+    {
+        Queue::fake();
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_request.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $record = PurchaseRequest::factory()->create();
+        $owner->purchaseRequests()->attach($record->id);
+
+        Livewire::test(PurchaseRequestsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->callTableBulkAction('exportPurchaseRequests', [$record])
+            ->assertHasNoTableActionErrors();
+
+        Queue::assertPushed(ExportPurchaseRequests::class, fn (ExportPurchaseRequests $job) => $job->ids === [$record->id]);
+    }
+
+    public function test_purchase_requests_relation_manager_offers_no_bulk_import_action(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'purchase_request.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+
+        $table = Livewire::test(PurchaseRequestsRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])->instance()->getTable();
+
+        $headerActions = collect($table->getHeaderActions())
+            ->flatMap(fn ($action) => $action instanceof ActionGroup ? $action->getActions() : [$action]);
+
+        $this->assertTrue($headerActions->contains(fn ($action) => $action->getName() === 'attach'));
+
+        $this->assertCount(0, $headerActions->filter(
+            fn ($action) => $action instanceof ImportAction || str_contains(mb_strtolower($action->getName()), 'import')
+        ), 'A RelationManager must never offer bulk import (importsPattern.md).');
+    }
+
+    public function test_registered_order_relation_manager_renders_and_shows_only_rows_linked_to_the_owner(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'registered_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $linked = RegisteredOrder::factory()->create();
+        $unlinked = RegisteredOrder::factory()->create();
+        $owner->registeredOrders()->attach($linked->id);
+
+        Livewire::test(ProformaInvoiceRegisteredOrderRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$linked])
+            ->assertCanNotSeeTableRecords([$unlinked]);
+    }
+
+    public function test_registered_order_relation_manager_search_narrows_the_table(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'registered_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $match = RegisteredOrder::factory()->create();
+        $noMatch = RegisteredOrder::factory()->create();
+        $owner->registeredOrders()->attach([$match->id, $noMatch->id]);
+
+        RegisteredOrder::whereKey($match->id)->update(['ro_number' => 'PIRM-RO-TARGET-'.$match->id]);
+        RegisteredOrder::whereKey($noMatch->id)->update(['ro_number' => 'PIRM-RO-OTHER-'.$noMatch->id]);
+
+        Livewire::test(ProformaInvoiceRegisteredOrderRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->searchTable('PIRM-RO-TARGET-'.$match->id)
+            ->assertCanSeeTableRecords([$match])
+            ->assertCanNotSeeTableRecords([$noMatch]);
+    }
+
+    public function test_registered_order_relation_manager_sort_toggles_a_sortable_column(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'registered_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $first = RegisteredOrder::factory()->create();
+        $second = RegisteredOrder::factory()->create();
+        $owner->registeredOrders()->attach([$first->id, $second->id]);
+
+        Livewire::test(ProformaInvoiceRegisteredOrderRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->sortTable('id', 'asc')
+            ->assertCanSeeTableRecords([$first, $second], inOrder: true)
+            ->sortTable('id', 'desc')
+            ->assertCanSeeTableRecords([$second, $first], inOrder: true);
+    }
+
+    public function test_registered_order_relation_manager_create_action_links_to_the_create_page_with_the_owner_prefill(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'registered_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+
+        Livewire::test(ProformaInvoiceRegisteredOrderRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])->assertTableActionHasUrl('create', RegisteredOrderResource::getUrl('create', ['proforma_invoice_id' => $owner->id]));
+    }
+
+    public function test_registered_order_relation_manager_export_bulk_action_runs_without_error(): void
+    {
+        Queue::fake();
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'registered_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+        $record = RegisteredOrder::factory()->create();
+        $owner->registeredOrders()->attach($record->id);
+
+        Livewire::test(ProformaInvoiceRegisteredOrderRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])
+            ->callTableBulkAction('exportRegisteredOrders', [$record])
+            ->assertHasNoTableActionErrors();
+
+        Queue::assertPushed(ExportRegisteredOrders::class, fn (ExportRegisteredOrders $job) => $job->ids === [$record->id]);
+    }
+
+    public function test_registered_order_relation_manager_offers_no_bulk_import_action(): void
+    {
+        $this->actingAsUserWithPermissions(['proforma_invoice.view', 'registered_order.view']);
+
+        $owner = ProformaInvoice::factory()->create();
+
+        $table = Livewire::test(ProformaInvoiceRegisteredOrderRelationManager::class, [
+            'ownerRecord' => $owner,
+            'pageClass' => EditProformaInvoice::class,
+        ])->instance()->getTable();
+
+        $headerActions = collect($table->getHeaderActions())
+            ->flatMap(fn ($action) => $action instanceof ActionGroup ? $action->getActions() : [$action]);
+
+        $this->assertTrue($headerActions->contains(fn ($action) => $action->getName() === 'create'));
+
+        $this->assertCount(0, $headerActions->filter(
+            fn ($action) => $action instanceof ImportAction || str_contains(mb_strtolower($action->getName()), 'import')
+        ), 'A RelationManager must never offer bulk import (importsPattern.md).');
     }
 }

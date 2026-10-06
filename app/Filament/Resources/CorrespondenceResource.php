@@ -70,6 +70,7 @@ class CorrespondenceResource extends Resource
                                 static::getSubjectField(),
                                 static::getBodyField(),
                                 FormComponents::getAttachmentsField(),
+                                FormComponents::getAttachmentStatusManager(),
                             ])
                             ->columnSpan(['lg' => 2]),
                     ])

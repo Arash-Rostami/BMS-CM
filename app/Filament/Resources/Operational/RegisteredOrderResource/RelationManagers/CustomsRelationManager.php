@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Operational\RegisteredOrderResource\RelationMan
 
 use App\Filament\Resources\CustomResource;
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\CustomResource\Exports\CustomExporter;
 use App\Filament\Resources\Operational\CustomResource\Traits\Filters as CustomFilters;
 use App\Filament\Resources\Operational\CustomResource\Traits\Table as CustomTable;
 use App\Filament\Traits\HandlesActionExceptions;
@@ -14,7 +13,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -119,8 +117,7 @@ class CustomsRelationManager extends RelationManager
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(CustomExporter::class),
+                    CustomResource::getExportBulkAction(),
                 ]),
             ])
             ->striped()

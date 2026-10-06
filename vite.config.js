@@ -17,6 +17,7 @@ export default defineConfig({
                 'resources/js/filament/topbar-autohide.js',
                 'resources/js/filament/auto-close.js',
                 'resources/js/filament/table-density.js',
+                'resources/js/filament/table-stacking.js',
                 'resources/js/filament/fullscreen.js',
                 'resources/js/filament/recents.js',
                 'resources/js/filament/filepond-locale.js',

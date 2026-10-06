@@ -135,6 +135,9 @@ class ImportAction extends \Filament\Actions\ImportAction
 
         $sections = array_filter([
             [__('resources/general/strings.import.guide.lookup_title'), __('resources/general/strings.import.guide.lookup_body')],
+            $this instanceof GroupedImportAction
+                ? [__('resources/general/strings.import.guide.grouped_rows_title'), __('resources/general/strings.import.guide.grouped_rows_body')]
+                : null,
             $dateDefaults ? [__('resources/general/strings.import.guide.date_defaults_title'), $dateDefaults] : null,
             [__('resources/general/strings.import.guide.eav_title'), __('resources/general/strings.import.guide.eav_body')],
             [__('resources/general/strings.import.guide.reject_title'), __('resources/general/strings.import.guide.reject_body')],

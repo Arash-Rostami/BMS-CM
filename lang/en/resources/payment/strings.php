@@ -5,7 +5,17 @@ return [
         'model_label' => 'Payment',
         'plural_model_label' => 'Payments',
     ],
+    'import' => [
+        'import_payments' => 'Import Payments',
+        'date_defaults' => 'Payment date defaults to the import date when left blank.',
+        'purchase_order_number' => 'Purchase Order Number',
+        'registered_order_number' => 'Registered Order Number',
+        'targetable_ambiguous' => 'Provide either a Purchase Order Number or a Registered Order Number, not both.',
+        'targetable_not_found' => 'Could not find a record matching ":value".',
+        'targetable_required' => 'A Purchase Order Number or Registered Order Number is required for a new payment.',
+    ],
     'export' => [
+        'export_payments' => 'Export Payments',
         'id' => 'ID',
         'payment_no' => 'Payment Number',
         'payment_date' => 'Payment Date',
@@ -89,6 +99,7 @@ return [
         'validation_date' => 'Please enter a valid date.',
         'helper_iban' => 'Double-check the IBAN before saving — a single wrong digit can send funds to the wrong account.',
         'helper_status' => 'Current status of the payment in the pipeline.',
+        'hint_iban_changed' => 'Bank details differ from the last payment to this payee — verify before proceeding.',
     ],
     'table' => [
         'id' => 'ID',
@@ -100,6 +111,10 @@ return [
         'payee' => 'Payee',
         'status' => 'Status',
         'total_amount' => 'Total Amount',
+        'total_match' => 'Total Match',
+        'total_match_yes' => '✅ Matches',
+        'total_match_no' => '⚠️ Mismatch',
+        'total_match_unknown' => '—',
         'created_by' => 'Creator',
         'updater' => 'Updater',
         'created_at' => 'Created At',
@@ -132,5 +147,9 @@ return [
         'updater' => 'Updater',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
+    ],
+    'notifications' => [
+        'duplicate_title' => 'Possible duplicate payment',
+        'duplicate_body' => 'A payment to the same payee for the same order was already created in the last 24 hours.',
     ],
 ];

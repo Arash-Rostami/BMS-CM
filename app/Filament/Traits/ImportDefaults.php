@@ -49,7 +49,7 @@ trait ImportDefaults
         }
     }
 
-    protected static function isDeadlock(QueryException $exception): bool
+    public static function isDeadlock(QueryException $exception): bool
     {
         $sqlState = $exception->errorInfo[0] ?? null;
         $driverCode = $exception->errorInfo[1] ?? null;
@@ -167,7 +167,7 @@ trait ImportDefaults
 
     protected static function assertColumnNamesAllowed(array $columns): array
     {
-        $denied = ['id', 'user_id', 'updated_by_id', 'attachable_type', 'entity_type', 'targetable_type', 'correspondable_type', 'specifiable_type'];
+        $denied = ['id', 'user_id', 'updated_by_id', 'attachable_type', 'entity_type', 'targetable_type', 'correspondable_type', 'specifiable_type', 'notifiable_type', 'statusable_type'];
 
         foreach ($columns as $column) {
             $name = $column->getName();

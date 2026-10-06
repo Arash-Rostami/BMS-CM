@@ -27,7 +27,11 @@ return [
             'percentage' => 'ترخیص درصدی',
         ],
     ],
+    'import' => [
+        'import_customs' => 'بارگذاری امور گمرکی و ترخیص',
+    ],
     'export' => [
+        'export_customs' => 'خروجی امور گمرکی و ترخیص',
         'id' => 'شناسه',
         'custom_no' => 'شماره ترخیص',
         'declaration_no' => 'شماره اظهارنامه',
@@ -88,11 +92,13 @@ return [
         'helper_commitment_balance' => 'مانده تعهد ارزی برای این ترخیص.',
 
         'validation_required' => 'این فیلد الزامی است.',
+        'validation_exists' => 'مقدار انتخاب‌شده نامعتبر است.',
         'validation_unique' => 'این مقدار تکراری است.',
         'validation_numeric' => 'این فیلد باید عدد باشد.',
         'validation_date' => 'لطفاً یک تاریخ معتبر وارد کنید.',
         'validation_contract_no_max' => 'شماره قرارداد نباید بیش از ۲۵۵ کاراکتر باشد.',
         'validation_declaration_no_max' => 'شماره اظهارنامه نباید بیش از ۲۵۵ کاراکتر باشد.',
+        'validation_declaration_no_unique' => 'این شماره اظهارنامه تکراری است.',
         'helper_clearance_type' => 'نوع فرآیند ترخیص گمرکی را انتخاب کنید.',
     ],
     'table' => [
@@ -101,6 +107,9 @@ return [
         'updated_by' => 'ویرایش‌کننده',
         'created_at' => 'تاریخ ایجاد',
         'updated_at' => 'تاریخ بروزرسانی',
+        'exposure_flag' => 'ریسک باز',
+        'clearance_aging_days' => 'سنوات ترخیص',
+        'days' => 'روز',
     ],
     'filters' => [
         'contract_no' => 'شماره قرارداد',

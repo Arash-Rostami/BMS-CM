@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\General\FormComponents;
 use App\Filament\Resources\General\InfoComponents;
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrderExporter;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\CreatePurchaseOrder;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\EditPurchaseOrder;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\ListPurchaseOrders;
@@ -29,7 +28,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -133,6 +131,7 @@ class PurchaseOrderResource extends Resource
                                                 static::getShippingAddressField(),
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
+                                                FormComponents::getAttachmentStatusManager(),
                                             ])->columns(4),
                                     ])
                                     ->columnSpan(['lg' => 1]),
@@ -174,6 +173,7 @@ class PurchaseOrderResource extends Resource
                 'proformaInvoices',
                 'registeredOrders',
                 'purchaseRequests',
+                'payments',
             ])
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
@@ -202,7 +202,7 @@ class PurchaseOrderResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['po_number'];
+        return static::withExtraAttributesSearch(['po_number']);
     }
 
     public static function getModelLabel(): string
@@ -316,6 +316,7 @@ class PurchaseOrderResource extends Resource
                 static::showStatus(),
                 static::showTotalAmount(),
                 static::showOrderDate(),
+                static::showValidityDate(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
@@ -329,6 +330,7 @@ class PurchaseOrderResource extends Resource
                 static::getIncotermsFilter(),
                 static::getCurrencyFilter(),
                 static::getCreatorFilter(),
+                static::getNeedsPaymentFilter(),
                 static::getTrashedFilter(),
                 static::getCreationDateFilter(),
             ])
@@ -343,8 +345,7 @@ class PurchaseOrderResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(PurchaseOrderExporter::class),
+                    static::getExportBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),

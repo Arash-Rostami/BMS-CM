@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Traits\General\HasCustomAttributes;
+use App\Models\Traits\General\HasReliableCodeGeneration;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
@@ -20,6 +21,7 @@ class Payment extends Model
         HasComputedAttributes,
         HasCustomAttributes,
         HasFactory,
+        HasReliableCodeGeneration,
         HasSearchableRelations,
         HasTargetableDisplay,
         Relationships,

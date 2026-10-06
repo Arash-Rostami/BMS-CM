@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources\Operational\CustomResource\Traits;
 
+use App\Filament\Actions\RevertAttachmentAction;
+use App\Filament\Actions\SupersedeAttachmentAction;
 use App\Filament\Resources\Operational\CustomResource\Enums\ClearanceStatus;
 use App\Filament\Resources\Operational\CustomResource\Enums\CommitmentStatus;
 use App\Filament\Resources\Operational\CustomResource\Enums\GuaranteeStatus;
+use App\Models\Attachment;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Support\Facades\Storage;
@@ -22,9 +25,25 @@ trait Infolist
                     ->tooltip(fn ($record) => $record->name ?? '')
                     ->icon('heroicon-m-paper-clip')
                     ->color('primary')
-                    ->url(fn ($record) => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true),
+                    ->url(fn ($record): string => Storage::disk('public')->url($record->path), shouldOpenInNewTab: true)
+                    ->columnSpan(3),
+                TextEntry::make('status.name')
+                    ->hiddenLabel()
+                    ->badge()
+                    ->formatStateUsing(fn (Attachment $record) => $record->status?->getLocalizedNameAttribute())
+                    ->color(fn (Attachment $record): string => match (true) {
+                        $record->isArchived() => 'gray',
+                        $record->isSuperseded() => 'warning',
+                        default => 'success',
+                    })
+                    ->icon(fn (Attachment $record): ?string => $record->isArchived() ? 'heroicon-m-lock-closed' : null)
+                    ->suffixActions([
+                        SupersedeAttachmentAction::make(),
+                        RevertAttachmentAction::make(),
+                    ])
+                    ->columnSpan(2),
             ])
-            ->columns(1);
+            ->columns(5);
     }
 
     public static function viewBankGuaranteeStatus(): TextEntry
@@ -34,6 +53,17 @@ trait Infolist
             ->formatStateUsing(fn ($record) => $record->bankGuaranteeStatus?->getLocalizedNameAttribute())
             ->badge()
             ->color(fn ($record) => GuaranteeStatus::tryFrom($record->bankGuaranteeStatus?->english_name)?->getColor() ?? 'gray')
+            ->placeholder('-');
+    }
+
+    public static function viewClearanceAgingDays(): TextEntry
+    {
+        return TextEntry::make('clearance_aging_days')
+            ->label(__('resources/custom/strings.table.clearance_aging_days'))
+            ->formatStateUsing(fn (?int $state) => $state === null ? '-' : $state.' '.__('resources/custom/strings.table.days'))
+            ->badge()
+            ->color(fn (?int $state): string => static::clearanceAgingColor($state))
+            ->icon('heroicon-m-clock')
             ->placeholder('-');
     }
 
@@ -61,7 +91,9 @@ trait Infolist
     {
         return TextEntry::make('clearance_type')
             ->label(__('resources/custom/strings.form.clearance_type'))
-            ->formatStateUsing(fn ($state) => $state ? ['90_percent' => '90%', '10_percent' => '10%'][$state] : '-')
+            ->formatStateUsing(fn (?string $state) => $state
+                ? (__('resources/custom/strings.general.clearance_types')[$state] ?? $state)
+                : '-')
             ->icon('heroicon-m-scale')
             ->placeholder('-');
     }
@@ -143,6 +175,19 @@ trait Infolist
             ->placeholder('-');
     }
 
+    public static function viewExposureFlag(): TextEntry
+    {
+        return TextEntry::make('exposure_flag')
+            ->label(__('resources/custom/strings.table.exposure_flag'))
+            ->getStateUsing(fn ($record) => static::isOpenExposure($record)
+                ? __('resources/custom/strings.table.exposure_flag')
+                : null)
+            ->badge()
+            ->color('danger')
+            ->icon('heroicon-m-exclamation-triangle')
+            ->visible(fn ($record) => static::isOpenExposure($record));
+    }
+
     public static function viewNotes(): TextEntry
     {
         return TextEntry::make('notes')
@@ -171,6 +216,7 @@ trait Infolist
             ->label(__('resources/custom/strings.form.rial_return_date'))
             ->jalaliDate()
             ->icon('heroicon-m-calendar-days')
+            ->visible(fn ($record) => $record?->clearance_type === 'percentage')
             ->placeholder('-');
     }
 
@@ -193,6 +239,7 @@ trait Infolist
             ->label(__('resources/custom/strings.form.ten_percent_exit_date'))
             ->jalaliDate()
             ->icon('heroicon-m-calendar-days')
+            ->visible(fn ($record) => $record?->clearance_type === 'percentage')
             ->placeholder('-');
     }
 

@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Configurators\FilamentAssets;
 use App\Configurators\FilamentCustomLogin;
+use App\Configurators\FilamentExportDefaults;
 use App\Configurators\FilamentRenderHooks;
 use App\Configurators\FilamentTableDefaults;
+use App\Configurators\FilamentViewActionDefaults;
 use App\Configurators\LanguageSwitcher;
 use App\Models\Attachment;
 use App\Models\Bank;
@@ -83,6 +85,8 @@ class AppServiceProvider extends ServiceProvider
         FilamentAssets::register();
         FilamentRenderHooks::configure();
         FilamentTableDefaults::configure();
+        FilamentExportDefaults::configure();
+        FilamentViewActionDefaults::configure();
     }
 
     private function registerObservers(): void

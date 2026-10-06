@@ -14,6 +14,8 @@ return [
         'create' => 'Créer',
         'add_record' => '˙⋆✮ Créer Nouveau',
         'add_record_tooltip' => 'Ajouter un nouvel enregistrement lié',
+        'attach_record' => '˙⋆✮ Rattacher Existant',
+        'attach_record_tooltip' => 'Rattacher un enregistrement lié existant',
         'view' => 'Voir',
         'edit' => 'Mettre à jour',
         'delete' => 'Supprimer',
@@ -76,6 +78,9 @@ return [
         'revert' => 'Restaurer',
         'revert_success' => 'Pièce jointe restaurée à l\'état téléversé.',
         'revert_hint' => "Le bouton Supprimer d'un fichier archivé disparaît une fois le dossier clôturé. Utilisez Restaurer pour le remettre à l'état téléversé si des modifications sont nécessaires.",
+        'status_label' => 'Statut de la pièce jointe',
+        'status_hint' => 'Marquez comme Remplacé une fois le fichier de remplacement téléversé ci-dessus.',
+        'superseded_hint' => 'Ce fichier sera archivé automatiquement une fois le dossier clôturé.',
     ],
     'export' => [
         'completed' => 'Votre exportation est terminée et :successful ligne(s) exportée(s).',
@@ -115,6 +120,8 @@ return [
             'title' => 'Guide d\'importation',
             'lookup_title' => 'Correspondance par nom',
             'lookup_body' => 'Les colonnes de référence (société, devise, statut, etc.) correspondent par nom exact — vérifiez l\'orthographe par rapport à un enregistrement existant.',
+            'grouped_rows_title' => 'Une ligne, une seule chose',
+            'grouped_rows_body' => 'Chaque ligne contient soit les informations de la commande, soit un seul article — jamais les deux. La ligne de la commande laisse toutes les colonnes d\'article vides, et la ligne de chaque article — y compris le premier — laisse toutes les colonnes de la commande vides.',
             'date_defaults_title' => 'Si une date est laissée vide',
             'eav_title' => 'Attributs personnalisés',
             'eav_body' => 'Les paires clé/valeur supplémentaires sont fusionnées avec les attributs personnalisés de l\'enregistrement et n\'écrasent jamais celles que le fichier ne mentionne pas.',
@@ -156,6 +163,18 @@ return [
     'fullscreen' => [
         'enter' => 'Passer en plein écran',
         'exit' => 'Quitter le plein écran',
+    ],
+    'table_state' => [
+        'enable' => 'Mémoriser mes filtres, tris et colonnes de tableau',
+        'disable' => 'Ne plus mémoriser mes réglages de tableau',
+    ],
+    'row_click' => [
+        'view' => 'Cliquer sur une ligne l\'ouvre dans la fenêtre d\'affichage',
+        'edit' => 'Cliquer sur une ligne ouvre sa page de modification',
+    ],
+    'stacked_table' => [
+        'enable' => 'Empiler les lignes du tableau en cartes sur mobile',
+        'disable' => 'Utiliser le tableau classique défilable sur mobile',
     ],
     'theme_palette' => [
         'button' => 'Palette de couleurs',
@@ -200,6 +219,7 @@ return [
         'resubmit_success' => 'Resoumis avec succès.',
         'pipeline_label' => "Chaîne d'approbation",
         'progress_label' => 'Progression',
+        'progress_label_for' => 'Progression :label',
         'pipeline_automatic' => 'automatique',
         'pipeline_anyone' => "n'importe qui",
         'pipeline_requires' => 'nécessite : :names',

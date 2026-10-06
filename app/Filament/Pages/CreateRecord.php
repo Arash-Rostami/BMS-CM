@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Traits\HandlesActionExceptions;
 use App\Filament\Traits\HandlesSaveExceptions;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord as BaseCreateRecord;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,12 @@ class CreateRecord extends BaseCreateRecord
     public function calendarToggled(): void
     {
         $this->redirect(request()->header('Referer'));
+    }
+
+    protected function getCreateFormAction(): Action
+    {
+        return parent::getCreateFormAction()
+            ->keyBindings(['mod+s']);
     }
 
     /**

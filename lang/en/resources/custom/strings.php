@@ -27,7 +27,11 @@ return [
             'percentage' => 'Percentage Clearance',
         ],
     ],
+    'import' => [
+        'import_customs' => 'Import Customs & Clearance',
+    ],
     'export' => [
+        'export_customs' => 'Export Customs & Clearance',
         'id' => 'ID',
         'custom_no' => 'Custom No.',
         'declaration_no' => 'Declaration No.',
@@ -88,11 +92,13 @@ return [
         'helper_commitment_balance' => 'Remaining foreign-currency commitment balance for this clearance.',
 
         'validation_required' => 'This field is required.',
+        'validation_exists' => 'The selected value is invalid.',
         'validation_unique' => 'This value already exists.',
         'validation_numeric' => 'This field must be a number.',
         'validation_date' => 'Please enter a valid date.',
         'validation_contract_no_max' => 'The contract number must not exceed 255 characters.',
         'validation_declaration_no_max' => 'The declaration number must not exceed 255 characters.',
+        'validation_declaration_no_unique' => 'This declaration number already exists.',
         'helper_clearance_type' => 'Select the type of customs clearance process.',
     ],
     'table' => [
@@ -101,6 +107,9 @@ return [
         'updated_by' => 'Updated By',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
+        'exposure_flag' => 'Open Exposure',
+        'clearance_aging_days' => 'Clearance Aging',
+        'days' => 'days',
     ],
     'filters' => [
         'contract_no' => 'Contract No.',

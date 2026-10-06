@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\General\FormComponents;
 use App\Filament\Resources\General\InfoComponents;
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Operational\CustomResource\Exports\CustomExporter;
 use App\Filament\Resources\Operational\CustomResource\Pages\CreateCustom;
 use App\Filament\Resources\Operational\CustomResource\Pages\EditCustom;
 use App\Filament\Resources\Operational\CustomResource\Pages\ListCustoms;
@@ -27,7 +26,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -95,6 +93,7 @@ class CustomResource extends Resource
                                             ->schema([
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
+                                                FormComponents::getAttachmentStatusManager(),
                                             ])
                                             ->collapsible(),
                                     ])->columnSpan(['lg' => 1]),
@@ -168,7 +167,7 @@ class CustomResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['declaration_no', 'shipment_no', 'contract_no', 'custom_no'];
+        return static::withExtraAttributesSearch(['declaration_no', 'shipment_no', 'contract_no', 'custom_no']);
     }
 
     public static function getModelLabel(): string
@@ -248,6 +247,8 @@ class CustomResource extends Resource
                                         ])->extraAttributes(['style' => 'margin-top: 1.5rem;']),
                                         Grid::make(3)->schema([
                                             static::viewRialReturnDate(),
+                                            static::viewClearanceAgingDays(),
+                                            static::viewExposureFlag(),
                                         ])->extraAttributes(['style' => 'margin-top: 1.5rem;']),
                                     ]),
                             ]),
@@ -278,17 +279,19 @@ class CustomResource extends Resource
                 static::showDeclarationNo(),
                 static::showContractNo(),
                 static::showClearanceType(),
+                static::showExposureFlag(),
                 static::showClearanceStatus(),
                 static::showClearanceDate(),
+                static::showClearanceAgingDays(),
                 static::showBankGuaranteeStatus(),
                 static::showCommitmentStatus(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
                 static::showUpdateTime(),
-                static::getStatusWorkflowProgressColumn('clearance_status_id', Custom::TYPE_CLEARANCE_STATUS),
-                static::getStatusWorkflowProgressColumn('bank_guarantee_status_id', Custom::TYPE_BANK_GUARANTEE_STATUS, toggledHiddenByDefault: true),
-                static::getStatusWorkflowProgressColumn('commitment_status_id', Custom::TYPE_COMMITMENT_STATUS, toggledHiddenByDefault: true),
+                static::getStatusWorkflowProgressColumn('clearance_status_id', Custom::TYPE_CLEARANCE_STATUS, qualifierLabel: __('resources/custom/strings.form.clearance_status')),
+                static::getStatusWorkflowProgressColumn('bank_guarantee_status_id', Custom::TYPE_BANK_GUARANTEE_STATUS, toggledHiddenByDefault: true, qualifierLabel: __('resources/custom/strings.form.bank_guarantee_status')),
+                static::getStatusWorkflowProgressColumn('commitment_status_id', Custom::TYPE_COMMITMENT_STATUS, toggledHiddenByDefault: true, qualifierLabel: __('resources/custom/strings.form.commitment_status')),
             ])
             ->filters([
                 static::getContractNoFilter(),
@@ -311,8 +314,7 @@ class CustomResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(CustomExporter::class),
+                    static::getExportBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),

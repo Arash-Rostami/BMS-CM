@@ -94,6 +94,7 @@ class BankProfileResource extends Resource
                                                 static::getCommitmentPaymentDateField(),
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
+                                                FormComponents::getAttachmentStatusManager(),
                                             ])
                                             ->columns(2),
                                     ])

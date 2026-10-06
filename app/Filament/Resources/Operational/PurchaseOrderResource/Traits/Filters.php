@@ -6,9 +6,18 @@ use App\Filament\Resources\General\FilterComponents;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Database\Eloquent\Builder;
 
 trait Filters
 {
+    public static function getNeedsPaymentFilter(): Filter
+    {
+        return Filter::make('needs_payment')
+            ->label(__('resources/purchaseOrder/strings.filters.needs_payment'))
+            ->query(fn (Builder $query): Builder => $query->doesntHave('payments'))
+            ->toggle();
+    }
+
     public static function getBuyerFilter(): SelectFilter
     {
         return SelectFilter::make('buyer_id')

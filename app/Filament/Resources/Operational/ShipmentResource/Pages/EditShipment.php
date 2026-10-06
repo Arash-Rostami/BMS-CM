@@ -125,6 +125,30 @@ class EditShipment extends EditRecord
         ];
     }
 
+    protected function commercialInvoiceIsDirty(): bool
+    {
+        if (blank($this->data['_inv_pi_id'] ?? null)) {
+            return false;
+        }
+
+        $attr = EntityAttribute::where('entity_type', Shipment::class)
+            ->where('entity_id', $this->record->id)
+            ->where('key', 'commercial_invoice')
+            ->first();
+
+        $persisted = ($attr && is_array($attr->value)) ? $attr->value : [];
+        $current = ShipmentResource::buildInvoiceEavData($this->data);
+
+        return $persisted != $current;
+    }
+
+    protected function beforeSave(): void
+    {
+        if ($this->commercialInvoiceIsDirty()) {
+            ShipmentResource::persistInvoiceToEav($this->data, $this->record);
+        }
+    }
+
     protected function getFormActions(): array
     {
         return [

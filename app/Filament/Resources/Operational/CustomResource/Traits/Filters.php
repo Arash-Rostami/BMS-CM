@@ -52,7 +52,7 @@ trait Filters
     {
         return SelectFilter::make('clearance_type')
             ->label(__('resources/custom/strings.filters.clearance_type'))
-            ->options(['90_percent' => '90%', '10_percent' => '10%']);
+            ->options(__('resources/custom/strings.general.clearance_types'));
     }
 
     public static function getContractNoFilter(): SelectFilter

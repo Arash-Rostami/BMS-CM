@@ -83,7 +83,10 @@ class PurchaseRequestsRelationManager extends RelationManager
             ])
             ->filtersFormColumns(2)
             ->headerActions([
-                AttachAction::make(),
+                AttachAction::make()
+                    ->label(__('resources/general/strings.actions.attach_record'))
+                    ->tooltip(__('resources/general/strings.actions.attach_record_tooltip'))
+                    ->color('primary'),
             ])
             ->recordActions([
                 ActionGroup::make([

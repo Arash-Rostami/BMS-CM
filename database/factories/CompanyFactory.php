@@ -22,7 +22,7 @@ class CompanyFactory extends Factory
             'english_name' => fake()->unique()->company(),
             'description' => fake()->optional()->paragraph(),
             'types' => $types,
-            'is_active' => fake()->boolean(90),
+            'is_active' => true,
             'user_id' => null,
             'updated_by_id' => null,
         ];

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\PurchaseRequest;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\File;
@@ -46,7 +47,9 @@ class AdaptiveDateTest extends TestCase
         $column = TextColumn::make('order_date')->adaptiveDate();
         $this->assertSame(toGregorianDate('2026-09-17'), $column->formatState('2026-09-17'));
 
-        $entry = TextEntry::make('created_at')->adaptiveDateTime();
+        // Filament ≥4.13's TextEntry::formatState resolves isProse() → getRecord(),
+        // which needs a bound record on a bare containerless entry.
+        $entry = TextEntry::make('created_at')->model(new PurchaseRequest)->adaptiveDateTime();
         $this->assertSame(toGregorianDate('2026-09-17 14:30:00', true), $entry->formatState('2026-09-17 14:30:00'));
 
         $this->assertNull($column->formatState(null));

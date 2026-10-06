@@ -25,6 +25,8 @@ return [
         'helper_is_active' => 'Toggle off to hide this company from dropdowns without deleting its history.',
         'basic_information' => 'General',
         'company_classification' => 'Classification',
+        'tab_general' => 'General',
+        'tab_classification' => 'Classification',
         'classification_description' => 'Define the business types and roles of this company',
         'company_types' => 'Company Types',
         'company_types_description' => 'Choose multiple types to define what kind of business this company operates',

@@ -17,9 +17,15 @@ trait HasCustomAttributes
         return $this->morphMany(EntityAttribute::class, 'entity');
     }
 
+    public function reservedCustomAttributeKeys(): array
+    {
+        return [];
+    }
+
     public function getCustomAttributesMap(): array
     {
         return $this->customAttributes()
+            ->whereNotIn('key', $this->reservedCustomAttributeKeys())
             ->pluck('value', 'key')
             ->map(fn ($v) => match (true) {
                 is_string($v) => $v,
@@ -32,10 +38,17 @@ trait HasCustomAttributes
     public function syncCustomAttributes(array $keyValueMap, ?int $userId = null): void
     {
         $userId ??= auth()->id();
+        $reservedKeys = $this->reservedCustomAttributeKeys();
 
-        $this->customAttributes()->whereNotIn('key', array_keys($keyValueMap))->delete();
+        $this->customAttributes()
+            ->whereNotIn('key', array_merge(array_keys($keyValueMap), $reservedKeys))
+            ->delete();
 
         foreach ($keyValueMap as $key => $value) {
+            if (in_array($key, $reservedKeys, true)) {
+                continue;
+            }
+
             $value ??= '';
 
             $attribute = $this->customAttributes()->withTrashed()->firstWhere('key', $key);

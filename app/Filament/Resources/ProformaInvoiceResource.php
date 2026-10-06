@@ -118,6 +118,7 @@ class ProformaInvoiceResource extends Resource
                                                 static::getTotalAmountField(),
                                                 static::getNotesField(),
                                                 FormComponents::getAttachmentsField(),
+                                                FormComponents::getAttachmentStatusManager(),
                                             ]),
                                     ])->columnSpan(['lg' => 1]),
                             ])->columns(3),

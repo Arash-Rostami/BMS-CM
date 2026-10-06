@@ -1,4 +1,4 @@
-<div class="hidden shrink-0 items-center lg:flex" style="order: 3">
+<div class="hidden shrink-0 items-center lg:flex" style="order: 4">
     <x-icon-button
         x-cloak
         x-show="!$store.tableDensityCompact"

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Contracts\HasDocumentChecklist;
 use App\Models\Traits\General\HasCustomAttributes;
+use App\Models\Traits\General\HasReliableCodeGeneration;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
@@ -22,6 +23,7 @@ class Shipment extends Model implements HasDocumentChecklist
         HasFactory,
         HasFormattedName,
         HasPartSelection,
+        HasReliableCodeGeneration,
         HasSearchableRelations,
         Relationships,
         SoftDeletes,
@@ -41,6 +43,11 @@ class Shipment extends Model implements HasDocumentChecklist
     public const TYPE_TRACKING_STATUS = 'Tracking Status';
 
     public const TYPE_DOC_STATUS = 'Documentation Status';
+
+    public function reservedCustomAttributeKeys(): array
+    {
+        return ['commercial_invoice'];
+    }
 
     protected $fillable = [
         'registered_order_id',

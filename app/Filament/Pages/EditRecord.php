@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Traits\HandlesActionExceptions;
 use App\Filament\Traits\HandlesSaveExceptions;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord as BaseEditRecord;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,12 @@ class EditRecord extends BaseEditRecord
     public function calendarToggled(): void
     {
         $this->redirect(request()->header('Referer'));
+    }
+
+    protected function getSaveFormAction(): Action
+    {
+        return parent::getSaveFormAction()
+            ->keyBindings(['mod+s']);
     }
 
     protected function authorizeAccess(): void

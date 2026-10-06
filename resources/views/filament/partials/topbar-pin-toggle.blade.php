@@ -1,4 +1,4 @@
-<div class="hidden shrink-0 items-center lg:flex ms-1" style="order: 5">
+<div class="hidden shrink-0 items-center lg:flex ms-1" style="order: 6">
     <x-icon-button
         x-cloak
         x-show="!$store.topbarPinned"

@@ -126,6 +126,35 @@ class ImportDefaultsTest extends TestCase
         $importer::getColumns();
     }
 
+    public function test_denylist_covers_every_real_morph_type_column_in_the_schema(): void
+    {
+        foreach (['notifiable_type', 'statusable_type'] as $column) {
+            $importer = new class(new Import, [], []) extends Importer
+            {
+                use ImportDefaults;
+
+                protected static ?string $model = \App\Models\PurchaseRequest::class;
+
+                public static function getColumns(): array
+                {
+                    return [];
+                }
+
+                public static function assertColumn(string $name): array
+                {
+                    return self::assertColumnNamesAllowed([ImportColumn::make($name)]);
+                }
+            };
+
+            try {
+                $importer::assertColumn($column);
+                $this->fail("Expected [{$column}] to be denylisted.");
+            } catch (LogicException $exception) {
+                $this->assertStringContainsString($column, $exception->getMessage());
+            }
+        }
+    }
+
     public function test_registered_importers_never_expose_denylisted_columns(): void
     {
         $denied = ['id', 'user_id', 'updated_by_id'];
@@ -192,9 +221,6 @@ class ImportDefaultsTest extends TestCase
 
     public function test_is_deadlock_classifies_mysql_error_codes(): void
     {
-        $method = new ReflectionMethod(ImportDefaultsProbe::class, 'isDeadlock');
-        $method->setAccessible(true);
-
         $deadlockPrevious = new PDOException('deadlock');
         $deadlockPrevious->errorInfo = ['40001', 1213, 'Deadlock found'];
         $deadlock = new QueryException('mysql', 'select 1', [], $deadlockPrevious);
@@ -207,9 +233,9 @@ class ImportDefaultsTest extends TestCase
         $duplicatePrevious->errorInfo = ['23000', 1062, 'Duplicate entry'];
         $notDeadlock = new QueryException('mysql', 'select 1', [], $duplicatePrevious);
 
-        $this->assertTrue($method->invoke(null, $deadlock));
-        $this->assertTrue($method->invoke(null, $lockWaitTimeout));
-        $this->assertFalse($method->invoke(null, $notDeadlock));
+        $this->assertTrue(ImportDefaultsProbe::isDeadlock($deadlock));
+        $this->assertTrue(ImportDefaultsProbe::isDeadlock($lockWaitTimeout));
+        $this->assertFalse(ImportDefaultsProbe::isDeadlock($notDeadlock));
     }
 }
 

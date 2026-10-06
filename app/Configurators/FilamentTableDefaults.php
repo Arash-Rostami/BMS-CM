@@ -8,6 +8,9 @@ class FilamentTableDefaults
 {
     public static function configure(): void
     {
-        Table::configureUsing(fn (Table $table) => $table->paginated([25, 50, 100]));
+        Table::configureUsing(fn (Table $table) => $table
+            ->paginated([25, 50, 100])
+            ->persistInSession(fn (): bool => (bool) session('persist_table_state', false))
+            ->stackedOnMobile());
     }
 }

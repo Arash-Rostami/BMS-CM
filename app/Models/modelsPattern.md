@@ -93,7 +93,7 @@ The same pattern repeats wherever a per-domain trait would collide with a Genera
 
 ## 3. General traits inventory (`App\Models\Traits\General\*`)
 
-All 12 verified:
+All 13 verified:
 
 | Trait | Effect |
 |---|---|
@@ -109,6 +109,7 @@ All 12 verified:
 | `HasProductCategoryFormatting` | `getTargetableFormatted(string $format = 'table'): string` formats a polymorphic `targetable` (Product uses `customized_label` + an emoji; Category uses the localized name) for table/export contexts |
 | `SearchTargetable` | `scopeSearchTargetable(Builder, string)` → `orWhereHasMorph('targetable', [Category::class, Product::class], …)` over `name`/`english_name` (+ `code` for Product) |
 | `ModelInspector` | static introspection helpers for the notification/filter UI: `getAvailableColumns`, `getAvailableModels` (scans `app/Models` for `SCANNABLE_TABLE`), `getColumnValuesForSelectedColumns`, `getColumnsForSelectedTables`, plus `protected static resolveModelClass` and `private static findBestRelationForColumn`/`guessRelationships` |
+| `HasReliableCodeGeneration` | added 2026-10-03, fixes the `CodeGenerator` race condition — see `servicesPattern.md`'s `CodeGenerator` section for the full mechanism. Overrides `save()`: wraps a NEW record's save in a real `DB::transaction($closure, 3)` (skipped if already updating, or already inside an ambient transaction) so the existing `lockForUpdate()` scan inside `generate()` finally has a transaction to lock within, plus an auto-retry for the one case (first code of a given day) where InnoDB only takes a non-blocking gap lock. Composed on the 8 models with a `CodeGenerator`-mapped column: `PurchaseRequest`, `ProformaInvoice`, `RegisteredOrder`, `PurchaseOrder`, `BankProfile`, `Payment`, `Shipment`, `Custom` — not Department, which deliberately has no DB-level uniqueness on `code` at all (§9/import-only generation). |
 
 `filamentPattern.md` §1.11 tables the first six; this doc is the complete inventory.
 
@@ -159,6 +160,8 @@ class EntityAttribute extends Model
 ```
 
 The `value` column is JSON-cast. On read, Eloquent returns arrays/scalars (not strings) — this is why every Filament-side `extraAttributes` field needs the mandatory `formatStateUsing` (`filamentPattern.md` §1.6).
+
+**`reservedCustomAttributeKeys(): array`** (default `[]`, override per-model) protects `EntityAttribute` keys that are written by a *different* mechanism than the Extra Attributes Repeater, from that Repeater's own sync. `syncCustomAttributes()`'s delete-sweep (`whereNotIn('key', ...)`) only ever knew about its own Repeater's key map — any other system-managed key on the same polymorphic `entity_id` (e.g. Shipment's `commercial_invoice`, written independently by `InvoiceForm`'s `persistInvoiceToEav()`) got silently deleted the instant a user added one real custom attribute and saved, because the sweep doesn't know that key belongs to someone else. Reproduced live 2026-10-05: 0 custom attributes present → the other key survives untouched (sweep has nothing to delete); 1 real custom attribute present → the other key gets wiped. Fixed by excluding `reservedCustomAttributeKeys()` from both the delete-sweep and the write-loop in `syncCustomAttributes()`, and from the map in `getCustomAttributesMap()`. `Shipment::reservedCustomAttributeKeys()` returns `['commercial_invoice']`. When adding a new system-managed EAV key on any model that also uses `HasExtraAttributesManagement`'s Repeater, add it to that model's override — don't assume a key written outside the Repeater is safe from it.
 
 ## 6. Status + `StatusFinder` + `TYPE_*` constants
 

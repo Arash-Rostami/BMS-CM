@@ -11,6 +11,7 @@ use App\Filament\Resources\Operational\BankProfileResource\Pages\ListBankProfile
 use App\Filament\Resources\Operational\BankProfileResource\RelationManagers\RegisteredOrdersRelationManager;
 use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\EditRegisteredOrder;
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\BankProfilesRelationManager;
+use App\Models\Attachment;
 use App\Models\Bank;
 use App\Models\BankProfile;
 use App\Models\Category;
@@ -24,6 +25,7 @@ use App\Models\Status;
 use App\Models\User;
 use App\Services\SmartCacheManager;
 use Filament\Actions\Imports\Models\Import;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
@@ -116,6 +118,14 @@ class BankProfileResourceTest extends TestCase
         $reflection->setAccessible(true);
 
         return ($reflection->getValue($tab))($record);
+    }
+
+    private function repeatableItemComponents(RepeatableEntry $entry): array
+    {
+        $reflection = new ReflectionProperty($entry, 'childComponents');
+        $reflection->setAccessible(true);
+
+        return $reflection->getValue($entry)['default'];
     }
 
     public function test_infolist_status_history_tab_renders_and_badge_matches_history_count(): void
@@ -496,7 +506,7 @@ class BankProfileResourceTest extends TestCase
         $this->assertSame('hello', $map['filled_field']);
     }
 
-    // Create — validation only (relationship-bound fields; §3d plain-scalar fillForm() quirk doesn't affect assertHasFormErrors)
+    // Create — validation only (§3d fillForm() quirk resolved 2026-09-26; this test predates it)
 
     public function test_create_requires_registered_order_currencies_amount_and_status(): void
     {
@@ -546,7 +556,7 @@ class BankProfileResourceTest extends TestCase
         $this->assertFalse($instance->instance()->form->getComponent('registered_order_id')->isDisabled());
     }
 
-    // Edit — relationship-bound field only; see testPattern.md §3d for why plain-scalar fields are skipped here
+    // Edit — relationship-bound field only (§3d fillForm() quirk resolved 2026-09-26; plain scalars may be added here again)
 
     public function test_edit_page_loads_existing_values_and_persists_a_status_update(): void
     {
@@ -576,13 +586,13 @@ class BankProfileResourceTest extends TestCase
 
     // Status workflow (HasStatusWorkflow) — safe no-op today, no admin-configured stage_order/approval_permission
 
-    public function test_list_and_edit_pages_expose_the_status_workflow_pipeline_header_action(): void
+    public function test_only_the_edit_page_exposes_the_status_workflow_pipeline_header_action(): void
     {
         $this->actingAsUserWithPermissions(['bank_profile.create', 'bank_profile.view', 'bank_profile.edit']);
         $record = BankProfile::factory()->create();
 
         Livewire::test(ListBankProfiles::class)
-            ->assertActionExists('statusWorkflowPipeline');
+            ->assertActionDoesNotExist('statusWorkflowPipeline');
 
         Livewire::test(EditBankProfile::class, ['record' => $record->getRouteKey()])
             ->assertActionExists('statusWorkflowPipeline');
@@ -812,6 +822,44 @@ class BankProfileResourceTest extends TestCase
         }
     }
 
+    public function test_import_rejects_a_blank_registered_order_on_a_new_record_cleanly(): void
+    {
+        app()->setLocale('en');
+        $before = BankProfile::count();
+
+        try {
+            $this->invokeImporter($this->baseImportRow([]));
+
+            $this->fail('Expected RowImportFailedException was not thrown.');
+        } catch (\Filament\Actions\Imports\Exceptions\RowImportFailedException $exception) {
+            $this->assertSame(__('resources/general/strings.import.required_for_new_record', [
+                'label' => __('resources/bankProfile/strings.form.registered_order'),
+            ]), $exception->getMessage());
+        }
+
+        $this->assertSame($before, BankProfile::count());
+    }
+
+    public function test_import_reupload_with_a_blank_registered_order_preserves_the_existing_value(): void
+    {
+        $ro = RegisteredOrder::factory()->create();
+
+        $first = $this->invokeImporter($this->baseImportRow([
+            'registered_order_id' => $ro->ro_number,
+        ]));
+        $record = $first->getRecord();
+
+        $row = $this->baseImportRow([
+            'bp_number' => $record->bp_number,
+            'notes' => 'Second upload, registered order left blank',
+        ]);
+
+        $second = $this->invokeImporter($row);
+
+        $this->assertSame($record->id, $second->getRecord()->id);
+        $this->assertSame($ro->id, $second->getRecord()->registered_order_id);
+    }
+
     public function test_import_new_record_with_unresolvable_company_saves_via_null_fallback_and_logs_a_note(): void
     {
         $ro = RegisteredOrder::factory()->create();
@@ -977,6 +1025,38 @@ class BankProfileResourceTest extends TestCase
         $this->assertSame(jdate($record->payment_due_date)->format('Y-m-d'), $row[$labels['payment_due_date']]);
     }
 
+    public function test_exporter_escapes_formula_injection_in_creator_and_updater_names(): void
+    {
+        app()->setLocale('en');
+        $ro = RegisteredOrder::factory()->create();
+        $company = Company::factory()->create(['is_active' => true]);
+        $bank = Bank::factory()->create(['is_active' => true]);
+        $status = $this->bpStatus('CreatorEscapeCheck');
+        $currency = Currency::factory()->create();
+
+        $creator = User::factory()->create(['name' => '=1+1']);
+        $this->actingAs($creator);
+        $record = BankProfile::factory()->create([
+            'registered_order_id' => $ro->id,
+            'company_id' => $company->id,
+            'bank_id' => $bank->id,
+            'status_id' => $status->id,
+            'requested_amount' => 1000,
+            'requested_currency_id' => $currency->id,
+            'payment_due_date' => '2026-01-15',
+        ]);
+
+        $updater = User::factory()->create(['name' => '+SUM(1,2)']);
+        $this->actingAs($updater);
+        $record->update(['notes' => 'triggers updated_by_id']);
+
+        ['rows' => [$row]] = $this->exportToRows(BankProfile::query()->whereKey($record->id));
+        $labels = BankProfileExporter::columnLabels();
+
+        $this->assertSame("'=1+1", $row[$labels['creator']]);
+        $this->assertSame("'+SUM(1,2)", $row[$labels['updater']]);
+    }
+
     public function test_exporter_restores_the_full_column_set_wider_than_import(): void
     {
         app()->setLocale('en');
@@ -1028,5 +1108,49 @@ class BankProfileResourceTest extends TestCase
 
         Livewire::test(ListBankProfiles::class)
             ->assertTableBulkActionsExistInOrder(['exportBankProfiles', 'delete', 'restore']);
+    }
+
+    public function test_edit_form_shows_a_status_select_for_each_attachment(): void
+    {
+        $this->actingAsUserWithPermissions(['bank_profile.view', 'bank_profile.edit']);
+        $record = BankProfile::factory()->create();
+        $uploaded = Status::findBy(Attachment::TYPE_ATTACHMENT, Attachment::STATUS_UPLOADED);
+        $attachment = Attachment::factory()->forAttachable($record)->create(['status_id' => $uploaded->id]);
+
+        Livewire::test(EditBankProfile::class, ['record' => $record->getRouteKey()])
+            ->assertSee($attachment->name ?: basename($attachment->path))
+            ->assertSee($uploaded->getLocalizedNameAttribute());
+    }
+
+    public function test_attachments_infolist_entry_wires_the_supersede_and_revert_actions(): void
+    {
+        $entry = collect($this->repeatableItemComponents(BankProfileResource::viewAttachments()))
+            ->first(fn ($component) => $component->getName() === 'status.name');
+
+        $reflection = new ReflectionProperty($entry, 'suffixActions');
+        $reflection->setAccessible(true);
+
+        $names = collect($reflection->getValue($entry))->map(fn ($action) => $action->getName())->all();
+
+        $this->assertSame(['supersedeAttachment', 'revertAttachment'], $names);
+    }
+
+    public function test_attachments_infolist_entry_splits_filename_and_status_three_to_two(): void
+    {
+        $entry = BankProfileResource::viewAttachments();
+
+        $columnsReflection = new ReflectionProperty($entry, 'columns');
+        $columnsReflection->setAccessible(true);
+        $this->assertSame(['lg' => 5], $columnsReflection->getValue($entry));
+
+        $components = collect($this->repeatableItemComponents($entry))->keyBy(fn ($component) => $component->getName());
+
+        $spanReflection = new ReflectionProperty($components['path'], 'columnSpan');
+        $spanReflection->setAccessible(true);
+        $this->assertSame(['default' => 1, 'lg' => 3], $spanReflection->getValue($components['path']));
+
+        $spanReflection = new ReflectionProperty($components['status.name'], 'columnSpan');
+        $spanReflection->setAccessible(true);
+        $this->assertSame(['default' => 1, 'lg' => 2], $spanReflection->getValue($components['status.name']));
     }
 }

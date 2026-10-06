@@ -7,6 +7,7 @@ use App\Models\Traits\BankProfile\HasSearchableRelations;
 use App\Models\Traits\BankProfile\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasProductCategoryFormatting;
+use App\Models\Traits\General\HasReliableCodeGeneration;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\SearchTargetable;
 use App\Models\Traits\General\TracksStatusHistory;
@@ -22,6 +23,7 @@ class BankProfile extends Model
         HasCustomAttributes,
         HasFactory,
         HasProductCategoryFormatting,
+        HasReliableCodeGeneration,
         HasSearchableRelations,
         Relationships,
         searchTargetable,
