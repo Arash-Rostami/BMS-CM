@@ -2,16 +2,50 @@
 
 namespace App\Filament\Resources\Master\ProductResource\Traits;
 
+use App\Filament\Actions\ImportAction;
 use App\Filament\Resources\Master\ProductResource\Enums\InStockStatus;
+use App\Filament\Resources\Master\ProductResource\Imports\ProductImporter;
+use App\Filament\Resources\ProductResource;
+use App\Jobs\ExportProducts;
 use App\Models\Product;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\TextSize;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getImportAction(): ImportAction
+    {
+        return ImportAction::make('importProducts')
+            ->label(__('resources/product/strings.import.import_products'))
+            ->modalHeading(__('resources/product/strings.import.import_products'))
+            ->icon('heroicon-o-arrow-up-tray')
+            ->importer(ProductImporter::class)
+            ->resourceGate(ProductResource::class);
+    }
+
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportProducts')
+            ->label(__('resources/product/strings.export.export_products'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => ProductResource::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportProducts::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showName(): TextColumn
     {
         return TextColumn::make('name')
@@ -96,6 +130,19 @@ trait Table
                 default => 'gray',
             })
             ->searchable(query: fn (Builder $query, string $search) => Product::applyRollSheetSearch($query, $search))
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function showCustomsReady(): IconColumn
+    {
+        return IconColumn::make('customs_ready')
+            ->label(__('resources/product/strings.table.customs_ready'))
+            ->getStateUsing(fn ($record) => filled($record->specifications->first()?->hs_code))
+            ->boolean()
+            ->trueIcon('heroicon-o-shield-check')
+            ->falseIcon('heroicon-o-shield-exclamation')
+            ->trueColor('success')
+            ->falseColor('gray')
             ->toggleable(isToggledHiddenByDefault: true);
     }
 

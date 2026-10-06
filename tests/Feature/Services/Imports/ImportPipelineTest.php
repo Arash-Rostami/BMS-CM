@@ -469,4 +469,20 @@ class ImportPipelineTest extends TestCase
         $this->assertStringStartsWith('Original note', $record->notes);
         $this->assertStringContainsString('Bogus', $record->notes);
     }
+
+    public function test_append_unresolved_match_notes_skips_gracefully_for_a_model_without_a_notes_column(): void
+    {
+        $record = new Currency;
+        $context = new ImportRowContext($record);
+        $context->columns = [
+            ImportColumnDefinition::match('secondary_currency_id', 'label', 'secondaryCurrency', Currency::class, ['name'])
+                ->allowNullOnMismatch(),
+        ];
+        $context->rawData = ['secondary_currency_id' => 'Bogus'];
+
+        $result = (new AppendUnresolvedMatchNotes)->handle($context, fn ($c) => $c);
+
+        $this->assertSame($context, $result);
+        $this->assertFalse($record->isDirty('notes'));
+    }
 }

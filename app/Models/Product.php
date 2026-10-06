@@ -38,6 +38,7 @@ class Product extends Model
         'english_name',
         'slug',
         'description',
+        'notes',
         'code',
         'in_stock',
         'is_active',
@@ -52,4 +53,9 @@ class Product extends Model
         'is_active' => 'boolean',
         'attributes' => 'array',
     ];
+
+    public static function normalizeCode(?string $code): ?string
+    {
+        return $code === null ? null : mb_strtoupper(trim($code));
+    }
 }

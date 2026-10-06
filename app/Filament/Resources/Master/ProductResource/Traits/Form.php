@@ -35,7 +35,13 @@ trait Form
                     return;
                 }
 
-                $set('inquiry_result', Product::where('code', $state)->exists() ? 'found' : 'not_found');
+                $code = Product::normalizeCode($state);
+
+                $set('inquiry_result', match (true) {
+                    Product::where('code', $code)->exists() => 'found',
+                    Product::onlyTrashed()->where('code', $code)->exists() => 'trashed',
+                    default => 'not_found',
+                });
             });
     }
 
@@ -65,6 +71,25 @@ trait Form
             ->visible(fn (Get $get, $operation) => $operation === 'create' && $get('inquiry_result') === 'found');
     }
 
+    public static function getTrashedProductDetails(): Section
+    {
+        return Section::make(__('resources/product/strings.form.trashed_product_title'))
+            ->description(__('resources/product/strings.form.trashed_product_description'))
+            ->icon('heroicon-o-archive-box-x-mark')
+            ->schema([
+                TextEntry::make('trashed_product_link')
+                    ->hiddenLabel()
+                    ->state(__('resources/product/strings.form.view_trashed_products'))
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->color('warning')
+                    ->url(fn () => static::getUrl('index', [
+                        'tableFilters' => ['trashed' => ['value' => '0']],
+                    ]))
+                    ->openUrlInNewTab(),
+            ])
+            ->visible(fn (Get $get, $operation) => $operation === 'create' && $get('inquiry_result') === 'trashed');
+    }
+
     public static function getNotFoundConfirmation(): Section
     {
         return Section::make(__('resources/product/strings.form.not_found_title'))
@@ -78,16 +103,24 @@ trait Form
                     ->default(false)
                     ->afterStateUpdated(function ($state, Get $get, Set $set) {
                         if ($state) {
-                            $set('code', $get('inquiry_code'));
+                            $set('code', Product::normalizeCode($get('inquiry_code')));
                         }
                     }),
             ])
             ->visible(fn (Get $get, $operation) => $operation === 'create' && $get('inquiry_result') === 'not_found' && ! $get('confirmed_create'));
     }
 
+    protected static array $inquiryCodeLookupCache = [];
+
     public static function findByInquiryCode(?string $code): ?Product
     {
-        return filled($code) ? Product::where('code', $code)->first() : null;
+        $normalized = Product::normalizeCode($code);
+
+        if (blank($normalized)) {
+            return null;
+        }
+
+        return static::$inquiryCodeLookupCache[$normalized] ??= Product::where('code', $normalized)->first();
     }
 
     public static function specificationHasData(array $data): bool
@@ -136,7 +169,10 @@ trait Form
     {
         return TextInput::make('code')
             ->label(__('resources/product/strings.form.code'))
+            ->live(onBlur: true)
+            ->afterStateUpdated(fn ($state, Set $set) => $set('code', Product::normalizeCode($state)))
             ->unique(table: 'products', column: 'code', ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->withoutTrashed())
+            ->dehydrateStateUsing(fn ($state) => Product::normalizeCode($state))
             ->maxLength(255)
             ->required()
             ->placeholder(__('resources/product/strings.form.validation_code_placeholder'))

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Master\ProductResource\Exports\ProductExporter;
 use App\Filament\Resources\Master\ProductResource\Pages\ManageProducts;
 use App\Filament\Resources\Master\ProductResource\Traits\CategoryDrilldown;
 use App\Filament\Resources\Master\ProductResource\Traits\Filters as ProductFilters;
@@ -18,7 +17,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -51,6 +49,7 @@ class ProductResource extends Resource
             ->components([
                 self::getInquiryCodeField(),
                 self::getExistingProductDetails(),
+                self::getTrashedProductDetails(),
                 self::getNotFoundConfirmation(),
                 // creating new product
                 Tabs::make('Tabs')
@@ -214,6 +213,7 @@ class ProductResource extends Resource
                                     static::viewUpdater(),
                                     static::viewCreatedAt(),
                                     static::viewUpdatedAt(),
+                                    static::viewNotes(),
                                 ])->columns(2),
                             ]),
                         // Specifications
@@ -251,6 +251,7 @@ class ProductResource extends Resource
                 static::showCategory(),
                 static::showRollSheetType(),
                 static::showProductAttributes(),
+                static::showCustomsReady(),
                 static::showInStock(),
                 static::showIsActive(),
                 static::showCreator(),
@@ -263,6 +264,7 @@ class ProductResource extends Resource
                 static::getCategoryFilter(),
                 static::getInStockFilter(),
                 static::getRollSheetFilter(),
+                static::getCustomsReadyFilter(),
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
                 static::getTrashedFilter(),
@@ -278,7 +280,7 @@ class ProductResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()->exporter(ProductExporter::class),
+                    static::getExportBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),

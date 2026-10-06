@@ -13,6 +13,7 @@ class ManageProducts extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
+            ProductResource::getImportAction(),
             CreateAction::make()
                 ->icon('heroicon-o-sparkles')
                 ->mutateDataUsing(fn (array $data) => self::setSlugAndCategory($data)),

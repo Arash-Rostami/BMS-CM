@@ -128,13 +128,12 @@ trait Infolist
             ->columnSpanFull()
             ->icon('heroicon-m-document-check')
             ->formatStateUsing(function ($state) {
-                if (! is_string($state) || empty($state)) {
-                    return $state;
+                if (! is_array($state) || empty($state)) {
+                    return null;
                 }
                 $allLicenses = Lang::get('resources/product/strings.form.licenses');
-                $licenseKeys = array_map('trim', explode(',', $state));
 
-                return collect($licenseKeys)
+                return collect($state)
                     ->map(fn ($licenseKey) => $allLicenses[$licenseKey] ?? $licenseKey)
                     ->implode(' | ');
             })
@@ -166,6 +165,16 @@ trait Infolist
         return TextEntry::make('specifications.0.manufacturer')
             ->label(__('resources/product/strings.form.manufacturer'))
             ->icon('heroicon-m-building-storefront')
+            ->placeholder('-');
+    }
+
+    public static function viewNotes(): TextEntry
+    {
+        return TextEntry::make('notes')
+            ->label(__('resources/product/strings.form.notes'))
+            ->markdown()
+            ->prose()
+            ->columnSpanFull()
             ->placeholder('-');
     }
 
