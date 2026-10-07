@@ -1,10 +1,11 @@
-Six observers, registered in `AppServiceProvider::boot()`. Each is a focused, single-concern side-effect handler — no shared base class, no shared behavior between them beyond the Eloquent observer contract itself.
+Seven observers, registered in `AppServiceProvider::boot()`. Each is a focused, single-concern side-effect handler — no shared base class, no shared behavior between them beyond the Eloquent observer contract itself.
 
 | Observer | Model(s) | Fires on | Does |
 |---|---|---|---|
 | `PurchaseRequestObserver` | `PurchaseRequest` | `status_id` change to `Authorized`/`Declined` | Cascades the same status to every child `PurchaseRequestItem`. |
 | `CategoryObserver` | `Category` | `created`/`updated` (parent_id dirty)/`restored`/`forceDeleted` | Maintains the `category_closure` table (ancestor/descendant/depth rows) backing hierarchy queries and the cycle guard (`Category::wouldCreateCycle()`). See the gotcha below — this is NOT a trivial observer. |
 | `StatusObserver` | `Status` | `saved`/`deleted`/`restored` | Invalidates `StatusWorkflow`'s per-`english_type` cached stage list via `SmartCacheManager::invalidate('Status')`. |
+| `EntityAttributeObserver` | `EntityAttribute` | `saved`/`deleted`/`restored` | Invalidates the `SmartCacheManager` `EntityAttribute` key set backing `EntityAttributeResource`'s three cached filter-option lists (5 min TTL, keyed by locale). |
 | `AttachmentObserver` | `Attachment` | `forceDeleted` | Deletes the underlying file from the `public` disk once the DB row is permanently gone (soft-delete alone leaves the file in place). |
 | `CodeGeneratingObserver` | any model in `CodeGenerator::$map` | `creating` | Calls `CodeGenerator::generate($field)` for each mapped identifier column, unless `duringImport(fn () => ...)` is wrapping the call (import pipelines generate/validate identifiers themselves). |
 | `NotificationDispatcher` | gated via `NotificationEvaluator` | model save events | Evaluates `NotificationSetting` rules and fires matching notifications, unless `suspended(fn () => ...)` is wrapping the call (bulk/import paths that would otherwise spam one notification per row). |

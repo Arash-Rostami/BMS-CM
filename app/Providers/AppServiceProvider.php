@@ -17,6 +17,7 @@ use App\Models\Company;
 use App\Models\Correspondence;
 use App\Models\Currency;
 use App\Models\Custom;
+use App\Models\EntityAttribute;
 use App\Models\Payment;
 use App\Models\Permission;
 use App\Models\Product;
@@ -32,6 +33,7 @@ use App\Models\User;
 use App\Observers\AttachmentObserver;
 use App\Observers\CategoryObserver;
 use App\Observers\CodeGeneratingObserver;
+use App\Observers\EntityAttributeObserver;
 use App\Observers\PurchaseRequestObserver;
 use App\Observers\StatusObserver;
 use Illuminate\Support\ServiceProvider;
@@ -95,6 +97,7 @@ class AppServiceProvider extends ServiceProvider
         Category::observe(CategoryObserver::class);
         PurchaseRequest::observe(PurchaseRequestObserver::class);
         Status::observe(StatusObserver::class);
+        EntityAttribute::observe(EntityAttributeObserver::class);
 
         foreach (self::CODE_GENERATED_MODELS as $model) {
             $model::observe(CodeGeneratingObserver::class);

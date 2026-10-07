@@ -108,6 +108,8 @@ return [
         'validation_seller_company_exists' => 'Ce fournisseur n\'est plus disponible ; choisissez une société dans la liste actuelle.',
         'validation_seller_company_different' => 'Le fournisseur et l\'acheteur doivent être deux sociétés différentes.',
         'validation_validity_date_after' => 'La date de validité doit être égale ou postérieure à la date d\'émission de la proforma.',
+        'validation_select_invalid' => "La valeur sélectionnée n'est plus disponible ; veuillez en choisir une dans la liste actuelle.",
+        'validation_unit_in' => 'Choisissez une unité de mesure valide dans la liste.',
         'validation_date' => 'Saisissez une date valide pour que le champ soit traité correctement.',
         'helper_invoice_no' => 'Ne modifiez le numéro généré automatiquement que si vous devez le faire correspondre à un document externe (il doit rester unique).',
         'helper_invoice_date' => 'Cette date détermine la validité et l\'ancienneté, et ne peut pas être fixée dans le futur.',

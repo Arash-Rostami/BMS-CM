@@ -3,13 +3,84 @@
 namespace App\Filament\Resources\Operational\TargetResource\Traits;
 
 use App\Filament\Resources\Operational\TargetResource\Enums\Status as TargetStatus;
+use App\Jobs\ExportTargets;
 use App\Models\Target;
 use App\Services\PersianCalendar;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportTargets')
+            ->label(__('resources/target/strings.export.export_targets'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => static::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportTargets::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
+    public static function getActivateBulkAction(): BulkAction
+    {
+        return BulkAction::make('activate')
+            ->label(__('resources/general/strings.bulk.activate.label'))
+            ->icon('heroicon-o-check-circle')
+            ->color('success')
+            ->action(function (Collection $records): void {
+                $skipped = 0;
+
+                foreach ($records as $record) {
+                    if (static::activeOverlapQuery($record->targetable_type, $record->targetable_id, $record->start_from, $record->end_in, $record)->exists()) {
+                        $skipped++;
+
+                        continue;
+                    }
+
+                    $record->update(['status' => TargetStatus::Active->value]);
+                }
+
+                Notification::make()
+                    ->title(__('resources/general/strings.bulk.activate.notification'))
+                    ->success()
+                    ->send();
+
+                if ($skipped > 0) {
+                    Notification::make()
+                        ->title(__('resources/target/strings.bulk.activate_skipped', ['count' => $skipped]))
+                        ->warning()
+                        ->send();
+                }
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
+    public static function getDeactivateBulkAction(): BulkAction
+    {
+        return BulkAction::make('deactivate')
+            ->label(__('resources/general/strings.bulk.deactivate.label'))
+            ->icon('heroicon-o-x-circle')
+            ->color('danger')
+            ->action(function (Collection $records): void {
+                Target::whereIn('id', $records->pluck('id'))->update(['status' => TargetStatus::Inactive->value]);
+                Notification::make()
+                    ->title(__('resources/general/strings.bulk.deactivate.notification'))
+                    ->success()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showTargetable(): TextColumn
     {
         return TextColumn::make('targetable')
@@ -50,8 +121,20 @@ trait Table
             ->label(__('resources/target/strings.table.end_in'))
             ->adaptiveDate()
             ->when(app()->isLocale('fa'), fn ($column) => $column->jalaliDate())
+            ->color(fn (Target $record): ?string => $record->ended_still_active ? 'danger' : null)
             ->toggleable(isToggledHiddenByDefault: true)
             ->sortable();
+    }
+
+    public static function showAchievedPercentage(): TextColumn
+    {
+        return TextColumn::make('achieved_percentage')
+            ->label(__('resources/target/strings.table.achieved_percentage'))
+            ->getStateUsing(fn (Target $record): ?float => $record->achieved_percentage)
+            ->formatStateUsing(fn ($state): string => $state !== null ? $state.'%' : '-')
+            ->badge()
+            ->color(fn (Target $record): string => $record->achieved_color)
+            ->placeholder('-');
     }
 
     public static function showQuantity(): TextColumn

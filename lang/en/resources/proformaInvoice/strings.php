@@ -108,6 +108,8 @@ return [
         'validation_seller_company_exists' => 'That supplier is no longer available; choose a company from the current list.',
         'validation_seller_company_different' => 'The supplier and the buyer must be two different companies.',
         'validation_validity_date_after' => 'The validity date must fall on or after the proforma issue date.',
+        'validation_select_invalid' => 'The selected value is no longer available; please pick one from the current list.',
+        'validation_unit_in' => 'Choose a valid unit of measure from the list.',
         'validation_date' => 'Enter a valid date so the field can be parsed correctly.',
         'helper_invoice_no' => 'Only edit the auto-generated number if you need to match an external document (it must remain unique).',
         'helper_invoice_date' => 'Set the issue date; this drives validity calculations and cannot be in the future.',

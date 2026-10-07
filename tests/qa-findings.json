@@ -1,338 +1,738 @@
 {
-  "purchase_request": {
-    "L01_list_search": { "result": "pass" },
-    "L02_filters": {
-      "result": "pass",
-      "note": "Filter modal now closes/fades on Apply.",
-      "scope": "app_wide",
-      "status": "fixed — confirmed directly by user 2026-09-22; app_wide_requests.filter_modal_close_on_apply resolved for at least this module"
+    "purchase_request": {
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: approver_id/cost_center_id (Select), item product_id/status_id (Select), item unit and urgency_level/status_id (options-based Select) had no 'in' validationMessages key — an invalid/stale selection leaked raw English (\"The selected :attribute is invalid.\") to fa/fr users despite a translated label.",
+            "status": "fixed — 'in' key wired on all 6 fields with genuine fa/fr translations; regression test test_create_rejects_a_nonexistent_cost_center_id_with_translated_message added to PurchaseRequestResourceTest.php."
+        },
+        "L01_list_search": {
+            "result": "pass"
+        },
+        "L02_filters": {
+            "result": "pass",
+            "note": "Filter modal now closes/fades on Apply.",
+            "scope": "app_wide",
+            "status": "fixed — confirmed directly by user 2026-09-22; app_wide_requests.filter_modal_close_on_apply resolved for at least this module"
+        },
+        "L03_sort_pagination": {
+            "result": "pass",
+            "note": "Sorting by Department or Cost Center crashed: SQLSTATE[42S22] Unknown column 'departments.localized_name' — localized_name is a PHP accessor, not a DB column.",
+            "scope": "purchase_request",
+            "status": "fixed — app/Filament/Resources/Operational/PurchaseRequestResource/Traits/Table.php, custom sortable() query added; caches cleared; confirmed by user"
+        },
+        "C01_create_happy_path": {
+            "result": "pass"
+        },
+        "C02_create_validation": {
+            "result": "pass"
+        },
+        "E01_edit_loads_relations": {
+            "result": "pass"
+        },
+        "I01_infolist_tabs": {
+            "result": "pass",
+            "note": "Infolist modal now has a fixed height, no longer shrinks with less data.",
+            "scope": "app_wide",
+            "status": "fixed — confirmed directly by user 2026-09-22; app_wide_requests.infolist_modal_fixed_height resolved for at least this module"
+        },
+        "A01_eav_custom_attributes": {
+            "result": "pass",
+            "note": "Default/empty value displayed literally as the text 'null'.",
+            "scope": "shared_trait",
+            "status": "fixed — app/Filament/Traits/HasExtraAttributesManagement.php, both the form repeater and infolist entry formatters; confirmed by user"
+        },
+        "P01_role_permissions": {
+            "result": "skipped_manual",
+            "note": "User trusts the automated PurchaseRequestResourceTest permission coverage instead of manual browser check.",
+            "status": "covered — test_full_permissions_allow_every_gated_action / test_no_permissions_denies_every_gated_action, both green"
+        },
+        "B01_bulk_actions": {
+            "result": "pass"
+        },
+        "X01_export": {
+            "result": "pass",
+            "note": "User reports purchase_request_items (nested/connected table) don't appear in the export.",
+            "scope": "purchase_request",
+            "status": "fixed — user confirmed item/product rows now appear in the export 2026-09-22"
+        },
+        "N01_badge_locale": {
+            "result": "pass"
+        },
+        "A01b_eav_search": {
+            "result": "pass",
+            "note": "Custom (extra) attributes are not searchable — neither by key nor by value.",
+            "scope": "shared_or_purchase_request",
+            "status": "fixed — user confirmed EAV search now works 2026-09-22"
+        }
     },
-    "L03_sort_pagination": {
-      "result": "pass",
-      "note": "Sorting by Department or Cost Center crashed: SQLSTATE[42S22] Unknown column 'departments.localized_name' — localized_name is a PHP accessor, not a DB column.",
-      "scope": "purchase_request",
-      "status": "fixed — app/Filament/Resources/Operational/PurchaseRequestResource/Traits/Table.php, custom sortable() query added; caches cleared; confirmed by user"
+    "proforma_invoice": {
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: buyer_id/seller_id/main_currency_id/secondary_currency_id/item product_id each combine ->relationship() with an explicit ->rules(['exists:...']) — Laravel core (Validator::hasNotFailedPreviousRuleIfPresenceRule()) silently skips the 'exists' DB check once the component's own unmessaged 'in' rule already failed, so the carefully-translated 'exists' messages were dead code; only raw English ever rendered. Also found 8 plain options-based Select/Radio fields (beneficiary_country, delivery_terms, destination_country, item origin, item unit, origin_country, transport_mode, source_type) and the 3 multi-relationship Selects (purchaseOrders/purchaseRequests/registeredOrders) missing 'in'/'*.in' entirely.",
+            "status": "fixed — added 'in' (reusing the existing 'exists' translation) to the 5 dual-rule fields, plus 'in'/'*.in' to the other 11; regression test test_create_rejects_a_nonexistent_buyer_id_with_translated_message added. New localizationPattern.md §3 finding documents the relationship()+rules(['exists:...']) interaction for future audits."
+        },
+        "_note": "CLOSED 2026-09-25 — user confirmed all prior open findings fixed via browser re-pass. ProformaInvoiceResourceTest.php green (39 passed, 1 pre-documented skip per testPattern.md §3d) covers P01 (full/no-permissions tests), A01b (EAV search tests), L02 (filter-indicator test), I01 (infolist entry tests), X01 (exporter item-row tests). B01 covered by the app_wide_bulk_action_order fix (ProformaInvoice was one of the 14 standardized resources).",
+        "L01_list_search": {
+            "result": "pass"
+        },
+        "L02_filters": {
+            "result": "pass"
+        },
+        "L03_sort_pagination": {
+            "result": "pass"
+        },
+        "C01_create_happy_path": {
+            "result": "pass"
+        },
+        "C02_create_validation": {
+            "result": "pass"
+        },
+        "E01_edit_loads_relations": {
+            "result": "pass"
+        },
+        "I01_infolist_tabs": {
+            "result": "pass"
+        },
+        "A01_eav_custom_attributes": {
+            "result": "pass"
+        },
+        "A01b_eav_search": {
+            "result": "pass"
+        },
+        "P01_role_permissions": {
+            "result": "pass"
+        },
+        "B01_bulk_actions": {
+            "result": "pass"
+        },
+        "X01_export": {
+            "result": "pass"
+        },
+        "N01_badge_locale": {
+            "result": "pass"
+        }
     },
-    "C01_create_happy_path": { "result": "pass" },
-    "C02_create_validation": { "result": "pass" },
-    "E01_edit_loads_relations": { "result": "pass" },
-    "I01_infolist_tabs": {
-      "result": "pass",
-      "note": "Infolist modal now has a fixed height, no longer shrinks with less data.",
-      "scope": "app_wide",
-      "status": "fixed — confirmed directly by user 2026-09-22; app_wide_requests.infolist_modal_fixed_height resolved for at least this module"
+    "registered_order": {
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: buyer_id/currency_id/seller_id/status_id/item product_id (relationship Selects), currency_type/incoterms/item unit (options Selects), source_type (Radio), and proformaInvoices/purchaseOrders/purchaseRequests (multi Selects) all missing 'in'/'*.in' — invalid values leaked raw English.",
+            "status": "fixed — all 12 fields wired with a shared ':attribute'-templated validation_in key, matching this resource's existing templated convention; regression test test_create_rejects_a_nonexistent_buyer_id_with_translated_message added."
+        },
+        "_note": "First formal browser pass 2026-09-25. Caches were stale at the time of this pass (optimize:clear + filament:clear-cached-components run same session) — items matching an already-fixed PR/PI issue are noted as cache-suspected, pending user re-verification, not re-fixed blind.",
+        "L01_list_search": {
+            "result": "fail",
+            "note": "Custom (extra) attributes were not searchable in the table search.",
+            "scope": "registered_order",
+            "status": "fixed — app/Filament/Resources/Operational/RegisteredOrderResource/Traits/Table.php showRoNumber() wired to orWhereExtraAttributesMatch (mirrors purchase_request/proforma_invoice's existing pattern); RegisteredOrderResource::getGloballySearchableAttributes() also wrapped with withExtraAttributesSearch() for spotlight search. Covered by 2 new RegisteredOrderResourceTest tests, both green."
+        },
+        "L02_filters": {
+            "result": "pass"
+        },
+        "L03_sort_pagination": {
+            "result": "pass"
+        },
+        "C01_create_happy_path": {
+            "result": "pass"
+        },
+        "C02_create_validation": {
+            "result": "pass"
+        },
+        "E01_edit_loads_relations": {
+            "result": "pass"
+        },
+        "I01_infolist_tabs": {
+            "result": "pass"
+        },
+        "A01_eav_custom_attributes": {
+            "result": "fail",
+            "note": "Same finding as L01 — EAV attributes could be added but weren't searchable.",
+            "scope": "registered_order",
+            "status": "fixed — same fix as L01_list_search above"
+        },
+        "P01_role_permissions": {
+            "result": "pass"
+        },
+        "B01_bulk_actions": {
+            "result": "fail",
+            "note": "User wants the same bulk-actions/bulk-import mechanism Purchase Request and Proforma Invoice already have.",
+            "scope": "registered_order",
+            "status": "STALE NOTE CORRECTED 2026-10-07 — this was fixed a long time ago (RegisteredOrderImporter.php/RegisteredOrderItemImporter.php first landed in commit e4bc986) and nobody updated this finding afterward. Verified against current code: ListRegisteredOrders.php wires RegisteredOrderResource::getImportAction() (a real GroupedImportAction, pivot-row-aware), the List page only — no RelationManager anywhere in the app has import wired, confirmed by a full repo grep. Done, not open."
+        },
+        "X01_export": {
+            "result": "fail",
+            "note": "User wants the export to be \"super comprehensive,\" including the line items as real rows, not a single summarized column.",
+            "scope": "registered_order",
+            "status": "STALE NOTE CORRECTED 2026-10-07 — same as B01_bulk_actions. RegisteredOrderExporter is the plain write()-based parent-row-then-item-rows shape (same as PR/PI), not the old Filament-native one this note described. Done, not open."
+        },
+        "N01_badge_locale": {
+            "result": "pass"
+        },
+        "I02_ideation_pass": {
+            "result": "partial",
+            "note": "claude-ideator proposed 3 ranked ideas 2026-09-25: (1) validity-date-lapsed flag, (2) surface existing PI/PR/Shipment link counts, (3) wire up the orphaned Incoterms filter.",
+            "scope": "registered_order",
+            "status": "fixed — ideas 1 and 3 accepted and implemented: RegisteredOrderResource\\Traits\\Table::isValidityLapsed()/showValidityDate() added (mirrors ProformaInvoice's isQuoteStale(), keyed off purchase_orders_count), getIncotermsFilter() wired into the main table's ->filters([...]). 4 new RegisteredOrderResourceTest tests, all green. Idea 2 (link counts) not accepted/not built."
+        }
     },
-    "A01_eav_custom_attributes": {
-      "result": "pass",
-      "note": "Default/empty value displayed literally as the text 'null'.",
-      "scope": "shared_trait",
-      "status": "fixed — app/Filament/Traits/HasExtraAttributesManagement.php, both the form repeater and infolist entry formatters; confirmed by user"
+    "bank_profile": {
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: bank_id/company_id (nullable relationship Selects), requested_currency_id/purchased_currency_id/registered_order_id/status_id (required relationship Selects), supply_source (options Select), and the targetable MorphToSelect's inner type/key Selects all missing 'in' — invalid values leaked raw English.",
+            "status": "fixed — all 8 fields wired with a new shared validation_in key; regression tests test_create_rejects_a_nonexistent_registered_order_id_with_translated_message and ..._requested_currency_id_... added. commission_input_mode (ToggleButtons, always-defaulted) left unwired — flagged, not fixed, lowest-risk field in this resource."
+        },
+        "_note": "First formal browser pass 2026-09-26. Test-writing and ideation ran in parallel per the 3-lane cadence; several fixes below were built by parallel subagents and are pending this session's own final consolidated review pass before being treated as fully closed.",
+        "L01_list_search": {
+            "result": "fail",
+            "note": "Search is not working at all, let alone EAV.",
+            "scope": "bank_profile",
+            "status": "fixed — root cause was NOT the EAV wiring itself but a doubled closure in showStatus()'s search callback (`fn ($q) => fn ($q) => ...`) that silently no-op'd, which — because Filament wraps every globally-searchable column into one OR-group — made the status clause always-true and defeated search for every row in the table, not just the status column. Fixed at the one-line source (Traits/Table.php::showStatus()); the separate EAV crash (orWhereExtraAttributesMatch BadMethodCallException, see A01/E01 below) was a second, independent bug in the same area, also fixed. New regression test added (test_search_excludes_records_whose_status_does_not_match_the_term) that asserts exclusion, not just inclusion — the shape of test that would have caught the doubled-closure bug originally. New pitfall entry added to app/Filament/filamentPattern.md."
+        },
+        "L02_filters": {
+            "result": "fail",
+            "note": "Date filters should be one inline row (start/end side by side) instead of two stacked rows — not unique to this module, wants the same pattern app-wide via a shared trait/component.",
+            "scope": "app_wide",
+            "status": "fixed, pending independent review — see app_wide_requests.date_filter_inline_row"
+        },
+        "L03_sort_pagination": {
+            "result": "fail",
+            "note": "Product/Category sort does not work; targetable is polymorphic (can be either) so sort must work smartly across both.",
+            "scope": "bank_profile",
+            "status": "fixed — Traits/Table.php::sortByTargetableName(), a correlated scalar subquery per possible targetable_type branch (Product, Category) combined via COALESCE, sortable(query: ...) replacing the old opaque sort by targetable_type/targetable_id. Reviewed: mechanics verified sound (no row loss, correct correlation), and the reviewer proactively replaced an initial toRawSql()-string-interpolation with parameterized toSql()+bindings (no live exploit existed, but removed the unsafe precedent). New reference example added to filamentPattern.md's sortable-dot-path pitfall entry. User explicitly confirmed sort-by-name (not by the Product's displayed code prefix) is the desired behavior — no further change needed."
+        },
+        "C01_create_happy_path": {
+            "result": "pass"
+        },
+        "C02_create_validation": {
+            "result": "pass"
+        },
+        "E01_edit_loads_relations": {
+            "result": "fail",
+            "note": "Search inside RegisteredOrder's own BankProfiles RelationManager tab wasn't working.",
+            "scope": "shared_trait",
+            "status": "fixed — this was the EAV-search BadMethodCallException: BankProfileResource\\Traits\\Table (and 3 sibling resources' Table traits — ProformaInvoice, PurchaseRequest, RegisteredOrder) called static::orWhereExtraAttributesMatch(...), which resolves via late static binding to whatever class actually composes the trait — a RelationManager reusing the trait for column parity has no such method, only the parent Resource does (via HasExtraAttributesManagement). Fixed at the shared source in all 4 files: explicit ClassName::orWhereExtraAttributesMatch(...) instead of static::. Independently reviewed and confirmed correct across all 4 sites; 4 new regression tests added, all using genuine Livewire::test(RelationManagerClass)->searchTable(...) mounts."
+        },
+        "I01_infolist_tabs": {
+            "result": "pass"
+        },
+        "A01_eav_custom_attributes": {
+            "result": "fail",
+            "note": "Search must be added to both the resource's own table search and the app's global/dashboard search.",
+            "scope": "bank_profile",
+            "status": "fixed/verified — the table's own search is fixed (see L01). The app-wide paths were already correctly wired, not newly built: Filament's native global search via getGloballySearchableAttributes() (includes bp_number, order_number, and extra-attribute columns — covered by test_globally_searchable_attributes_include_extra_attribute_columns, green), and this app's custom spotlight/dashboard search via SearchService::PIPELINE (BankProfile is one of the 8 operational models) + BankProfile::scopeSearchAll() (app/Models/Traits/BankProfile/HasSearchableRelations.php — correctly qualifies every column, e.g. bank_profiles.bp_number, no ambiguous-column risk)."
+        },
+        "P01_role_permissions": {
+            "result": "skipped_manual",
+            "note": "Needs verification.",
+            "status": "covered — test_full_permissions_allow_every_gated_action / test_no_permissions_denies_every_gated_action, both green, same pattern as PR/PI/RO."
+        },
+        "B01_bulk_actions": {
+            "result": "fail",
+            "note": "Needs the same consistent shape as PI/RO/PR.",
+            "scope": "bank_profile",
+            "status": "fixed — bulk-action ordering (Export/Delete/Restore) was already standardized app-wide earlier this session (see app_wide_bulk_action_order); BankProfile's own ExportBulkAction now dispatches ExportBankProfiles matching the PI/RO/PR job shape, built by the import/export pipeline agent (see X01). Pending this session's independent review pass."
+        },
+        "X01_export": {
+            "result": "fail",
+            "note": "Needs the same consistent shape as PI/RO/PR.",
+            "scope": "bank_profile",
+            "status": "fixed, pending independent review — full flat (non-grouped, BankProfile has no child item table) import/export pipeline built: BankProfileImporter.php following the settled Match/Fallback/Optional/Manual-set column plan agreed with the user (registered_order_id strict-match/reject; company_id/bank_id/status_id/requested_currency_id/purchased_currency_id nullable+allowNullOnMismatch; requested_amount/purchased_equivalent/commission_rate fallback to 0; payment_due_date fallback to +2 weeks; bp_number optional+CodeGenerator fallback; notes optional), BankProfileExporter.php rewritten to the plain write()-based shape mirroring RegisteredOrderExporter, ExportBankProfiles job, filled-example CSV. Also fixed, as a byproduct: ~25+3 pre-existing missing resources/general/strings.import.*/export.* lang keys shared by the WHOLE import pipeline (PR/PI/RO too) — these were rendering as raw untranslated keys everywhere, a real gap an earlier review surfaced (28 test failures, 26 traced to this)."
+        },
+        "N01_badge_locale": {
+            "result": "fail",
+            "note": "Check the localized files for it.",
+            "scope": "bank_profile",
+            "status": "fixed, pending independent review — lang files touched extensively this session (see X01's lang-key fix); final confirmation via LangKeyIntegrityTest passing is part of the still-running import/export review."
+        },
+        "I02_ideation_pass": {
+            "result": "fixed",
+            "note": "claude-ideator proposed 3 ranked ideas 2026-09-25: (1) show core financial figures (requested amount/currency) in the table — currently zero money columns, deviates from PurchaseOrder's own showTotalAmount() convention; (2) overdue-commitment badge on payment_due_date/commitment_payment_date, mirroring RegisteredOrder's isValidityLapsed()/showValidityDate(); (3) flag over-drawn commitment (negative remaining_commitment) with a danger/gray/success color closure instead of an unconditional success color.",
+            "scope": "bank_profile",
+            "status": "user approved all 3 (no partial acceptance, unlike RO's 1-and-3-of-3) — implementation dispatched, pending completion + review."
+        }
     },
-    "P01_role_permissions": {
-      "result": "skipped_manual",
-      "note": "User trusts the automated PurchaseRequestResourceTest permission coverage instead of manual browser check.",
-      "status": "covered — test_full_permissions_allow_every_gated_action / test_no_permissions_denies_every_gated_action, both green"
+    "purchase_order": {
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: buyer_id/currency_id/seller_id/status_id/item product_id (relationship Selects), incoterms/item unit (options Selects), source_type (Radio), and proformaInvoices/purchaseRequests/registeredOrders (multi Selects) all missing 'in'/'*.in' — invalid values leaked raw English.",
+            "status": "fixed — all 10 fields wired with a new shared validation_in key; regression test test_create_rejects_a_nonexistent_buyer_id_with_translated_message added."
+        },
+        "_note": "First formal browser pass 2026-10-03, against 8 seeded records. Resource+Model automated suite (55 tests) already green and reviewed before this pass; export-row-shape and search-EAV-wiring fixes (L01/X01 below) were already caught and fixed while writing the automated tests, before the user ran this checklist.",
+        "L01_list_search": {
+            "result": "fail",
+            "note": "Two issues, both app-wide not PO-specific: (1) the column-toggle modal is too long on this resource's wide column set — can't reach the Apply button without shrinking the viewport; (2) toggled column visibility doesn't persist across navigation, resets to default.",
+            "scope": "app_wide",
+            "status": "(2) is not a bug — the topbar 'remember my table setup' toggle (TableStateToggle/persist_table_state session flag) already covers this, it just defaults off; told user to enable it. (1) is a real unaddressed UX gap, recorded under app_wide_requests.column_toggle_modal_height, not yet designed/built."
+        },
+        "L02_filters": {
+            "result": "pass"
+        },
+        "L03_sort_pagination": {
+            "result": "pass"
+        },
+        "C01_create_happy_path": {
+            "result": "pass"
+        },
+        "C02_create_validation": {
+            "result": "pass"
+        },
+        "E01_edit_loads_relations": {
+            "result": "fail",
+            "note": "User flagged the Purchase Requests relation-manager tab's header button as inconsistent with sibling tabs' styled 'add_record' create-draft button.",
+            "scope": "purchase_order",
+            "status": "investigated, not yet resolved — PurchaseOrderResource\\RelationManagers\\PurchaseRequestsRelationManager.php deliberately uses AttachAction::make() (not the shared add_record create-draft action its 3 siblings use), because purchaseRequests is a belongsToMany — attaching an EXISTING PR, not drafting a new one from inside a PO page; this mirrors the identical AttachAction choice on every other module's own PurchaseRequestsRelationManager. Filament's own vendor Farsi label for AttachAction is 'افزودن' (Add), not 'ایجاد' (Create) as the user described, and the button is also conditionally hidden unless the PO's status is 'Approved' — unclear if the user saw a genuinely mislabeled button or is asking for visual-only parity with the create-styled siblings despite the different underlying action. Needs user clarification before touching code."
+        },
+        "I01_infolist_tabs": {
+            "result": "fail",
+            "note": "Not actually an infolist defect — user likes the current click-to-view popup, but wants a new GLOBAL (app-wide, not PO-specific) button giving direct edit/delete access from that popup.",
+            "scope": "app_wide",
+            "status": "open — flagged to user: a conceptually adjacent feature (row click-to-edit/right-click action popover) was already built, reviewed, and then fully reverted app-wide in an earlier session at the user's own request (still not working reliably without browser console access) — see CLAUDE.md Standing Gotchas / resources/js/scriptPattern.md 'Row click gestures'. Needs explicit user decision before re-attempting any shape of this."
+        },
+        "A01_eav_custom_attributes": {
+            "result": "fail",
+            "note": "User believes this was already fixed once and wants a single project-wide sweep across every remaining unaudited module so it stops resurfacing module-by-module.",
+            "scope": "app_wide",
+            "status": "open — recorded under app_wide_requests.eav_sweep_remaining_modules; not yet scoped (which exact sub-issue — null-literal rendering, or EAV search wiring, or both — needs confirming against each remaining module first)."
+        },
+        "P01_role_permissions": {
+            "result": "skipped_manual",
+            "note": "User asked Claude to confirm this one directly.",
+            "status": "covered — test_full_permissions_allow_every_gated_action / test_no_permissions_denies_every_gated_action, both green, same shape as PR/PI/RO/BankProfile."
+        },
+        "B01_bulk_actions": {
+            "result": "pass",
+            "note": "User pre-confirmed the match/fallback/null/note-as-log import column shape proposed earlier in discussion; wants bulk-action-order consistency confirmed before testing.",
+            "status": "confirmed — toolbar order is Export/Delete/Restore app-wide (app_wide_bulk_action_order), covered by test_bulk_actions_toolbar_orders_export_before_delete_and_restore, green."
+        },
+        "X01_export": {
+            "result": "pass",
+            "note": "Wanted export consistency confirmed, and nested items as real rows like PR/RO.",
+            "status": "confirmed — PurchaseOrderExporter converted from Filament's native blob-column Exporter to the real parent-row+item-row write() shape this same session, reviewed, 2 dedicated tests green (row-shape + column-count pin)."
+        },
+        "N01_badge_locale": {
+            "result": "pass",
+            "note": "User confirms filters/badges work; flags no plain numeric column in the table as a maybe-non-issue.",
+            "status": "no action needed unless user finds something concrete — table intentionally has no bare numeric display column for this module."
+        }
     },
-    "B01_bulk_actions": { "result": "pass" },
-    "X01_export": {
-      "result": "pass",
-      "note": "User reports purchase_request_items (nested/connected table) don't appear in the export.",
-      "scope": "purchase_request",
-      "status": "fixed — user confirmed item/product rows now appear in the export 2026-09-22"
+    "payment": {
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: bank_id (nullable relationship Select), currency_id/payee_id/payor_id/status_id (required relationship Selects), and the targetable MorphToSelect's inner type/key Selects all missing 'in' — invalid values leaked raw English.",
+            "status": "fixed — all 6 fields wired with a new shared validation_in key; regression test test_create_rejects_a_nonexistent_payor_id_with_translated_message added."
+        },
+        "_note": "First formal browser pass 2026-10-04, after the full module audit (exporter conversion, importer build, test growth, 4 ideator features) was already done and reviewed. User marked 5 of 12 items 'fail' as a deliberate flag asking Claude to double-check them, not as an observed browser defect — clarified by the user afterward ('no they did not fail i wanted U to check'). All 5 verified clean below; none needed a fix.",
+        "L01_list_search": {
+            "result": "pass"
+        },
+        "L02_filters": {
+            "result": "pass"
+        },
+        "L03_sort_pagination": {
+            "result": "pass"
+        },
+        "C01_create_happy_path": {
+            "result": "pass",
+            "note": "Flagged by user for double-checking, not an observed failure.",
+            "status": "verified clean — all 57 PaymentResourceTest create-path tests pass, including the 2 new auto-fill-on-target-pick tests and the 2 new duplicate-warning tests added this session."
+        },
+        "C02_create_validation": {
+            "result": "pass",
+            "note": "Flagged by user for double-checking, not an observed failure.",
+            "status": "verified clean — all validation tests pass (required targetable/payor/payee/currency/payable_amount, payment_deadline >= payment_date, unique payment_no)."
+        },
+        "E01_edit_loads_relations": {
+            "result": "pass",
+            "note": "Flagged by user for double-checking ('absolute consistency with other modules'), not an observed failure.",
+            "status": "verified clean — compared EditPayment's header actions against EditPurchaseOrder/EditRegisteredOrder/EditBankProfile: no inconsistency found (ManageCustomAttributesAction is BankProfile-only by design, not an app-wide convention; PurchaseOrder is actually the one missing a ViewAction that Payment/RO both have)."
+        },
+        "I01_infolist_tabs": {
+            "result": "pass"
+        },
+        "A01_eav_custom_attributes": {
+            "result": "pass"
+        },
+        "P01_role_permissions": {
+            "result": "pass",
+            "note": "Flagged by user for double-checking, not an observed failure.",
+            "status": "verified clean — all 5 payment.{view,create,edit,delete,restore} Permission rows exist and are granted to the expected roles in the real dev DB; test_full_permissions_allow_every_gated_action/test_no_permissions_denies_every_gated_action both pass."
+        },
+        "B01_bulk_actions": {
+            "result": "pass"
+        },
+        "X01_export": {
+            "result": "pass"
+        },
+        "N01_badge_locale": {
+            "result": "pass",
+            "note": "Flagged by user for double-checking; also asked what 'badge' refers to here.",
+            "status": "clarified, not a bug — N01 means the sidebar NAVIGATION badge (count next to the 'Payments' nav-menu entry), not the table's own badge-styled columns (Status/Targetable/Total Match). Confirmed: NONE of the 8 canonical operational-pipeline resources implement getNavigationBadge() — only 4 Master Data resources do (Correspondence, Product, NotificationSetting, Category). Payment showing no nav badge is consistent app-wide, not a defect (same conclusion already reached for Purchase Order's N01 above). EN/FA/FR lang keys for every string added this session confirmed present in all 3 locale files. A nav badge is a new feature request if ever wanted, not a fix."
+        }
     },
-    "N01_badge_locale": { "result": "pass" },
-    "A01b_eav_search": {
-      "result": "pass",
-      "note": "Custom (extra) attributes are not searchable — neither by key nor by value.",
-      "scope": "shared_or_purchase_request",
-      "status": "fixed — user confirmed EAV search now works 2026-09-22"
+    "app_wide_requests": {
+        "date_filter_inline_row": {
+            "note": "Every resource's date-range filter — should be one inline row (start/end side by side) instead of two stacked DatePickers, via a shared component.",
+            "status": "fixed, pending independent review — App\\Filament\\Resources\\General\\FilterComponents::dateRangeFilter() added, retrofitted onto all 9 existing date-range filters across 8 resources (RegisteredOrder, PurchaseRequest, PurchaseOrder, Payment, BankProfile x2, Custom, Shipment x2, ProformaInvoice, Correspondence), using Filament's native Filter->columns(2) mechanism."
+        },
+        "filter_modal_close_on_apply": {
+            "note": "Every resource's table filter panel — should close/fade after Apply instead of staying open over the table.",
+            "status": "open — needs scope decision before building"
+        },
+        "infolist_modal_fixed_height": {
+            "note": "Every resource's infolist modal — fixed height so it doesn't visually shrink on records with less data.",
+            "status": "open — needs scope decision before building"
+        },
+        "bulk_import": {
+            "note": "New feature: a strictly-validated bulk import mechanism/service, app-wide, not resource-specific. Must cleanly reject corrupted/unnormalized/unvalidated rows rather than partially insert.",
+            "status": "open — Complex lane, needs a design pass before building"
+        },
+        "column_toggle_modal_height": {
+            "note": "Found during Purchase Order's browser pass 2026-10-03: on a resource with a wide column set, the column-toggle modal's list is too long — the Apply button is unreachable without shrinking the browser viewport (phone-width). Likely affects every resource with a similarly long column list, not just Purchase Order.",
+            "status": "open — not yet scoped/designed"
+        },
+        "eav_sweep_remaining_modules": {
+            "note": "User wants a single project-wide sweep confirming EAV custom-attribute behavior (null-literal rendering, search wiring, or both) is correct on every module not yet through its own formal audit pass, rather than rediscovering the same class of bug module-by-module.",
+            "status": "open — needs scoping: which exact sub-issue(s) to check, and against which remaining modules"
+        },
+        "row_popup_edit_delete_button": {
+            "note": "User likes the click-to-view record popup but wants a global (not resource-specific) button inside it giving direct edit/delete access.",
+            "status": "open — a related feature (row click-to-edit/right-click action popover) was built, reviewed, then fully reverted app-wide at the user's own request earlier in the project (see CLAUDE.md Standing Gotchas, resources/js/scriptPattern.md 'Row click gestures') — needs explicit user decision before any new attempt, not a blind rebuild."
+        }
+    },
+    "shipment": {
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: company_id/registered_order_id (required relationship Selects), container_no/container_type/part (options Selects), and all 5 status Selects (container/doc/operation/shipment-tracking/main, via getStatusWorkflowField) missing the nested form.validation.in key; same gap on 3 Select fields in the commercial-invoice EAV virtual tab (InvoiceForm.php).",
+            "status": "fixed — all 11 fields wired, matching this resource's existing nested form.validation.* shape; regression test test_create_rejects_a_nonexistent_registered_order_id_with_translated_message added."
+        },
+        "_note": "Not yet through its own formal module audit pass — this single entry is from a client-reported claim investigated ad hoc, not a full 12-item checklist run.",
+        "commercial_invoice_pi_not_persisting": {
+            "result": "fixed",
+            "note": "Client reported: in the Logistics module (Shipment), the selected Proforma Invoice (پیش‌فاکتور) on the Commercial Invoice tab does not persist after saving.",
+            "scope": "shipment",
+            "status": "Root cause: the Commercial Invoice tab's fields are all ->dehydrated(false), and the tab had its OWN separate 'Save Invoice' footer action, entirely disconnected from the Shipment record's normal Save button — a user filling the tab then clicking the NORMAL Save button silently lost the selection. Fixed by moving Save/Download/Restore CI out of the schema-level footerActions() (app/Filament/Resources/Operational/ShipmentResource/Traits/InvoiceForm.php) and into EditShipment::getFormActions() (app/Filament/Resources/Operational/ShipmentResource/Pages/EditShipment.php), sitting directly beside — and preceding, for accent — the record's own Save/Cancel buttons, reading the page's live $this->data array instead of a schema Get closure. persistInvoiceToEav() signature changed from (Get $get, $record) to (array $formData, $record) to support this. All three CI actions are disabled via blank($this->data['_inv_pi_id'] ?? null) until a Proforma Invoice is actually selected. A third action, 'Restore CI', was added — reverts unsaved in-progress edits back to the last saved EAV state (or blanks the tab if nothing was ever saved) via a new shared EditShipment::hydrateInvoiceData() + $this->form->fill(). The 'Download CI' action's persist-then-open-PDF race (action + ->url()->openUrlInNewTab() could open the PDF before the AJAX save finished) was fixed by dropping ->url() and opening the tab via $this->js('window.open(...)') only after persistInvoiceToEav() completes. The Notes card was also relocated from the right column to the left column, directly under the Items/products section, per user request. Verified via tests/Feature/Filament/ShipmentResourceTest.php (5 passed, including a Livewire::test(...)->callAction(TestAction::make('saveInvoice')->schemaComponent('form-actions', 'content')) end-to-end action test — see testPattern.md §3e for why page-level getFormActions() actions need schemaComponent() targeting) and a claude-reviewer pass."
+        }
+    },
+    "status": {
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: approval_users (multi relationship Select) missing '*.in', and type/english_type (dynamic options Selects, both already required-wired) missing 'in' — invalid values leaked raw English.",
+            "status": "fixed — all 3 fields wired with new validation_in/validation_english_type_in/validation_approval_users_in keys; regression test test_create_action_rejects_an_invalid_type_with_translated_message added."
+        },
+        "_note": "Pending its own formal 12-item checklist pass (resource-test/ideator/QA lanes for Status not yet started per module-audit-playbook.md). This single entry is an early spot-check the user ran ahead of that.",
+        "browser_spot_check": {
+            "result": "pass",
+            "note": "User checked Status at the browser level 2026-10-06: no issue found.",
+            "status": "no action needed"
+        }
+    },
+    "currency": {
+        "_note": "Pending its own formal 12-item checklist pass (resource-test/ideator/QA lanes for Currency not yet started/in-progress per module-audit-playbook.md). This single entry is an early spot-check the user ran ahead of that.",
+        "browser_spot_check": {
+            "result": "pass",
+            "note": "User checked Currency at the browser level 2026-10-06: no issue found.",
+            "status": "condition met — Resource-layer tests passed (36) and the independent claude-reviewer pass came back GO 2026-10-06 (2 minor fixes applied: a static:: consistency nit, a doc correction). Merged."
+        }
+    },
+    "product": {
+        "_note": "Full audit (architecture, tests, importer/exporter, 4/4 ideas, independent review) done and merged 2026-10-06. Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet.",
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: import_licenses (multi Select, nested inside the specifications Repeater) missing '*.in' — invalid values leaked raw English, confirmed even at the nested Repeater state path (specifications.0.import_licenses.0).",
+            "status": "fixed — wired '*.in' with a new validation_import_licenses_in key; regression test test_create_rejects_an_invalid_import_license_with_translated_message added."
+        }
+    },
+    "category": {
+        "_note": "Full audit (architecture, tests, importer/exporter, 3/4 ideas, independent review) done and merged 2026-10-06, including a real pre-existing closure-table bug fix found by review (see module-audit-playbook.md). Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet.",
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: parent_id (nullable relationship Select) missing 'in' — a nonexistent/excluded parent id leaked raw English.",
+            "status": "fixed — wired 'in' with a new validation_parent_in key; regression test test_create_action_rejects_a_nonexistent_parent_id_with_translated_message added."
+        }
+    },
+    "bank": {
+        "_note": "Full audit (architecture, tests, importer/exporter, HasUsageGuard + tooltip, independent review) done and merged 2026-10-06. Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet."
+    },
+    "company": {
+        "_note": "Not run as a formal 12-item checklist pass, but the user did spot-check this module live in the browser 2026-10-06 and raised one real finding via direct comment rather than the checklist.",
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: types (CheckboxList, multi-value) had no message wired at all — and the standard single-value 'in' key recipe doesn't even work for multi-value fields (CanBeValidated::dehydrateValidationRules applies the multi-value check as a '{field}.*' wildcard rule, but 'in' as a message key only ever registers '{field}.in', never matching). Confirmed empirically via php artisan tinker.",
+            "status": "fixed — wired '*.in' (not 'in') with a new validation_company_types_in key; regression test test_create_action_rejects_an_invalid_company_type_with_translated_message added. This '*.in' vs 'in' distinction for multi-value fields is now documented in localizationPattern.md §3 — applies to every CheckboxList/Select::multiple() in the codebase, not just this field."
+        },
+        "X02_import_button_missing": {
+            "result": "fail",
+            "note": "User asked \"company does not have any import?\" after checking the live app — no Import button was visible on the Companies list page at all.",
+            "scope": "company",
+            "status": "fixed — root cause: ManageCompanies::getHeaderActions() only ever returned CreateAction::make(); CompanyResource::getImportAction() (Traits/Table.php) existed and was fully covered by 45 green CompanyResourceTest assertions, but every one of them invoked CompanyImporter directly and never mounted the real page, so the missing wiring passed a full green suite undetected. Fixed by adding CompanyResource::getImportAction() to ManageCompanies::getHeaderActions() (matches every sibling Manage*Page). A permanent regression test (test_import_action_is_reachable_from_the_page_header) was added to ALL 5 importer-having modules (Product/Category/Bank/Currency/Company), not just Company, since the same page-wiring gap could exist invisibly on any of them — see app/Services/Imports/importsPattern.md's new section on this. Full 294-test combined suite across all 6 Master Data modules green after the fix."
+        }
+    },
+    "app_wide_bulk_action_order": {
+        "result": "fixed",
+        "note": "User noticed Proforma Invoice and Purchase Request's bulk-action toolbar had different ordering (one led with Export, the other with Delete/Restore).",
+        "scope": "app_wide",
+        "status": "Standardized every resource's BulkActionGroup to lead with ExportBulkAction, followed by Activate/Deactivate (where present) then Delete/RestoreBulkAction — 14 resources touched: Category, Bank, BankProfile, Company, Payment, Custom, Product, PurchaseOrder, Currency, ProformaInvoice, Shipment, RegisteredOrder, Status, Target. PurchaseRequest already matched and was left unchanged. Row-level Actions::make([ViewAction, EditAction, DeleteAction, RestoreAction]) were audited app-wide and were already consistent everywhere — no changes needed there."
+    },
+    "app_wide_view_modal_footer_sync": {
+        "result": "fixed",
+        "note": "User found the ViewAction modal showing Delete on User (forbidden) and Create/Edit on EntityAttribute (view-only) — buttons the module's own table never offers, and asked for an AI pass checking infolist buttons stay in sync with each table's real actions.",
+        "scope": "app_wide",
+        "status": "Root cause: app/Configurators/FilamentViewActionDefaults.php globally injects a generic Delete/Create/Edit footer into every ViewAction modal, authorized via each resource's own get{Create,Edit,Update,Delete,DeleteAny}AuthorizationResponse() methods (NOT the can*() booleans — a first attempt overriding only canDelete()/canCreate()/canEdit() shipped dead, caught by claude-reviewer; filamentPattern.md §1.5 already documents this exact can*/getXAuthorizationResponse split). Fixed: UserResource overrides getDeleteAuthorizationResponse()/getDeleteAnyAuthorizationResponse() to Response::deny() (Users are never deletable via the UI); EntityAttributeResource (which doesn't use HasResourcePermissions at all) overrides getCreateAuthorizationResponse()/getEditAuthorizationResponse()/getUpdateAuthorizationResponse() to Response::deny(). Audited the rest of Master Data (Permission/Role/Department) — all already consistent (their tables and footer buttons agree). Covered by UserResourceTest::test_delete_is_denied_even_with_the_delete_permission and EntityAttributeResourceTest::test_create_and_edit_authorization_responses_are_denied."
+    },
+    "permission": {
+        "_note": "User browser QA pass 2026-10-07, 12-item checklist.",
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: roles/users (multi relationship Selects) missing '*.in' — a nonexistent id leaked raw English.",
+            "status": "fixed — wired '*.in' with new validation_roles_in/validation_users_in keys; regression test test_create_rejects_a_nonexistent_role_id_with_translated_message added."
+        },
+        "L01_list_search": {
+            "result": "fail",
+            "note": "User: \"search on name does not work\"; follow-up asked to drop the per-column individual search for consistency with every other module (global-only), and to make search match on meaning/label text, not just the raw stored name.",
+            "status": "fixed in two passes. First pass: showName() was ->searchable(isIndividual: true, isGlobal: false), so the main search box never matched this column — changed to isIndividual:true/isGlobal:true (both). 2026-10-07 follow-up: dropped isIndividual entirely (global-only now, matching every sibling module's plain ->searchable()) and replaced it with a custom query: closure that matches EITHER the raw name (substring) OR the translated PermissionLabeler::getLabel() text (e.g. searching 'Purchase Request' now finds purchase_request.view even though the raw name has no space). Covered by PermissionResourceTest::test_search_matches_the_translated_label_not_just_the_raw_name."
+        },
+        "C02_create_validation": {
+            "result": "fail",
+            "note": "User: garbage names with no dot/format saved with no validation; also asked whether a permission can be assigned to both a user and a role directly.",
+            "status": "name format fixed — added a module.action regex (lowercase letters/digits/underscores either side of one dot) with a localized message, widened after a reviewer pass to allow digits (status.grant_* permissions get a numeric _2/_3 suffix on name collision). Direct user+role assignment already worked before this turn — the form has always had both a Roles and a Users relationship Select (helper text literally says so); no change needed."
+        },
+        "P01_role_permissions": {
+            "result": "fail",
+            "note": "User: \"idk how the permission permission must be set\" — unsure how access to the Permission screen itself is gated.",
+            "status": "no change needed — already correct. HasResourcePermissions derives the prefix from the model name (\"permission\"), and permission.{view,create,edit,delete,restore} are seeded in DatabaseSeeder.php like every other module; it's the same self-referential mechanism Role/User/Department already use."
+        },
+        "X01_export": {
+            "result": "fail",
+            "note": "User: \"check it urself U made the custom export\" — expected export like other master modules, found none wired.",
+            "status": "fixed — added PermissionExporter (shared flat write()/columnLabels() shape) + queued ExportPermissions job + exportPermissions BulkAction, mirroring BankExporter/ExportBanks. Covered by PermissionResourceTest::test_export_bulk_action_dispatches_the_queued_export_job."
+        },
+        "N01_badge_locale": {
+            "result": "fail",
+            "note": "User suggested the roles_count column header be pluralized.",
+            "status": "no change needed — table.roles_count/users_count already resolve to \"Roles\"/\"Users\" (and the fa/fr equivalents), already plural in all 3 locales."
+        }
+    },
+    "role": {
+        "_note": "User browser QA pass 2026-10-07, 12-item checklist.",
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: grade (options Select, already required-wired) missing 'in'; modules/permissions (multi Selects) missing '*.in' — invalid values leaked raw English.",
+            "status": "fixed — wired 'in'/'*.in' with new validation_grade_in/validation_modules_in/validation_permissions_in keys; regression test test_create_rejects_an_invalid_grade_with_translated_message added."
+        },
+        "L02_filters": {
+            "result": "fail",
+            "note": "User: grouping threw \"Class App\\Filament\\Resources\\Str not found\".",
+            "status": "fixed — RoleResource.php used Str::title(...) in the 'name' Group's title resolver with no `use Illuminate\\Support\\Str;` import, so the bare call resolved against the current namespace. Added the import."
+        },
+        "C02_create_validation": {
+            "result": "fail",
+            "note": "User: a junk name + level saved fine then threw an error afterward; follow-up confirmed the real ask was whether a role with zero permissions/modules attached could be created at all.",
+            "status": "two separate fixes — (1) the crash itself: same root cause as L02_filters, the post-create table re-render hit the missing-Str-import bug if grouping was active, fixed by the same import; (2) 2026-10-07 follow-up: confirmed a role WAS creatable with zero permissions (permissions_count=0), added a cross-field rule on the modules Select requiring it to be non-empty OR Select All on — the permissions Select is already ->disabled() until one of those is true, so this one rule structurally covers all three paths (manual picks, module-grant, select-all). Covered by RoleResourceTest::test_create_requires_at_least_one_module_or_select_all."
+        },
+        "E01_edit_loads_relations": {
+            "result": "fail",
+            "note": "User: \"edit not working\".",
+            "status": "same root cause as L02_filters (grouping-triggered crash on re-render after save); RoleResourceTest::test_edit_action_renames_the_role passes end-to-end after the Str-import fix. If this persists after re-testing, it's a different bug — flag with exact repro steps."
+        },
+        "I01_infolist_tabs": {
+            "result": "fail",
+            "note": "User: view modal opened fine, but closing it threw the same Str-not-found error.",
+            "status": "same root cause as L02_filters — fixed by the same import."
+        },
+        "P01_role_permissions": {
+            "result": "fail",
+            "note": "User: \"U check it ur self\" — unsure how access to the Role screen itself is gated.",
+            "status": "no change needed — already correct, same self-referential role.{view,create,edit,delete,restore} mechanism as Permission/User/Department."
+        },
+        "X01_export": {
+            "result": "fail",
+            "note": "User: \"check ur own bulk action\" — expected export like other master modules, found none wired.",
+            "status": "fixed — added RoleExporter + queued ExportRoles job + exportRoles BulkAction, same shape as Permission's. Covered by RoleResourceTest::test_export_bulk_action_dispatches_the_queued_export_job."
+        }
+    },
+    "user": {
+        "_note": "User browser QA pass 2026-10-07, 12-item checklist.",
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: status (Select, options(UserStatus::class) — a BackedEnum) and position (Select, options(PositionStatus::class)) both leaked raw English even after wiring 'in' — a BackedEnum-options single-value Select actually validates via Rule::enum(), message-bag key 'enum', not 'in'. department/roles (relationship Selects, nullable/multi) also missing 'in'/'*.in'.",
+            "status": "fixed — status/position correctly re-wired to the 'enum' key (not 'in'); department/roles wired with 'in'/'*.in'. Regression tests test_edit_rejects_an_invalid_status_with_translated_message and ..._position_... added. This enum-vs-in distinction for BackedEnum-options Select is now documented in localizationPattern.md §3 as a third critical gotcha, sibling to the exists-vs-in one."
+        },
+        "L02_filters": {
+            "result": "fail",
+            "note": "User: \"department filter is broken\".",
+            "status": "fixed — getDepartmentFilter() passed a Closure as SelectFilter::relationship()'s $titleAttribute, which requires a plain string; the closure object was being used directly as a column name. Resolved the locale ternary eagerly instead, matching the project's existing bilingual-model filter convention (localizationPattern.md §5.2)."
+        },
+        "C02_create_validation": {
+            "result": "fail",
+            "note": "User: no phone format validation; status should default to Active; form fields should split into a basic tab and a details tab.",
+            "status": "fixed — phone: added ->validateFor(country: 'INTERNATIONAL', lenient: true) (previously only required(), no format check at all). Status: added ->default(UserStatus::ACTIVE->value). Form: restructured into a General tab (name/phone/email/password/password confirmation/status/IP/last login/last logout) and a Details tab (company/department/position/roles/image), matching this project's two-tab convention."
+        },
+        "E01_edit_loads_relations": {
+            "result": "fail",
+            "note": "User: the view modal shows a Delete button for Users even though deleting a user is forbidden; also suggested an AI double-check that every module's infolist buttons match what its table actually offers.",
+            "status": "fixed — see app_wide_view_modal_footer_sync above. UserResource now overrides getDeleteAuthorizationResponse()/getDeleteAnyAuthorizationResponse() to deny unconditionally."
+        },
+        "I01_infolist_tabs": {
+            "result": "fail",
+            "note": "Same Delete-button note repeated for this item.",
+            "status": "same fix as E01_edit_loads_relations."
+        },
+        "P01_role_permissions": {
+            "result": "fail",
+            "note": "User: \"U check it\" — unsure how access to the User screen itself is gated.",
+            "status": "no change needed — already correct, same self-referential user.{view,create,edit,delete,restore} mechanism as Permission/Role/Department."
+        },
+        "B01_bulk_actions": {
+            "result": "fail",
+            "note": "User: no bulk activate/deactivate on User; asked to confirm whether a custom bulk mechanism already exists and confirmed import is still not wanted.",
+            "status": "fixed — added bulk Activate/Deactivate BulkActions operating on the status column (Users have no is_active column, unlike Bank/Company/Currency/Department, so HandleActivation's shared trait wasn't reusable as-is). A selection-aware ->visible() closure (hide Activate when everything's already active, etc.) was tried first, passed every Livewire::test() assertion, but never actually hid anything in the user's real browser — confirmed live by the user, cause not pinned down (see filamentPattern.md's HandleActivation section for the write-up). Reverted to both buttons always visible per the user's explicit call. No bulk import added — already-settled policy (security-sensitive: bulk account creation touches auth/password/role assignment)."
+        },
+        "X01_export": {
+            "result": "n/a",
+            "note": "User's exporter was still the old native Filament Exporter/ExportColumn shape (2026-10-07) — the one piece of the parked worktree branch (worktree-agent-a5f81ad74b0cf6b52) left unconsumed.",
+            "status": "fixed 2026-10-07 — converted to the custom write(Builder,string):int shape (see filamentPattern.md §1.8b), paired with a new queued ExportUsers job and an exportUsers BulkAction replacing ExportBulkAction::make()->exporter(...). Verified via a direct UserExporter::write() run against live dev data (correct CSV, Jalali dates) and a regression test (test_export_bulk_action_dispatches_the_queued_export_job); the full Livewire table-render path for this test is currently blocked by a pre-existing, unrelated stale-avatar Vite-manifest bug affecting all ManageUsers table tests (flagged separately, out of scope here). This closes out the parked branch — nothing of its content remains unconsumed."
+        }
+    },
+    "department": {
+        "_note": "User browser QA pass 2026-10-07 on top of the module's already-Done status (see module-audit-playbook.md) — new findings, not a re-audit.",
+        "P01_role_permissions": {
+            "result": "fail",
+            "note": "User: \"check it urself\" — unsure how access to the Department screen itself is gated.",
+            "status": "no change needed — already correct, same self-referential department.{view,create,edit,delete,restore} mechanism as Permission/Role/User."
+        },
+        "B01_bulk_actions": {
+            "result": "fail",
+            "note": "User: bulk activate/deactivate work, but both buttons show even when only one makes sense for the current selection (e.g. Activate shown when every selected row is already active).",
+            "status": "tried then reverted — app/Filament/Traits/HandleActivation.php's getActivateBulkAction()/getDeactivateBulkAction() each gained a ->visible(fn (Collection $records) => ...) closure checking the selection's is_active state; worked in every Livewire::test() assertion but never actually hid anything live (confirmed on User's identical pattern, same root cause suspected here). Reverted app-wide same day — both buttons are deliberately unconditional again on Bank/Company/Currency/Department."
+        },
+        "X01_export": {
+            "result": "fail",
+            "note": "User: \"U cehck it\" — ambiguous, no specific repro given.",
+            "status": "spot-checked — DepartmentExporter::write()/getExportBulkAction() still dispatch and format correctly (unchanged this session, DepartmentResourceTest's existing export tests still green). No defect found; ask the user for exact repro steps if this persists."
+        }
+    },
+    "entity_attribute": {
+        "_note": "User browser QA pass 2026-10-07, 12-item checklist.",
+        "L01_list_search": {
+            "result": "fail",
+            "note": "User: the value column's long text wasn't truncating — wanted a short preview with a hover tooltip for the full value, not a long unbroken block. Follow-up: still too long/meaningless for a complex value (a real Shipment commercial_invoice EAV blob) — asked for a cleaner, sanitized rendering in both the column and the infolist.",
+            "status": "fixed in three passes, final shape landed 2026-10-07. Pass 1: showValue() tightened to ->limit(50)->tooltip(...), fixed the null->'null' literal leak. Pass 2: tried raw JSON_PRETTY_PRINT in an HTML <pre> block — technically correct but the user explicitly rejected raw JSON (braces/quotes/numeric list indices, null rows shown) as still unreadable. Pass 3 (final): built a real custom recursive renderer (Infolist.php's renderEavValue()/renderEavRows()/renderEavList()) — every key becomes a humanized 'Label: value' row (Str::headline()), null/blank entries are dropped entirely at any nesting depth, list items (e.g. invoice 'items') render as nested cards with no numeric index label, keys are forced dir=\"ltr\" (always technical English regardless of UI locale), nested groups use a very faint border (border-gray-100/white-5, not -200/white-10). Verified end-to-end against the real Shipment commercial_invoice EAV row that prompted this. Covered by EntityAttributeResourceTest::test_infolist_renders_a_complex_value_as_labelled_key_value_rows. Known gap: this new renderer only covers EntityAttributeResource's own infolist/table — the OTHER EAV entry point (HasExtraAttributesManagement's inline Repeater tab on the owning resource, e.g. Shipment's own Extra Attributes tab) still uses the older flat formatter; not in scope unless the user asks for it there too."
+        },
+        "C01_create_happy_path": {
+            "result": "fail",
+            "note": "User: Create shouldn't exist on this resource at all.",
+            "status": "fixed — see app_wide_view_modal_footer_sync above. EntityAttributeResource overrides getCreateAuthorizationResponse() to deny; this resource never used HasResourcePermissions, so without the override the globally-injected footer Create button was allowed for any authenticated user (not just unsuppressed — genuinely ungated)."
+        },
+        "C02_create_validation": {
+            "result": "fail",
+            "note": "Same Create-should-not-exist note repeated for this item.",
+            "status": "same fix as C01_create_happy_path."
+        },
+        "E01_edit_loads_relations": {
+            "result": "fail",
+            "note": "User: editing here isn't safe (goes around the real EAV entry points) — remove the infolist Edit button too.",
+            "status": "fixed — EntityAttributeResource overrides getEditAuthorizationResponse()/getUpdateAuthorizationResponse() to deny, same ungated-without-the-override risk as Create."
+        },
+        "P01_role_permissions": {
+            "result": "fail",
+            "note": "User: \"u check this one\".",
+            "status": "real, pre-existing, already-documented gap — EntityAttributeResource does not use HasResourcePermissions at all, and no entity_attribute.* permissions are seeded, so view/delete/restore fall through to Filament's vendor allow-everyone default (no Policy exists). The project's own filamentPattern.md §1.5 already names this resource as a known exception needing a decision (seed permissions + decide which roles get them) before wiring the trait in — not fixed this turn, flagged for the user to decide scope/rollout."
+        },
+        "X01_export": {
+            "result": "fail",
+            "note": "User: a custom export already exists here but thinks it may be unnecessary.",
+            "status": "left as-is — not confident enough to remove a working, already-built feature on an unsure note. Needs an explicit yes/no from the user before deleting it."
+        },
+        "N01_badge_locale": {
+            "result": "fail",
+            "note": "User: \"record id must be in badge\". Follow-up clarified: the record's own primary-key id had no table column at all (only the related entity_id already had one); wanted it added, styled as a badge like entity_id already is.",
+            "status": "fixed — added showId() (badge-styled, gray, sortable+searchable) as the table's first column. Covered by EntityAttributeResourceTest::test_table_shows_a_badge_styled_id_column."
+        }
+    },
+    "target": {
+        "_note": "User browser QA pass 2026-10-07, 12-item checklist.",
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "This is the original reported bug: Target's year field showed \"The selected سال is invalid.\" — the ':attribute' placeholder was translated via the label, but the sentence template itself leaked raw English, because getYearField() (a plain options-based Select) had no 'in' validationMessages key. Full exhaustive audit of all resources triggered by this single report also found status (ToggleButtons, enum options) and the targetable MorphToSelect's inner type/key Selects missing 'in'.",
+            "status": "fixed — all 3 fields wired with new validation_year_in/validation_status_in/validation_targetable_in keys; regression tests test_invalid_year_shows_translated_message_not_raw_english, ..._status_..., ..._targetable_type_... added to TargetResourceTest.php."
+        },
+        "L01_list_search": {
+            "result": "fail",
+            "note": "User: clicking Status threw \"Svg by name 'm-bullseye' from set 'heroicons' not found\"; metrics showed a raw/garbled string instead of a localized label (and the metrics table-group title showed the literal untranslated key, 'واحد سنجش: resources/general/strings.metrics'); asked whether search could also match the related Category/Product record; asked why creator/updater/timestamps aren't offered as table groups given the table already shows those columns.",
+            "status": "icon fixed — heroicon-m-bullseye isn't a real Heroicon; swapped for heroicon-m-viewfinder-circle (the actual target/crosshair icon) in Infolist.php's viewTargetable(). Metrics fixed at the root — Target\\HasMetricAttribute's 'metrics' accessor called __('resources/general/strings.metrics.'.$value) ?? $value; __() never returns null on a miss (it returns the raw key), so the ?? $value fallback was dead code and a null/empty metric leaked the untranslated key string. Fixed to check for a real translation hit and pass null/empty through unchanged — this one fix also corrects the table column, filter, export, and group title displays, since they all read the same accessor. Grouping by creator/updater added to the table's groups() list. Search-by-related-record is a real feature request, not implemented this turn — flagging for a scoping decision (SearchTargetable's scopeSearchTargetable already exists on the model and could likely be wired into the table's own search, per PermissionLabeler/SearchTargetable precedent elsewhere)."
+        },
+        "L02_filters": {
+            "result": "fail",
+            "note": "User: year filter has no options to pick from.",
+            "status": "fixed — SmartCacheManager's 150-minute 'Target'/'year_options' cache was warmed empty before Target had any seeded rows this session (6 were seeded earlier in this same turn); invalidated the stale cache. No code bug — but there's no observer invalidating this cache on Target create/update the way other modules' caches are busted on save, so it can go stale again after the next real Target creation; flagged as a follow-up, not fixed structurally this turn."
+        },
+        "I01_infolist_tabs": {
+            "result": "fail",
+            "note": "Same bullseye-icon error repeated for this item (viewing the infolist tab).",
+            "status": "same fix as L01_list_search."
+        },
+        "P01_role_permissions": {
+            "result": "fail",
+            "note": "User: \"u check it\".",
+            "status": "no change needed — already correct, same self-referential target.{view,create,edit,delete,restore} mechanism as Permission/Role/User/Department."
+        },
+        "B01_bulk_actions": {
+            "result": "fail",
+            "note": "User: wants bulk activate/deactivate on Target.",
+            "status": "fixed — added Activate/Deactivate BulkActions on the status column (active/inactive/achieved). A selection-aware visibility closure was tried (matching User's) and reverted the same day — see app_wide note under 'department' — both buttons are now deliberately always visible."
+        },
+        "X01_export": {
+            "result": "fail",
+            "note": "User: wants Target's export converted to match the shared custom-export shape used by every other module.",
+            "status": "fixed — TargetExporter converted from a native Filament Exporter (ExportColumn-based) to the shared flat write()/columnLabels() shape, with a new queued ExportTargets job and exportTargets BulkAction, mirroring Bank/Department/Role/Permission. Status/metrics values in the export now go through the same localization as the rest of the app."
+        }
+    },
+    "notification_setting": {
+        "_note": "User browser QA pass 2026-10-07, 12-item checklist — 5 real findings.",
+        "N01_badge_locale": {
+            "result": "fail",
+            "note": "User: the monitored table names (e.g. bank_profiles) show as raw snake_case table names in the list, infolist, and table grouping instead of a readable localized label.",
+            "status": "fixed — ModelInspector::getAvailableModels() now resolves each SCANNABLE_TABLE model's label via PermissionLabeler::getEntityLabel() (the same resolver Permission/Role use for module labels) instead of a raw prettified class name; a new getLocalizedTableLabel()/NotificationSetting::getLocalizedTables()/getLocalizedActions() pair wires this into the table column, infolist entry, the 'Tables'/'Actions' table groups, and the Tables filter's options — all of which previously showed the raw JSON value directly."
+        },
+        "L03_sort_pagination": {
+            "result": "fail",
+            "note": "User: sorting the list crashed with SQLSTATE[42S22]: Unknown column 'recipient'.",
+            "status": "fixed — showRecipients()'s TextColumn::make('recipient.*.name') was ->sortable() with no custom query; 'recipient' is a model accessor (reads settings->users), not a real column, so Filament's default sort built an invalid json_extract(`recipient`, ...) against a column that doesn't exist. Reproduced the exact crash via a real Livewire sortTable() call first, then removed ->sortable() from that column — recipients aren't a real sortable column and there's no clean query-level equivalent (the underlying data is a JSON array of user ids, not a joinable relation)."
+        },
+        "C02_create_validation": {
+            "result": "fail",
+            "note": "User: an empty form submission successfully creates a meaningless notification rule.",
+            "status": "fixed — added ->required() + validationMessages() to the three fields a rule can't do without (notification_type, settings.tables, settings.actions); column/value selectors stay optional since they're conditionally hidden until an 'update' action is picked. New validation_required lang key added in all 3 locales."
+        },
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit (separate from C02 above, which only covered 'required'): notification_type (single Select) and settings.actions/settings.columns/settings.values/settings.tables/settings.users (multi Selects) all still leaked raw English on an invalid selection, since only the 'required' key had been wired, never 'in'/'*.in'.",
+            "status": "fixed — wired 'in' on notification_type and '*.in' on all 5 multi Selects with a new shared validation_in key; regression tests test_create_action_rejects_an_invalid_notification_channel_with_translated_message and ..._invalid_actions_... added to a new NotificationSettingResourceTest.php (none of the earlier C02/N01/etc fixes above had a dedicated Filament resource test file yet)."
+        },
+        "P01_role_permissions": {
+            "result": "fail",
+            "note": "User: any authenticated user could delete any other user's notification setting — no role gating and no ownership check at all.",
+            "status": "fixed, final shape settled same day after a revert. First attempt: wired HasResourcePermissions (role-gated view/create/edit/delete/restore) plus the ownership check layered on top of role-delete. User explicitly reverted the role-gating part — 'all users must be able to use them, only user who create or recipient of notification only must be able to delete it' — view/create/edit/restore must stay open to any authenticated user, no Spatie permission at all. Final: HasResourcePermissions removed from the resource entirely, notification_setting.* permission rows removed from both DatabaseSeeder.php and the live DB (none exist anymore); getDeleteAuthorizationResponse()/canDelete() stay as a standalone ownership-only override (creator or settings->users recipient), independent of any role. Bulk delete keeps the same per-record filtering via ->authorizeIndividualRecords() on the DeleteBulkAction. tests/Feature/Integrity/ResourceAuthorizationIntegrityTest.php's now-unnecessary allowlist entry for this resource was removed too (it no longer composes the trait, so the integrity check skips it)."
+        },
+        "X01_export": {
+            "result": "fail",
+            "note": "User: no export existed for this module at all.",
+            "status": "fixed — added NotificationSettingExporter + queued ExportNotificationSettings job + exportNotificationSettings BulkAction, same shape as Bank/Department/Role/Permission. Exported table/action values go through the same localization fix as the list/infolist."
+        }
+    },
+    "custom": {
+        "_note": "Not yet through its own formal 12-item browser checklist pass — this entry is from the 2026-10-07 exhaustive validation-i18n audit only.",
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: clearance_type (options Select, nullable) was the one field in this resource's otherwise-correct 'in'-wired relationship Selects (registered_order_id/shipment_id/the 3 status Selects, fixed 2026-10-05) still missing the 'in' key.",
+            "status": "fixed — wired 'in' reusing the resource's existing validation_exists key (same wording convention already used for every other relationship-bound Select here); regression test test_an_invalid_clearance_type_shows_the_translated_message_not_the_raw_laravel_one added, matching the existing pattern for shipment_id/registered_order_id in this same test file."
+        }
+    },
+    "correspondence": {
+        "_note": "Not yet through its own formal 12-item browser checklist pass — this entry is from the 2026-10-07 exhaustive validation-i18n audit only.",
+        "V01_validation_i18n_leak": {
+            "result": "fail",
+            "note": "2026-10-07 exhaustive validation-i18n audit: priority (Select, options(Priority::class) — a BackedEnum) leaked raw English even with a wired 'in' key, since a BackedEnum-options single-value Select actually validates via Rule::enum() (message key 'enum'). type (ToggleButtons, same enum options) correctly uses 'in' but had no message wired. recipients_to (multi Select) and status_id (relationship Select, via getStatusWorkflowField) also missing '*.in'/'in'.",
+            "status": "fixed — priority re-wired to the 'enum' key; type/recipients_to/status_id wired with 'in'/'*.in'. Regression tests test_create_rejects_an_invalid_priority_with_translated_message, ..._type_..., ..._recipient_id_..., ..._status_id_... added."
+        }
     }
-  },
-  "proforma_invoice": {
-    "_note": "CLOSED 2026-09-25 — user confirmed all prior open findings fixed via browser re-pass. ProformaInvoiceResourceTest.php green (39 passed, 1 pre-documented skip per testPattern.md §3d) covers P01 (full/no-permissions tests), A01b (EAV search tests), L02 (filter-indicator test), I01 (infolist entry tests), X01 (exporter item-row tests). B01 covered by the app_wide_bulk_action_order fix (ProformaInvoice was one of the 14 standardized resources).",
-    "L01_list_search": { "result": "pass" },
-    "L02_filters": { "result": "pass" },
-    "L03_sort_pagination": { "result": "pass" },
-    "C01_create_happy_path": { "result": "pass" },
-    "C02_create_validation": { "result": "pass" },
-    "E01_edit_loads_relations": { "result": "pass" },
-    "I01_infolist_tabs": { "result": "pass" },
-    "A01_eav_custom_attributes": { "result": "pass" },
-    "A01b_eav_search": { "result": "pass" },
-    "P01_role_permissions": { "result": "pass" },
-    "B01_bulk_actions": { "result": "pass" },
-    "X01_export": { "result": "pass" },
-    "N01_badge_locale": { "result": "pass" }
-  },
-  "registered_order": {
-    "_note": "First formal browser pass 2026-09-25. Caches were stale at the time of this pass (optimize:clear + filament:clear-cached-components run same session) — items matching an already-fixed PR/PI issue are noted as cache-suspected, pending user re-verification, not re-fixed blind.",
-    "L01_list_search": {
-      "result": "fail",
-      "note": "Custom (extra) attributes were not searchable in the table search.",
-      "scope": "registered_order",
-      "status": "fixed — app/Filament/Resources/Operational/RegisteredOrderResource/Traits/Table.php showRoNumber() wired to orWhereExtraAttributesMatch (mirrors purchase_request/proforma_invoice's existing pattern); RegisteredOrderResource::getGloballySearchableAttributes() also wrapped with withExtraAttributesSearch() for spotlight search. Covered by 2 new RegisteredOrderResourceTest tests, both green."
-    },
-    "L02_filters": { "result": "pass" },
-    "L03_sort_pagination": { "result": "pass" },
-    "C01_create_happy_path": { "result": "pass" },
-    "C02_create_validation": { "result": "pass" },
-    "E01_edit_loads_relations": { "result": "pass" },
-    "I01_infolist_tabs": { "result": "pass" },
-    "A01_eav_custom_attributes": {
-      "result": "fail",
-      "note": "Same finding as L01 — EAV attributes could be added but weren't searchable.",
-      "scope": "registered_order",
-      "status": "fixed — same fix as L01_list_search above"
-    },
-    "P01_role_permissions": { "result": "pass" },
-    "B01_bulk_actions": {
-      "result": "fail",
-      "note": "User wants the same bulk-actions/bulk-import mechanism Purchase Request and Proforma Invoice already have.",
-      "scope": "registered_order",
-      "status": "open — studied 2026-09-25 (see below), same underlying work as X01_export. Complex lane, needs a design decision before building: RO has two CodeGenerator-mapped identifier columns (ro_number + contract_no, vs PR/PI's one each) and its PR/PI/PO relations are belongsToMany pivots, not simple belongsTo FKs — the shared app/Services/Imports/ pipeline has no existing pivot-attach-on-import precedent to mirror. Awaiting user decision on how pivot rows should import before any code is written."
-    },
-    "X01_export": {
-      "result": "fail",
-      "note": "User wants the export to be \"super comprehensive,\" including the line items as real rows, not a single summarized column.",
-      "scope": "registered_order",
-      "status": "open — same root work as B01_bulk_actions. RO's current RegisteredOrderExporter is a Filament-native one-row-per-record Exporter with items packed into one text-blob ExportColumn; PR/PI's exporters are a plain write()-based parent-row-then-item-rows shape paired with their GroupedImportAction (see importsPattern.md). Adopting the shared pipeline for RO's bulk import would solve this export gap in the same piece of work — see B01_bulk_actions status."
-    },
-    "N01_badge_locale": { "result": "pass" },
-    "I02_ideation_pass": {
-      "result": "partial",
-      "note": "claude-ideator proposed 3 ranked ideas 2026-09-25: (1) validity-date-lapsed flag, (2) surface existing PI/PR/Shipment link counts, (3) wire up the orphaned Incoterms filter.",
-      "scope": "registered_order",
-      "status": "fixed — ideas 1 and 3 accepted and implemented: RegisteredOrderResource\\Traits\\Table::isValidityLapsed()/showValidityDate() added (mirrors ProformaInvoice's isQuoteStale(), keyed off purchase_orders_count), getIncotermsFilter() wired into the main table's ->filters([...]). 4 new RegisteredOrderResourceTest tests, all green. Idea 2 (link counts) not accepted/not built."
-    }
-  },
-  "bank_profile": {
-    "_note": "First formal browser pass 2026-09-26. Test-writing and ideation ran in parallel per the 3-lane cadence; several fixes below were built by parallel subagents and are pending this session's own final consolidated review pass before being treated as fully closed.",
-    "L01_list_search": {
-      "result": "fail",
-      "note": "Search is not working at all, let alone EAV.",
-      "scope": "bank_profile",
-      "status": "fixed — root cause was NOT the EAV wiring itself but a doubled closure in showStatus()'s search callback (`fn ($q) => fn ($q) => ...`) that silently no-op'd, which — because Filament wraps every globally-searchable column into one OR-group — made the status clause always-true and defeated search for every row in the table, not just the status column. Fixed at the one-line source (Traits/Table.php::showStatus()); the separate EAV crash (orWhereExtraAttributesMatch BadMethodCallException, see A01/E01 below) was a second, independent bug in the same area, also fixed. New regression test added (test_search_excludes_records_whose_status_does_not_match_the_term) that asserts exclusion, not just inclusion — the shape of test that would have caught the doubled-closure bug originally. New pitfall entry added to app/Filament/filamentPattern.md."
-    },
-    "L02_filters": {
-      "result": "fail",
-      "note": "Date filters should be one inline row (start/end side by side) instead of two stacked rows — not unique to this module, wants the same pattern app-wide via a shared trait/component.",
-      "scope": "app_wide",
-      "status": "fixed, pending independent review — see app_wide_requests.date_filter_inline_row"
-    },
-    "L03_sort_pagination": {
-      "result": "fail",
-      "note": "Product/Category sort does not work; targetable is polymorphic (can be either) so sort must work smartly across both.",
-      "scope": "bank_profile",
-      "status": "fixed — Traits/Table.php::sortByTargetableName(), a correlated scalar subquery per possible targetable_type branch (Product, Category) combined via COALESCE, sortable(query: ...) replacing the old opaque sort by targetable_type/targetable_id. Reviewed: mechanics verified sound (no row loss, correct correlation), and the reviewer proactively replaced an initial toRawSql()-string-interpolation with parameterized toSql()+bindings (no live exploit existed, but removed the unsafe precedent). New reference example added to filamentPattern.md's sortable-dot-path pitfall entry. User explicitly confirmed sort-by-name (not by the Product's displayed code prefix) is the desired behavior — no further change needed."
-    },
-    "C01_create_happy_path": { "result": "pass" },
-    "C02_create_validation": { "result": "pass" },
-    "E01_edit_loads_relations": {
-      "result": "fail",
-      "note": "Search inside RegisteredOrder's own BankProfiles RelationManager tab wasn't working.",
-      "scope": "shared_trait",
-      "status": "fixed — this was the EAV-search BadMethodCallException: BankProfileResource\\Traits\\Table (and 3 sibling resources' Table traits — ProformaInvoice, PurchaseRequest, RegisteredOrder) called static::orWhereExtraAttributesMatch(...), which resolves via late static binding to whatever class actually composes the trait — a RelationManager reusing the trait for column parity has no such method, only the parent Resource does (via HasExtraAttributesManagement). Fixed at the shared source in all 4 files: explicit ClassName::orWhereExtraAttributesMatch(...) instead of static::. Independently reviewed and confirmed correct across all 4 sites; 4 new regression tests added, all using genuine Livewire::test(RelationManagerClass)->searchTable(...) mounts."
-    },
-    "I01_infolist_tabs": { "result": "pass" },
-    "A01_eav_custom_attributes": {
-      "result": "fail",
-      "note": "Search must be added to both the resource's own table search and the app's global/dashboard search.",
-      "scope": "bank_profile",
-      "status": "fixed/verified — the table's own search is fixed (see L01). The app-wide paths were already correctly wired, not newly built: Filament's native global search via getGloballySearchableAttributes() (includes bp_number, order_number, and extra-attribute columns — covered by test_globally_searchable_attributes_include_extra_attribute_columns, green), and this app's custom spotlight/dashboard search via SearchService::PIPELINE (BankProfile is one of the 8 operational models) + BankProfile::scopeSearchAll() (app/Models/Traits/BankProfile/HasSearchableRelations.php — correctly qualifies every column, e.g. bank_profiles.bp_number, no ambiguous-column risk)."
-    },
-    "P01_role_permissions": {
-      "result": "skipped_manual",
-      "note": "Needs verification.",
-      "status": "covered — test_full_permissions_allow_every_gated_action / test_no_permissions_denies_every_gated_action, both green, same pattern as PR/PI/RO."
-    },
-    "B01_bulk_actions": {
-      "result": "fail",
-      "note": "Needs the same consistent shape as PI/RO/PR.",
-      "scope": "bank_profile",
-      "status": "fixed — bulk-action ordering (Export/Delete/Restore) was already standardized app-wide earlier this session (see app_wide_bulk_action_order); BankProfile's own ExportBulkAction now dispatches ExportBankProfiles matching the PI/RO/PR job shape, built by the import/export pipeline agent (see X01). Pending this session's independent review pass."
-    },
-    "X01_export": {
-      "result": "fail",
-      "note": "Needs the same consistent shape as PI/RO/PR.",
-      "scope": "bank_profile",
-      "status": "fixed, pending independent review — full flat (non-grouped, BankProfile has no child item table) import/export pipeline built: BankProfileImporter.php following the settled Match/Fallback/Optional/Manual-set column plan agreed with the user (registered_order_id strict-match/reject; company_id/bank_id/status_id/requested_currency_id/purchased_currency_id nullable+allowNullOnMismatch; requested_amount/purchased_equivalent/commission_rate fallback to 0; payment_due_date fallback to +2 weeks; bp_number optional+CodeGenerator fallback; notes optional), BankProfileExporter.php rewritten to the plain write()-based shape mirroring RegisteredOrderExporter, ExportBankProfiles job, filled-example CSV. Also fixed, as a byproduct: ~25+3 pre-existing missing resources/general/strings.import.*/export.* lang keys shared by the WHOLE import pipeline (PR/PI/RO too) — these were rendering as raw untranslated keys everywhere, a real gap an earlier review surfaced (28 test failures, 26 traced to this)."
-    },
-    "N01_badge_locale": {
-      "result": "fail",
-      "note": "Check the localized files for it.",
-      "scope": "bank_profile",
-      "status": "fixed, pending independent review — lang files touched extensively this session (see X01's lang-key fix); final confirmation via LangKeyIntegrityTest passing is part of the still-running import/export review."
-    },
-    "I02_ideation_pass": {
-      "result": "fixed",
-      "note": "claude-ideator proposed 3 ranked ideas 2026-09-25: (1) show core financial figures (requested amount/currency) in the table — currently zero money columns, deviates from PurchaseOrder's own showTotalAmount() convention; (2) overdue-commitment badge on payment_due_date/commitment_payment_date, mirroring RegisteredOrder's isValidityLapsed()/showValidityDate(); (3) flag over-drawn commitment (negative remaining_commitment) with a danger/gray/success color closure instead of an unconditional success color.",
-      "scope": "bank_profile",
-      "status": "user approved all 3 (no partial acceptance, unlike RO's 1-and-3-of-3) — implementation dispatched, pending completion + review."
-    }
-  },
-  "purchase_order": {
-    "_note": "First formal browser pass 2026-10-03, against 8 seeded records. Resource+Model automated suite (55 tests) already green and reviewed before this pass; export-row-shape and search-EAV-wiring fixes (L01/X01 below) were already caught and fixed while writing the automated tests, before the user ran this checklist.",
-    "L01_list_search": {
-      "result": "fail",
-      "note": "Two issues, both app-wide not PO-specific: (1) the column-toggle modal is too long on this resource's wide column set — can't reach the Apply button without shrinking the viewport; (2) toggled column visibility doesn't persist across navigation, resets to default.",
-      "scope": "app_wide",
-      "status": "(2) is not a bug — the topbar 'remember my table setup' toggle (TableStateToggle/persist_table_state session flag) already covers this, it just defaults off; told user to enable it. (1) is a real unaddressed UX gap, recorded under app_wide_requests.column_toggle_modal_height, not yet designed/built."
-    },
-    "L02_filters": { "result": "pass" },
-    "L03_sort_pagination": { "result": "pass" },
-    "C01_create_happy_path": { "result": "pass" },
-    "C02_create_validation": { "result": "pass" },
-    "E01_edit_loads_relations": {
-      "result": "fail",
-      "note": "User flagged the Purchase Requests relation-manager tab's header button as inconsistent with sibling tabs' styled 'add_record' create-draft button.",
-      "scope": "purchase_order",
-      "status": "investigated, not yet resolved — PurchaseOrderResource\\RelationManagers\\PurchaseRequestsRelationManager.php deliberately uses AttachAction::make() (not the shared add_record create-draft action its 3 siblings use), because purchaseRequests is a belongsToMany — attaching an EXISTING PR, not drafting a new one from inside a PO page; this mirrors the identical AttachAction choice on every other module's own PurchaseRequestsRelationManager. Filament's own vendor Farsi label for AttachAction is 'افزودن' (Add), not 'ایجاد' (Create) as the user described, and the button is also conditionally hidden unless the PO's status is 'Approved' — unclear if the user saw a genuinely mislabeled button or is asking for visual-only parity with the create-styled siblings despite the different underlying action. Needs user clarification before touching code."
-    },
-    "I01_infolist_tabs": {
-      "result": "fail",
-      "note": "Not actually an infolist defect — user likes the current click-to-view popup, but wants a new GLOBAL (app-wide, not PO-specific) button giving direct edit/delete access from that popup.",
-      "scope": "app_wide",
-      "status": "open — flagged to user: a conceptually adjacent feature (row click-to-edit/right-click action popover) was already built, reviewed, and then fully reverted app-wide in an earlier session at the user's own request (still not working reliably without browser console access) — see CLAUDE.md Standing Gotchas / resources/js/scriptPattern.md 'Row click gestures'. Needs explicit user decision before re-attempting any shape of this."
-    },
-    "A01_eav_custom_attributes": {
-      "result": "fail",
-      "note": "User believes this was already fixed once and wants a single project-wide sweep across every remaining unaudited module so it stops resurfacing module-by-module.",
-      "scope": "app_wide",
-      "status": "open — recorded under app_wide_requests.eav_sweep_remaining_modules; not yet scoped (which exact sub-issue — null-literal rendering, or EAV search wiring, or both — needs confirming against each remaining module first)."
-    },
-    "P01_role_permissions": {
-      "result": "skipped_manual",
-      "note": "User asked Claude to confirm this one directly.",
-      "status": "covered — test_full_permissions_allow_every_gated_action / test_no_permissions_denies_every_gated_action, both green, same shape as PR/PI/RO/BankProfile."
-    },
-    "B01_bulk_actions": {
-      "result": "pass",
-      "note": "User pre-confirmed the match/fallback/null/note-as-log import column shape proposed earlier in discussion; wants bulk-action-order consistency confirmed before testing.",
-      "status": "confirmed — toolbar order is Export/Delete/Restore app-wide (app_wide_bulk_action_order), covered by test_bulk_actions_toolbar_orders_export_before_delete_and_restore, green."
-    },
-    "X01_export": {
-      "result": "pass",
-      "note": "Wanted export consistency confirmed, and nested items as real rows like PR/RO.",
-      "status": "confirmed — PurchaseOrderExporter converted from Filament's native blob-column Exporter to the real parent-row+item-row write() shape this same session, reviewed, 2 dedicated tests green (row-shape + column-count pin)."
-    },
-    "N01_badge_locale": {
-      "result": "pass",
-      "note": "User confirms filters/badges work; flags no plain numeric column in the table as a maybe-non-issue.",
-      "status": "no action needed unless user finds something concrete — table intentionally has no bare numeric display column for this module."
-    }
-  },
-  "payment": {
-    "_note": "First formal browser pass 2026-10-04, after the full module audit (exporter conversion, importer build, test growth, 4 ideator features) was already done and reviewed. User marked 5 of 12 items 'fail' as a deliberate flag asking Claude to double-check them, not as an observed browser defect — clarified by the user afterward ('no they did not fail i wanted U to check'). All 5 verified clean below; none needed a fix.",
-    "L01_list_search": { "result": "pass" },
-    "L02_filters": { "result": "pass" },
-    "L03_sort_pagination": { "result": "pass" },
-    "C01_create_happy_path": {
-      "result": "pass",
-      "note": "Flagged by user for double-checking, not an observed failure.",
-      "status": "verified clean — all 57 PaymentResourceTest create-path tests pass, including the 2 new auto-fill-on-target-pick tests and the 2 new duplicate-warning tests added this session."
-    },
-    "C02_create_validation": {
-      "result": "pass",
-      "note": "Flagged by user for double-checking, not an observed failure.",
-      "status": "verified clean — all validation tests pass (required targetable/payor/payee/currency/payable_amount, payment_deadline >= payment_date, unique payment_no)."
-    },
-    "E01_edit_loads_relations": {
-      "result": "pass",
-      "note": "Flagged by user for double-checking ('absolute consistency with other modules'), not an observed failure.",
-      "status": "verified clean — compared EditPayment's header actions against EditPurchaseOrder/EditRegisteredOrder/EditBankProfile: no inconsistency found (ManageCustomAttributesAction is BankProfile-only by design, not an app-wide convention; PurchaseOrder is actually the one missing a ViewAction that Payment/RO both have)."
-    },
-    "I01_infolist_tabs": { "result": "pass" },
-    "A01_eav_custom_attributes": { "result": "pass" },
-    "P01_role_permissions": {
-      "result": "pass",
-      "note": "Flagged by user for double-checking, not an observed failure.",
-      "status": "verified clean — all 5 payment.{view,create,edit,delete,restore} Permission rows exist and are granted to the expected roles in the real dev DB; test_full_permissions_allow_every_gated_action/test_no_permissions_denies_every_gated_action both pass."
-    },
-    "B01_bulk_actions": { "result": "pass" },
-    "X01_export": { "result": "pass" },
-    "N01_badge_locale": {
-      "result": "pass",
-      "note": "Flagged by user for double-checking; also asked what 'badge' refers to here.",
-      "status": "clarified, not a bug — N01 means the sidebar NAVIGATION badge (count next to the 'Payments' nav-menu entry), not the table's own badge-styled columns (Status/Targetable/Total Match). Confirmed: NONE of the 8 canonical operational-pipeline resources implement getNavigationBadge() — only 4 Master Data resources do (Correspondence, Product, NotificationSetting, Category). Payment showing no nav badge is consistent app-wide, not a defect (same conclusion already reached for Purchase Order's N01 above). EN/FA/FR lang keys for every string added this session confirmed present in all 3 locale files. A nav badge is a new feature request if ever wanted, not a fix."
-    }
-  },
-  "app_wide_requests": {
-    "date_filter_inline_row": {
-      "note": "Every resource's date-range filter — should be one inline row (start/end side by side) instead of two stacked DatePickers, via a shared component.",
-      "status": "fixed, pending independent review — App\\Filament\\Resources\\General\\FilterComponents::dateRangeFilter() added, retrofitted onto all 9 existing date-range filters across 8 resources (RegisteredOrder, PurchaseRequest, PurchaseOrder, Payment, BankProfile x2, Custom, Shipment x2, ProformaInvoice, Correspondence), using Filament's native Filter->columns(2) mechanism."
-    },
-    "filter_modal_close_on_apply": {
-      "note": "Every resource's table filter panel — should close/fade after Apply instead of staying open over the table.",
-      "status": "open — needs scope decision before building"
-    },
-    "infolist_modal_fixed_height": {
-      "note": "Every resource's infolist modal — fixed height so it doesn't visually shrink on records with less data.",
-      "status": "open — needs scope decision before building"
-    },
-    "bulk_import": {
-      "note": "New feature: a strictly-validated bulk import mechanism/service, app-wide, not resource-specific. Must cleanly reject corrupted/unnormalized/unvalidated rows rather than partially insert.",
-      "status": "open — Complex lane, needs a design pass before building"
-    },
-    "column_toggle_modal_height": {
-      "note": "Found during Purchase Order's browser pass 2026-10-03: on a resource with a wide column set, the column-toggle modal's list is too long — the Apply button is unreachable without shrinking the browser viewport (phone-width). Likely affects every resource with a similarly long column list, not just Purchase Order.",
-      "status": "open — not yet scoped/designed"
-    },
-    "eav_sweep_remaining_modules": {
-      "note": "User wants a single project-wide sweep confirming EAV custom-attribute behavior (null-literal rendering, search wiring, or both) is correct on every module not yet through its own formal audit pass, rather than rediscovering the same class of bug module-by-module.",
-      "status": "open — needs scoping: which exact sub-issue(s) to check, and against which remaining modules"
-    },
-    "row_popup_edit_delete_button": {
-      "note": "User likes the click-to-view record popup but wants a global (not resource-specific) button inside it giving direct edit/delete access.",
-      "status": "open — a related feature (row click-to-edit/right-click action popover) was built, reviewed, then fully reverted app-wide at the user's own request earlier in the project (see CLAUDE.md Standing Gotchas, resources/js/scriptPattern.md 'Row click gestures') — needs explicit user decision before any new attempt, not a blind rebuild."
-    }
-  },
-  "shipment": {
-    "_note": "Not yet through its own formal module audit pass — this single entry is from a client-reported claim investigated ad hoc, not a full 12-item checklist run.",
-    "commercial_invoice_pi_not_persisting": {
-      "result": "fixed",
-      "note": "Client reported: in the Logistics module (Shipment), the selected Proforma Invoice (پیش‌فاکتور) on the Commercial Invoice tab does not persist after saving.",
-      "scope": "shipment",
-      "status": "Root cause: the Commercial Invoice tab's fields are all ->dehydrated(false), and the tab had its OWN separate 'Save Invoice' footer action, entirely disconnected from the Shipment record's normal Save button — a user filling the tab then clicking the NORMAL Save button silently lost the selection. Fixed by moving Save/Download/Restore CI out of the schema-level footerActions() (app/Filament/Resources/Operational/ShipmentResource/Traits/InvoiceForm.php) and into EditShipment::getFormActions() (app/Filament/Resources/Operational/ShipmentResource/Pages/EditShipment.php), sitting directly beside — and preceding, for accent — the record's own Save/Cancel buttons, reading the page's live $this->data array instead of a schema Get closure. persistInvoiceToEav() signature changed from (Get $get, $record) to (array $formData, $record) to support this. All three CI actions are disabled via blank($this->data['_inv_pi_id'] ?? null) until a Proforma Invoice is actually selected. A third action, 'Restore CI', was added — reverts unsaved in-progress edits back to the last saved EAV state (or blanks the tab if nothing was ever saved) via a new shared EditShipment::hydrateInvoiceData() + $this->form->fill(). The 'Download CI' action's persist-then-open-PDF race (action + ->url()->openUrlInNewTab() could open the PDF before the AJAX save finished) was fixed by dropping ->url() and opening the tab via $this->js('window.open(...)') only after persistInvoiceToEav() completes. The Notes card was also relocated from the right column to the left column, directly under the Items/products section, per user request. Verified via tests/Feature/Filament/ShipmentResourceTest.php (5 passed, including a Livewire::test(...)->callAction(TestAction::make('saveInvoice')->schemaComponent('form-actions', 'content')) end-to-end action test — see testPattern.md §3e for why page-level getFormActions() actions need schemaComponent() targeting) and a claude-reviewer pass."
-    }
-  },
-  "status": {
-    "_note": "Pending its own formal 12-item checklist pass (resource-test/ideator/QA lanes for Status not yet started per module-audit-playbook.md). This single entry is an early spot-check the user ran ahead of that.",
-    "browser_spot_check": {
-      "result": "pass",
-      "note": "User checked Status at the browser level 2026-10-06: no issue found.",
-      "status": "no action needed"
-    }
-  },
-  "currency": {
-    "_note": "Pending its own formal 12-item checklist pass (resource-test/ideator/QA lanes for Currency not yet started/in-progress per module-audit-playbook.md). This single entry is an early spot-check the user ran ahead of that.",
-    "browser_spot_check": {
-      "result": "pass",
-      "note": "User checked Currency at the browser level 2026-10-06: no issue found.",
-      "status": "condition met — Resource-layer tests passed (36) and the independent claude-reviewer pass came back GO 2026-10-06 (2 minor fixes applied: a static:: consistency nit, a doc correction). Merged."
-    }
-  },
-  "product": {
-    "_note": "Full audit (architecture, tests, importer/exporter, 4/4 ideas, independent review) done and merged 2026-10-06. Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet."
-  },
-  "category": {
-    "_note": "Full audit (architecture, tests, importer/exporter, 3/4 ideas, independent review) done and merged 2026-10-06, including a real pre-existing closure-table bug fix found by review (see module-audit-playbook.md). Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet."
-  },
-  "bank": {
-    "_note": "Full audit (architecture, tests, importer/exporter, HasUsageGuard + tooltip, independent review) done and merged 2026-10-06. Not yet through its own formal 12-item browser checklist pass — no user browser QA recorded for this module yet."
-  },
-  "company": {
-    "_note": "Not run as a formal 12-item checklist pass, but the user did spot-check this module live in the browser 2026-10-06 and raised one real finding via direct comment rather than the checklist.",
-    "X02_import_button_missing": {
-      "result": "fail",
-      "note": "User asked \"company does not have any import?\" after checking the live app — no Import button was visible on the Companies list page at all.",
-      "scope": "company",
-      "status": "fixed — root cause: ManageCompanies::getHeaderActions() only ever returned CreateAction::make(); CompanyResource::getImportAction() (Traits/Table.php) existed and was fully covered by 45 green CompanyResourceTest assertions, but every one of them invoked CompanyImporter directly and never mounted the real page, so the missing wiring passed a full green suite undetected. Fixed by adding CompanyResource::getImportAction() to ManageCompanies::getHeaderActions() (matches every sibling Manage*Page). A permanent regression test (test_import_action_is_reachable_from_the_page_header) was added to ALL 5 importer-having modules (Product/Category/Bank/Currency/Company), not just Company, since the same page-wiring gap could exist invisibly on any of them — see app/Services/Imports/importsPattern.md's new section on this. Full 294-test combined suite across all 6 Master Data modules green after the fix."
-    }
-  },
-  "app_wide_bulk_action_order": {
-    "result": "fixed",
-    "note": "User noticed Proforma Invoice and Purchase Request's bulk-action toolbar had different ordering (one led with Export, the other with Delete/Restore).",
-    "scope": "app_wide",
-    "status": "Standardized every resource's BulkActionGroup to lead with ExportBulkAction, followed by Activate/Deactivate (where present) then Delete/RestoreBulkAction — 14 resources touched: Category, Bank, BankProfile, Company, Payment, Custom, Product, PurchaseOrder, Currency, ProformaInvoice, Shipment, RegisteredOrder, Status, Target. PurchaseRequest already matched and was left unchanged. Row-level Actions::make([ViewAction, EditAction, DeleteAction, RestoreAction]) were audited app-wide and were already consistent everywhere — no changes needed there."
-  }
 }

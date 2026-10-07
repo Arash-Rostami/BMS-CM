@@ -23,6 +23,14 @@ trait Filters
             ->preload();
     }
 
+    public static function getEndedStillActiveFilter(): Filter
+    {
+        return Filter::make('ended_still_active')
+            ->label(__('resources/target/strings.filters.ended_still_active'))
+            ->toggle()
+            ->query(fn (Builder $query): Builder => $query->endedStillActive());
+    }
+
     public static function getMetricsFilter(): SelectFilter
     {
         return SelectFilter::make('metrics')

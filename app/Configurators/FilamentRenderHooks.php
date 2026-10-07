@@ -76,5 +76,10 @@ class FilamentRenderHooks
             PanelsRenderHook::SIDEBAR_NAV_END,
             fn (): View => view('filament.partials.meta')
         );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::SIDEBAR_NAV_END,
+            fn (): View => view('filament.partials.dock-min')
+        );
     }
 }

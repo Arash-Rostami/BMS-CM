@@ -82,6 +82,7 @@ return [
         'validation_english_name_string' => 'The English name must be text.',
         'validation_code_max' => 'The product code must not exceed :max characters.',
         'validation_description_max' => 'The description must not exceed :max characters.',
+        'validation_import_licenses_in' => 'Please choose valid import licenses only.',
         'validation_specifications_max' => 'Only one specifications entry is allowed.',
         'helper_code' => 'Choose a code carefully, as it must be unique and is used to look this product up everywhere.',
         'helper_classify_by_name' => 'Turning this on lets you name the product yourself in both Persian and English instead of auto-naming it.',

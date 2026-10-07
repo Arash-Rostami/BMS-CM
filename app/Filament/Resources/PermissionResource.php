@@ -23,6 +23,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class PermissionResource extends Resource
@@ -55,6 +56,11 @@ class PermissionResource extends Resource
         return parent::getEloquentQuery()->withCount(['roles', 'users']);
     }
 
+    protected static function deleteWarning(int $roles, int $users): string
+    {
+        return __('resources/permission/strings.actions.delete_warning', ['roles' => $roles, 'users' => $users]);
+    }
+
     public static function getModelLabel(): string
     {
         return __('resources/permission/strings.general.model_label');
@@ -85,6 +91,7 @@ class PermissionResource extends Resource
                     ->schema([
                         static::viewName(),
                         static::viewRoles(),
+                        static::viewUsers(),
                         static::viewCreatedAt(),
                         static::viewUpdatedAt(),
                     ])
@@ -103,7 +110,7 @@ class PermissionResource extends Resource
                 static::showCreationTime(),
                 static::showUpdateTime(),
             ])
-            ->filters([static::getModuleFilter()])
+            ->filters([static::getModuleFilter(), static::getUngrantedFilter()])
             ->filtersFormColumns(1)
             ->groups([
                 Group::make('name')
@@ -119,12 +126,12 @@ class PermissionResource extends Resource
             ])
             ->recordActions([
                 ActionGroup::make([
-                    ViewAction::make(),
+                    ViewAction::make()->mountUsing(fn (Permission $record) => $record->loadMissing('users:id,name')),
                     EditAction::make(),
-                    DeleteAction::make(),
+                    DeleteAction::make()->modalDescription(fn (Permission $record) => static::deleteWarning($record->roles_count, $record->users_count)),
                 ]),
             ])
-            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])])
+            ->toolbarActions([BulkActionGroup::make([static::getExportBulkAction(), DeleteBulkAction::make()->modalDescription(fn (Collection $records) => static::deleteWarning($records->sum('roles_count'), $records->sum('users_count')))])])
             ->striped()
             ->searchDebounce('1000ms')
             ->recordUrl(null)

@@ -16,6 +16,7 @@ return [
         'updated_at' => 'Date de mise à jour',
     ],
     'table' => [
+        'id' => 'ID',
         'entity_type' => 'Entité',
         'entity_id' => 'ID de l\'enregistrement',
         'key' => 'Clé',

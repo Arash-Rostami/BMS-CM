@@ -3,7 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\TableComponents;
-use App\Filament\Resources\Master\UserResource\Exports\UserExporter;
+use App\Filament\Resources\Master\UserResource\Enums\UserStatus;
 use App\Filament\Resources\Master\UserResource\Pages\ManageUsers;
 use App\Filament\Resources\Master\UserResource\Traits\Filters;
 use App\Filament\Resources\Master\UserResource\Traits\Form as UserForm;
@@ -15,12 +15,14 @@ use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -35,33 +37,62 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 9;
 
+    public static function getDeleteAuthorizationResponse($record): Response
+    {
+        return Response::deny();
+    }
+
+    public static function getDeleteAnyAuthorizationResponse(): Response
+    {
+        return Response::deny();
+    }
+
+    public static function canDelete($record): bool
+    {
+        return false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Section::make()
-                    ->schema([
-                        static::getName(),
-                        static::getPhoneInput(),
-                        static::getEmail(),
-                        static::getCompany(),
-                        static::getDepartment(),
-                        static::getPosition(),
-                        static::getPassword(),
-                        static::getPasswordConfirmation(),
-                        static::getRoles(),
-                        static::getStatus(),
-                        static::getIP(),
-                        static::getLastLogIn(),
-                        static::getLastLogOut(),
-                        Section::make('🔗')
-                            ->hiddenLabel()
-                            ->schema([static::getImage()])
-                            ->columnSpanFull()
-                            ->collapsed(),
+                Tabs::make('User')
+                    ->tabs([
+                        Tab::make(__('resources/user/strings.form.tab_general'))
+                            ->icon('heroicon-o-user')
+                            ->schema([
+                                static::getName(),
+                                static::getPhoneInput(),
+                                static::getEmail(),
+                                static::getStatus(),
+                                static::getPassword(),
+                                static::getPasswordConfirmation(),
+                                static::getIP(),
+                                static::getLastLogIn(),
+                                static::getLastLogOut(),
+                            ])
+                            ->columns(2),
+                        Tab::make(__('resources/user/strings.form.tab_details'))
+                            ->icon('heroicon-o-identification')
+                            ->schema([
+                                static::getCompany(),
+                                static::getDepartment(),
+                                static::getPosition(),
+                                static::getRoles(),
+                                Section::make('🔗')
+                                    ->hiddenLabel()
+                                    ->schema([static::getImage()])
+                                    ->columnSpanFull()
+                                    ->collapsed(),
+                            ])
+                            ->columns(2),
                     ])
-                    ->columnSpanFull()
-                    ->columns(2),
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -169,6 +200,7 @@ class UserResource extends Resource
                 static::getRoleFilter(),
                 static::getPositionFilter(),
                 static::getStatusFilter(),
+                static::getStaleLoginFilter(),
                 static::getThrashedFilter(),
             ])->filtersFormColumns(2)
             ->recordActions([
@@ -179,11 +211,13 @@ class UserResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(UserExporter::class),
+                    static::getExportBulkAction(),
+                    static::getActivateBulkAction(),
+                    static::getDeactivateBulkAction(),
                 ]),
             ])
             ->striped()
+            ->recordClasses(fn (Model $record): ?string => ($record->status?->value ?? $record->status) === UserStatus::INACTIVE->value ? 'user-row-inactive' : null)
             ->reorderableColumns()
             ->defaultSort('id', 'desc'));
     }

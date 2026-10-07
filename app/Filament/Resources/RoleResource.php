@@ -10,12 +10,14 @@ use App\Filament\Resources\Master\RoleResource\Traits\Infolist as RoleInfolist;
 use App\Filament\Resources\Master\RoleResource\Traits\Table as RoleTable;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Role;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -23,6 +25,8 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class RoleResource extends Resource
 {
@@ -54,6 +58,48 @@ class RoleResource extends Resource
                 static::getPermissionSelector(),
             ])->columnSpanFull(),
         ]);
+    }
+
+    public static function getDuplicateAction(): Action
+    {
+        return Action::make('duplicate')
+            ->label(__('resources/role/strings.actions.duplicate'))
+            ->icon('heroicon-o-document-duplicate')
+            ->visible(fn () => static::canCreate())
+            ->modalHeading(__('resources/role/strings.actions.duplicate'))
+            ->schema(fn (Schema $schema) => static::form($schema))
+            ->fillForm(function (Role $record): array {
+                $grade = Role::extractGrade($record->name);
+                $base = $record->base_name.'_copy';
+                while (Role::where('name', Role::combineName($base, $grade))->exists()) {
+                    $base .= '_copy';
+                }
+                $permissionIds = $record->permissions()->pluck('permissions.id')->map(fn ($id) => (int) $id)->all();
+
+                return [
+                    'name' => $base,
+                    'grade' => $grade,
+                    'select_all' => false,
+                    'permissions' => $permissionIds,
+                    'modules' => Role::getModulesFromPermissions($permissionIds),
+                ];
+            })
+            ->action(function (Role $record, array $data, Action $action) {
+                $name = Role::combineName($data['name'], $data['grade']);
+
+                if (Role::where('name', $name)->exists()) {
+                    Notification::make()
+                        ->title(__('resources/role/strings.actions.duplicate_exists'))
+                        ->danger()
+                        ->send();
+
+                    $action->halt();
+                }
+
+                Role::create(['name' => $name, 'guard_name' => $record->guard_name])
+                    ->syncPermissions($data['permissions'] ?? []);
+            })
+            ->successNotificationTitle(__('resources/role/strings.actions.duplicated'));
     }
 
     public static function getEloquentQuery(): Builder
@@ -128,10 +174,16 @@ class RoleResource extends Resource
                     EditAction::make()
                         ->mutateDataUsing(fn (array $data): array => [...$data, 'name' => Role::combineName($data['name'], $data['grade'])])
                         ->after(fn (Role $record, array $data) => $record->syncPermissions($data['permissions'] ?? [])),
-                    DeleteAction::make(),
+                    static::getDuplicateAction(),
+                    DeleteAction::make()
+                        ->modalDescription(fn (Role $record) => __('resources/role/strings.actions.delete_warning', ['count' => $record->users_count])),
                 ]),
             ])
-            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])])
+            ->toolbarActions([BulkActionGroup::make([
+                static::getExportBulkAction(),
+                DeleteBulkAction::make()
+                    ->modalDescription(fn (Collection $records) => __('resources/role/strings.actions.delete_warning', ['count' => $records->sum('users_count')])),
+            ])])
             ->striped()
             ->searchDebounce('1000ms')
             ->recordUrl(null)

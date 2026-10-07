@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
+use App\Models\Traits\Target\HasAchievementProgress;
 use App\Models\Traits\Target\HasMetricAttribute;
 use App\Models\Traits\Target\HasTargetableLabel;
 use App\Models\Traits\Target\HasYearAttribute;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Target extends Model
 {
     use ExclusiveRelationships,
+        HasAchievementProgress,
         HasFactory,
         HasMetricAttribute,
         HasTargetableLabel,

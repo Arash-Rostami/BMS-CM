@@ -22,8 +22,13 @@ trait Form
             ->default('create')
             ->live()
             ->multiple()
+            ->required()
             ->columnSpan(1)
             ->columnSpanFull()
+            ->validationMessages([
+                'required' => __('resources/notificationSetting/strings.form.validation_required'),
+                '*.in' => __('resources/notificationSetting/strings.form.validation_in'),
+            ])
             ->helperText(__('resources/notificationSetting/strings.form.helper_actions'));
     }
 
@@ -40,6 +45,9 @@ trait Form
             ->disabled(fn ($get) => ! in_array('update', (array) $get('settings.actions')))
             ->hidden(fn ($get) => ! in_array('update', (array) $get('settings.actions')))
             ->nullable()
+            ->validationMessages([
+                '*.in' => __('resources/notificationSetting/strings.form.validation_in'),
+            ])
             ->helperText(__('resources/notificationSetting/strings.form.helper_columns'));
     }
 
@@ -59,6 +67,9 @@ trait Form
             ->disabled(fn ($get) => ! in_array('update', (array) $get('settings.actions')))
             ->hidden(fn ($get) => ! in_array('update', (array) $get('settings.actions')))
             ->nullable()
+            ->validationMessages([
+                '*.in' => __('resources/notificationSetting/strings.form.validation_in'),
+            ])
             ->helperText(__('resources/notificationSetting/strings.form.helper_column_values'));
     }
 
@@ -94,8 +105,13 @@ trait Form
             ->label(__('resources/notificationSetting/strings.form.notification_type'))
             ->options(NotificationSetting::notificationChannel())
             ->default('in_app')
+            ->required()
             ->columnSpan(1)
             ->columnSpanFull()
+            ->validationMessages([
+                'required' => __('resources/notificationSetting/strings.form.validation_required'),
+                'in' => __('resources/notificationSetting/strings.form.validation_in'),
+            ])
             ->helperText(__('resources/notificationSetting/strings.form.helper_notification_type'));
     }
 
@@ -105,10 +121,14 @@ trait Form
             ->label(__('resources/notificationSetting/strings.form.tables'))
             ->options(NotificationSetting::getAvailableModels())
             ->multiple()
+            ->required()
             ->columnSpan(1)
             ->columnSpanFull()
             ->searchable()
-            ->nullable()
+            ->validationMessages([
+                'required' => __('resources/notificationSetting/strings.form.validation_required'),
+                '*.in' => __('resources/notificationSetting/strings.form.validation_in'),
+            ])
             ->helperText(__('resources/notificationSetting/strings.form.tables_description'));
     }
 
@@ -116,11 +136,17 @@ trait Form
     {
         return Select::make('settings.users')
             ->label(__('resources/notificationSetting/strings.form.users'))
-            ->options(User::all()->pluck('name', 'id'))
+            ->options(fn () => User::pluck('name', 'id'))
+            ->default(fn () => [auth()->id()])
             ->columnSpan(1)
             ->multiple()
+            ->required()
             ->columnSpanFull()
             ->searchable()
-            ->nullable();
+            ->validationMessages([
+                'required' => __('resources/notificationSetting/strings.form.validation_required'),
+                '*.in' => __('resources/notificationSetting/strings.form.validation_in'),
+            ])
+            ->helperText(__('resources/notificationSetting/strings.form.helper_users'));
     }
 }

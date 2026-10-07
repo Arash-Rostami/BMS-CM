@@ -148,7 +148,7 @@ class CurrencyResource extends Resource
                 static::showEnglishName(),
                 static::showDescription(),
                 static::showIsActive(),
-                static::showInUse(),
+                static::getInUseCountColumn(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),

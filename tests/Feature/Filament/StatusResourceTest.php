@@ -414,6 +414,30 @@ class StatusResourceTest extends TestCase
             ->assertHasActionErrors(['name' => 'required', 'english_name' => 'required']);
     }
 
+    public function test_create_action_rejects_an_invalid_type_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['status.view', 'status.create']);
+
+        $type = 'ValidationType'.uniqid();
+        Status::factory()->create(['type' => $type, 'english_type' => $type]);
+
+        $test = Livewire::test(ManageStatuses::class)
+            ->mountAction('create')
+            ->fillForm([
+                'english_type' => $type,
+                'name' => 'نام',
+                'english_name' => 'Name '.uniqid(),
+                'type' => 'totally-bogus-type-not-in-options',
+            ])
+            ->callMountedAction();
+
+        $this->assertSame(
+            [__('resources/status/strings.form.validation_type_in')],
+            $test->errors()->get('mountedActions.0.data.type')
+        );
+    }
+
     // Edit — plain field update, independent of the approval workflow
 
     public function test_edit_action_updates_the_name_and_english_name(): void

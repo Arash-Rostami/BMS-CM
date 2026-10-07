@@ -117,6 +117,9 @@ trait Form
                     }
                 };
             })
+            ->validationMessages([
+                'in' => __('resources/category/strings.form.validation_parent_in'),
+            ])
             ->helperText(fn ($state) => $state
                 ? Category::find($state)?->sortAncestors()
                 : __('resources/category/strings.form.helper_parent'))

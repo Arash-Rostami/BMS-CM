@@ -97,6 +97,7 @@ return [
         'validation_date_after_or_equal' => 'This date must be on or after :date.',
         'validation_max_length' => 'Please keep this to 255 characters or fewer.',
         'validation_date' => 'Please enter a valid date.',
+        'validation_in' => 'The selected value is invalid.',
         'helper_iban' => 'Double-check the IBAN before saving — a single wrong digit can send funds to the wrong account.',
         'helper_status' => 'Current status of the payment in the pipeline.',
         'hint_iban_changed' => 'Bank details differ from the last payment to this payee — verify before proceeding.',

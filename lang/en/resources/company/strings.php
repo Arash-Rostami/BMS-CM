@@ -53,6 +53,7 @@ return [
         'helper_english_name' => 'Use the official English name, as it appears on reports and shared documents.',
         'helper_description' => 'Add any additional notes or details about this company.',
         'validation_description_max' => 'The description must not exceed 65535 characters.',
+        'validation_company_types_in' => 'Please choose valid company types only.',
     ],
     'table' => [
         'name' => 'Name (Persian)',

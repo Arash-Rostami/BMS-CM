@@ -20,6 +20,9 @@ trait Form
             ->searchable()
             ->bulkToggleable()
             ->nullable()
+            ->validationMessages([
+                '*.in' => __('resources/company/strings.form.validation_company_types_in'),
+            ])
             ->helperText(__('resources/company/strings.form.company_types_description'));
     }
 

@@ -2,14 +2,14 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrderExporter;
+use App\Filament\Resources\Operational\PurchaseOrderResource\Imports\PurchaseOrderImporter;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\CreatePurchaseOrder;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\EditPurchaseOrder;
 use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\ListPurchaseOrders;
 use App\Filament\Resources\Operational\PurchaseOrderResource\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Operational\PurchaseOrderResource\RelationManagers\ProformaInvoicesRelationManager;
 use App\Filament\Resources\Operational\PurchaseOrderResource\RelationManagers\PurchaseRequestsRelationManager;
-use App\Filament\Resources\Operational\PurchaseOrderResource\Exports\PurchaseOrderExporter;
-use App\Filament\Resources\Operational\PurchaseOrderResource\Imports\PurchaseOrderImporter;
 use App\Filament\Resources\Operational\PurchaseOrderResource\RelationManagers\RegisteredOrdersRelationManager;
 use App\Filament\Resources\PurchaseOrderResource;
 use App\Models\Attachment;
@@ -739,6 +739,21 @@ class PurchaseOrderResourceTest extends TestCase
             ])
             ->call('create')
             ->assertHasFormErrors(['seller_id' => 'different']);
+    }
+
+    public function test_create_rejects_a_nonexistent_buyer_id_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['purchase_order.create', 'purchase_order.view']);
+
+        $test = Livewire::test(CreatePurchaseOrder::class)
+            ->fillForm(['buyer_id' => 999999])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/purchaseOrder/strings.form.validation_in')],
+            $test->errors()->get('data.buyer_id')
+        );
     }
 
     public function test_creating_a_second_recent_order_for_the_same_seller_and_buyer_warns_but_does_not_block(): void

@@ -94,6 +94,7 @@ return [
             'date' => 'Please enter a valid date here.',
             'min_numeric_zero' => 'This value cannot be negative.',
             'max' => 'Please keep this to 255 characters or fewer.',
+            'in' => 'The selected value is invalid.',
         ],
         'helper_status' => 'Overall logistical status of the shipment.',
         'bl_number_duplicate_warning' => 'Another shipment already uses this B/L number — this can be expected if several shipments share one carrier booking.',

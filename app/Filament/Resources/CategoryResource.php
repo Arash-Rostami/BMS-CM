@@ -61,6 +61,7 @@ class CategoryResource extends Resource
                 'specifications',
                 'targets',
             ])
+            ->withCount('products')
             ->withoutGlobalScopes([SoftDeletingScope::class]);
     }
 
@@ -152,6 +153,7 @@ class CategoryResource extends Resource
                 static::showLevel(),
                 static::showParent(),
                 static::showActive(),
+                static::showProductsCount(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),

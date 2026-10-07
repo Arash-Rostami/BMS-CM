@@ -530,6 +530,38 @@ class BankProfileResourceTest extends TestCase
             ]);
     }
 
+    // Validation messages — no raw-English leak in fa
+
+    public function test_create_rejects_a_nonexistent_registered_order_id_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['bank_profile.create', 'bank_profile.view']);
+
+        $test = Livewire::test(CreateBankProfile::class)
+            ->fillForm(['registered_order_id' => 999999])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/bankProfile/strings.form.validation_in')],
+            $test->errors()->get('data.registered_order_id')
+        );
+    }
+
+    public function test_create_rejects_a_nonexistent_requested_currency_id_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['bank_profile.create', 'bank_profile.view']);
+
+        $test = Livewire::test(CreateBankProfile::class)
+            ->fillForm(['requested_currency_id' => 999999])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/bankProfile/strings.form.validation_in')],
+            $test->errors()->get('data.requested_currency_id')
+        );
+    }
+
     // Create — Registered Order field auto-populates and locks when reached from the RO's relation manager
 
     public function test_registered_order_field_is_auto_filled_and_disabled_when_created_from_a_registered_order(): void

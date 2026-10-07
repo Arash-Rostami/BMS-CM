@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Master\PermissionResource\Traits;
 
 use App\Services\PermissionLabeler;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 
 trait Filters
@@ -20,5 +21,14 @@ trait Filters
                 return $query->where('name', 'like', "{$data['value']}.%");
             })
             ->searchable();
+    }
+
+    public static function getUngrantedFilter(): Filter
+    {
+        return Filter::make('ungranted')
+            ->label(__('resources/permission/strings.filters.ungranted'))
+            ->toggle()
+            ->query(fn ($query) => $query->doesntHave('roles')->doesntHave('users'))
+            ->indicator(__('resources/permission/strings.filters.ungranted_indicator'));
     }
 }

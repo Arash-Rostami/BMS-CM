@@ -104,6 +104,7 @@ return [
         'validation_min_numeric_zero' => 'Ce champ ne peut pas être négatif.',
         'validation_string' => 'Ce champ doit être une chaîne de caractères.',
         'validation_date' => 'Veuillez entrer une date valide.',
+        'validation_in' => "La valeur sélectionnée n'est pas valide.",
 
         'helper_po_number' => 'Ce numéro est généré automatiquement et verrouillé, vous n\'avez donc jamais à en saisir un vous-même.',
         'helper_expected_delivery_date' => 'Choisissez une date égale ou postérieure à la date de commande, car le fournisseur compte le délai à partir de là.',

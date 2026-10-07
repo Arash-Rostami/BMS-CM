@@ -14,12 +14,7 @@ trait Infolist
             ->label(__('resources/notificationSetting/strings.infolist.actions'))
             ->badge()
             ->listWithLineBreaks()
-            ->getStateUsing(fn ($record) => collect($record->getActions())->map(fn ($action) => match ($action) {
-                'create' => __('resources/notificationSetting/strings.action_types.create'),
-                'update' => __('resources/notificationSetting/strings.action_types.update'),
-                'delete' => __('resources/notificationSetting/strings.action_types.delete'),
-                default => $action,
-            })->all())
+            ->getStateUsing(fn ($record) => $record->getLocalizedActions())
             ->placeholder('-');
     }
 
@@ -96,6 +91,7 @@ trait Infolist
     {
         return TextEntry::make('settings.tables')
             ->label(__('resources/notificationSetting/strings.infolist.tables'))
+            ->getStateUsing(fn ($record) => $record->getLocalizedTables())
             ->badge()
             ->placeholder('-');
     }

@@ -43,6 +43,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
                 'different' => __('resources/registeredOrder/strings.form.validation_seller_buyer_different'),
+                'in' => __('resources/registeredOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.buyer'));
     }
@@ -75,6 +76,7 @@ trait Form
             ->required()
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
+                'in' => __('resources/registeredOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.currency'));
     }
@@ -84,6 +86,9 @@ trait Form
         return Select::make('currency_type')
             ->label(__('resources/registeredOrder/strings.form.currency_type'))
             ->options(__('resources/registeredOrder/strings.general.currency_types'))
+            ->validationMessages([
+                'in' => __('resources/registeredOrder/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.currency_type'))
             ->helperText(__('resources/registeredOrder/strings.form.helper_currency_type'));
     }
@@ -109,6 +114,9 @@ trait Form
             ->label(__('resources/registeredOrder/strings.form.incoterms'))
             ->options(__('resources/registeredOrder/strings.general.delivery_terms'))
             ->searchable()
+            ->validationMessages([
+                'in' => __('resources/registeredOrder/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.incoterms'));
     }
 
@@ -238,6 +246,9 @@ trait Form
                 self::updateTotal($get, $set);
             })
             ->visible(fn (Get $get): bool => $get('source_type') === 'pi' || filled($get('proformaInvoices')))
+            ->validationMessages([
+                '*.in' => __('resources/registeredOrder/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.proforma_invoices'));
     }
 
@@ -259,6 +270,9 @@ trait Form
                 self::updateTotal($get, $set);
             })
             ->visible(fn (Get $get): bool => $get('source_type') === 'po' || filled($get('purchaseOrders')))
+            ->validationMessages([
+                '*.in' => __('resources/registeredOrder/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/general/strings.relevant_module.form.purchase_orders'));
     }
 
@@ -280,6 +294,9 @@ trait Form
                 static::updateTotal($get, $set);
             })
             ->visible(fn (Get $get): bool => $get('source_type') === 'pr' || filled($get('purchaseRequests')))
+            ->validationMessages([
+                '*.in' => __('resources/registeredOrder/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/general/strings.relevant_module.form.purchase_requests'));
     }
 
@@ -317,6 +334,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
                 'different' => __('resources/registeredOrder/strings.form.validation_seller_buyer_different'),
+                'in' => __('resources/registeredOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.seller'));
     }
@@ -335,6 +353,9 @@ trait Form
             ->columnSpanFull()
             ->default(null)
             ->live()
+            ->validationMessages([
+                'in' => __('resources/registeredOrder/strings.form.validation_in'),
+            ])
             ->afterStateHydrated(function (Set $set, Get $get, ?Model $record) {
                 if (filled($get('source_type'))) {
                     return;
@@ -357,6 +378,7 @@ trait Form
             ->preload()
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
+                'in' => __('resources/registeredOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.status'))
             ->helperText(__('resources/registeredOrder/strings.form.helper_status')), null, fn () => Status::findBy(RegisteredOrder::TYPE_REGISTERED_ORDER, 'Submitted')?->id);
@@ -508,6 +530,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
                 'distinct' => __('resources/registeredOrder/strings.form.validation_distinct'),
+                'in' => __('resources/registeredOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.product'));
     }
@@ -559,6 +582,7 @@ trait Form
             ->columnSpan(3)
             ->validationMessages([
                 'required' => __('resources/registeredOrder/strings.form.validation_required'),
+                'in' => __('resources/registeredOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/registeredOrder/strings.form.unit'));
     }

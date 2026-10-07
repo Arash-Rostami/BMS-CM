@@ -69,6 +69,7 @@ trait Form
             ->required()
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
+                'in' => __('resources/shipment/strings.form.validation.in'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.carrier'));
     }
@@ -79,6 +80,9 @@ trait Form
             ->label(__('resources/shipment/strings.form.container_no'))
             ->options(array_combine(range(1, 30), range(1, 30)))
             ->searchable()
+            ->validationMessages([
+                'in' => __('resources/shipment/strings.form.validation.in'),
+            ])
             ->helperText(__('resources/shipment/strings.form.helper_container_no'));
     }
 
@@ -90,6 +94,9 @@ trait Form
                 ->label(__('resources/shipment/strings.form.container_status'))
                 ->searchable()
                 ->preload()
+                ->validationMessages([
+                    'in' => __('resources/shipment/strings.form.validation.in'),
+                ])
                 ->required(false),
             Shipment::TYPE_CONTAINER_STATUS
         );
@@ -100,7 +107,10 @@ trait Form
         return Select::make('container_type')
             ->label(__('resources/shipment/strings.form.container_type'))
             ->options(__('resources/shipment/strings.form.container_types_with_opt'))
-            ->searchable();
+            ->searchable()
+            ->validationMessages([
+                'in' => __('resources/shipment/strings.form.validation.in'),
+            ]);
     }
 
     public static function getContractNoField(): TextInput
@@ -138,6 +148,9 @@ trait Form
                 ->label(__('resources/shipment/strings.form.doc_status'))
                 ->searchable()
                 ->preload()
+                ->validationMessages([
+                    'in' => __('resources/shipment/strings.form.validation.in'),
+                ])
                 ->required(false),
             Shipment::TYPE_DOC_STATUS
         );
@@ -250,6 +263,9 @@ trait Form
                 ->label(__('resources/shipment/strings.form.operation_status'))
                 ->searchable()
                 ->preload()
+                ->validationMessages([
+                    'in' => __('resources/shipment/strings.form.validation.in'),
+                ])
                 ->required(false),
             Shipment::TYPE_OPERATION_STATUS
         );
@@ -283,6 +299,7 @@ trait Form
             ->helperText(__('resources/shipment/strings.form.helper_part'))
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
+                'in' => __('resources/shipment/strings.form.validation.in'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.part'));
     }
@@ -309,6 +326,7 @@ trait Form
             })
             ->validationMessages([
                 'required' => __('resources/shipment/strings.form.validation.required'),
+                'in' => __('resources/shipment/strings.form.validation.in'),
             ])
             ->validationAttribute(__('resources/shipment/strings.form.registered_order'));
     }
@@ -350,6 +368,9 @@ trait Form
                 ->label(__('resources/shipment/strings.form.shipment_status'))
                 ->searchable()
                 ->preload()
+                ->validationMessages([
+                    'in' => __('resources/shipment/strings.form.validation.in'),
+                ])
                 ->required(false),
             Shipment::TYPE_TRACKING_STATUS
         );
@@ -396,6 +417,7 @@ trait Form
                 ->preload()
                 ->validationMessages([
                     'required' => __('resources/shipment/strings.form.validation.required'),
+                    'in' => __('resources/shipment/strings.form.validation.in'),
                 ])
                 ->validationAttribute(__('resources/shipment/strings.form.status'))
                 ->helperText(fn (?Model $record) => static::statusWorkflowLockedHelperText('status_id', $record)

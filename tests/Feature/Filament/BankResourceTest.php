@@ -543,6 +543,21 @@ class BankResourceTest extends TestCase
         $this->assertSame(jdate($active->created_at)->format('Y-m-d'), $rows[0][$labels['created_at']]);
     }
 
+    // In-use count column
+
+    public function test_in_use_count_column_shows_the_total_references(): void
+    {
+        $this->actingAsUserWithPermissions(['bank.view']);
+
+        $used = Bank::factory()->create();
+        BankProfile::factory()->count(2)->create(['bank_id' => $used->id]);
+        $unused = Bank::factory()->create();
+
+        Livewire::test(ManageBanks::class)
+            ->assertTableColumnStateSet('in_use_count', 2, $used)
+            ->assertTableColumnStateSet('in_use_count', 0, $unused);
+    }
+
     // Usage guard — delete
 
     public function test_delete_action_succeeds_when_the_bank_is_unused(): void

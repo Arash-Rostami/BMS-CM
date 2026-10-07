@@ -586,6 +586,35 @@ body {
     cursor: pointer;
 }
 
+/* ----- Collapsed Icon Rail (not in bottom-dock modes — dock also closes the sidebar) ----- */
+@media (min-width: 1024px) {
+    html:not(.nav-dock-bottom) .fi-body-has-sidebar-collapsible-on-desktop .fi-sidebar:not(.fi-sidebar-open) .fi-sidebar-nav {
+        padding-inline: 0.375rem !important;
+    }
+
+    html:not(.nav-dock-bottom) .fi-body-has-sidebar-collapsible-on-desktop .fi-sidebar:not(.fi-sidebar-open) .fi-sidebar-nav-groups {
+        margin-inline: auto;
+    }
+
+    html:not(.nav-dock-bottom) .fi-body-has-sidebar-collapsible-on-desktop .fi-sidebar:not(.fi-sidebar-open) .fi-sidebar-item {
+        padding: 0.125rem;
+    }
+
+    html:not(.nav-dock-bottom) .fi-body-has-sidebar-collapsible-on-desktop .fi-sidebar:not(.fi-sidebar-open) .fi-sidebar-item > a:hover {
+        transform: none;
+    }
+
+    html:not(.nav-dock-bottom) .fi-body-has-sidebar-collapsible-on-desktop .fi-sidebar:not(.fi-sidebar-open) .fi-sidebar-item.fi-active > a::before {
+        right: auto;
+        inset-inline-start: 0.125rem;
+        top: calc(50% - 0.625rem);
+        bottom: auto;
+        height: 1.25rem;
+        content: '';
+        border-radius: 999px;
+    }
+}
+
 /* ----- Bottom Dock Layout (responsive) ----- */
 .fi-sidebar-nav > .dock-min {
     display: none !important;
@@ -945,6 +974,15 @@ html.table-density-compact tbody .fi-ta-row .fi-ta-col {
 
 html.table-density-compact tbody .fi-ta-row .fi-badge {
     padding-block: 0.0625rem !important;
+}
+
+tbody .fi-ta-row.user-row-inactive td {
+    opacity: .55;
+    transition: opacity .15s ease;
+}
+
+tbody .fi-ta-row.user-row-inactive:hover td {
+    opacity: 1;
 }
 
 html.table-stacking-classic .fi-ta-table-stacked-on-mobile {

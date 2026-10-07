@@ -6,6 +6,7 @@ use App\Filament\Resources\CompanyResource;
 use App\Filament\Resources\Master\CompanyResource\Exports\CompanyExporter;
 use App\Filament\Resources\Master\CompanyResource\Imports\CompanyImporter;
 use App\Filament\Resources\Master\CompanyResource\Pages\ManageCompanies;
+use App\Models\BankProfile;
 use App\Models\Company;
 use App\Models\Permission;
 use App\Models\RegisteredOrder;
@@ -244,6 +245,29 @@ class CompanyResourceTest extends TestCase
             ->assertHasFormErrors(['english_name' => 'unique']);
     }
 
+    // Validation messages — no raw-English leak in fa (multi-value field needs '*.in', not 'in')
+
+    public function test_create_action_rejects_an_invalid_company_type_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['company.view', 'company.create']);
+
+        $test = Livewire::test(ManageCompanies::class)
+            ->mountAction('create')
+            ->fillForm([
+                'name' => 'شرکت تست',
+                'english_name' => 'Type Validation Co '.uniqid(),
+                'types' => ['totally-bogus-type'],
+            ])
+            ->callMountedAction()
+            ->assertHasActionErrors(['types.0' => 'in']);
+
+        $this->assertSame(
+            [__('resources/company/strings.form.validation_company_types_in')],
+            $test->errors()->get('mountedActions.0.data.types.0')
+        );
+    }
+
     // Edit
 
     public function test_edit_action_persists_field_changes(): void
@@ -334,6 +358,21 @@ class CompanyResourceTest extends TestCase
 
         $this->assertStringContainsString($record->getLocalizedNameAttribute(), CompanyResource::getGlobalSearchResultTitle($record));
         $this->assertStringStartsWith('🏢', CompanyResource::getGlobalSearchResultTitle($record));
+    }
+
+    // In-use count column
+
+    public function test_in_use_count_column_shows_the_total_references(): void
+    {
+        $this->actingAsUserWithPermissions(['company.view']);
+
+        $used = Company::factory()->create();
+        BankProfile::factory()->count(2)->create(['company_id' => $used->id]);
+        $unused = Company::factory()->create();
+
+        Livewire::test(ManageCompanies::class)
+            ->assertTableColumnStateSet('in_use_count', 2, $used)
+            ->assertTableColumnStateSet('in_use_count', 0, $unused);
     }
 
     // Usage guard — delete

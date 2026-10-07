@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\General\TableComponents;
 use App\Filament\Resources\Operational\TargetResource\Enums\Status;
-use App\Filament\Resources\Operational\TargetResource\Exports\TargetExporter;
 use App\Filament\Resources\Operational\TargetResource\Pages\ManageTargets;
 use App\Filament\Resources\Operational\TargetResource\Traits\Filters as TargetFilters;
 use App\Filament\Resources\Operational\TargetResource\Traits\Form as TargetForm;
@@ -17,7 +16,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -113,6 +111,7 @@ class TargetResource extends Resource
                         static::viewStatus(),
                         static::viewAchievedQuantity(),
                         static::viewAchievedAmount(),
+                        static::viewAchievedPercentage(),
                         static::viewDescription(),
                         static::viewTagsJson(),
                         static::viewCreator(),
@@ -140,6 +139,7 @@ class TargetResource extends Resource
                 static::showStatus(),
                 static::showAchievedQuantity(),
                 static::showAchievedAmount(),
+                static::showAchievedPercentage(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),
@@ -153,6 +153,7 @@ class TargetResource extends Resource
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
                 static::getTrashedFilter(),
+                static::getEndedStillActiveFilter(),
             ])->filtersFormColumns(2)
             ->recordActions([
                 ActionGroup::make([
@@ -164,8 +165,9 @@ class TargetResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(TargetExporter::class),
+                    static::getExportBulkAction(),
+                    static::getActivateBulkAction(),
+                    static::getDeactivateBulkAction(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
@@ -178,6 +180,10 @@ class TargetResource extends Resource
                     ->getTitleFromRecordUsing(fn (Target $record) => Status::tryFrom($record->status)?->getLabel()),
                 Group::make('metrics')
                     ->label(__('resources/target/strings.table.metrics')),
+                Group::make('creator.name')
+                    ->label(__('resources/target/strings.table.creator')),
+                Group::make('updater.name')
+                    ->label(__('resources/target/strings.table.updater')),
             ])
             ->striped()
             ->reorderableColumns()

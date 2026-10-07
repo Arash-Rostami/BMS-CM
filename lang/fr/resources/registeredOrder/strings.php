@@ -98,6 +98,7 @@ return [
         'validation_min_numeric_zero' => 'Le champ :attribute ne peut pas être négatif, veuillez saisir zéro ou plus.',
         'validation_distinct' => 'Ce :attribute a déjà été ajouté, veuillez supprimer le doublon.',
         'validation_date' => 'Le champ :attribute n\'est pas une date valide, veuillez le saisir au format correct.',
+        'validation_in' => 'La valeur sélectionnée pour :attribute est invalide.',
 
         'helper_ro_number' => 'Généré automatiquement et verrouillé pour garantir l\'unicité des commandes enregistrées, ne le modifiez pas sans connaître le schéma de numérotation.',
         'helper_seller' => 'Le fournisseur doit être différent de l\'acheteur, sélectionnez ici la partie qui fournit.',

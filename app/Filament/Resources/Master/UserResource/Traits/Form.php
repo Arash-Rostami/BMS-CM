@@ -44,6 +44,9 @@ trait Form
             ->nullable()
             ->searchable()
             ->preload()
+            ->validationMessages([
+                'in' => __('resources/user/strings.form.validation_department_in'),
+            ])
             ->helperText(__('resources/user/strings.form.helper_department'));
     }
 
@@ -181,10 +184,12 @@ trait Form
             ->showFlags(true)
             ->autoPlaceholder('polite')
             ->required()
+            ->validateFor(country: 'INTERNATIONAL', lenient: true)
             ->validationAttribute(__('resources/user/strings.form.phone'))
             ->validationMessages([
                 'required' => __('resources/user/strings.form.validation_phone_required'),
                 'unique' => __('resources/user/strings.form.validation_phone_unique'),
+                'phone' => __('resources/user/strings.form.validation_phone_invalid'),
             ]);
     }
 
@@ -194,6 +199,9 @@ trait Form
             ->label(__('resources/user/strings.form.position'))
             ->options(PositionStatus::class)
             ->nullable()
+            ->validationMessages([
+                'enum' => __('resources/user/strings.form.validation_position_in'),
+            ])
             ->helperText(__('resources/user/strings.form.helper_position'));
     }
 
@@ -206,6 +214,9 @@ trait Form
             ->multiple()
             ->preload()
             ->searchable()
+            ->validationMessages([
+                '*.in' => __('resources/user/strings.form.validation_roles_in'),
+            ])
             ->helperText(__('resources/user/strings.form.helper_roles'));
     }
 
@@ -214,10 +225,12 @@ trait Form
         return Select::make('status')
             ->label(__('resources/user/strings.form.status'))
             ->options(UserStatus::class)
+            ->default(UserStatus::ACTIVE->value)
             ->required()
             ->validationAttribute(__('resources/user/strings.form.status'))
             ->validationMessages([
                 'required' => __('resources/user/strings.form.validation_status_required'),
+                'enum' => __('resources/user/strings.form.validation_status_in'),
             ])
             ->helperText(__('resources/user/strings.form.helper_status'));
     }

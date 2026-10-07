@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Filament\Resources\Master\DepartmentResource\Pages\ManageDepartments;
 use App\Filament\Resources\Operational\CorrespondenceResource\Pages\ListCorrespondences;
+use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\ListPurchaseOrders;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\CreatePurchaseRequest;
 use App\Filament\Resources\Operational\PurchaseRequestResource\Pages\EditPurchaseRequest;
-use App\Filament\Resources\Master\DepartmentResource\Pages\ManageDepartments;
-use App\Filament\Resources\Operational\PurchaseOrderResource\Pages\ListPurchaseOrders;
 use App\Livewire\CalendarToggle;
 use App\Livewire\RowClickToggle;
 use App\Livewire\TableStateToggle;
@@ -16,6 +16,8 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use App\Models\Role;
 use App\Models\User;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Livewire\Livewire;
@@ -397,10 +399,14 @@ class TopbarTest extends TestCase
         $this->assertStringContainsString('nav-dock-peek .fi-sidebar-nav', File::get(resource_path('css/fi-custom.css')));
         $this->assertStringContainsString('position: sticky', File::get(resource_path('css/fi-custom.css')));
         $this->assertStringContainsString('.dock-min', File::get(resource_path('js/filament/nav-dock.js')));
-        $this->assertStringContainsString('chevron-double-down', File::get(resource_path('views/filament/partials/dock-min.blade.php')));
+        $this->assertStringContainsString('chevron-double-left', File::get(resource_path('views/filament/partials/dock-min.blade.php')));
+        $this->assertStringContainsString('chevron-double-right', File::get(resource_path('views/filament/partials/dock-min.blade.php')));
 
         $rendered = view('filament.partials.dock-min')->render();
         $this->assertStringContainsString('class="dock-min', $rendered);
+
+        $navEnd = FilamentView::renderHook(PanelsRenderHook::SIDEBAR_NAV_END)->toHtml();
+        $this->assertStringContainsString('class="dock-min', $navEnd);
 
         foreach (['en', 'fa', 'fr'] as $locale) {
             $this->assertTrue(

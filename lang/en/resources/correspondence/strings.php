@@ -47,6 +47,10 @@ return [
 
         'validation_required' => 'The :attribute field is required.',
         'validation_subject_max' => 'The subject must not exceed 255 characters.',
+        'validation_priority_enum' => 'Please choose a valid priority.',
+        'validation_type_in' => 'Please choose a valid type.',
+        'validation_recipients_to_in' => 'Please choose valid recipients only.',
+        'validation_status_in' => 'Please choose a valid status.',
         'helper_priority' => 'Set the urgency of this message. High priority alerts recipients.',
 
         'reply_prefix' => 'Re: ',

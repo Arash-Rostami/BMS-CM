@@ -59,7 +59,7 @@ The Jalali gate for Filament date components: calls `->jalali(true)` when in Jal
 Returns `{label} <span class="tb-badge tb-{color}">{count}</span>` for `Tab::make()->badge(...)` / infolist headers. Blank `$count` → bare escaped label, no badge. Valid colors: `info`/`success`/`warning`/`danger` → `tb-info`/`tb-success`/`tb-warning`/`tb-danger`; unknown falls back to `info`. Both args HTML-escaped via `e()`. Only PHP-side producer of `.tb-badge` markup — see §4.
 
 ### `clearApplicationCaches(): void`
-Runs `opcache_reset()` first (guarded by `function_exists`, since not every environment has OPcache — deliberately first so an `Artisan::call()` failure below can't skip it), then `cache:clear`, `config:clear`, `route:clear`, `view:clear`, `optimize:clear`, `filament:clear-cached-components`, `permission:cache-reset` in sequence via `Artisan::call()`. Backs the `/clear` route. The OPcache reset only takes effect because this runs inside a real HTTP request on the same PHP-FPM/mod_php SAPI that serves production traffic — `opcache_reset()` run from `php artisan tinker` or any other CLI invocation resets a *different* OPcache instance and has no effect on what the web server actually serves when `opcache.validate_timestamps` is off.
+Runs `opcache_reset()` first (guarded by `function_exists`, since not every environment has OPcache — deliberately first so an `Artisan::call()` failure below can't skip it), then `cache:clear`, `config:clear`, `route:clear`, `view:clear`, `optimize:clear`, `filament:clear-cached-components`, `permission:cache-reset` in sequence via `Artisan::call()`. Backs the `/clear` route. The OPcache reset only takes effect because this runs inside a real HTTP request on the same PHP-FPM/mod_php SAPI that serves production traffic — `opcache_reset()` run from `php artisan tinker` or any other CLI invocation resets a *different* OPcache instance and has no effect on what the web server actually serves when `opcache.validate_timestamps` is off. Same trap on the dev stack: `php artisan serve` is its own long-running PHP process with its own opcache memory (and `opcache.enable_cli` is `Off` here) — if a fix provably works from `tinker` but the browser keeps showing old behavior after cache clears, restart the actual server process itself; re-clearing from the CLI will never reach it.
 
 ### `cacheApplicationConfig(): void`
 Runs `config:cache`, `route:cache`, `view:cache`, `filament:cache-components`. Backs the `/cache` route.
@@ -156,7 +156,7 @@ This `files` entry is what makes every function globally available without `use`
 - ❌ Creating a second helper file — there is one, autoloaded as one `files` entry.
 - ❌ Recomputing `app()->getLocale() === 'fa'` in a Blade partial that already receives `$isRtl`.
 - ❌ Normalizing the `'-'` / `'—'` fallback discrepancy between the date helpers — intentional, not a bug.
-- ❌ Calling the Artisan cache commands directly/ad hoc instead of the three cache helpers — keeps the command list in one place instead of drifting across `/clear`, `/cache`, `/reset`, and the panel menu action (this drifted once already; see CLAUDE.md Latest Changes 2026-07-25 for the incident).
+- ❌ Calling the Artisan cache commands directly/ad hoc instead of the three cache helpers — keeps the command list in one place instead of drifting across `/clear`, `/cache`, `/reset`, and the panel menu action (this drifted once already).
 
 ## 8. Naming conventions
 

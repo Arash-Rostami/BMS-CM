@@ -71,6 +71,7 @@ return [
         'validation_max_string' => 'این فیلد نباید بیش از :max کاراکتر باشد',
         'validation_max' => 'نباید بیش از :max کاراکتر باشد',
         'validation_date' => 'لطفاً یک تاریخ معتبر وارد کنید',
+        'validation_in' => 'مقدار انتخاب‌شده نامعتبر است.',
         'validation_product_required' => 'انتخاب محصول الزامی است',
         'validation_quantity_required' => 'وارد کردن مقدار الزامی است',
         'validation_quantity_numeric' => 'مقدار باید عدد باشد',

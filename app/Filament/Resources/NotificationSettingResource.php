@@ -24,6 +24,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -69,6 +70,31 @@ class NotificationSettingResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+    public static function getDeleteAuthorizationResponse(Model $record): Response
+    {
+        return static::isOwnerOrRecipient($record) ? Response::allow() : Response::deny();
+    }
+
+    public static function canDelete($record): bool
+    {
+        return static::getDeleteAuthorizationResponse($record)->allowed();
+    }
+
+    protected static function isOwnerOrRecipient(Model $record): bool
+    {
+        $userId = auth()->id();
+
+        if ($userId === null) {
+            return false;
+        }
+
+        if ((int) $record->user_id === (int) $userId) {
+            return true;
+        }
+
+        return in_array((int) $userId, array_map('intval', $record->getUsers()), true);
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
@@ -194,6 +220,7 @@ class NotificationSettingResource extends Resource
                 static::getCreatorFilter(),
                 static::getUpdaterFilter(),
                 static::getTrashedFilter(),
+                static::getMineFilter(),
             ])
             ->filtersFormColumns(3)
             ->recordActions([
@@ -206,17 +233,18 @@ class NotificationSettingResource extends Resource
             ])
             ->groups([
                 Group::make('settings->actions')
-                    ->getTitleFromRecordUsing(fn ($record) => implode(', ', $record->getActions()))
+                    ->getTitleFromRecordUsing(fn ($record) => implode(', ', $record->getLocalizedActions()))
                     ->label(__('resources/notificationSetting/strings.table.actions'))
                     ->collapsible(),
                 Group::make('settings->tables')
-                    ->getTitleFromRecordUsing(fn ($record) => implode(', ', $record->getTables()))
+                    ->getTitleFromRecordUsing(fn ($record) => implode(', ', $record->getLocalizedTables()))
                     ->label(__('resources/notificationSetting/strings.table.tables'))
                     ->collapsible(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    static::getExportBulkAction(),
+                    DeleteBulkAction::make()->authorizeIndividualRecords(),
                     RestoreBulkAction::make(),
                 ]),
             ])

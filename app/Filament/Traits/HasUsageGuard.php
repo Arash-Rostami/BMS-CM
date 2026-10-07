@@ -4,14 +4,29 @@ namespace App\Filament\Traits;
 
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 trait HasUsageGuard
 {
     protected static function usageRelations(): array
     {
         return [];
+    }
+
+    public static function getInUseCountColumn(): TextColumn
+    {
+        return TextColumn::make('in_use_count')
+            ->label(__('resources/general/strings.usage_guard.in_use_count'))
+            ->icon('heroicon-o-link')
+            ->alignEnd()
+            ->badge()
+            ->color(fn (?int $state): string => $state === 0 ? 'gray' : 'warning')
+            ->state(fn (Model $record): int => collect(static::usageRelations())
+                ->sum(fn (string $relation) => (int) ($record->{Str::snake($relation).'_count'} ?? 0)))
+            ->toggleable(isToggledHiddenByDefault: true);
     }
 
     public static function usageCount(Model $record): int

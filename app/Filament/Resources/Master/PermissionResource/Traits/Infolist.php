@@ -24,6 +24,16 @@ trait Infolist
             ->color(fn (string $state): string => UserRole::tryFrom($state)?->getColor() ?? 'gray');
     }
 
+    public static function viewUsers(): TextEntry
+    {
+        return TextEntry::make('users.name')
+            ->label(__('resources/permission/strings.infolist.users'))
+            ->badge()
+            ->color('gray')
+            ->limitList(10)
+            ->expandableLimitedList();
+    }
+
     public static function viewCreatedAt(): TextEntry
     {
         return TextEntry::make('created_at')

@@ -61,6 +61,7 @@ class BankResource extends Resource
                 'creator',
                 'updater',
             ])
+            ->withCount(static::usageRelations())
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
@@ -139,6 +140,7 @@ class BankResource extends Resource
                 static::showEnglishName(),
                 static::showDescription(),
                 static::showIsActive(),
+                static::getInUseCountColumn(),
                 static::showCreator(),
                 static::showUpdater(),
                 static::showCreationTime(),

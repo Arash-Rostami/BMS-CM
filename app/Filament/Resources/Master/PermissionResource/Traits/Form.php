@@ -16,11 +16,13 @@ trait Form
             ->required()
             ->unique(ignoreRecord: true)
             ->maxLength(255)
+            ->rules(['regex:/^[a-z0-9_]+\.[a-z0-9_]+$/'])
             ->helperText(__('resources/permission/strings.form.helper_name'))
             ->validationMessages([
                 'required' => __('resources/permission/strings.form.validation_name_required'),
                 'unique' => __('resources/permission/strings.form.validation_name_unique'),
                 'max' => __('resources/permission/strings.form.validation_name_max'),
+                'regex' => __('resources/permission/strings.form.validation_name_regex'),
             ])
             ->validationAttribute(__('resources/permission/strings.form.name'));
     }
@@ -34,6 +36,9 @@ trait Form
             ->getOptionLabelFromRecordUsing(fn (Model $record) => UserRole::tryFrom($record->name)?->getLabel() ?? $record->name)
             ->preload()
             ->searchable()
+            ->validationMessages([
+                '*.in' => __('resources/permission/strings.form.validation_roles_in'),
+            ])
             ->helperText(__('resources/permission/strings.form.helper_roles'));
     }
 
@@ -45,6 +50,9 @@ trait Form
             ->relationship('users', 'name')
             ->preload()
             ->searchable()
+            ->validationMessages([
+                '*.in' => __('resources/permission/strings.form.validation_users_in'),
+            ])
             ->helperText(__('resources/permission/strings.form.helper_users'));
     }
 }

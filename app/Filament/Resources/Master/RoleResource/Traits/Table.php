@@ -3,10 +3,31 @@
 namespace App\Filament\Resources\Master\RoleResource\Traits;
 
 use App\Filament\Resources\Master\UserResource\Enums\UserRole;
+use App\Jobs\ExportRoles;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportRoles')
+            ->label(__('resources/role/strings.export.export_roles'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => static::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportRoles::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showName(): TextColumn
     {
         return TextColumn::make('name')
@@ -21,6 +42,10 @@ trait Table
     {
         return TextColumn::make('permissions_count')
             ->label(__('resources/role/strings.table.permissions_count'))
+            ->icon('heroicon-o-key')
+            ->alignEnd()
+            ->badge()
+            ->color(fn (?int $state): string => $state === 0 ? 'gray' : 'info')
             ->sortable();
     }
 
@@ -28,6 +53,10 @@ trait Table
     {
         return TextColumn::make('users_count')
             ->label(__('resources/role/strings.table.users_count'))
+            ->icon('heroicon-o-users')
+            ->alignEnd()
+            ->badge()
+            ->color(fn (?int $state): string => $state === 0 ? 'gray' : 'success')
             ->sortable();
     }
 

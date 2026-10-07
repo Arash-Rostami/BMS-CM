@@ -5,5 +5,6 @@
 - Fixed a real data bug: moving a category to a different parent could leave its own sub-categories silently pointing at the old, stale hierarchy — this is now fixed, and moving a category correctly updates every category beneath it.
 - You're now stopped from setting a category as its own (grand-)child's parent, which would have corrupted the hierarchy.
 - Deleting a category that still has sub-categories or products attached is now blocked with a clear warning.
+- The category list now shows how many products belong to each category, as a colored badge: blue when it has products, gray when empty.
 - Picking a parent category now suggests the resulting hierarchy level as a hint, without forcing it.
 - Export now works the standard way: one click, arrives as a notification with a download link, safe to open in Excel.

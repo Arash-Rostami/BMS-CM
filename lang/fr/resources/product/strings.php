@@ -82,6 +82,7 @@ return [
         'validation_english_name_string' => 'Le nom anglais doit être du texte.',
         'validation_code_max' => 'Le code produit ne doit pas dépasser :max caractères.',
         'validation_description_max' => 'La description ne doit pas dépasser :max caractères.',
+        'validation_import_licenses_in' => 'Veuillez choisir uniquement des licences d\'importation valides.',
         'validation_specifications_max' => 'Une seule entrée de spécifications est autorisée.',
         'helper_code' => 'Choisissez un code avec soin, car il doit être unique et sert à retrouver ce produit partout.',
         'helper_classify_by_name' => 'Activer cette option vous permet de nommer vous-même le produit en persan et en anglais au lieu d\'un nommage automatique.',

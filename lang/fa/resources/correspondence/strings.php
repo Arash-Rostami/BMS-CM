@@ -47,6 +47,10 @@ return [
 
         'validation_required' => 'این فیلد الزامی است.',
         'validation_subject_max' => 'موضوع نباید بیش از ۲۵۵ کاراکتر باشد.',
+        'validation_priority_enum' => 'لطفاً یک اولویت معتبر انتخاب کنید.',
+        'validation_type_in' => 'لطفاً یک نوع معتبر انتخاب کنید.',
+        'validation_recipients_to_in' => 'لطفاً فقط گیرندگان معتبر را انتخاب کنید.',
+        'validation_status_in' => 'لطفاً یک وضعیت معتبر انتخاب کنید.',
         'helper_priority' => 'میزان فوریت پیام را تعیین کنید. اولویت بالا به گیرندگان هشدار می‌دهد.',
 
         'reply_prefix' => 'پاسخ: ',

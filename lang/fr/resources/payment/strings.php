@@ -98,6 +98,7 @@ return [
         'validation_date_after_or_equal' => 'Cette date doit être égale ou postérieure au :date.',
         'validation_max_length' => 'Veuillez limiter cette valeur à 255 caractères ou moins.',
         'validation_date' => 'Veuillez entrer une date valide.',
+        'validation_in' => "La valeur sélectionnée n'est pas valide.",
         'helper_iban' => 'Vérifiez bien l\'IBAN avant d\'enregistrer ; un seul chiffre erroné peut envoyer les fonds vers le mauvais compte.',
         'helper_status' => 'Statut actuel du paiement dans le pipeline.',
         'hint_iban_changed' => 'Les coordonnées bancaires diffèrent du dernier paiement à ce bénéficiaire — vérifiez avant de continuer.',

@@ -49,6 +49,9 @@ trait Form
             )
             ->searchable(['name', 'english_name'])
             ->preload()
+            ->validationMessages([
+                'in' => __('resources/bankProfile/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/bankProfile/strings.form.bank'));
     }
 
@@ -150,6 +153,9 @@ trait Form
             )
             ->searchable(['name', 'english_name'])
             ->preload()
+            ->validationMessages([
+                'in' => __('resources/bankProfile/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/bankProfile/strings.form.company'));
     }
 
@@ -200,6 +206,7 @@ trait Form
             ->default(fn ($operation) => $operation === 'create' ? 2 : null) // 2 = EUR
             ->validationMessages([
                 'required' => __('resources/bankProfile/strings.form.validation_required'),
+                'in' => __('resources/bankProfile/strings.form.validation_in'),
             ])
             ->afterStateUpdated(fn (Get $get, Set $set) => static::updateComputations($get, $set))
             ->validationAttribute(__('resources/bankProfile/strings.form.requested_currency'));
@@ -351,6 +358,7 @@ trait Form
             ->default(fn ($operation) => $operation === 'create' ? 1 : null) // 2 = EUR
             ->validationMessages([
                 'required' => __('resources/bankProfile/strings.form.validation_required'),
+                'in' => __('resources/bankProfile/strings.form.validation_in'),
             ])
             ->afterStateUpdated(fn (Get $get, Set $set) => static::updateComputations($get, $set))
             ->validationAttribute(__('resources/bankProfile/strings.form.purchased_currency'));
@@ -391,6 +399,7 @@ trait Form
             ->dehydrated()
             ->validationMessages([
                 'required' => __('resources/bankProfile/strings.form.validation_required'),
+                'in' => __('resources/bankProfile/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/bankProfile/strings.form.registered_order'));
     }
@@ -423,6 +432,7 @@ trait Form
             ->preload()
             ->validationMessages([
                 'required' => __('resources/bankProfile/strings.form.validation_required'),
+                'in' => __('resources/bankProfile/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/bankProfile/strings.form.status')), null, fn () => Status::findBy(BankProfile::TYPE_BANK_PROFILE, 'Submitted')?->id);
     }
@@ -463,7 +473,10 @@ trait Form
         return Select::make('supply_source')
             ->label(__('resources/bankProfile/strings.form.supply_source'))
             ->live()
-            ->options(fn () => __('resources/bankProfile/strings.general.supply_sources'));
+            ->options(fn () => __('resources/bankProfile/strings.general.supply_sources'))
+            ->validationMessages([
+                'in' => __('resources/bankProfile/strings.form.validation_in'),
+            ]);
     }
 
     public static function getTargetableField(): MorphToSelect
@@ -487,11 +500,13 @@ trait Form
                 ->validationAttribute(__('resources/bankProfile/strings.form.targetable'))
                 ->validationMessages([
                     'required' => __('resources/bankProfile/strings.form.validation_required'),
+                    'in' => __('resources/bankProfile/strings.form.validation_in'),
                 ]))
             ->modifyKeySelectUsing(fn (Select $select): Select => $select
                 ->validationAttribute(__('resources/bankProfile/strings.form.targetable'))
                 ->validationMessages([
                     'required' => __('resources/bankProfile/strings.form.validation_required'),
+                    'in' => __('resources/bankProfile/strings.form.validation_in'),
                 ]));
     }
 

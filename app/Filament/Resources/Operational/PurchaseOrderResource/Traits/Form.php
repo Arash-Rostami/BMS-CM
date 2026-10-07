@@ -38,6 +38,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
                 'different' => __('resources/purchaseOrder/strings.form.validation_seller_buyer_different'),
+                'in' => __('resources/purchaseOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.buyer'));
     }
@@ -55,6 +56,7 @@ trait Form
             ->required()
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
+                'in' => __('resources/purchaseOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.currency'));
     }
@@ -79,6 +81,9 @@ trait Form
         return Select::make('incoterms')
             ->label(__('resources/purchaseOrder/strings.form.incoterms'))
             ->options(__('resources/purchaseOrder/strings.general.delivery_terms'))
+            ->validationMessages([
+                'in' => __('resources/purchaseOrder/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.incoterms'));
     }
 
@@ -162,6 +167,7 @@ trait Form
             ->disableOptionsWhenSelectedInSiblingRepeaterItems()
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
+                'in' => __('resources/purchaseOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.product'));
     }
@@ -192,6 +198,7 @@ trait Form
             ->columnSpan(3)
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
+                'in' => __('resources/purchaseOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.unit'));
     }
@@ -292,6 +299,9 @@ trait Form
                 self::updateTotal($get, $set);
             })
             ->visible(fn (Get $get): bool => $get('source_type') === 'pi' || filled($get('proformaInvoices')))
+            ->validationMessages([
+                '*.in' => __('resources/purchaseOrder/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/general/strings.relevant_module.form.proforma_invoices'));
     }
 
@@ -313,6 +323,9 @@ trait Form
                 self::updateTotal($get, $set);
             })
             ->visible(fn (Get $get): bool => $get('source_type') === 'pr' || filled($get('purchaseRequests')))
+            ->validationMessages([
+                '*.in' => __('resources/purchaseOrder/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/general/strings.relevant_module.form.purchase_requests'));
     }
 
@@ -334,6 +347,9 @@ trait Form
                 self::updateTotal($get, $set);
             })
             ->visible(fn (Get $get): bool => $get('source_type') === 'ro' || filled($get('registeredOrders')))
+            ->validationMessages([
+                '*.in' => __('resources/purchaseOrder/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/general/strings.relevant_module.form.registered_orders'));
     }
 
@@ -352,6 +368,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
                 'different' => __('resources/purchaseOrder/strings.form.validation_seller_buyer_different'),
+                'in' => __('resources/purchaseOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.seller'));
     }
@@ -382,6 +399,9 @@ trait Form
             ->columnSpanFull()
             ->default(null)
             ->live()
+            ->validationMessages([
+                'in' => __('resources/purchaseOrder/strings.form.validation_in'),
+            ])
             ->afterStateHydrated(function (Set $set, Get $get, ?Model $record) {
                 if (filled($get('source_type'))) {
                     return;
@@ -404,6 +424,7 @@ trait Form
             ->preload()
             ->validationMessages([
                 'required' => __('resources/purchaseOrder/strings.form.validation_required'),
+                'in' => __('resources/purchaseOrder/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/purchaseOrder/strings.form.status'))
             ->helperText(fn (?Model $record) => static::statusWorkflowLockedHelperText('status_id', $record)

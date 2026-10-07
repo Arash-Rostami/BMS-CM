@@ -98,6 +98,7 @@ return [
         'validation_min_numeric_zero' => 'The :attribute cannot be negative, please enter zero or more.',
         'validation_distinct' => 'This :attribute has already been added, please remove the duplicate.',
         'validation_date' => 'The :attribute is not a valid date, please enter it in the correct format.',
+        'validation_in' => 'The selected :attribute is invalid.',
 
         'helper_ro_number' => 'This number is auto-generated and locked to prevent duplicates.',
         'helper_seller' => 'The seller must differ from the buyer, pick the supplying party here.',

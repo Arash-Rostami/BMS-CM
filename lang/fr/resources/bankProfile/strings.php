@@ -139,6 +139,7 @@ return [
         'validation_date_after_or_equal' => 'Cette date doit être égale ou postérieure au :date.',
         'validation_unique' => 'Cette valeur existe déjà.',
         'validation_max_length' => 'Veuillez limiter ce champ à :max caractères ou moins.',
+        'validation_in' => "La valeur sélectionnée n'est pas valide.",
 
         'helper_commission_input_mode' => '⚡ Intelligent : Saisissez le taux ou le pourcentage, le montant sera calculé. Saisissez la commission, le taux sera calculé.',
         'helper_commission_amount_purchased' => 'Saisissez les frais de commission exacts facturés par la banque. Le pourcentage équivalent est calculé automatiquement et appliqué à tous les calculs.',

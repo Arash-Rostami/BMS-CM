@@ -143,6 +143,18 @@ trait Table
             ->color(fn (bool $state): string => Status::tryFrom((int) $state)?->getColor() ?? 'gray');
     }
 
+    public static function showProductsCount(): TextColumn
+    {
+        return TextColumn::make('products_count')
+            ->label(__('resources/category/strings.table.products_count'))
+            ->icon('heroicon-o-cube')
+            ->alignEnd()
+            ->badge()
+            ->color(fn (?int $state): string => $state === 0 ? 'gray' : 'info')
+            ->toggleable()
+            ->sortable();
+    }
+
     public static function showCreator(): TextColumn
     {
         return TextColumn::make('creator.name')

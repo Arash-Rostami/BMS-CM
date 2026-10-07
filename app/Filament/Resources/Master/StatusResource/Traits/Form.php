@@ -25,6 +25,9 @@ trait Form
             ->preload()
             ->options(fn () => User::query()->orderBy('name')->get()
                 ->mapWithKeys(fn (User $user) => [$user->id => "{$user->name} ({$user->email})"]))
+            ->validationMessages([
+                '*.in' => __('resources/status/strings.form.validation_approval_users_in'),
+            ])
             ->visible(fn (Get $get) => (bool) $get('requires_approval'))
             ->afterStateHydrated(function (Select $component, ?Status $record) {
                 if (! $record?->approval_permission) {
@@ -167,6 +170,7 @@ trait Form
             ->validationAttribute(__('resources/status/strings.form.english_type'))
             ->validationMessages([
                 'required' => __('resources/status/strings.form.validation_english_type_required'),
+                'in' => __('resources/status/strings.form.validation_english_type_in'),
             ])
             ->visible(fn (Get $get) => ! $get('custom_english_type'))
             ->helperText(__('resources/status/strings.form.helper_english_type'));
@@ -234,6 +238,7 @@ trait Form
             ->validationAttribute(__('resources/status/strings.form.type'))
             ->validationMessages([
                 'required' => __('resources/status/strings.form.validation_type_required'),
+                'in' => __('resources/status/strings.form.validation_type_in'),
             ])
             ->visible(fn (Get $get) => ! $get('custom_type'))
             ->helperText(__('resources/status/strings.form.helper_type'));

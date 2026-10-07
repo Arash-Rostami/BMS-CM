@@ -20,7 +20,6 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\Pages\EditRegiste
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\ProformaInvoicesRelationManager as RegisteredOrderProformaInvoicesRelationManager;
 use App\Filament\Resources\ProformaInvoiceResource;
 use App\Filament\Resources\PurchaseOrderResource;
-use App\Filament\Resources\PurchaseRequestResource;
 use App\Filament\Resources\RegisteredOrderResource;
 use App\Jobs\ExportPurchaseOrders;
 use App\Jobs\ExportPurchaseRequests;
@@ -486,6 +485,32 @@ class ProformaInvoiceResourceTest extends TestCase
             ])
             ->call('create')
             ->assertHasFormErrors(['seller_id' => 'required', 'buyer_id' => 'required', 'main_currency_id' => 'required']);
+    }
+
+    // Validation messages — no raw-English leak in fa. A relationship()-bound Select that ALSO
+    // chains an explicit ->rules(['exists:...']) has its DB 'exists' check silently skipped by
+    // Laravel core (Validator::hasNotFailedPreviousRuleIfPresenceRule()) once the component's own
+    // implicit 'in' rule already failed for the same attribute — so only 'in' needs a message.
+
+    public function test_create_rejects_a_nonexistent_buyer_id_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['proforma_invoice.create', 'proforma_invoice.view']);
+        $seller = Company::factory()->seller()->create();
+        $currency = Currency::factory()->create();
+
+        $test = Livewire::test(\App\Filament\Resources\Operational\ProformaInvoiceResource\Pages\CreateProformaInvoice::class)
+            ->fillForm([
+                'seller_id' => $seller->id,
+                'buyer_id' => 999999,
+                'main_currency_id' => $currency->id,
+            ])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/proformaInvoice/strings.form.validation_buyer_company_exists')],
+            $test->errors()->get('data.buyer_id')
+        );
     }
 
     public function test_create_happy_path_saves_a_new_proforma_invoice(): void

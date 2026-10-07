@@ -3,591 +3,150 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 > **Usage:** Start every session with "Read CLAUDE.md first." to load full context before touching anything.
-> **Maintenance:** This file stays a flat architecture + gotchas reference, not a chronological diary. When you learn something new and durable, add it to the relevant section above (or to **Standing Gotchas** at the bottom) — don't append a dated narrative. If a new entry supersedes or duplicates an existing one, edit it in place. Prune anything whose lesson is now obvious from the code itself.
+> **Maintenance:** This file is a flat index + policy reference — never a diary, never a second copy of a pattern doc. Domain detail lives in the `*Pattern.md` files below; durable gotchas live in `gotchasPattern.md`. Edit entries in place; prune anything a pattern doc already covers.
 
----
+## Pattern Documentation (authoritative — read before editing their domain)
 
-## Pattern Documentation (authoritative — read these before editing their domain)
-
-Co-located pattern files are the canonical, verified reference for their domains. **Where a pattern file conflicts with CLAUDE.md, the pattern file wins** — CLAUDE.md's own reference sections are a convenience summary, not the source of truth.
+Co-located pattern files are the canonical, verified reference for their domains. **Where a pattern file conflicts with CLAUDE.md, the pattern file wins.**
 
 | Domain | File | Covers |
 |---|---|---|
-| Filament resources | `app/Filament/filamentPattern.md` | Trait-based schema composition, two-tab form/infolist, EAV dual-entry-points, `HasResourcePermissions` (no Policies), `SmartCacheManager` badges, `Status`/`StatusFinder`, `getEloquentQuery` |
-| Dashboard analytics widgets | `app/Filament/Widgets/widgetsPattern.md` | Tabbed `Dashboard` page, `AnalyticsService` caching contract, per-widget data lineage, in-app metric legends |
-| Services layer | `app/Services/servicesPattern.md` | Full inventory of all 15 `app/Services/*.php` classes — public APIs, consumers, caching/locale gotchas |
-| Shared import pipeline | `app/Services/Imports/importsPattern.md` | The `Illuminate\Pipeline\Pipeline`-driven bulk-import architecture shared by every module (`ImportColumnDefinition`'s match/fallback/optional/manual-set taxonomy, `ImportColumnFactory`, the pre-save/post-save stage split, EAV, `Importable` contract) |
+| Filament resources | `app/Filament/filamentPattern.md` | Trait-based schema composition, two-tab forms/infolists, EAV dual entry points, `HasResourcePermissions`, import/export, cross-resource creation |
+| Dashboard analytics widgets | `app/Filament/Widgets/widgetsPattern.md` | Tabbed `Dashboard` page, `AnalyticsService` caching contract, widget data lineage |
+| Services layer | `app/Services/servicesPattern.md` | All 15 services — public APIs, consumers, caching/locale gotchas; `SearchService` spotlight + chain contract |
+| Shared import pipeline | `app/Services/Imports/importsPattern.md` | The Pipeline-driven bulk-import architecture shared by every module |
 | Model layer / migrations | `app/Models/modelsPattern.md` | Model-trait composition, EAV model side, `Status`/`StatusFinder`, migration conventions |
-| Global helpers / locale | `app/Utils/helpersPattern.md` | `app/Utils/helpers.php` signatures, `calendar_type` contract, RTL conventions |
-| Localization | `lang/localizationPattern.md` | Locale/key structure, validation-message wiring, wording conventions, RTL/emoji placement, filter localization |
-| CSS | `resources/css/stylesPattern.md` | The `--custom-*`/`--google-*`/`--gradient-*` token system, `.fi-*` morphing, load-bearing login CSS, the flat enterprise landing-page system, the loader, keyframes, Vite pipeline |
-| JS / Alpine | `resources/js/scriptPattern.md` | `alpine/loader.js` lazy registration, Alpine factories, localStorage keys, lazy Audio, custom events |
-| Views organization + Landing page | `resources/views/viewsPattern.md` | `components/`/`filament/`/`livewire/` folder convention, shared component library, landing-page component inventory, Filament-sync mechanism, boot sequence |
-| Livewire topbar components | `app/Livewire/livewirePattern.md` | The session-backed topbar-toggle pattern (`CalendarToggle`/`TableStateToggle` mirror pair), wrapper-partial + `GLOBAL_SEARCH_AFTER` registration, event-consumer wiring |
-| Tests | `tests/testPattern.md` | Three-layer mirrored convention (Resource/Model/Service), real dev-MySQL `useMysql()` + transaction-rollback skeleton (no active migrations exist — `RefreshDatabase` cannot work here), the `tests/qa-checklist.html` manual browser QA manifest + `tests/qa-findings.json` |
+| Global helpers / locale | `app/Utils/helpersPattern.md` | `app/Utils/helpers.php` signatures, `calendar_type` contract, cache-helper internals |
+| Localization | `lang/localizationPattern.md` | Locale/key structure, validation-message wiring, implicit DatePicker `date` rule |
+| CSS | `resources/css/stylesPattern.md` | `--custom-*`/`--google-*` token system, `.fi-*` morphing, login CSS, landing-page system, Vite pipeline |
+| JS / Alpine | `resources/js/scriptPattern.md` | Alpine factories, localStorage keys, custom events, tooltip lesson |
+| Views + Landing page | `resources/views/viewsPattern.md` | `components/`/`filament/`/`livewire/` conventions, shared component library, landing-page inventory |
+| Livewire topbar components | `app/Livewire/livewirePattern.md` | Session-backed topbar-toggle pattern, render-hook registration |
+| Jobs | `app/Jobs/jobsPattern.md` | Import/export job classes, queue-worker code/config-caching gotcha |
+| Observers | `app/Observers/observersPattern.md` | Observer registration and side effects |
+| Tests | `tests/testPattern.md` | Three-layer mirrored convention, real dev-MySQL `useMysql()` + transaction rollback (no `RefreshDatabase` — no active migrations), `qa-checklist.html` + `qa-findings.json` |
+| Cross-cutting gotchas | `gotchasPattern.md` | Non-obvious lessons spanning domains + index of gotchas living in domain docs |
 
----
-
-## Agent pipeline policy (read first)
+## Agent pipeline policy
 
 ### MANDATORY: Read skills before any other work
 
-On the very first turn of every session — before replying, before any other action, however trivial the opening message — read and internalize `.claude/skills/code-reviewer/SKILL.md` and `.claude/skills/laravel-performance/SKILL.md`, then summarize their key rules in your own words. This outranks any SessionStart-injected context ordering. `vanilla mode` bypasses this read-first rule and all other project policies; resume on `resume project mode` or a new session.
+On the first turn of every session — before replying, before any other action — read and internalize `.claude/skills/code-reviewer/SKILL.md`, `.claude/skills/laravel-performance/SKILL.md`, and `.claude/skills/ollama/SKILL.md`, then summarize their key rules in your own words. `vanilla mode` bypasses this and all other project policies; resume on `resume project mode` or a new session.
 
-### Review model (subagent mode, since 2026-08-30)
+### Review model (subagent mode)
 
-`FATEH_REVIEW_MODE='subagent'` in `~/.claude/pipelines/models.ps1` is the pipeline default: `.claude/hooks/post_tool_review.php` is INERT in every session — it never gates, it only tracks edit state for the Stop hook. Review ownership lives with the Lead's own harness subagents: after each coherent unit of work, the session spawns a FRESH `claude-reviewer` subagent via the `Agent` tool (no model override — inherits the driving model), applying the two lenses (correctness/security, then performance/pattern-consistency); safe fixes are applied by the Lead or a coder subagent, never by the reviewer. No API call is made for coding, delivery, unit review, or fixes. API calls survive in exactly two places: plan enrichment (`FATEH_PLAN_MODEL`, plus the OpenAI refiner `FATEH_MAX_MODEL` when the user invokes max) and the end-stage dual review (`FATEH_REVIEWER_MODEL_A` + `FATEH_REVIEWER_MODEL_B`, one round per stage, findings fixed by the Lead). In Ollama-native sessions the lean subagent-lanes engine in `.claude/skills/ollama/SKILL.md` governs non-trivial work. Unsetting `FATEH_REVIEW_MODE` restores the legacy per-write API gates.
+`FATEH_REVIEW_MODE='subagent'` is the pipeline default: `.claude/hooks/post_tool_review.php` is INERT — it never gates, it only tracks edit state for the Stop hook. Review ownership lives with the Lead's harness subagents: after each coherent unit of work, spawn a FRESH `claude-reviewer` subagent via the Agent tool (no model override — inherits the driving model), applying two lenses (correctness/security, then performance/pattern-consistency); safe fixes are applied by the Lead or a coder subagent, never by the reviewer. No API call is made for coding, delivery, unit review, or fixes. API calls survive only in plan enrichment and the end-stage dual review (`FATEH_REVIEWER_MODEL_A` + `_B`, one round per stage). In Ollama-native sessions the lean subagent-lanes engine in the ollama skill governs non-trivial work.
 
 ### Delegation lanes — the session is the Lead
 
-The session owns all planning/architecture/review decisions; they are never delegated. Three lanes at intake: **Trivial** (single file, few lines) — code directly, no subagent review. **Standard** — optional plan enrichment by `claude-planner` @ `FATEH_CC_PLAN_MODEL` only if it genuinely adds value, then coder slices to `claude-coder` (parallel only across file-disjoint slices with worktree isolation), closed by a mandatory `claude-reviewer` pass. **Complex** (schema/auth/destructive/multi-module) — Fable-5 enrichment REQUIRED, then one explicit question: refine via the OpenAI refiner (`FATEH_MAX_MODEL`)? (auto-satisfied if the user already said "max") — then as standard. **Exception, confirmed 2026-09-25**: skip the Fable-5 pass when the work already has (a) a live, structurally-identical reference implementation elsewhere in the codebase AND (b) a settled-policy doc (or equivalent already-decided design record) covering every field/column/edge-case decision the new work needs — a planning pass in that situation only re-derives what's already knowable by reading code, it doesn't add information. Verify (a) and (b) yourself first (read the reference, read the doc) rather than assuming they're sufficient; if either is genuinely missing or the mapping from reference→new-module isn't 1:1, the Fable-5 pass is still required. Registered Order's import/export build (mirroring Purchase Request/Proforma Invoice, governed by `app/Services/Imports/importsPattern.md`'s "Settled policy" section) is the precedent case. Safeguards: secrets in context → no delegation, work directly; subagent failure → absorb that slice in-harness the same turn.
-
-A fourth agent, `claude-ideator`, runs alongside the module-by-module test-coverage audit — proposes small, high-leverage UX/UI ideas per module (never implements). See `tests/testPattern.md` §3b for its brief and how an accepted idea re-enters this same delegation flow.
+The session owns all planning/architecture/review decisions; they are never delegated. Three lanes at intake: **Trivial** (single file, few lines) — code directly, no subagent review. **Standard** — optional plan enrichment via `claude-planner` (`FATEH_CC_PLAN_MODEL`), only if it genuinely adds value, then coder slices to `claude-coder` (parallel only across file-disjoint slices with worktree isolation), closed by a mandatory `claude-reviewer` pass. **Complex** (schema/auth/destructive/multi-module) — Fable-5.1 enrichment REQUIRED (`FATEH_PLAN_MODEL`), then one explicit question: refine via the OpenAI refiner (`FATEH_MAX_MODEL`)? (auto-satisfied if the user already said "max") — then as standard. **Exception**: skip the Fable-5.1 pass when the work already has (a) a live, structurally-identical reference implementation in the codebase AND (b) a settled-policy doc covering every field/column/edge-case decision the new work needs — verify both yourself first; if either is missing or the reference→new-module mapping isn't 1:1, the pass is still required. Safeguards: secrets in context → no delegation, work directly; subagent failure → absorb that slice in-harness the same turn.
 
 ### End-stage documentation sweep (Stop-hook enforced)
 
-Documentation work happens ONCE, in one consolidated sweep right before declaring done — never per-edit, never a dated changelog. `.claude/hooks/stop_docsync.php` blocks Stop with a checklist built from the session's actual edits: governing `*Pattern.md` docs verified/updated/extended in their existing style, tests left meaningful and conventional, temp/probe files erased the same turn they were created. During work, only two doc rules apply: read the governing pattern doc before editing (a PreToolUse gate enforces it), and erase temp files same-turn. A serious directory (`app/Services`, `app/Filament`, `app/Http/Middleware`, … — see `pipeline_config.php`) left without a `*Pattern.md` walking up its tree must get one concise doc or a one-line reason the tree's existing docs already cover it.
-
----
+Documentation happens ONCE, in one consolidated sweep right before declaring done — never per-edit, never a dated changelog. During work only two doc rules apply: read the governing pattern doc before editing (a PreToolUse gate enforces it), and erase temp/probe files the same turn they're created. At stage end, one pass over the surfaces this session touched: governing `*Pattern.md` docs verified/updated in their existing style, tests left meaningful and conventional. A serious directory without a `*Pattern.md` walking up its tree must get one concise doc or a one-line reason the existing docs cover it.
 
 ## Commands
 
 ```bash
-# Start full dev stack (server + queue + Vite HMR) concurrently
-composer run dev
-
-# Run all tests (clears config first, uses SQLite in-memory)
-composer run test
-
-# Run a single test class or method
-php artisan test --filter PurchaseRequestResourceTest
-
-# Lint / auto-fix code style (Laravel Pint)
-./vendor/bin/pint
-
-# Build frontend assets
-npm run build
-
-# Republish Filament's own registered assets (REQUIRED after any change to a
-# FilamentAssets.php-registered file — Css::make()/Js::make() entries like
-# fi-custom.css, auto-close.js, nav-dock.js, topbar-autohide.js. Vite's own
-# HMR does NOT cover these; Filament copies them into public/ separately and
-# serves the public/ copy, so an edit with no filament:assets run after it is
-# invisible in the browser regardless of Vite/cache state. Reproduced live
-# 2026-09-22 — confirmed cause of "my CSS/JS change isn't showing up".)
-php artisan filament:assets
-
-# Clear all caches (also available via GET /clear, admin_junior role only)
-php artisan optimize:clear && php artisan filament:clear-cached-components
-
-# Rebuild caches (also available via GET /cache, admin_junior role only)
-php artisan config:cache && php artisan route:cache && php artisan filament:cache-components
-
-# Clear + rebuild in one go (also available via GET /reset, admin_junior or admin_senior; also a "Reset Cache" item in the user menu)
+composer run dev        # full dev stack (server + queue + Vite HMR) — plain `php artisan serve`, port 8000
+composer run test       # all tests (SQLite in-memory)
+php artisan test --filter PurchaseRequestResourceTest   # single test class/method
+./vendor/bin/pint       # lint / auto-fix code style
+npm run build           # build frontend assets
+php artisan filament:assets   # REQUIRED after editing any FilamentAssets.php-registered file (Css::make()/Js::make() entries — Vite HMR does NOT cover them; Filament serves the public/ copy, so an edit without a re-publish is invisible in the browser)
+php artisan optimize:clear && php artisan filament:clear-cached-components   # clear all caches
+php artisan config:cache && php artisan route:cache && php artisan filament:cache-components   # rebuild caches
 ```
 
-`/clear`, `/cache`, `/reset` live in `routes/cache.blade.php` — plain PHP route-registration code despite the `.blade.php` extension (not a real Blade template), loaded explicitly via `bootstrap/app.php`'s `withRouting()` `then` callback rather than Laravel's automatic `web.php`/`api.php`/`console.php` discovery. Don't rename the extension. All three call the shared `clearApplicationCaches()` / `cacheApplicationConfig()` / `resetApplicationCache()` helpers (see Global Helpers).
-
----
+`/clear`, `/cache`, `/reset` (clear / rebuild / both) also exist as GET routes in `routes/cache.blade.php` — plain PHP route-registration code despite the `.blade.php` extension, loaded via `bootstrap/app.php`'s `withRouting()` `then` callback. Don't rename the extension. Role-gated: `/clear`+`/cache` are `admin_junior`-only, `/reset` also allows `admin_senior` (hierarchy is inverted — rule 1). They call the shared `clearApplicationCaches()` / `cacheApplicationConfig()` / `resetApplicationCache()` helpers (Global Helpers).
 
 ## Stack
 
-- **Laravel 12** · **PHP ≥ 8.2** · **Filament v4** (unified `Filament\Schemas\*` API) · **Livewire v3**
-- **Alpine.js v3** — all frontend interactivity; components registered via `alpine:init`
-- **Vite 6 + TailwindCSS v4** — asset pipeline
-- **Spatie Laravel Permission v6** for roles/permissions
-- **mokhosh/filament-jalali** for Persian (Jalali) calendar date-pickers
-- **bezhansalleh/filament-language-switch** for EN / FA / FR locale switching
-- Single Filament panel: `dashboard` (path `/dashboard`), SPA mode, dark-mode default
-
----
+**Laravel 12** · **PHP ≥ 8.2** · **Filament v4** (unified `Filament\Schemas\*` API) · **Livewire v3** · **Alpine.js v3** (all frontend interactivity, registered via `alpine:init`) · **Vite 6 + TailwindCSS v4** · **Spatie Laravel Permission v6** · **mokhosh/filament-jalali** (Persian/Jalali date-pickers) · **bezhansalleh/filament-language-switch** (EN/FA/FR). Single Filament panel: `dashboard` (path `/dashboard`), SPA mode, dark-mode default.
 
 ## Project Domain
 
-BMS-CM is a B2B procurement management system covering the full purchase lifecycle:
+B2B procurement management covering the full purchase lifecycle:
 
 ```
 Purchase Request → Proforma Invoice → Registered Order → Purchase Order → Payment → Shipment → Customs
 ```
 
-Navigation groups (defined in `lang/en/resources/dashboard/strings.php`):
-| Group key | Label |
-|---|---|
-| `operational_first` | 【1】 Purchase Requests Management |
-| `operational_second` | 【2】 Order Registration Files |
-| `operational_third` | 【3】 Files Financial Management |
-| `operational_fourth` | 【4】 Logistics & Clearance |
-| `base` | 【#】 Master Data |
-
----
+Navigation groups (defined in `lang/en/resources/dashboard/strings.php`): `operational_first` 【1】 Purchase Requests Management · `operational_second` 【2】 Order Registration Files · `operational_third` 【3】 Files Financial Management · `operational_fourth` 【4】 Logistics & Clearance · `base` 【#】 Master Data.
 
 ## Resource Architecture
 
-### File layout
-
 ```
 app/Filament/Resources/
-    XxxResource.php                          ← root class  (namespace App\Filament\Resources)
+    XxxResource.php                          ← root class (namespace App\Filament\Resources)
     Operational/XxxResource/
-        Traits/Form.php
-        Traits/Table.php
-        Traits/Infolist.php
-        Traits/Filters.php
-        Traits/TotalXxxCalculation.php       ← optional live calculation helpers
-        Enums/Status.php
-        Exports/XxxExporter.php
-        Pages/ListXxx.php / CreateXxx.php / EditXxx.php
-        RelationManagers/…
+        Traits/Form.php / Table.php / Infolist.php / Filters.php
+        Enums/Status.php, Exports/XxxExporter.php,
+        Pages/ListXxx.php / CreateXxx.php / EditXxx.php, RelationManagers/…
     Master/XxxResource/
         Traits/Table.php / Infolist.php / Filters.php
-        Pages/ManageXxx.php                  ← single-page (no create/edit routes)
+        Pages/ManageXxx.php                   ← single page, no create/edit routes
     General/
-        FormComponents.php                   ← getAttachmentsField() + others
-        InfoComponents.php                   ← cross-resource relation badges
-        TableComponents.php                  ← matching table columns
+        FormComponents.php / InfoComponents.php / TableComponents.php   ← shared cross-resource components
 ```
 
-`DashboardPanelProvider` uses `discoverResources(…)` — only root-level classes register as actual resources.
-
-### Operational vs Master
-
-| | Operational | Master |
-|---|---|---|
-| Resources | PurchaseRequest, ProformaInvoice, RegisteredOrder, BankProfile, PurchaseOrder, Payment, Shipment, Custom, Correspondence | Bank, Category, Company, Currency, Department, EntityAttribute, NotificationSetting, Permission, Product, Role, Status, User, Target |
-| Pages | List + Create + Edit + (View via modal) | Single `ManageXxx` page |
-| Header actions | Create button | `getHeaderActions()` returns `[]` |
-| Form | Full editable form inside Tabs | No form — view-only via infolist |
-
-> `TargetResource` is Master-shaped (single `ManageTargets` page, no create/edit routes) but its folder physically lives under `app/Filament/Resources/Operational/TargetResource/`, not `Master/` — a naming/location mismatch, not a bug. Don't "fix" the folder location without checking for hardcoded path references first.
-
-### Root resource class (canonical structure)
-
-```php
-class PurchaseOrderResource extends Resource
-{
-    use TotalCalculation, PurchaseOrderForm, PurchaseOrderTable,
-        PurchaseOrderFilters, PurchaseOrderInfolist,
-        HasResourcePermissions, HasExtraAttributesManagement;
-
-    public static function form(Schema $schema): Schema { … }
-    public static function infolist(Schema $schema): Schema { … }
-    public static function table(Table $table): Table { … }
-    public static function getEloquentQuery(): Builder { … }  // eager-loads + withoutGlobalScopes
-    public static function getPages(): array { … }
-    public static function getRelations(): array { … }
-    public static function getNavigationGroup(): ?string { … }
-    public static function getNavigationBadge(): ?string { … }  // via SmartCacheManager
-}
-```
-
----
-
-## Form & Infolist Conventions
-
-### Naming conventions
-
-| Component | Method prefix | Return type |
-|---|---|---|
-| Form field | `getXxxField()` | `TextInput`, `Select`, `DatePicker`, etc. |
-| Table column | `showXxx()` | `TextColumn` |
-| Infolist entry | `viewXxx()` | `TextEntry`, `RepeatableEntry` |
-| Filter | `getXxxFilter()` | `SelectFilter`, `Filter`, `TrashedFilter` |
-
-### Uniform form tab structure (ALL 8 operational resources)
-
-```php
-Tabs::make('ResourceName')
-    ->tabs([
-        Tab::make(__('resources/xxx/strings.form.tab_general'))
-            ->icon('heroicon-o-…')
-            ->schema([
-                \Filament\Schemas\Components\Group::make()->schema([…])->columnSpan(['lg' => 2]),
-                \Filament\Schemas\Components\Group::make()->schema([…])->columnSpan(['lg' => 1]),
-            ])->columns(3),
-        static::getExtraAttributesFormTab(),   // always last
-    ])->columnSpanFull()
-```
-
-`->columns(3)` is on the **Tab**, not the root Schema. The root Schema has no column setting.
-
-### Infolist tab structure
-
-```php
-Tabs::make('Details')->tabs([
-    Tab::make(__('…infolist.tab_general'))->icon(…)->schema([Section::make()->schema([…])->columns(3)]),
-    Tab::make(__('…infolist.tab_items'))->icon(…)->badge(…)->schema([…]),
-    Tab::make(fn($record) => tabBadge(__('…tab_documents'), $record?->attachments->count(), 'info'))->schema([…]),
-    static::getExtraAttributesInfolistTab(),   // always last
-])->columnSpanFull()
-```
-
-### Shared General components
-
-- `FormComponents::getAttachmentsField()` — standard multi-attachment FileUpload; handles `storeTemporary` → `processTemporaryFiles` pipeline; hydrates from `$record->attachments->pluck('path')`
-- `InfoComponents::viewProformaInvoices()` / etc. — cross-resource relation badges (visible only when non-empty)
-- `TableComponents::showProformaInvoices()` / etc. — matching table columns
-
----
-
-## Model Traits (`app/Models/Traits/`)
-
-| Trait | Effect |
-|---|---|
-| `General\Relationships` | `creator()` / `updater()` → `BelongsTo User` via `user_id` / `updated_by_id` |
-| `General\UserStamps` | Boot: auto-sets `user_id` on creating, `updated_by_id` on updating |
-| `General\HasCustomAttributes` | `customAttributes()` and `extraAttributes()` — both `morphMany(EntityAttribute, 'entity')` |
-| `General\Localization` | `getLocalizedNameAttribute()` → `name` (FA) or `english_name` (other locales) |
-| `General\HasScope` | `scopeActive()` — `where('is_active', true)` |
-| `General\SellerEntity` | Scoped BelongsTo Company variants for seller / supplier / manufacturer |
-
-Models with `SoftDeletes` require `withoutGlobalScopes([SoftDeletingScope::class])` in the resource's `getEloquentQuery()`.
-
----
-
-## Filament Traits (`app/Filament/Traits/`)
-
-**`HasResourcePermissions`** — Maps all Filament permission checks to Spatie Permission. Derives prefix automatically: `Str::snake(class_basename($model))`. Permissions follow `{prefix}.{action}` (view / create / edit / delete).
-
-**`HasExtraAttributesManagement`** — Provides:
-- `getExtraAttributesFormTab()` — Tab with `Repeater::make('extraAttributes')->relationship()`
-- `getExtraAttributesInfolistTab()` — Tab with `RepeatableEntry` + count badge
-- `getExtraAttributesFormSection()` — legacy collapsed Section (back-compat only)
-- `buildExtraAttributesRepeater()` — shared builder; `formatStateUsing` required on value field because `EntityAttribute.value` is JSON-cast
-
-**`HandleActivation`** — `getActivateBulkAction()` / `getDeactivateBulkAction()` for `is_active` toggling.
-
-**`ExportDefaults`** — standardised filename (`APP-MODEL-HHmmss`), 1 000-row query limit.
-
----
-
-## EAV / Custom Attributes System
-
-`EntityAttribute` polymorphic EAV (`entity_type` + `entity_id`); `value` column is JSON-cast.
-
-Two coexisting entry points (intentional):
-1. **`ManageCustomAttributesAction`** — `KeyValue` modal; reads/writes via `$record->customAttributes()`
-2. **`HasExtraAttributesManagement` Repeater** — inline form tab; reads/writes via `$record->extraAttributes()`
-
-Same underlying relation, different alias to prevent closure conflicts.
-
-`EntityAttributeResource` is view-only: no create/edit, `getHeaderActions()` returns `[]`.
-
----
-
-## Permissions & Roles
-
-Spatie Permission. No `app/Policies/` — all gates handled by `HasResourcePermissions`. Managed via `PermissionResource` / `RoleResource` Master Data resources. RelationManager child models (Attachment, the *Item models, Specification, CorrespondenceRecipient) are not resources — they inherit their parent's permission and the seeder must never create `{child}.{action}` rows (a 2026-09-26 seed run created 20 by mistake; deleted, and removed from the seeder).
-
-**Role hierarchy is inverted from what the enum names imply**: `admin_junior` (⭐, one star) is the actual highest-trust/most-permissioned tier project-wide; `admin_senior` (⭐⭐⭐) is lower. Always verify seniority via the Spatie `roles` relation's real assigned-permission counts — never via the `*_JUNIOR`/`*_SENIOR` case name, and never via the legacy `users.role` column (holds unrelated free-text values like `'admin'`/`'agent'`/`'manager'` that never match a `UserRole` enum case).
-
-The legacy `users.role` column is intentionally kept in `User::$fillable` and used only as the avatar display fallback in `UserImage::getFilamentAvatarUrl()` (Spatie `roles` is the real source for auth/seniority). Its presence there is deliberate, not an illegal pattern.
-
----
-
-## Localization
-
-Three locales: `en`, `fa` (Farsi/RTL), `fr`. See `lang/localizationPattern.md` for the full key-structure, validation-message, wording, and RTL/filter-localization convention reference — do not maintain a second copy here.
-
----
-
-## Caching
-
-`SmartCacheManager` (`app/Services/`) — per-model key registry around `Cache::remember`, enabling bulk invalidation. Use this for any new model-scoped cache:
-
-```php
-// Read
-SmartCacheManager::remember('PurchaseOrder', ['user_id' => auth()->id(), 'type' => 'total_count'], 150, fn() => …);
-// Bust all keys for a model
-SmartCacheManager::invalidate('PurchaseOrder');
-```
-
-See `app/Services/servicesPattern.md` for the full service inventory — including `DashboardStats` and `AnalyticsService`, which each use a different caching strategy than `SmartCacheManager`.
-
----
-
-## Services Layer
-
-See `app/Services/servicesPattern.md` for the full inventory of all 15 services — public APIs, consumers, and caching/locale gotchas — do not maintain a second copy here.
-
----
-
-## Global Helpers (`app/Utils/helpers.php`)
-
-| Helper | Purpose |
-|---|---|
-| `tabBadge($label, $count, $color)` | `HtmlString` — label + inline `.tb-badge` span for Filament tabs |
-| `maybeJalali($component)` | Wraps date component with `.jalali(true)` if session is Jalali |
-| `isJalaliCalendar()` | The single home of the `calendar_type` gate literal — all calendar reads route through it |
-| `adaptiveDate($date, $withTime)` | Display date following the calendar toggle (Persian ↔ Gregorian); Filament columns/entries use the `->adaptiveDate()`/`->adaptiveDateTime()` macros instead |
-| `delimiter($value, $currency, $decimals)` | Number format with optional currency prefix |
-| `getLocalizedName($record, $relation)` | `name` (FA) or `english_name` based on locale |
-| `toPersianDate($date, $withTime = false)` | Persian (Jalali) string; `$withTime = true` appends `- H:i:s` for audit timestamp columns |
-| `toGregorianDate($date, $withTime = false)` | Gregorian string (`Y F d`); same `$withTime` option pairs with `toPersianDate` |
-| `toYmdDate($record, $date)` | Formats as `Y-m-d` |
-| `clearApplicationCaches()` | `opcache_reset()` (if available) + `cache:clear` + `config:clear` + `route:clear` + `view:clear` + `optimize:clear` + `filament:clear-cached-components` + `permission:cache-reset` |
-| `cacheApplicationConfig()` | `config:cache` + `route:cache` + `view:cache` + `filament:cache-components` |
-| `resetApplicationCache()` | `clearApplicationCaches()` → `sleep(1)` → `cacheApplicationConfig()` |
-
-**Never run the three cache helpers synchronously inside a Livewire action** — clearing compiled views/Filament's component registry mid-render breaks the component that's currently rendering (this broke the dashboard's own "Reset Cache" user-menu button once). Defer with `dispatch(fn () => resetApplicationCache())->afterResponse()`; a `Notification::make()->send()` called before the `dispatch()` still shows immediately since only the Artisan calls are deferred.
-
----
-
-## Observers & Side Effects
-
-Registered in `AppServiceProvider::boot()`:
-- `PurchaseRequestObserver` — when `status_id` changes to `Authorized`/`Declined`, cascades matching status to all child purchase items
-- `CategoryObserver` — category hierarchy logic
-- `StatusObserver` — invalidates `StatusWorkflow`'s per-`english_type` cached stage list (`SmartCacheManager::invalidate('Status')`) on `Status` save/delete/restore; see `app/Services/servicesPattern.md`
-
----
-
-## Status Model
-
-`Status` is a shared polymorphic lookup (`type` / `english_type` + `english_name` / `name`). Use `Status::findBy($type, $englishName)` (from `StatusFinder` trait). Each model defines `TYPE_*` constants to scope queries.
-
----
-
-## HTTP Controllers
-
-### `SearchController` (`/api/search/spotlight?q=`)
-
-Spotlight search across all 8 operational models. For each model hit, returns:
-- `title`, `subtitle` (record number), `progress` (% of non-null fields), `icon`, `color`, `id`
-- `breadcrumb` object: `{proforma, order, logistics}` — each `upcoming | active | completed` for the pipeline status bar
-
-### `SearchController::chain` (`/api/search/chain?type=&id=`)
-
-Auth-guarded. Given an operational record (`type` = one of the 8 pipeline keys, `id` = record id), returns the **attached pipeline** — all 8 operational models, each with a green/red `attached` flag and a `records[]` list, plus a top-level `breadcrumb` (one `{state,label}` per model, `completed` when attached else `missing`). `SearchService::chain()` resolves the anchor to its `RegisteredOrder` hub(s) (via pivot for PR/PI/PO, `self` for RO, `belongsTo` for BP/Shipment/Custom, morph `targetable` for Payment), then gathers each model's records attached to those RO ids (Custom also via `shipment_id`, Payment via RO + PO `targetable`). Each record carries `identifier` (primary `*_number`/`*_no`), `identifiers[]` (all such columns), `progress` (completion %), `url` (edit route), `extras[]` (2–3 typed ultra-important trade fields per model — `text`/`date`/`money`/`company`/`bank`/`currency`; money pairs an amount column with a currency column and formats via `delimiter()`, company/bank/currency resolve to localized names, dates are Jalali when locale is `fa`; an extra may override its label via an explicit `'label'` translation when the column-derived key doesn't match the form's label), and `statuses[]` — **every** status column of that model (Shipment has 5, Custom has 3, others 1, ProformaInvoice 0), label from `__("resources/{key}/strings.form.{col_without_id}")`. All FK/Status label lookups are resolved in single batched `whereIn` passes over `$refs['status'|'company'|'bank'|'currency']` (N+1-free). The anchor is always included in its own model even when it has no RO links (shows only itself). PIPELINE order is the single source of truth (`SearchService::PIPELINE`), reused by `buildBreadcrumb`.
-
-### `InvoiceController` (`/shipments/{shipment}/invoice/pdf`)
-
-Auth-guarded. Reads `commercial_invoice` EntityAttribute from the Shipment, delegates to `InvoicePdfService::download()`. Returns 404 if no saved invoice exists.
-
-Route name: `shipments.invoice.pdf` (defined in `routes/web.php`, middleware `auth`).
-
----
-
-### `WorkspaceController` (`/workspace/records/{resource}?q=`)
-
-Powers record-pinning in the landing-page workspace. Thin wrapper over `App\Services\WorkspaceSearchService`, which is config-driven via `config/workspace.php`:
-- Validates against whitelist of 8 resources
-- Searches across all table columns (or a restricted `search` list if defined) — `Schema::getColumnListing()` results are cached (`Cache::remember("workspace_columns:{connection}:{table}", 1 day, ...)`)
-- Returns `{data: [{key, resourceId, recordId, label, subtitle, url}]}` — max 25 results
-- `compose()` helper handles DateTimeInterface, BackedEnum, scalars
-
----
-
-## Livewire Components
-
-### `CalendarToggle` (`app/Livewire/CalendarToggle.php`)
-
-Filament global-search area render hook (injected via `FilamentRenderHooks::configure()`). Toggles between Gregorian and Jalali. State stored in `session('calendar_type')`. Dispatches `calendar-toggled` Livewire event on toggle.
-
-### `TableStateToggle` (`app/Livewire/TableStateToggle.php`)
-
-Same topbar render-hook pattern, toggling "remember my table setup" (filters/sort/columns/search). State stored in `session('persist_table_state')`, consumed globally by `FilamentTableDefaults`' `Table::configureUsing(...)` `->persistInSession(...)` condition — no per-resource wiring. Dispatches `table-state-toggled` (deliberately listener-less). See `app/Livewire/livewirePattern.md` for the full pattern.
-
-### `App\Livewire\LandingPage\{Workflow,Workspace,Search}`
-
-The landing page's 3 tab bodies, each an eager render-only component (no `wire:model`/`wire:click`/`#[Lazy]` — interactivity stays in the pre-existing Alpine factories, unchanged). See `resources/views/viewsPattern.md`'s "Livewire components" section for the full mount-param/caching/ownership breakdown, and why lazy-loading and reactive `wire:model` transport were deliberately deferred (Livewire's `#[Lazy]` defaults to viewport-based `x-intersect` triggering, unsuitable for the `x-show`-hidden tab panels; a dual-Alpine-instance footgun in `alpine/loader.js` needs resolving first if either is ever added).
-
-**Don't embed a Livewire component via a Filament topbar render hook** (`GLOBAL_SEARCH_AFTER`/`BODY_START`) expecting it to behave like a page component — one such attempt (a topbar Desk Reference dropdown) had correct server-side logic at every layer but never rendered client-side, and the root cause was never isolated. The working equivalent for topbar-triggered content is a plain List-page header Action + modal (see `HasDeskReferenceAction`).
-
----
+- **Operational** resources (PurchaseRequest, ProformaInvoice, RegisteredOrder, BankProfile, PurchaseOrder, Payment, Shipment, Custom, Correspondence): List + Create + Edit pages (view via modal), Create header action.
+- **Master** resources (Bank, Category, Company, Currency, Department, EntityAttribute, NotificationSetting, Permission, Product, Role, Status, User, Target): single `ManageXxx` page, no form — view-only infolist, `getHeaderActions()` returns `[]`.
+- `DashboardPanelProvider` uses `discoverResources()` — only root-level classes register as resources.
+- `TargetResource` is Master-shaped but its folder lives under `Operational/` — a naming/location mismatch, not a bug. Check for hardcoded path references before "fixing" it.
+- Canonical root class: composes `Form`/`Table`/`Infolist`/`Filters` (+ optional `TotalXxxCalculation`) traits plus `HasResourcePermissions` + `HasExtraAttributesManagement`; defines `form()`/`infolist()`/`table()`/`getEloquentQuery()` (eager-loads + `withoutGlobalScopes`)/`getPages()`/`getRelations()`/`getNavigationGroup()`/`getNavigationBadge()` (via `SmartCacheManager`).
+
+## Conventions index
+
+- **Naming**: form field `getXxxField()`, table column `showXxx()`, infolist entry `viewXxx()`, filter `getXxxFilter()`.
+- **Forms/infolists**: uniform two-tab structure across all 8 operational resources; `getExtraAttributesFormTab()`/`getExtraAttributesInfolistTab()` always last; `->columns(3)` on the Tab, never the Schema root; `->columnSpanFull()` on Tabs; translate every user-facing string; new tabs get `tab_*` keys in all 3 locale files. Full structure: `filamentPattern.md`.
+- **Model traits** (`app/Models/Traits/General/`): `Relationships` (`creator()`/`updater()`), `UserStamps` (auto user_id/updated_by_id), `HasCustomAttributes` (EAV morphMany), `Localization` (localized name accessor), `HasScope` (`scopeActive`), `SellerEntity` — `modelsPattern.md`.
+- **Filament traits**: `HasResourcePermissions` (maps all Filament permission checks to Spatie; prefix `Str::snake(class_basename($model))`, actions view/create/edit/delete; **no `app/Policies/`**), `HasExtraAttributesManagement`, `HandleActivation` (bulk activate/deactivate), `ExportDefaults` (filename + row limit) — `filamentPattern.md`.
+- **EAV**: `EntityAttribute` polymorphic (`entity_type` + `entity_id`), `value` JSON-cast. Two intentional entry points: `ManageCustomAttributesAction` KeyValue modal (`customAttributes()`) and the Repeater form tab (`extraAttributes()`) — same relation, different alias. `EntityAttributeResource` is view-only.
+- **SoftDeletes models** require `withoutGlobalScopes([SoftDeletingScope::class])` in the resource's `getEloquentQuery()`.
+- **Status**: shared polymorphic lookup (`type`/`english_type` + names). `Status::findBy($type, $englishName)` via the `StatusFinder` trait; each model scopes queries with `TYPE_*` constants.
+- **Caching**: `SmartCacheManager::remember($model, $filters, $minutes, $cb)` / `::invalidate($model)` for any new model-scoped cache — `servicesPattern.md` for the full inventory (incl. `DashboardStats`/`AnalyticsService`, which use different strategies).
+- **Observers** (registered in `AppServiceProvider::boot()`): `PurchaseRequestObserver` (cascades Authorized/Declined status to child items), `CategoryObserver`, `StatusObserver` (invalidates `StatusWorkflow` cache) — `observersPattern.md`.
+- **Global helpers** (`app/Utils/helpers.php`): `tabBadge`, `maybeJalali`/`isJalaliCalendar`/`adaptiveDate` (the `calendar_type` contract), `delimiter`/`preciseNumber`, `getLocalizedName`, `toPersianDate`/`toGregorianDate`/`toYmdDate`, `clearApplicationCaches`/`cacheApplicationConfig`/`resetApplicationCache` — signatures in `helpersPattern.md`.
+
+## Critical non-obvious rules
+
+1. **Role hierarchy is inverted from the enum names**: `admin_junior` (⭐, one star) is the actual highest-trust tier project-wide; `admin_senior` (⭐⭐⭐) is lower. Verify seniority via the Spatie `roles` relation's real assigned-permission counts — never via `*_JUNIOR`/`*_SENIOR` case names, never via the legacy `users.role` column (unrelated free-text values; intentionally kept in `User::$fillable` as the avatar display fallback only — `UserImage::getFilamentAvatarUrl()`).
+2. **RelationManager child models** (Attachment, the *Item models, Specification, CorrespondenceRecipient) are not resources — they inherit their parent's permission; the seeder must never create `{child}.{action}` rows.
+3. **Panel-wide JS/CSS must be registered in `FilamentAssets.php`** via `Css::make()`/`Js::make()` + `Vite::asset()` — `resources/js/app.js`'s plain `@vite()` loads only on the landing-page route, not panel pages.
+4. **Assets are referenced dynamically**: `resources/js/app.js` has a deliberate `import.meta.glob` catch-all so the Vite manifest includes every file under `resources/fonts/`+`resources/img/` (some are referenced only via runtime PHP string interpolation). Zero grep hits is NOT proof an asset is dead — clear `public/build/` + `node_modules/.vite` and run a fresh `npm run build` before deleting anything there.
+5. **Never run the cache helpers synchronously inside a Livewire action** — clearing compiled views/Filament's component registry mid-render breaks the rendering component. Defer with `dispatch(fn () => resetApplicationCache())->afterResponse()`; a `Notification::make()->send()` before the dispatch still shows immediately.
+6. **Don't embed a Livewire component via a Filament topbar render hook** (`GLOBAL_SEARCH_AFTER`/`BODY_START`) expecting page-component behavior — one such attempt never rendered client-side, root cause never isolated. The working equivalent: a List-page header Action + modal (`HasDeskReferenceAction`).
+7. **No `ForceDeleteAction`/`ForceDeleteBulkAction` anywhere** — permanent delete is banned app-wide; soft-delete + `RestoreAction` covers recovery (enforced by an integrity test).
+8. **CSS**: use existing `--custom-*`/`--google-*` tokens, never hardcode colors that have a variable; `.glass` and the 3D/glassmorphism utilities are removed — don't re-implement; never restructure `.fi-simple-layout`/`.fi-simple-main` (login background lives in `::before` pseudo-elements, not the blade view). Full reference: `stylesPattern.md`.
+9. **Alpine**: pure-function factories (no class syntax); no `document.querySelector` inside data functions (use `$refs`/`$el`); lazy-init Audio/heavy objects; `window.__alpine_running` guard before starting Alpine; `window.dispatchEvent(new CustomEvent(...))` for cross-component communication. Full reference: `scriptPattern.md`.
+10. **Blade**: `$isRtl` (bool prop, computed once at page root) is the single source of RTL decisions; sub-components receive only the props they need; the loader overlay is always `dir="ltr"`. Full reference: `viewsPattern.md`.
+11. **`.env`'s `APP_URL` must match the port `php artisan serve` actually binds** — every signed/absolute URL is built from it. See `gotchasPattern.md`.
+
+## HTTP surface
+
+- **`SearchController`** (`/api/search/spotlight?q=`, `/api/search/chain?type=&id=`) — auth-guarded; `SearchService::PIPELINE` order is the single source of truth for the 8-model pipeline. Spotlight returns per-hit title/progress/breadcrumb; chain returns the attached pipeline around a record's `RegisteredOrder` hub(s) with batched `whereIn` label lookups (N+1-free). Full contract: `servicesPattern.md` (`SearchService`).
+- **`InvoiceController`** (`/shipments/{shipment}/invoice/pdf`, route `shipments.invoice.pdf`, middleware `auth`) — reads the `commercial_invoice` EntityAttribute, delegates to `InvoicePdfService::download()`; 404 when none saved.
+- **`WorkspaceController`** (`/workspace/records/{resource}?q=`) — record-pinning search for the landing-page workspace; config-driven whitelist of 8 resources in `config/workspace.php` (key must match the `$modules` array id in `App\Livewire\LandingPage\Workspace`); column lists cached 1 day; max 25 results. Pins persist in `localStorage['user_shortcuts']`.
+
+## Landing page
+
+Root view `resources/views/filament/landing-page.blade.php`: plain-Blade chrome (loader/switchers/widget/header includes, `resources/views/filament/landing-page/`) + three eager render-only Livewire tab bodies (`App\Livewire\LandingPage\{Workflow,Workspace,Search}` — no `wire:model`/`#[Lazy]`; interactivity stays in the pre-existing Alpine factories). Full inventory and ownership rules: `viewsPattern.md`.
+
+The `Dashboard` panel page overrides the vendor content entirely: `AccountWidget` on top, then 3 tabs of 2 analytics widgets each via a `TABS` const — adding a widget is a one-line `TABS` entry (`widgetsPattern.md`).
 
 ## Configurators (`app/Configurators/`)
 
-| Configurator | Purpose |
-|---|---|
-| `LanguageSwitcher` | Configures `bezhansalleh/filament-language-switch`; 3 locales, text mode (EN/FA/FR, no flags since 2026-09-26) at `GLOBAL_SEARCH_BEFORE`, styled like the other topbar icon buttons and placed in the user-set topbar order via the `.fi-topbar-end` flex `order` block (desktop: between the calendar and the work-actions cluster; hidden below `lg`) |
-| `FilamentRenderHooks` | Injects `CalendarToggle`, `TableStateToggle`, nav-dock toggle, topbar auto-hide toggle, table-density toggle, stacked-table toggle, fullscreen toggle, theme-palette picker, work-actions (quick-create + recent-records), the search-bell hairline divider, and `<meta>` author/last-updated tags + the pre-paint theme-apply script at various panel render hooks |
-| `FilamentAssets` | Registers panel-wide CSS (`fi-custom.css`, `themes.css`) and JS (`theme.js`, `nav-dock.js`, `topbar-autohide.js`, `auto-close.js`, `table-density.js`, `table-stacking.js`, `fullscreen.js`, `recents.js`) via `Css::make()`/`Js::make()` + `Vite::asset()` |
-| `FilamentCustomLogin` | Custom login page configuration |
+`LanguageSwitcher` (3-locale text-mode switcher), `FilamentRenderHooks` (topbar toggles — calendar, table-state, nav-dock, auto-hide, density, stacking, fullscreen, theme picker, work-actions; meta tags; theme-apply script), `FilamentAssets` (panel CSS/JS registration — see rule 3 above), `FilamentCustomLogin` (custom login page).
 
-**Client-side JS meant to run inside the Filament panel itself (not the landing page) must be registered via `FilamentAssets.php`'s `Js::make()`** — `resources/js/app.js`'s plain `@vite()` only loads on the landing-page route, not panel pages. This has shipped silently broken once already; don't assume `app.js` covers panel-wide behavior.
+## Coding philosophy (every file, non-negotiable)
 
----
+- **Zero noise comments** — no obvious comments, no block-comment headers; PHPDoc on public API methods only. No `dd()`/`dump()`/`var_dump()` left in code.
+- Methods single-responsibility and short (~20 lines max — extract beyond).
+- All DB queries through Eloquent; `->when()`/`->unless()` for conditional query building; eager-load in `getEloquentQuery()`, not per-field; cache expensive queries via `SmartCacheManager`.
+- Tabs over nested Sections for forms with 5+ fields; translate every user-facing string in `form()`/`table()`/`infolist()`.
+- CSS: new animations go in the file's existing keyframes block; never duplicate utilities that exist in `landing-page.css`/`fi-custom.css`; `will-change` only on GPU-accelerated animated elements.
 
-## Vite / Asset Pipeline
+## Standing Gotchas
 
-**`vite.config.js` entry points:**
-```
-resources/css/app.css                       → Tailwind base (scans resources/views)
-resources/css/fi-custom.css                 → Filament panel overrides
-resources/css/themes.css                    → Theme-palette override blocks (html[data-theme="*"])
-resources/css/layout/fonts.css              → Roboto + IranYekan @font-face
-resources/css/landing-page.css              → Landing page design system
-resources/js/app.js                         → Filament/Livewire JS
-resources/js/filament/theme.js              → window.setTheme() palette switcher (panel-wide)
-resources/js/filament/nav-dock.js           → Bottom-dock nav mode (panel-wide, not landing-page-only)
-resources/js/filament/topbar-autohide.js    → Auto-hide topbar pin-state persistence (panel-wide)
-resources/js/filament/auto-close.js         → Closes the table filters/column-manager dropdown after Apply (panel-wide)
-resources/js/filament/table-density.js      → window.setTableDensity() compact/comfortable toggle (panel-wide)
-resources/js/filament/table-stacking.js     → window.setTableStacking() classic/stacked mobile-layout opt-out toggle (panel-wide)
-resources/js/filament/fullscreen.js         → window.toggleFullscreen() native Fullscreen API toggle (panel-wide)
-resources/js/filament/recents.js             → records visited record-edit pages into localStorage['recent_records'] for the topbar Recent-records dropdown (panel-wide)
-```
-
-**Static copies (not processed, served verbatim):**
-```
-resources/img/*    → public/img/
-resources/audio/*  → public/audio/
-resources/video/*  → public/video/
-```
-
-**`resources/js/app.js` has `import.meta.glob(['../fonts/**', '../img/**'])`** — a deliberate, return-value-discarded catch-all so Vite's manifest includes every file under those folders, needed because some assets are referenced only via dynamic PHP string interpolation (e.g. `UserImage.php`'s role-based avatar path) that Vite's static analysis can't see. Consequence: **a "zero grep hits" check is not proof an asset file is dead** — it can't see a path assembled at runtime from a variable. Before deleting any file under `resources/img/`, `resources/fonts/`, clear `public/build/` + `node_modules/.vite` and run a fresh `npm run build` to confirm nothing breaks, not just a literal-string grep.
-
----
-
-## CSS Design System
-
-See `resources/css/stylesPattern.md` for the full token/class reference (verified current) — do not maintain a second copy here.
-
----
-
-## JavaScript / Alpine.js Architecture
-
-See `resources/js/scriptPattern.md` for the full Alpine factory/localStorage/event reference (verified current) — do not maintain a second copy here.
-
----
-
-## View / Blade Component Tree
-
-### Landing Page Architecture
-
-```
-views/filament/landing-page.blade.php                      ← root (Filament Page view)
-    → @include('filament.landing-page.loader')             ← 2900ms full-screen loader
-    → @include('filament.landing-page.switchers')          ← fixed top-right: lang + dark + logout + widget toggle
-    → @include('filament.landing-page.widget')              ← floating triWidget panel (clock/timer/music)
-    → @include('filament.landing-page.header')              ← underline tab switcher (Customize/Workflow/Search)
-    → @livewire('landing-page.workspace')                  ← Customize tab, App\Livewire\LandingPage\Workspace
-    → @livewire('landing-page.workflow')                   ← Workflow tab, App\Livewire\LandingPage\Workflow
-    → @livewire('landing-page.search')                     ← Search tab, App\Livewire\LandingPage\Search
-```
-
-The three tab bodies are dedicated Livewire components (`app/Livewire/LandingPage/*.php` + `resources/views/livewire/landing-page/*.blade.php`); the shell chrome (loader/switchers/widget/header) is plain Blade + Alpine under `resources/views/filament/landing-page/`, matching this project's `resources/views/filament/{feature}/` convention (siblings: `desk-reference/`, `partials/`, `widgets/`). See `viewsPattern.md` for the full component inventory.
-
-### Key Blade Props Pattern
-
-`$isRtl` — `bool` passed to all sub-components; used for `{{ $isRtl ? 'right' : 'left' }}` anchor decisions, chevron rotation classes, and `slide-left/right` animation direction.
-
-### Search Tab (`App\Livewire\LandingPage\Search`, view `resources/views/livewire/landing-page/search.blade.php`)
-
-Uses the registered `search` Alpine factory (`x-data="search"`): `searchQuery`, `isSearching`, `results[]`, `selectedResult`, `byUser`, `chain[]`, `chainLoading`, `chainError`, `breadcrumb` (8 keys, one per operational model).
-- `performSearch()` → `GET /api/search/spotlight?q=…`, debounced 500ms. Results carry `type`+`id`.
-- `selectResult(result)` → sets `selectedResult`, lazily loads `GET /api/search/chain?type=…&id=…`, swaps `breadcrumb` from the chain response on success. `clearSelected()` resets both.
-- Breadcrumb bar stays off (`x-show`) until a record is selected and the chain has loaded — driven only by the chain response, never by spotlight search-match states.
-- Results grid, detail panel, **Open & Edit Record** button, then the attached-pipeline chain (see `SearchController::chain` above).
-
-### Workspace Tab (`App\Livewire\LandingPage\Workspace`)
-
-Module accordion (15 modules, 8 operational searchable + 7 master non-searchable) + records accordion (resource-chip picker → debounced 300ms search → `GET /workspace/records/{resource}?q=…`). Pins persist in `localStorage['user_shortcuts']` (`{modules:[...ids], records:[...{key,resourceId,recordId,label,subtitle,url}]}`).
-
----
-
-## Workspace Config (`config/workspace.php`)
-
-Whitelist for record-pinning; one entry per pinnable resource:
-
-```php
-'purchaseRequests' => [
-    'model'    => PurchaseRequest::class,
-    'route'    => 'filament.dashboard.resources.purchase-requests.edit',
-    'title'    => ['pr_number'],
-    'subtitle' => ['urgency_level', 'required_by_date'],
-    // 'search' => ['pr_number', 'notes'],  // optional column restriction
-],
-```
-
-Key must match the `id` in the `$modules` array built by `App\Livewire\LandingPage\Workspace`.
-
----
-
-## Filament Panel Pages
-
-### `LandingPage`
-
-```php
-class LandingPage extends Page
-{
-    protected static string $layout = 'layout';   // custom layout (not panel layout)
-    protected static bool $shouldRegisterNavigation = false;
-    protected string $view = 'filament.landing-page';
-    // mount(): handles ?locale= query param, sets session + app locale
-    // getViewData(): merges DashboardStats::get() as $counts
-}
-```
-
-### `Dashboard`
-
-Overrides the vendor `Dashboard` page's `content()` entirely (not a flat widget grid): `AccountWidget` always visible at top, then 3 `Tab`s of 2 analytics widgets each, driven by a `TABS` const array. See `widgetsPattern.md` for the full widget/data-lineage breakdown. Adding a widget is a one-line addition to `TABS`; adding a category is a new `Tab::make()` entry.
-
----
-
-## Coding Philosophy
-
-These rules apply to **every file** in this project. Non-negotiable.
-
-### Zero Noise Comments
-
-- **No obvious comments.** Never write `// Get the user`, `// Return the result`, or `// Loop through items`.
-- **No block-comment headers** (`/**** SECTION ****/`) unless the file has 200+ lines of unrelated concerns.
-- Allowed comments: non-obvious algorithm explanations, intentional `//->method()` commented-out lines being preserved, and PHPDoc on public API methods only.
-
-### PHP / Laravel
-
-- Methods stay **single-responsibility and short**. If a method exceeds ~20 lines, extract.
-- **No `dd()`, `dump()`, `var_dump()`** left in code.
-- All DB queries go through Eloquent; raw `DB::` only when Eloquent cannot express it.
-- `->when()` and `->unless()` for conditional query building — no `if ($x) $query->where(…)` outside query chains.
-- Eager-load relations in `getEloquentQuery()`, not in individual field/column definitions.
-- Cache expensive queries. Use `SmartCacheManager` for model-scoped caches.
-
-### Filament / PHP Forms
-
-- **Tabs over nested Sections** for forms with 5+ fields. All 8 operational resources follow the two-tab pattern.
-- **`->columnSpanFull()`** on the `Tabs` component always.
-- **`->columns(3)`** on the Tab, not the Schema root.
-- Translate every user-facing string — no hardcoded English strings in `form()` / `table()` / `infolist()`.
-- Add `tab_*` keys to all 3 locale files when adding a new tab.
-
-### CSS
-
-- Use existing design tokens — never hardcode colors that have a `--custom-*` or `--google-*` variable.
-- New animations go in the same keyframes block at the bottom of the file they belong to.
-- `.glass` and the other glassmorphism/3D utilities (`.card-3d`, `.shimmer-effect`, `.floating`, `.glow-orb`, `.badge-float`, etc.) are **removed** — do not re-implement or reference them. Use the flat `--custom-*`/`--google-*` token surfaces instead (see `resources/css/stylesPattern.md`).
-- Never duplicate utility classes that already exist in `landing-page.css` or `fi-custom.css`.
-- `will-change: transform/opacity` on animated elements that use GPU-accelerated properties only.
-- **Never restructure `.fi-simple-layout` / `.fi-simple-main`** — these are Filament's auth wrappers. The login background effect lives in `::before` pseudo-elements, not in the blade view.
-
-### JavaScript / Alpine.js
-
-- All Alpine components are **pure functions** returning a plain object — no class syntax.
-- **No `document.querySelector` inside Alpine data functions** — use `$refs` or `$el`.
-- Audio/heavy objects are **lazy-initialized** (instantiated on first use, not in `init()`).
-- `window.__alpine_running` guard is checked before starting Alpine — maintain this pattern.
-- Custom events use `window.dispatchEvent(new CustomEvent(…))` for cross-component communication.
-- `localStorage` keys: `theme` (dark/light), `lp_tab` (active landing tab), `user_shortcuts` (workspace pins) — see `scriptPattern.md` for the full key inventory.
-
-### Blade / Views
-
-- `$isRtl` is the single source of truth for RTL layout decisions in Blade.
-- Sub-components receive only the props they need — no prop drilling of the entire `$counts` array if only one count is needed.
-- Loader overlay always `dir="ltr"` regardless of locale.
-
----
-
-## Standing Gotchas & Non-Obvious Learnings
-
-Durable lessons that would otherwise cost a future session real time to rediscover. Not a changelog — if something here becomes obvious from reading the code, or gets promoted into a reference section above, remove it from this list.
-
-- **Tooltip reliability**: for elements with no server round-trip (pure Alpine store + `localStorage`, e.g. nav-dock/topbar-pin toggles), render two static `.raw`-string button variants (one per state) switched via `x-show`, rather than a reactive `x-tooltip="{content: <js-expr>}"` object — the latter races/renders empty on first paint. `calendar-toggle`'s tooltip works because it's a literal PHP string baked in by Livewire's server render, not because of special client-side handling — don't copy its markup shape onto a client-only toggle expecting the same reliability for the wrong reason.
-- **Sidebar-collapse chevron next to the topbar logo is Filament's own shipped default** when a panel has a topbar (`vendor/filament/filament/resources/views/livewire/sidebar.blade.php` only renders its own copy of that button when `! $hasTopbar`) — not a layout bug. Check the vendor source before "fixing" this again.
-- **Dead-code sweeps on assets need a real build, not just grep** — see the Vite section above (`import.meta.glob` catch-all). A prior sweep deleted avatar SVGs based on zero grep hits and broke the build; they were dynamically referenced.
-- A Filament `DatePicker` gets an **implicit `date` validation rule** injected internally — not visible as a `->date()` call in this codebase's own resource code. See Localization.
-- **`.env`'s `APP_URL` must match the actual port `php artisan serve` binds to.** `composer run dev`'s `dev` script runs plain `php artisan serve` with no `--port` flag, so it always uses Laravel's default (8000) — but `.env` had `APP_URL=http://127.0.0.1:9000/` (stale, from an earlier/different setup). Every signed/absolute URL the app generates (queued-job notification download links, etc.) is built from `APP_URL`, so a mismatch silently produces links to a port nothing is listening on — the browser shows `ERR_CONNECTION_REFUSED`, which looks like a broken feature but is a `.env` config drift. Fixed 2026-09-22 (`APP_URL` now `:8000`); `php artisan config:clear` + `queue:restart` after changing it — a queue worker caches config at boot same as it caches class code (see the Jobs gotcha in `app/Jobs/jobsPattern.md`).
-- **A long-running `queue:work`/`queue:listen` process caches class code AND config in memory at boot.** Editing a queued job's class (or `.env`) mid-session and testing from the actual running app, without `php artisan queue:restart` afterward, reproduces a stale-code bug that a fresh `php artisan tinker` invocation of the same job will NOT reproduce — confusing because the "same" code appears to behave differently in two places. Restart the worker after touching anything a queued job depends on.
-- **A RelationManager never gets bulk import — industry-standard, not project-specific.** `getImportAction()`/`GroupedImportAction` belongs only on a module's own top-level list page; bulk import always matches against the entire table (no owner-record scoping exists), so wiring it into a RM's `headerActions()` lets an uploaded row silently update a record belonging to a *different* parent with zero feedback in the tab it was triggered from — confirmed as a real bug and removed from `PurchaseRequestResource`'s 3 RMs 2026-09-22. A RM gets `AttachAction` and/or a `Prepares*From*`-driven single auto-populate `create` — never bulk import. Full reasoning: `app/Filament/filamentPattern.md` §1.20, `app/Services/Imports/importsPattern.md`.
-- **Comparing a `date`-cast column against "is this overdue" must bind the same midnight boundary everywhere (`today()`/`->startOfDay()`), never bare `now()`.** `now()` is a datetime; `$dateColumn < now()` on a plain `date`-cast column (e.g. `Shipment.eta`) flags a record whose date is literally today as already overdue, since midnight-today is less than the current time-of-day — off by one day from SQL's own `CURDATE()` semantics (`AnalyticsService::shipmentPunctuality()`'s `eta < curdate()`). Confirmed live 2026-10-05 wiring Shipment's overdue table badge + filter: all sites comparing the same column for the same "overdue" concept must bind the identical boundary value, or they silently disagree on today's own records.
-- **Don't reuse a one-shot `Prepares{X}From{Y}`-style query-param prefill helper inside a LIVE reactive form closure (`afterStateUpdated`/`live()`) if that helper also generates a reserved identifier.** `PreparePaymentFromTargetable::prepareData()` (Payment's auto-populate-from-target helper) calls `CodeGenerator::generate('payment_no')`, which runs a real `SELECT ... FOR UPDATE` — fine as a one-time call from `afterFill()` on page mount, but wiring the SAME method into a `MorphToSelect`'s `afterStateUpdated` (so re-picking the target live-refills related fields) meant every manual re-selection re-ran the locking query and threw away the result, unused. Fixed on Payment 2026-10-04 by splitting a non-generating `copyTargetableAttributes()` out of `prepareData()` — the live closure calls only the split-out copy method, the one-shot mount-time prefill still calls the full `prepareData()`. Before wiring any existing prefill helper into a live/reactive closure, check whether it does anything beyond copying related-record attributes (a `CodeGenerator` call, a cache write, any DB write) — split it first if so.
+→ `gotchasPattern.md` — cross-cutting entries (APP_URL port drift, midnight-boundary overdue comparisons, live-closure prefill helpers) plus an index pointing at the domain docs covering the rest. Add new durable lessons there, or in the governing domain doc if domain-specific — never back into this file.

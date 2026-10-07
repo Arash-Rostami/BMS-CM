@@ -399,6 +399,70 @@ class CorrespondenceResourceTest extends TestCase
             ]);
     }
 
+    // Validation messages — no raw-English leak in fa. 'priority' is a single-value Select whose
+    // options come from a BackedEnum (needs the 'enum' message key, not 'in'); 'type' is a
+    // ToggleButtons whose options also come from a BackedEnum but still validates via 'in'.
+
+    public function test_create_rejects_an_invalid_priority_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['correspondence.create', 'correspondence.view']);
+
+        $test = Livewire::test(CreateCorrespondence::class)
+            ->fillForm(['priority' => 'totally-bogus-priority'])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/correspondence/strings.form.validation_priority_enum')],
+            $test->errors()->get('data.priority')
+        );
+    }
+
+    public function test_create_rejects_an_invalid_type_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['correspondence.create', 'correspondence.view']);
+
+        $test = Livewire::test(CreateCorrespondence::class)
+            ->fillForm(['type' => 'totally-bogus-type'])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/correspondence/strings.form.validation_type_in')],
+            $test->errors()->get('data.type')
+        );
+    }
+
+    public function test_create_rejects_a_nonexistent_recipient_id_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['correspondence.create', 'correspondence.view']);
+
+        $test = Livewire::test(CreateCorrespondence::class)
+            ->fillForm(['recipients_to' => [999999]])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/correspondence/strings.form.validation_recipients_to_in')],
+            $test->errors()->get('data.recipients_to.0')
+        );
+    }
+
+    public function test_create_rejects_a_nonexistent_status_id_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['correspondence.create', 'correspondence.view']);
+
+        $test = Livewire::test(CreateCorrespondence::class)
+            ->fillForm(['status_id' => 999999])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/correspondence/strings.form.validation_status_in')],
+            $test->errors()->get('data.status_id')
+        );
+    }
+
     // Create page — reply defaults derived from the ?parent_id query param, read directly off the
     // built field objects (no live Livewire mount needed for a plain ->default() evaluation)
 

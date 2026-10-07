@@ -13,6 +13,9 @@ return [
         'validation_name_required' => 'لطفاً نام مجوز را وارد کنید.',
         'validation_name_max' => 'نام دسترسی نمی‌تواند بیش از ۲۵۵ کاراکتر باشد.',
         'validation_name_unique' => 'این نام مجوز قبلاً ثبت شده است.',
+        'validation_name_regex' => 'نام باید به شکل ماژول.عملیات و تنها با حروف انگلیسی کوچک، عدد و خط زیر نوشته شود (مثلاً purchase_request.view).',
+        'validation_roles_in' => 'لطفاً فقط نقش‌های معتبر را انتخاب کنید.',
+        'validation_users_in' => 'لطفاً فقط کاربران معتبر را انتخاب کنید.',
         'helper_roles' => 'این دسترسی را به نقش‌های مشخصی اعطا کنید.',
         'helper_users' => 'این دسترسی را مستقیماً به کاربران خاص اختصاص دهید.',
     ],
@@ -24,15 +27,30 @@ return [
         'updated_at' => 'آخرین بروزرسانی',
     ],
     'infolist' => [
+        'users' => 'کاربران',
         'name' => 'نام',
         'roles' => 'نقش‌ها',
         'created_at' => 'تاریخ ایجاد',
         'updated_at' => 'آخرین بروزرسانی',
     ],
+    'actions' => [
+        'delete_warning' => 'این دسترسی از :roles نقش و :users کاربر گرفته خواهد شد.',
+    ],
     'filters' => [
         'module' => '🧩 ماژول',
+        'ungranted' => '🚫 واگذار نشده به هیچ‌کس',
+        'ungranted_indicator' => 'واگذار نشده به هیچ‌کس',
     ],
     'grouping' => [
         'module' => ' 🧩 ماژول',
+    ],
+    'export' => [
+        'export_permissions' => 'خروجی گرفتن از مجوزها',
+        'id' => 'شناسه',
+        'name' => 'نام',
+        'roles_count' => 'تعداد نقش‌ها',
+        'users_count' => 'تعداد کاربران',
+        'created_at' => 'تاریخ ایجاد',
+        'updated_at' => 'آخرین بروزرسانی',
     ],
 ];

@@ -19,11 +19,14 @@ return [
         'tables_description' => '⚡ Select one or more resources. The available columns and values will update dynamically based on your choice.',
 
         'validation_notes_max' => 'Please keep your notes to 500 characters or fewer.',
+        'validation_in' => 'Please choose a valid option from the list.',
+        'validation_required' => 'This field is required.',
 
         'helper_notes' => 'Use this space for quick context, but keep it under 500 characters.',
         'helper_actions' => 'Select which database actions trigger this notification.',
         'helper_columns' => 'Trigger notification only when these specific columns change.',
         'helper_column_values' => 'Trigger notification only when columns change to these specific values.',
+        'helper_users' => 'Required. Recipients who will be notified; defaults to you.',
         'helper_notification_type' => 'Choose how recipients are notified. "Both" sends an in-app alert and an email.',
     ],
 
@@ -57,6 +60,8 @@ return [
         'inactive' => 'Inactive',
         'creator' => 'Created By',
         'updater' => 'Updated By',
+        'mine' => 'My Notifications',
+        'mine_indicator' => 'My Notifications',
     ],
 
     'infolist' => [
@@ -77,5 +82,22 @@ return [
         'create' => '🟢 Create',
         'update' => '🟡 Update',
         'delete' => '🔴 Delete',
+    ],
+    'export' => [
+        'export_notification_settings' => 'Export Notification Settings',
+        'id' => 'ID',
+        'tables' => 'Tables',
+        'actions' => 'Actions',
+        'columns' => 'Columns',
+        'users' => 'Recipients',
+        'notification_type' => 'Channel',
+        'is_active' => 'Status',
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+        'notes' => 'Notes',
+        'creator' => 'Created By',
+        'updater' => 'Updated By',
+        'created_at' => 'Created At',
+        'updated_at' => 'Updated At',
     ],
 ];

@@ -693,6 +693,26 @@ class PaymentResourceTest extends TestCase
             ]);
     }
 
+    public function test_create_rejects_a_nonexistent_payor_id_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['payment.create', 'payment.view']);
+        $ro = RegisteredOrder::factory()->create();
+
+        $test = Livewire::test(CreatePayment::class)
+            ->fillForm([
+                'targetable_type' => RegisteredOrder::class,
+                'targetable_id' => $ro->id,
+                'payor_id' => 999999,
+            ])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/payment/strings.form.validation_in')],
+            $test->errors()->get('data.payor_id')
+        );
+    }
+
     public function test_payment_no_is_auto_generated_on_create(): void
     {
         $this->actingAsUserWithPermissions(['payment.create', 'payment.view']);

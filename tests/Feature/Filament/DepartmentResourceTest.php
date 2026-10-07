@@ -173,6 +173,19 @@ class DepartmentResourceTest extends TestCase
         $this->assertTrue($record->fresh()->is_active);
     }
 
+    // Deliberately always visible — a selection-aware ->visible() was tried and reverted 2026-10-07
+
+    public function test_activate_and_deactivate_are_always_visible_regardless_of_selection(): void
+    {
+        $this->actingAsUserWithPermissions(['department.view', 'department.edit']);
+        $active = Department::factory()->create(['is_active' => true]);
+
+        Livewire::test(ManageDepartments::class)
+            ->selectTableRecords([$active])
+            ->assertTableBulkActionVisible('activate')
+            ->assertTableBulkActionVisible('deactivate');
+    }
+
     public function test_activation_bulk_actions_are_hidden_without_the_edit_permission(): void
     {
         $this->actingAsUserWithPermissions(['department.view']);

@@ -102,6 +102,7 @@ trait Form
             ->validationAttribute(__('resources/correspondence/strings.form.priority'))
             ->validationMessages([
                 'required' => __('resources/correspondence/strings.form.validation_required'),
+                'enum' => __('resources/correspondence/strings.form.validation_priority_enum'),
             ])
             ->helperText(__('resources/correspondence/strings.form.helper_priority'));
     }
@@ -137,6 +138,7 @@ trait Form
             ->validationAttribute(__('resources/correspondence/strings.form.recipients_to'))
             ->validationMessages([
                 'required' => __('resources/correspondence/strings.form.validation_required'),
+                '*.in' => __('resources/correspondence/strings.form.validation_recipients_to_in'),
             ]);
     }
 
@@ -149,6 +151,7 @@ trait Form
             ->validationAttribute(__('resources/correspondence/strings.form.status'))
             ->validationMessages([
                 'required' => __('resources/correspondence/strings.form.validation_required'),
+                'in' => __('resources/correspondence/strings.form.validation_status_in'),
             ]), null, fn () => Status::findBy(Correspondence::TYPE_CORRESPONDENCE_STATUS, 'Submitted')?->id);
     }
 
@@ -183,6 +186,7 @@ trait Form
             ->validationAttribute(__('resources/correspondence/strings.form.type'))
             ->validationMessages([
                 'required' => __('resources/correspondence/strings.form.validation_required'),
+                'in' => __('resources/correspondence/strings.form.validation_type_in'),
             ]);
     }
 

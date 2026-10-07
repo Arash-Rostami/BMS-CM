@@ -21,7 +21,7 @@ class NotificationSettingFactory extends Factory
                 'users' => [fake()->numberBetween(1, 100)],
                 'values' => [fake()->word() => fake()->word()],
             ],
-            'notification_type' => fake()->randomElement(['in_app', 'email', 'sms']),
+            'notification_type' => fake()->randomElement(['in_app', 'email', 'all']),
             'notes' => fake()->optional()->sentence(),
             'user_id' => User::factory(),
             'updated_by_id' => null,

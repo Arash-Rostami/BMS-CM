@@ -2,6 +2,7 @@
 
 namespace App\Models\Traits\General;
 
+use App\Services\PermissionLabeler;
 use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -40,11 +41,16 @@ trait ModelInspector
             }
 
             if (defined("$modelClass::SCANNABLE_TABLE")) {
-                $tables[$modelClass::SCANNABLE_TABLE] = ucfirst(Str::snake(class_basename($modelClass), ' '));
+                $tables[$modelClass::SCANNABLE_TABLE] = PermissionLabeler::getEntityLabel($modelClass);
             }
         }
 
         return $tables;
+    }
+
+    public static function getLocalizedTableLabel(string $table): string
+    {
+        return self::getAvailableModels()[$table] ?? Str::headline($table);
     }
 
     public static function getColumnValuesForSelectedColumns(array $columns, array $selectedTables = []): array
@@ -88,7 +94,7 @@ trait ModelInspector
 
             foreach ($selectedColumns as $column) {
                 $bestRelation = self::findBestRelationForColumn($column, $relations);
-                $groupLabel = Str::headline($table).' → '.Str::headline($bestRelation ?? $column);
+                $groupLabel = self::getLocalizedTableLabel($table).' → '.Str::headline($bestRelation ?? $column);
 
                 $hasRelation = $bestRelation && method_exists($model, $bestRelation);
                 $relatedMap = [];
@@ -135,7 +141,7 @@ trait ModelInspector
                 continue;
             }
 
-            $groupLabel = Str::headline($table);
+            $groupLabel = self::getLocalizedTableLabel($table);
             foreach ($tableColumns as $column) {
                 $columns[$groupLabel][$column] = Str::headline($column);
             }

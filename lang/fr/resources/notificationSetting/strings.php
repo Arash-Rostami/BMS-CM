@@ -19,11 +19,14 @@ return [
         'tables_description' => '⚡ Sélectionnez une ou plusieurs ressources. Les colonnes et valeurs disponibles se mettront à jour dynamiquement selon votre choix.',
 
         'validation_notes_max' => 'Veuillez limiter vos notes à 500 caractères maximum.',
+        'validation_in' => 'Veuillez choisir une option valide dans la liste.',
+        'validation_required' => 'Ce champ est obligatoire.',
 
         'helper_notes' => 'Utilisez cet espace pour un contexte rapide, mais gardez-le sous 500 caractères.',
         'helper_actions' => 'Sélectionnez les actions de base de données qui déclenchent cette notification.',
         'helper_columns' => 'Déclencher la notification uniquement lorsque ces colonnes spécifiques changent.',
         'helper_column_values' => 'Déclencher la notification uniquement lorsque les colonnes changent pour ces valeurs spécifiques.',
+        'helper_users' => 'Obligatoire. Utilisateurs qui seront notifiés ; vous par défaut.',
         'helper_notification_type' => 'Choisissez comment les destinataires sont notifiés. « Les deux » envoie une alerte in-app et un e-mail.',
     ],
 
@@ -57,6 +60,8 @@ return [
         'inactive' => 'Inactif',
         'creator' => 'Créé Par',
         'updater' => 'Mis à Jour Par',
+        'mine' => 'Mes notifications',
+        'mine_indicator' => 'Mes notifications',
     ],
 
     'infolist' => [
@@ -77,5 +82,22 @@ return [
         'create' => '🟢 Créer',
         'update' => '🟡 Mettre à jour',
         'delete' => '🔴 Supprimer',
+    ],
+    'export' => [
+        'export_notification_settings' => 'Exporter les notifications',
+        'id' => 'ID',
+        'tables' => 'Tables',
+        'actions' => 'Actions',
+        'columns' => 'Colonnes',
+        'users' => 'Destinataires',
+        'notification_type' => 'Canal',
+        'is_active' => 'Statut',
+        'active' => 'Actif',
+        'inactive' => 'Inactif',
+        'notes' => 'Notes',
+        'creator' => 'Créé par',
+        'updater' => 'Mis à jour par',
+        'created_at' => 'Créé le',
+        'updated_at' => 'Mis à jour le',
     ],
 ];

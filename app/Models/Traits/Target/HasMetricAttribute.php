@@ -9,7 +9,16 @@ trait HasMetricAttribute
     protected function metrics(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => __('resources/general/strings.metrics.'.$value) ?? $value,
+            get: function ($value) {
+                if (! $value) {
+                    return $value;
+                }
+
+                $key = 'resources/general/strings.metrics.'.$value;
+                $label = __($key);
+
+                return $label === $key ? $value : $label;
+            },
             set: function ($value) {
                 if (array_key_exists($value, __('resources/general/strings.metrics'))) {
                     return $value;

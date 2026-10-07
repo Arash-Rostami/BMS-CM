@@ -27,6 +27,16 @@ trait Infolist
             ->placeholder('-');
     }
 
+    public static function viewAchievedPercentage(): TextEntry
+    {
+        return TextEntry::make('achieved_percentage')
+            ->label(__('resources/target/strings.infolist.achieved_percentage'))
+            ->formatStateUsing(fn ($state): string => $state !== null ? $state.'%' : '-')
+            ->badge()
+            ->color(fn ($record): string => $record->achieved_color)
+            ->placeholder('-');
+    }
+
     public static function viewAmount(): TextEntry
     {
         return TextEntry::make('amount')
@@ -128,7 +138,7 @@ trait Infolist
         return TextEntry::make('targetable')
             ->label(__('resources/target/strings.infolist.targetable'))
             ->formatStateUsing(fn ($state, $record = null): string => $record ? $record->targetable_label : '-')
-            ->icon('heroicon-m-bullseye')
+            ->icon('heroicon-m-viewfinder-circle')
             ->placeholder('-');
     }
 

@@ -139,6 +139,7 @@ return [
         'validation_date_after_or_equal' => 'This date must be on or after :date.',
         'validation_unique' => 'This value already exists.',
         'validation_max_length' => 'Please keep this to :max characters or fewer.',
+        'validation_in' => 'The selected value is invalid.',
 
         'helper_commission_input_mode' => '⚡ Smart Entry: Enter the rate, and the amount calculates automatically—or enter the amount to derive the rate.',
         'helper_commission_amount_purchased' => 'Enter the exact commission fee. The percentage is derived automatically and applied to calculations.',

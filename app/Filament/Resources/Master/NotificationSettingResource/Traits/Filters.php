@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Master\NotificationSettingResource\Traits;
 
 use App\Models\NotificationSetting;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -49,6 +50,18 @@ trait Filters
             ->nullable();
     }
 
+    public static function getMineFilter(): Filter
+    {
+        return Filter::make('mine')
+            ->label(__('resources/notificationSetting/strings.filters.mine'))
+            ->indicator(__('resources/notificationSetting/strings.filters.mine_indicator'))
+            ->toggle()
+            ->query(fn ($query) => $query->where(fn ($q) => $q
+                ->where('user_id', auth()->id())
+                ->orWhereJsonContains('settings->users', auth()->id())
+                ->orWhereJsonContains('settings->users', (string) auth()->id())));
+    }
+
     public static function getNotificationChannelFilter(): SelectFilter
     {
         return SelectFilter::make('notification_type')
@@ -69,7 +82,7 @@ trait Filters
                 ->flatten()
                 ->unique()
                 ->sort()
-                ->mapWithKeys(fn ($table) => [$table => $table])
+                ->mapWithKeys(fn ($table) => [$table => NotificationSetting::getLocalizedTableLabel($table)])
             )
             ->query(function ($query, array $data) {
                 if (filled($data['values'])) {

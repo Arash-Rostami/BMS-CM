@@ -48,6 +48,9 @@ trait InvoiceForm
                                     ->live()
                                     ->dehydrated(false)
                                     ->columnSpanFull()
+                                    ->validationMessages([
+                                        'in' => __('resources/shipment/strings.form.validation.in'),
+                                    ])
                                     ->afterStateUpdated(function ($state, Set $set) {
                                         if (! $state) {
                                             return;
@@ -238,10 +241,16 @@ trait InvoiceForm
                                 Select::make('_inv_transport_mode')
                                     ->label(__('resources/shipment/strings.invoice.transport_mode'))
                                     ->options(__('resources/shipment/strings.invoice.transport_options'))
+                                    ->validationMessages([
+                                        'in' => __('resources/shipment/strings.form.validation.in'),
+                                    ])
                                     ->dehydrated(false),
                                 Select::make('_inv_incoterms')
                                     ->label(__('resources/shipment/strings.invoice.incoterms'))
                                     ->options(__('resources/shipment/strings.invoice.incoterms_options'))
+                                    ->validationMessages([
+                                        'in' => __('resources/shipment/strings.form.validation.in'),
+                                    ])
                                     ->dehydrated(false),
                                 TextInput::make('_inv_port_of_loading')
                                     ->label(__('resources/shipment/strings.invoice.port_of_loading'))

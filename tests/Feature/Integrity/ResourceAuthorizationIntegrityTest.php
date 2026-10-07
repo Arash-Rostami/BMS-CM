@@ -46,6 +46,7 @@ class ResourceAuthorizationIntegrityTest extends TestCase
         DB::purge('mysql');
         config(['database.default' => 'mysql']);
     }
+
     private const GUARDED_METHODS = [
         'canViewAny',
         'canView',
@@ -76,6 +77,19 @@ class ResourceAuthorizationIntegrityTest extends TestCase
         'getRestoreAnyAuthorizationResponse',
     ];
 
+    // Resources with a documented, deliberate reason to override one of the GUARDED_METHODS
+    // directly instead of relying solely on HasResourcePermissions — see filamentPattern.md
+    // §1.5 ("Live trap reproduced 2026-10-07") for UserResource (Delete is a hard business
+    // rule, never permission-gated). NotificationSettingResource doesn't need an entry here —
+    // it doesn't compose HasResourcePermissions at all (2026-10-07: deliberately open to every
+    // authenticated user, no Spatie permission; only Delete is restricted, by ownership/
+    // recipient, not by a permission grant), so this check skips it entirely (see below).
+    private const ALLOWED_OVERRIDES = [
+        'App\\Filament\\Resources\\UserResource' => [
+            'canDelete', 'canDeleteAny', 'getDeleteAuthorizationResponse', 'getDeleteAnyAuthorizationResponse',
+        ],
+    ];
+
     public function test_no_resource_overrides_the_shared_permission_trait(): void
     {
         $traitFile = (new ReflectionClass(HasResourcePermissions::class))->getFileName();
@@ -95,6 +109,10 @@ class ResourceAuthorizationIntegrityTest extends TestCase
             $reflection = new ReflectionClass($class);
 
             foreach (self::GUARDED_METHODS as $method) {
+                if (in_array($method, self::ALLOWED_OVERRIDES[$class] ?? [], true)) {
+                    continue;
+                }
+
                 $methodFile = $reflection->getMethod($method)->getFileName();
 
                 if ($methodFile !== $traitFile) {

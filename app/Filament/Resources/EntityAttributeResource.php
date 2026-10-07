@@ -19,6 +19,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -31,6 +32,31 @@ class EntityAttributeResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-puzzle-piece';
 
     protected static ?int $navigationSort = 99;
+
+    public static function getCreateAuthorizationResponse(): Response
+    {
+        return Response::deny();
+    }
+
+    public static function getEditAuthorizationResponse($record): Response
+    {
+        return Response::deny();
+    }
+
+    public static function getUpdateAuthorizationResponse($record): Response
+    {
+        return Response::deny();
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -83,6 +109,7 @@ class EntityAttributeResource extends Resource
     {
         return TableComponents::emptyState($table
             ->columns([
+                static::showId(),
                 static::showEntityType(),
                 static::showEntityId(),
                 static::showKey(),

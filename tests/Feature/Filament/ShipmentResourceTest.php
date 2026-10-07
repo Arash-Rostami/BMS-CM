@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Filament\Actions\ImportAction;
 use App\Filament\Resources\Operational\ShipmentResource\Exports\ShipmentExporter;
 use App\Filament\Resources\Operational\ShipmentResource\Imports\ShipmentImporter;
 use App\Filament\Resources\Operational\ShipmentResource\Pages\CreateShipment;
@@ -22,7 +23,6 @@ use App\Models\Shipment;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\StatusWorkflow;
-use App\Filament\Actions\ImportAction;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Imports\Models\Import;
 use Filament\Actions\Testing\TestAction;
@@ -964,6 +964,21 @@ class ShipmentResourceTest extends TestCase
                 'company_id' => 'required',
                 'part' => 'required',
             ]);
+    }
+
+    public function test_create_rejects_a_nonexistent_registered_order_id_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['shipment.create', 'shipment.view']);
+
+        $test = Livewire::test(CreateShipment::class)
+            ->fillForm(['registered_order_id' => 999999])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/shipment/strings.form.validation.in')],
+            $test->errors()->get('data.registered_order_id')
+        );
     }
 
     public function test_shipment_no_is_auto_generated_on_create(): void

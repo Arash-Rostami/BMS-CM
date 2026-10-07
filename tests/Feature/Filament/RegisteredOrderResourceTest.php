@@ -723,6 +723,21 @@ class RegisteredOrderResourceTest extends TestCase
             ->assertHasFormErrors(['seller_id' => 'different']);
     }
 
+    public function test_create_rejects_a_nonexistent_buyer_id_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['registered_order.create', 'registered_order.view']);
+
+        $test = Livewire::test(CreateRegisteredOrder::class)
+            ->fillForm(['buyer_id' => 999999])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/registeredOrder/strings.form.validation_in', ['attribute' => __('resources/registeredOrder/strings.form.buyer')])],
+            $test->errors()->get('data.buyer_id')
+        );
+    }
+
     // Edit — relationship-bound field only (§3d fillForm() quirk resolved 2026-09-26; plain scalars may be added here again)
 
     public function test_edit_page_loads_existing_values_and_persists_a_status_update(): void

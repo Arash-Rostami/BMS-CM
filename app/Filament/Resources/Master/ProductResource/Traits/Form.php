@@ -258,6 +258,9 @@ trait Form
             ->multiple()
             ->searchable()
             ->options(Lang::get('resources/product/strings.form.licenses'))
+            ->validationMessages([
+                '*.in' => __('resources/product/strings.form.validation_import_licenses_in'),
+            ])
             ->columnSpan(2);
     }
 

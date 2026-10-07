@@ -24,3 +24,7 @@
 11. **Tests** — 31 across the mirrored Resource/Model/Job layers (real dev-MySQL, transaction rollback), incl. activation-gating denial, import auto-code, re-upload update-in-place, column-count pins (4 import / 10 export), filled-example end-to-end, export job notification.
 12. **Docs** — one consolidated sweep: `filamentPattern.md` (master list 12, Department notes), `modelsPattern.md` (trait group counts), `servicesPattern.md` (CodeGenerator 10th map entry), `importsPattern.md` (Department flat-consumer section), `jobsPattern.md` (ExportDepartments), `localizationPattern.md` (word-choice parity + actions.restore), CLAUDE.md (Master list, child-permission rule), `tests/qa-checklist.html` (Department module entry).- On phones, lists now stack into readable cards instead of forcing you to scroll sideways; a new top-bar toggle (visible on desktop-width screens) switches back to the classic table.
 - Exported files are safer to open in Excel — cells that could act as hidden formulas are neutralized before writing.
+
+# Department — 2026-10-07 follow-up
+
+- Tried making the bulk Activate/Deactivate buttons smarter (only show when relevant) — didn't work reliably in the browser, reverted. Both buttons always show, same as before.

@@ -71,6 +71,7 @@ return [
         'validation_max_string' => 'This field must not exceed :max characters',
         'validation_max' => 'Must not exceed :max characters',
         'validation_date' => 'Please enter a valid date',
+        'validation_in' => 'The selected value is invalid.',
         'validation_product_required' => 'Product selection is required',
         'validation_quantity_required' => 'Quantity is required',
         'validation_quantity_numeric' => 'Quantity must be a number',

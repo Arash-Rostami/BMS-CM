@@ -75,6 +75,9 @@ trait Form
             )
             ->searchable(['name', 'english_name'])
             ->preload()
+            ->validationMessages([
+                'in' => __('resources/payment/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/payment/strings.form.bank'));
     }
 
@@ -112,6 +115,7 @@ trait Form
             ->required()
             ->validationMessages([
                 'required' => __('resources/payment/strings.form.validation_required'),
+                'in' => __('resources/payment/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/payment/strings.form.currency'));
     }
@@ -219,6 +223,7 @@ trait Form
             ->live()
             ->validationMessages([
                 'required' => __('resources/payment/strings.form.validation_required'),
+                'in' => __('resources/payment/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/payment/strings.form.payee'));
     }
@@ -284,6 +289,7 @@ trait Form
             ->required()
             ->validationMessages([
                 'required' => __('resources/payment/strings.form.validation_required'),
+                'in' => __('resources/payment/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/payment/strings.form.payor'));
     }
@@ -298,6 +304,7 @@ trait Form
             ->preload()
             ->validationMessages([
                 'required' => __('resources/payment/strings.form.validation_required'),
+                'in' => __('resources/payment/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/payment/strings.form.status'))
             ->helperText(__('resources/payment/strings.form.helper_status')));
@@ -358,11 +365,13 @@ trait Form
                 ->validationAttribute(__('resources/payment/strings.form.targetable'))
                 ->validationMessages([
                     'required' => __('resources/payment/strings.form.validation_required'),
+                    'in' => __('resources/payment/strings.form.validation_in'),
                 ]))
             ->modifyKeySelectUsing(fn (Select $select): Select => $select
                 ->validationAttribute(__('resources/payment/strings.form.targetable'))
                 ->validationMessages([
                     'required' => __('resources/payment/strings.form.validation_required'),
+                    'in' => __('resources/payment/strings.form.validation_in'),
                 ])
                 ->afterStateUpdated(function (Get $get, Set $set, $state): void {
                     if (blank($state) || blank($get('targetable_type'))) {

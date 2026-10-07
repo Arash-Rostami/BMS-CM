@@ -34,6 +34,7 @@ return [
     ],
     'usage_guard' => [
         'blocked' => 'Cet enregistrement est encore référencé par :count autre(s) enregistrement(s) et ne peut pas être supprimé ou désactivé.',
+        'in_use_count' => 'En cours d\'utilisation (enregistrements)',
     ],
     'relevant_module' => [
         'form' => [

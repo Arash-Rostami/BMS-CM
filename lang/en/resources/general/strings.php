@@ -34,6 +34,7 @@ return [
     ],
     'usage_guard' => [
         'blocked' => 'This record is still referenced by :count other record(s) and cannot be deleted or deactivated.',
+        'in_use_count' => 'In Use (Records)',
     ],
     'relevant_module' => [
         'form' => [

@@ -465,6 +465,26 @@ class PurchaseRequestResourceTest extends TestCase
             ->assertHasFormErrors(['cost_center_id' => 'required', 'required_by_date' => 'after']);
     }
 
+    public function test_create_rejects_a_nonexistent_cost_center_id_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['purchase_request.create', 'purchase_request.view']);
+        $status = $this->prStatus('Under Review');
+
+        $test = Livewire::test(CreatePurchaseRequest::class)
+            ->fillForm([
+                'status_id' => $status->id,
+                'cost_center_id' => 999999,
+                'urgency_level' => 'low',
+            ])
+            ->call('create');
+
+        $this->assertSame(
+            [__('resources/purchaseRequest/strings.form.validation_in')],
+            $test->errors()->get('data.cost_center_id')
+        );
+    }
+
     public function test_create_requires_at_least_one_item(): void
     {
         $this->actingAsUserWithPermissions(['purchase_request.create', 'purchase_request.view']);

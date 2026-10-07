@@ -47,6 +47,10 @@ return [
 
         'validation_required' => 'Le champ :attribute est requis.',
         'validation_subject_max' => 'Le sujet ne doit pas dépasser 255 caractères.',
+        'validation_priority_enum' => 'Veuillez choisir une priorité valide.',
+        'validation_type_in' => 'Veuillez choisir un type valide.',
+        'validation_recipients_to_in' => 'Veuillez choisir uniquement des destinataires valides.',
+        'validation_status_in' => 'Veuillez choisir un statut valide.',
         'helper_priority' => 'Définissez l\'urgence de ce message. Une priorité élevée alerte les destinataires.',
 
         'reply_prefix' => 'Re : ',

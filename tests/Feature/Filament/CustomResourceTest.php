@@ -534,6 +534,24 @@ class CustomResourceTest extends TestCase
             ->assertDontSee('The selected');
     }
 
+    public function test_an_invalid_clearance_type_shows_the_translated_message_not_the_raw_laravel_one(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['custom.create', 'custom.view']);
+        $shipment = Shipment::factory()->create();
+
+        Livewire::test(CreateCustom::class)
+            ->fillForm([
+                'shipment_id' => $shipment->id,
+                'registered_order_id' => $shipment->registered_order_id,
+                'clearance_type' => 'totally-bogus-clearance-type',
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['clearance_type' => 'in'])
+            ->assertSee(__('resources/custom/strings.form.validation_exists'))
+            ->assertDontSee('The selected');
+    }
+
     public function test_creating_from_a_shipment_query_param_prefills_custom_no_shipment_and_clearance_status(): void
     {
         $this->actingAsUserWithPermissions(['custom.create', 'custom.view']);

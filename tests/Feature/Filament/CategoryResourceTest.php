@@ -262,6 +262,29 @@ class CategoryResourceTest extends TestCase
             ->assertHasActionErrors(['english_name']);
     }
 
+    // Validation messages — no raw-English leak in fa
+
+    public function test_create_action_rejects_a_nonexistent_parent_id_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['category.view', 'category.create']);
+
+        $test = Livewire::test(ManageCategories::class)
+            ->mountAction('create')
+            ->fillForm([
+                'name' => 'آزمایشی '.random_int(1000, 9999),
+                'english_name' => 'ParentInvalid'.random_int(1000, 9999),
+                'level' => 0,
+                'parent_id' => 999999,
+            ])
+            ->callMountedAction();
+
+        $this->assertSame(
+            [__('resources/category/strings.form.validation_parent_in')],
+            $test->errors()->get('mountedActions.0.data.parent_id')
+        );
+    }
+
     // Edit — re-parenting syncs the closure table, cycle rejected
 
     public function test_edit_action_reparents_a_category_and_syncs_the_closure_table(): void
@@ -381,6 +404,21 @@ class CategoryResourceTest extends TestCase
 
         $this->assertNull(Category::find($one->id));
         $this->assertNull(Category::find($two->id));
+    }
+
+    // Products-count column
+
+    public function test_products_count_column_shows_how_many_products_belong_to_the_category(): void
+    {
+        $this->actingAsUserWithPermissions(['category.view']);
+
+        $used = Category::factory()->create();
+        Product::factory()->count(2)->create(['category_id' => $used->id]);
+        $empty = Category::factory()->create();
+
+        Livewire::test(ManageCategories::class)
+            ->assertTableColumnStateSet('products_count', 2, $used)
+            ->assertTableColumnStateSet('products_count', 0, $empty);
     }
 
     // Soft delete / restore lifecycle

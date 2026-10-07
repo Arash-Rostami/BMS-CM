@@ -66,6 +66,41 @@ class TargetModelTest extends TestCase
         $this->assertSame('cubits', $unknown->getAttributes()['metrics']);
     }
 
+    // achievement progress
+
+    public function test_achieved_percentage_prefers_quantity_then_amount_and_guards_zero_and_null(): void
+    {
+        $byQuantity = new Target(['quantity' => 200, 'achieved_quantity' => 50, 'amount' => 10, 'achieved_amount' => 10]);
+        $this->assertSame(25.0, $byQuantity->achieved_percentage);
+        $this->assertSame('danger', $byQuantity->achieved_color);
+
+        $byAmount = new Target(['quantity' => 0, 'amount' => 100, 'achieved_amount' => 75]);
+        $this->assertSame(75.0, $byAmount->achieved_percentage);
+        $this->assertSame('warning', $byAmount->achieved_color);
+
+        $done = new Target(['quantity' => 10, 'achieved_quantity' => 12]);
+        $this->assertSame(120.0, $done->achieved_percentage);
+        $this->assertSame('success', $done->achieved_color);
+
+        $noAchieved = new Target(['quantity' => 10]);
+        $this->assertSame(0.0, $noAchieved->achieved_percentage);
+
+        $noGoal = new Target(['quantity' => 0, 'amount' => null, 'achieved_amount' => 5]);
+        $this->assertNull($noGoal->achieved_percentage);
+        $this->assertSame('gray', $noGoal->achieved_color);
+    }
+
+    public function test_ended_still_active_uses_the_today_boundary(): void
+    {
+        $yesterday = new Target(['status' => 'active', 'end_in' => today()->subDay()]);
+        $today = new Target(['status' => 'active', 'end_in' => today()]);
+        $inactive = new Target(['status' => 'inactive', 'end_in' => today()->subDay()]);
+
+        $this->assertTrue($yesterday->ended_still_active);
+        $this->assertFalse($today->ended_still_active);
+        $this->assertFalse($inactive->ended_still_active);
+    }
+
     // year accessor
 
     public function test_year_stays_gregorian_outside_the_fa_locale(): void

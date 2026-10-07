@@ -16,6 +16,7 @@ return [
         'updated_at' => 'Updated At',
     ],
     'table' => [
+        'id' => 'ID',
         'entity_type' => 'Entity',
         'entity_id' => 'Record ID',
         'key' => 'Key',

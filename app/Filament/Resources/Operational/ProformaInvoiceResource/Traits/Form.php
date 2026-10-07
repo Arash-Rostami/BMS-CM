@@ -35,6 +35,9 @@ trait Form
             ->label(__('resources/proformaInvoice/strings.form.beneficiary_country'))
             ->options(fn () => (new Country)->getCountriesList())
             ->searchable()
+            ->validationMessages([
+                'in' => __('resources/proformaInvoice/strings.form.validation_select_invalid'),
+            ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.beneficiary_country'))
             ->helperText(__('resources/proformaInvoice/strings.form.helper_beneficiary_country'));
     }
@@ -65,6 +68,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/proformaInvoice/strings.form.validation_buyer_company_required'),
                 'exists' => __('resources/proformaInvoice/strings.form.validation_buyer_company_exists'),
+                'in' => __('resources/proformaInvoice/strings.form.validation_buyer_company_exists'),
                 'different' => __('resources/proformaInvoice/strings.form.validation_buyer_company_different'),
             ])
             ->helperText(__('resources/proformaInvoice/strings.form.helper_buyer_company'))
@@ -88,6 +92,9 @@ trait Form
         return Select::make('delivery_terms')
             ->label(__('resources/proformaInvoice/strings.form.delivery_terms'))
             ->options(__('resources/proformaInvoice/strings.general.delivery_terms'))
+            ->validationMessages([
+                'in' => __('resources/proformaInvoice/strings.form.validation_select_invalid'),
+            ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.delivery_terms'))
             ->helperText(__('resources/proformaInvoice/strings.form.helper_delivery_terms'));
     }
@@ -98,6 +105,9 @@ trait Form
             ->label(__('resources/proformaInvoice/strings.form.destination_country'))
             ->options(fn () => (new Country)->getCountriesList())
             ->searchable()
+            ->validationMessages([
+                'in' => __('resources/proformaInvoice/strings.form.validation_select_invalid'),
+            ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.destination_country'));
     }
 
@@ -275,6 +285,9 @@ trait Form
             ->options(fn () => (new Country)->getCountriesList())
             ->placeholder('')
             ->searchable()
+            ->validationMessages([
+                'in' => __('resources/proformaInvoice/strings.form.validation_select_invalid'),
+            ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.origin'));
     }
 
@@ -295,6 +308,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/proformaInvoice/strings.form.validation_product_required'),
                 'exists' => __('resources/proformaInvoice/strings.form.validation_product_exists'),
+                'in' => __('resources/proformaInvoice/strings.form.validation_product_exists'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.product'));
     }
@@ -337,6 +351,7 @@ trait Form
             ->columnSpan(1)
             ->validationMessages([
                 'required' => __('resources/proformaInvoice/strings.form.validation_unit_required'),
+                'in' => __('resources/proformaInvoice/strings.form.validation_unit_in'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.unit'));
     }
@@ -374,6 +389,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/proformaInvoice/strings.form.validation_main_currency_required'),
                 'exists' => __('resources/proformaInvoice/strings.form.validation_main_currency_exists'),
+                'in' => __('resources/proformaInvoice/strings.form.validation_main_currency_exists'),
                 'different' => __('resources/proformaInvoice/strings.form.validation_main_currency_different'),
             ])
             ->helperText(__('resources/proformaInvoice/strings.form.helper_main_currency'))
@@ -394,6 +410,9 @@ trait Form
             ->label(__('resources/proformaInvoice/strings.form.origin_country'))
             ->options(fn () => (new Country)->getCountriesList())
             ->searchable()
+            ->validationMessages([
+                'in' => __('resources/proformaInvoice/strings.form.validation_select_invalid'),
+            ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.origin_country'));
     }
 
@@ -456,6 +475,9 @@ trait Form
                 self::updateTotalAmount($get, $set);
             })
             ->visible(fn (Get $get): bool => $get('source_type') === 'po' || filled($get('purchaseOrders')))
+            ->validationMessages([
+                '*.in' => __('resources/proformaInvoice/strings.form.validation_select_invalid'),
+            ])
             ->validationAttribute(__('resources/general/strings.relevant_module.form.purchase_orders'));
     }
 
@@ -477,6 +499,9 @@ trait Form
                 self::updateTotalAmount($get, $set);
             })
             ->visible(fn (Get $get): bool => $get('source_type') === 'pr' || filled($get('purchaseRequests')))
+            ->validationMessages([
+                '*.in' => __('resources/proformaInvoice/strings.form.validation_select_invalid'),
+            ])
             ->validationAttribute(__('resources/general/strings.relevant_module.form.purchase_requests'));
     }
 
@@ -498,6 +523,9 @@ trait Form
                 self::updateTotalAmount($get, $set);
             })
             ->visible(fn (Get $get): bool => $get('source_type') === 'ro' || filled($get('registeredOrders')))
+            ->validationMessages([
+                '*.in' => __('resources/proformaInvoice/strings.form.validation_select_invalid'),
+            ])
             ->validationAttribute(__('resources/general/strings.relevant_module.form.registered_orders'));
     }
 
@@ -511,6 +539,7 @@ trait Form
             ->rules(['nullable', 'exists:currencies,id'])
             ->validationMessages([
                 'exists' => __('resources/proformaInvoice/strings.form.validation_secondary_currency_exists'),
+                'in' => __('resources/proformaInvoice/strings.form.validation_secondary_currency_exists'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.secondary_currency'));
     }
@@ -528,6 +557,7 @@ trait Form
             ->validationMessages([
                 'required' => __('resources/proformaInvoice/strings.form.validation_seller_company_required'),
                 'exists' => __('resources/proformaInvoice/strings.form.validation_seller_company_exists'),
+                'in' => __('resources/proformaInvoice/strings.form.validation_seller_company_exists'),
                 'different' => __('resources/proformaInvoice/strings.form.validation_seller_company_different'),
             ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.seller_company'));
@@ -546,6 +576,9 @@ trait Form
             ->columnSpanFull()
             ->default(null)
             ->live()
+            ->validationMessages([
+                'in' => __('resources/proformaInvoice/strings.form.validation_select_invalid'),
+            ])
             ->afterStateHydrated(function (Set $set, Get $get, ?Model $record) {
                 if (filled($get('source_type'))) {
                     return;
@@ -572,6 +605,9 @@ trait Form
         return Select::make('transport_mode')
             ->label(__('resources/proformaInvoice/strings.form.transport_mode'))
             ->options(__('resources/proformaInvoice/strings.general.transport_modes'))
+            ->validationMessages([
+                'in' => __('resources/proformaInvoice/strings.form.validation_select_invalid'),
+            ])
             ->validationAttribute(__('resources/proformaInvoice/strings.form.transport_mode'));
     }
 

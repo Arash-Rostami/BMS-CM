@@ -19,6 +19,21 @@ trait Setting
         return $this->settings['columns'] ?? [];
     }
 
+    public function getLocalizedActions(): array
+    {
+        return collect($this->getActions())->map(fn ($action) => match ($action) {
+            'create' => __('resources/notificationSetting/strings.action_types.create'),
+            'update' => __('resources/notificationSetting/strings.action_types.update'),
+            'delete' => __('resources/notificationSetting/strings.action_types.delete'),
+            default => $action,
+        })->all();
+    }
+
+    public function getLocalizedTables(): array
+    {
+        return array_map(fn ($table) => static::getLocalizedTableLabel($table), $this->getTables());
+    }
+
     public function getTables(): array
     {
         return $this->settings['tables'] ?? [];

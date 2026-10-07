@@ -104,6 +104,7 @@ return [
         'validation_min_numeric_zero' => 'This field cannot be negative.',
         'validation_string' => 'This field must be a string.',
         'validation_date' => 'Please enter a valid date.',
+        'validation_in' => 'The selected value is invalid.',
         'helper_po_number' => 'This number is auto-generated and locked to maintain system integrity.',
         'helper_expected_delivery_date' => 'Pick a date on or after the order date, as the supplier counts the lead time from there.',
         'helper_validity_date' => 'This is the last day the agreed prices and terms stay valid before they may need renegotiating.',

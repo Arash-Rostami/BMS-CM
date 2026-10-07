@@ -37,6 +37,9 @@ trait Form
             ->relationship('approver', 'name')
             ->getOptionLabelFromRecordUsing(fn (User $record) => $record->name ?? '--')
             ->disabled()
+            ->validationMessages([
+                'in' => __('resources/purchaseRequest/strings.form.validation_in'),
+            ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.approver'));
 
     }
@@ -61,6 +64,7 @@ trait Form
             ->required()
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_cost_center_required'),
+                'in' => __('resources/purchaseRequest/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.cost_center'));
 
@@ -133,6 +137,7 @@ trait Form
                 ->toArray()))
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_product_required'),
+                'in' => __('resources/purchaseRequest/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.product'));
     }
@@ -172,6 +177,7 @@ trait Form
             ->required()
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_status_required'),
+                'in' => __('resources/purchaseRequest/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.status'));
     }
@@ -187,6 +193,7 @@ trait Form
             ->required(fn (?Model $record): bool => ! $record || filled($record->unit))
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_unit_required'),
+                'in' => __('resources/purchaseRequest/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/target/strings.form.metrics'));
     }
@@ -261,6 +268,7 @@ trait Form
             ->label(__('resources/purchaseRequest/strings.form.status'))
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_status_required'),
+                'in' => __('resources/purchaseRequest/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.status')));
     }
@@ -282,6 +290,7 @@ trait Form
             ->required()
             ->validationMessages([
                 'required' => __('resources/purchaseRequest/strings.form.validation_urgency_required'),
+                'in' => __('resources/purchaseRequest/strings.form.validation_in'),
             ])
             ->validationAttribute(__('resources/purchaseRequest/strings.form.urgency_level'))
             ->helperText(__('resources/purchaseRequest/strings.form.helper_urgency_level'));

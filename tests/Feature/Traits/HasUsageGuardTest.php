@@ -7,23 +7,25 @@ use App\Models\Bank;
 use App\Models\BankProfile;
 use App\Models\Payment;
 use Filament\Actions\Action;
-use Illuminate\Database\Eloquent\Collection;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Support\Exceptions\Halt;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use ReflectionProperty;
 use Tests\TestCase;
 
 /**
  * App\Filament\Traits\HasUsageGuard's unit contract: usageCount() sums the
- * composing resource's declared usageRelations(), and both guarded before
+ * composing resource's declared usageRelations(), both guarded before
  * hooks (record + bulk) send the blocked-notification and halt on in-use
- * records — the bulk hook sums usage across the whole selection.
+ * records — the bulk hook sums usage across the whole selection — and
+ * getInUseCountColumn() builds the shared usage-count badge column.
  * The Livewire-level delete/deactivate behavior (halted notification, unused
- * delete succeeding) is already covered per-resource in BankResourceTest,
- * CompanyResourceTest and CurrencyResourceTest — only the trait contract is
- * pinned here, through the real BankResource wiring.
+ * delete succeeding) and the badge's per-row numeric state are already
+ * covered per-resource in BankResourceTest, CompanyResourceTest and
+ * CurrencyResourceTest — only the trait contract is pinned here, through
+ * the real BankResource wiring.
  */
 class HasUsageGuardTest extends TestCase
 {
@@ -75,6 +77,16 @@ class HasUsageGuardTest extends TestCase
         Payment::factory()->create(['bank_id' => $bank->id]);
 
         $this->assertSame(3, BankResource::usageCount($bank), 'usageCount must sum every declared relation, not just the first that has rows.');
+    }
+
+    public function test_in_use_count_column_is_a_warning_badge_gray_only_when_unused(): void
+    {
+        $column = BankResource::getInUseCountColumn();
+
+        $this->assertTrue($column->isBadge());
+        $this->assertSame('heroicon-o-link', $column->getIcon(null));
+        $this->assertSame('gray', $column->getColor(0));
+        $this->assertSame('warning', $column->getColor(2));
     }
 
     public function test_guarded_record_action_halts_with_the_blocked_notification_when_the_record_is_in_use(): void

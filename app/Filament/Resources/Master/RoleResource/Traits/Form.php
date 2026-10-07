@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Master\RoleResource\Traits;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Services\PermissionLabeler;
+use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -57,6 +58,7 @@ trait Form
             ->helperText(__('resources/role/strings.form.helper_grade'))
             ->validationMessages([
                 'required' => __('resources/role/strings.form.validation_grade_required'),
+                'in' => __('resources/role/strings.form.validation_grade_in'),
             ]);
     }
 
@@ -70,6 +72,16 @@ trait Form
             ->searchable()
             ->columnSpanFull()
             ->helperText(__('resources/role/strings.form.helper_modules'))
+            ->rules([
+                fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                    if (empty($value) && ! $get('select_all')) {
+                        $fail(__('resources/role/strings.form.validation_modules_required'));
+                    }
+                },
+            ])
+            ->validationMessages([
+                '*.in' => __('resources/role/strings.form.validation_modules_in'),
+            ])
             ->afterStateHydrated(function (Set $set, $record) {
                 if (! $record) {
                     return;
@@ -132,6 +144,9 @@ trait Form
             ->live()
             ->searchable()
             ->disabled(fn (Get $get) => empty($get('modules')) && ! $get('select_all'))
+            ->validationMessages([
+                '*.in' => __('resources/role/strings.form.validation_permissions_in'),
+            ])
             ->afterStateUpdated(function (Set $set, Get $get, ?array $state) {
                 $state ??= [];
 

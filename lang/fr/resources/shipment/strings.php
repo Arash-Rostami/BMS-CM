@@ -94,6 +94,7 @@ return [
             'date' => 'Veuillez saisir une date valide ici.',
             'min_numeric_zero' => 'Cette valeur ne peut pas être négative.',
             'max' => 'Veuillez limiter cette valeur à 255 caractères ou moins.',
+            'in' => "La valeur sélectionnée n'est pas valide.",
         ],
         'helper_status' => 'Statut logistique global de l\'expédition.',
         'bl_number_duplicate_warning' => 'Une autre expédition utilise déjà ce numéro de BL — cela peut être normal si plusieurs expéditions partagent une même réservation transporteur.',

@@ -22,7 +22,7 @@ return [
     ],
     'import' => [
         'import_companies' => 'Importer les Entreprises',
-        'english_name_required' => "Le nom anglais est requis pour importer une nouvelle entreprise.",
+        'english_name_required' => 'Le nom anglais est requis pour importer une nouvelle entreprise.',
         'duplicate_company' => 'Une entreprise portant le nom anglais ":name" existe déjà.',
         'invalid_type_dropped' => 'Le type d\'entreprise non reconnu ":value" a été ignoré lors de l\'import.',
     ],
@@ -53,6 +53,7 @@ return [
         'helper_english_name' => 'Utilisez le nom anglais officiel, tel qu\'il apparaît sur les rapports et les documents partagés.',
         'helper_description' => 'Ajoutez des notes supplémentaires ou des détails sur cette entreprise.',
         'validation_description_max' => 'La description ne doit pas dépasser 65535 caractères.',
+        'validation_company_types_in' => 'Veuillez choisir uniquement des types de société valides.',
     ],
     'table' => [
         'name' => 'Nom (Persan)',

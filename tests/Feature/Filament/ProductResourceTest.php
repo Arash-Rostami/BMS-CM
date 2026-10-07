@@ -227,6 +227,31 @@ class ProductResourceTest extends TestCase
             ->assertCanNotSeeTableRecords([$other]);
     }
 
+    // Validation messages — no raw-English leak in fa (multi-value Select nested inside a Repeater)
+
+    public function test_create_rejects_an_invalid_import_license_with_translated_message(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['product.view', 'product.create']);
+
+        $test = Livewire::test(ManageProducts::class)
+            ->mountAction('create')
+            ->fillForm([
+                'chain_complete' => true,
+                'confirmed_create' => true,
+                'code' => 'PROBE-CODE-'.uniqid(),
+                'specifications' => [
+                    ['import_licenses' => ['totally-bogus-license']],
+                ],
+            ])
+            ->callMountedAction();
+
+        $this->assertSame(
+            [__('resources/product/strings.form.validation_import_licenses_in')],
+            $test->errors()->get('mountedActions.0.data.specifications.0.import_licenses.0')
+        );
+    }
+
     // Filters
 
     public function test_active_filter_narrows_the_table(): void

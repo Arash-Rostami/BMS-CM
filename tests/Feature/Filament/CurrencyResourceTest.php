@@ -383,7 +383,7 @@ class CurrencyResourceTest extends TestCase
 
     // In-use column
 
-    public function test_in_use_column_reflects_whether_the_currency_is_referenced(): void
+    public function test_in_use_count_column_shows_how_many_records_reference_the_currency(): void
     {
         $this->actingAsUserWithPermissions(['currency.view']);
 
@@ -392,8 +392,8 @@ class CurrencyResourceTest extends TestCase
         $unused = Currency::factory()->create();
 
         Livewire::test(ManageCurrencies::class)
-            ->assertTableColumnStateSet('in_use', true, $used)
-            ->assertTableColumnStateSet('in_use', false, $unused);
+            ->assertTableColumnStateSet('in_use_count', 1, $used)
+            ->assertTableColumnStateSet('in_use_count', 0, $unused);
     }
 
     // Global search contract

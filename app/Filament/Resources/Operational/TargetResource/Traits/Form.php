@@ -5,7 +5,10 @@ namespace App\Filament\Resources\Operational\TargetResource\Traits;
 use App\Filament\Resources\Operational\TargetResource\Enums\Status as TargetStatus;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Target;
 use App\Services\PersianCalendar;
+use Carbon\Carbon;
+use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;
@@ -14,6 +17,11 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Morilog\Jalali\Jalalian;
 
 trait Form
 {
@@ -78,6 +86,7 @@ trait Form
             ->native(false)
             ->required()
             ->after('start_from')
+            ->rule(static::getNoActiveOverlapRule())
             ->validationAttribute(__('resources/target/strings.form.end_in'))
             ->validationMessages([
                 'required' => __('resources/target/strings.form.validation_required'),
@@ -134,6 +143,7 @@ trait Form
             ->validationAttribute(__('resources/target/strings.form.status'))
             ->validationMessages([
                 'required' => __('resources/target/strings.form.validation_required'),
+                'in' => __('resources/target/strings.form.validation_status_in'),
             ])
             ->inline();
     }
@@ -167,11 +177,13 @@ trait Form
                 ->validationAttribute(__('resources/target/strings.form.targetable'))
                 ->validationMessages([
                     'required' => __('resources/target/strings.form.validation_required'),
+                    'in' => __('resources/target/strings.form.validation_targetable_in'),
                 ]))
             ->modifyKeySelectUsing(fn (Select $select): Select => $select
                 ->validationAttribute(__('resources/target/strings.form.targetable'))
                 ->validationMessages([
                     'required' => __('resources/target/strings.form.validation_required'),
+                    'in' => __('resources/target/strings.form.validation_targetable_in'),
                 ]));
     }
 
@@ -184,9 +196,60 @@ trait Form
             ->options($calendar->yearOptions(1, 5))
             ->searchable()
             ->required()
+            ->live()
+            ->afterStateUpdated(function ($state, Select $component, Get $get, Set $set): void {
+                if (! array_key_exists($state, $component->getOptions()) || filled($get('start_from')) || filled($get('end_in'))) {
+                    return;
+                }
+
+                [$start, $end] = static::getYearBounds((int) $state);
+                $set('start_from', $start->toDateString());
+                $set('end_in', $end->toDateString());
+            })
             ->validationAttribute(__('resources/target/strings.form.year'))
             ->validationMessages([
                 'required' => __('resources/target/strings.form.validation_required'),
+                'in' => __('resources/target/strings.form.validation_year_in'),
             ]);
+    }
+
+    public static function getYearBounds(int $year): array
+    {
+        if (! app()->isLocale('fa')) {
+            return [Carbon::create($year, 1, 1), Carbon::create($year, 12, 31)];
+        }
+
+        $jalaliYear = Jalalian::fromCarbon(Carbon::create($year, 3, 21))->getYear();
+
+        return [
+            (new Jalalian($jalaliYear, 1, 1))->toCarbon(),
+            (new Jalalian($jalaliYear + 1, 1, 1))->toCarbon()->subDay(),
+        ];
+    }
+
+    public static function activeOverlapQuery(?string $type, mixed $id, mixed $start, mixed $end, ?Model $record = null): Builder
+    {
+        return Target::query()
+            ->where('status', TargetStatus::Active->value)
+            ->where('targetable_type', $type)
+            ->where('targetable_id', $id)
+            ->where('start_from', '<=', $end)
+            ->where('end_in', '>=', $start)
+            ->when($record, fn ($query) => $query->whereKeyNot($record->getKey()));
+    }
+
+    public static function getNoActiveOverlapRule(): Closure
+    {
+        return fn (Get $get, ?Model $record): Closure => function (string $attribute, $value, Closure $fail) use ($get, $record): void {
+            if ($get('status') !== TargetStatus::Active->value || blank($get('targetable_id')) || blank($get('start_from'))) {
+                return;
+            }
+
+            $overlaps = static::activeOverlapQuery($get('targetable_type'), $get('targetable_id'), $get('start_from'), $value, $record)->exists();
+
+            if ($overlaps) {
+                $fail(__('resources/target/strings.form.validation_end_in_overlap'));
+            }
+        };
     }
 }

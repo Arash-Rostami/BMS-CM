@@ -99,6 +99,9 @@ trait Form
             ->searchable()
             ->preload()
             ->live()
+            ->validationMessages([
+                'in' => __('resources/custom/strings.form.validation_exists'),
+            ])
             ->helperText(__('resources/custom/strings.form.helper_clearance_type'));
     }
 

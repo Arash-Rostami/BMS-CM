@@ -50,7 +50,6 @@ return [
         'is_active' => 'Statut',
         'only_active' => 'Seulement actifs',
         'only_inactive' => 'Seulement inactifs',
-        'in_use' => 'Utilisée',
         'creator' => 'Créé par',
         'updater' => 'Dernière mise à jour par',
         'created_at' => 'Date de création',

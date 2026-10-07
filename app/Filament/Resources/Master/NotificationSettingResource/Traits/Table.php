@@ -2,25 +2,41 @@
 
 namespace App\Filament\Resources\Master\NotificationSettingResource\Traits;
 
+use App\Jobs\ExportNotificationSettings;
 use App\Models\NotificationSetting;
+use App\Models\User;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Illuminate\Support\Collection;
 
 trait Table
 {
+    public static function getExportBulkAction(): BulkAction
+    {
+        return BulkAction::make('exportNotificationSettings')
+            ->label(__('resources/notificationSetting/strings.export.export_notification_settings'))
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize(fn (): bool => static::canViewAny())
+            ->action(function (Collection $records): void {
+                ExportNotificationSettings::dispatch($records->pluck('id')->all(), auth()->id(), app()->getLocale());
+
+                Notification::make()
+                    ->title(__('resources/general/strings.export.started'))
+                    ->info()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
     public static function showActions(): TextColumn
     {
         return TextColumn::make('settings.actions')
             ->label(__('resources/notificationSetting/strings.table.actions'))
             ->badge()
             ->listWithLineBreaks()
-            ->getStateUsing(fn ($record) => collect($record->getActions())
-                ->map(fn ($action) => match ($action) {
-                    'create' => __('resources/notificationSetting/strings.action_types.create'),
-                    'update' => __('resources/notificationSetting/strings.action_types.update'),
-                    'delete' => __('resources/notificationSetting/strings.action_types.delete'),
-                    default => $action,
-                })->all())
+            ->getStateUsing(fn ($record) => $record->getLocalizedActions())
             ->sortable()
             ->searchable()
             ->toggleable(isToggledHiddenByDefault: false);
@@ -95,16 +111,32 @@ trait Table
     {
         return TextColumn::make('recipient.*.name')
             ->label(__('resources/notificationSetting/strings.table.users'))
-            ->sortable()
             ->badge()
             ->listWithLineBreaks()
+            ->getStateUsing(function ($record) {
+                $names = static::recipientNames();
+
+                return collect($record->getUsers())->map(fn ($id) => $names[$id] ?? null)->filter()->values()->all();
+            })
             ->toggleable(isToggledHiddenByDefault: false);
+    }
+
+    protected static function recipientNames(): array
+    {
+        $attributes = request()->attributes;
+
+        if (! $attributes->has('notification_setting.recipient_names')) {
+            $attributes->set('notification_setting.recipient_names', User::pluck('name', 'id')->all());
+        }
+
+        return $attributes->get('notification_setting.recipient_names');
     }
 
     public static function showTable(): TextColumn
     {
         return TextColumn::make('settings.tables')
             ->label(__('resources/notificationSetting/strings.table.tables'))
+            ->getStateUsing(fn ($record) => $record->getLocalizedTables())
             ->sortable()
             ->badge()
             ->listWithLineBreaks()
