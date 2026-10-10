@@ -22,7 +22,7 @@
             {{ $distinguishing['section_note'] }}
         </p>
 
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-10">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10">
             @foreach ($distinguishing['groups'] as $group)
                 <div class="lp-surface p-4 flex flex-col">
                     <span class="inline-block self-start text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded mb-2.5"

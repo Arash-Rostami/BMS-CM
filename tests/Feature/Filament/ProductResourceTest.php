@@ -483,9 +483,9 @@ class ProductResourceTest extends TestCase
         $this->assertStringContainsString('Global Search Product', $title);
     }
 
-    public function test_globally_searchable_attributes_are_both_name_columns(): void
+    public function test_globally_searchable_attributes_are_both_name_columns_and_the_code(): void
     {
-        $this->assertSame(['name', 'english_name'], ProductResource::getGloballySearchableAttributes());
+        $this->assertEqualsCanonicalizing(['name', 'english_name', 'code'], ProductResource::getGloballySearchableAttributes());
     }
 
     // Exporter

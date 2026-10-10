@@ -17,7 +17,7 @@ trait Infolist
     {
         return TextEntry::make('allocation_date')
             ->label(__('resources/bankProfile/strings.form.allocation_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -67,7 +67,7 @@ trait Infolist
     {
         return TextEntry::make('commitment_payment_date')
             ->label(__('resources/bankProfile/strings.form.commitment_payment_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -76,7 +76,7 @@ trait Infolist
     {
         return TextEntry::make('payment_due_date')
             ->label(__('resources/bankProfile/strings.form.payment_due_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-clock')
             ->placeholder('-');
     }
@@ -147,7 +147,7 @@ trait Infolist
     {
         return TextEntry::make('creation_date')
             ->label(__('resources/bankProfile/strings.form.creation_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -173,7 +173,7 @@ trait Infolist
     {
         return TextEntry::make('delivery_date')
             ->label(__('resources/bankProfile/strings.form.delivery_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -256,7 +256,7 @@ trait Infolist
     {
         return TextEntry::make('purchase_date')
             ->label(__('resources/bankProfile/strings.form.purchase_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }

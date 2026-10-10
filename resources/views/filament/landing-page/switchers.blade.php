@@ -4,7 +4,16 @@
     $iconClass = 'w-4.5 h-4.5 sm:w-5 sm:h-5';
 @endphp
 
-<div class="fixed top-4 sm:top-6 {{ $side }}-4 sm:{{ $side }}-6 z-50 flex flex-col gap-1.5">
+<div x-show="isWide || panelOpen"
+     x-cloak
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0 translate-y-3"
+     x-transition:enter-end="opacity-100 translate-y-0"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100 translate-y-0"
+     x-transition:leave-end="opacity-0 translate-y-3"
+     class="fixed flex gap-1.5"
+     :class="isWide ? 'top-4 sm:top-6 {{ $side }}-4 sm:{{ $side }}-6 z-50 flex-col' : 'bottom-5 end-20 z-[80] lp-dock'">
     <div x-data="{ open: false }" class="relative">
         <button @click="open = !open" class="{{ $btnClass }}">
             <svg class="{{ $iconClass }}" :class="darkMode ? 'text-primary-400' : 'text-primary-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,7 +27,7 @@
              x-transition:leave="transition ease-in duration-100"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
-             class="absolute {{ $side }}-0 mt-2 lp-surface rounded-lg overflow-hidden min-w-[64px] z-50">
+             class="absolute {{ $side }}-0 mt-2 lp-float rounded-lg overflow-hidden min-w-[64px] z-50">
             @foreach($locales as $l)
                 <a href="?locale={{ $l['code'] }}"
                    class="lp-surface-hover cursor-pointer flex items-center justify-center p-3 transition-colors duration-150 {{ $locale === $l['code'] ? 'bg-primary-50 dark:bg-primary-400/10' : '' }}"
@@ -40,7 +49,7 @@
 
     <form method="POST" action="{{ filament()->getLogoutUrl() }}">
         @csrf
-        <button type="submit" class="{{ $btnClass }} w-full">
+        <button type="submit" class="{{ $btnClass }}">
             <svg class="{{ $iconClass }} text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
@@ -55,3 +64,11 @@
 
     @include('filament.partials.theme', ['surface' => 'lp'])
 </div>
+
+<button type="button" @click="panelOpen = !panelOpen" :aria-expanded="panelOpen ? 'true' : 'false'"
+        title="{{ __('dashboard/strings.switchers_toggle') }}"
+        class="cursor-pointer  lp-fab  lg:hidden fixed bottom-5 end-5 z-[70] transition-transform duration-200"
+        :class="[panelOpen ? 'rotate-180' : '', darkMode ? 'text-slate-200' : 'text-slate-500']"
+>
+    <x-heroicon-o-cog-8-tooth class="{{ $iconClass }}"/>
+</button>

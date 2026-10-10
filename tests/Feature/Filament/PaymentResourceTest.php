@@ -1010,7 +1010,7 @@ class PaymentResourceTest extends TestCase
 
         $this->assertSame('Payor Co', $details[__('resources/payment/strings.form.payor')]);
         $this->assertSame('Payee Co', $details[__('resources/payment/strings.form.payee')]);
-        $this->assertSame('2026-01-15', $details[__('resources/payment/strings.form.payment_date')]);
+        $this->assertSame(adaptiveDate('2026-01-15'), $details[__('resources/payment/strings.form.payment_date')]);
     }
 
     // Bulk-action ordering convention

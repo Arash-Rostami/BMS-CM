@@ -35,6 +35,7 @@ trait Table
     public static function getActivateBulkAction(): BulkAction
     {
         return BulkAction::make('activate')
+            ->authorize(fn (): bool => static::canEditAny())
             ->label(__('resources/general/strings.bulk.activate.label'))
             ->icon('heroicon-o-check-circle')
             ->color('success')
@@ -51,6 +52,7 @@ trait Table
     public static function getDeactivateBulkAction(): BulkAction
     {
         return BulkAction::make('deactivate')
+            ->authorize(fn (): bool => static::canEditAny())
             ->label(__('resources/general/strings.bulk.deactivate.label'))
             ->icon('heroicon-o-x-circle')
             ->color('danger')
@@ -191,7 +193,7 @@ trait Table
                 $state->lt(now()->subDays(30)) => 'warning',
                 default => null,
             })
-            ->tooltip(fn ($state) => $state?->format('Y-m-d H:i'))
+            ->tooltip(fn ($state) => $state ? adaptiveDate($state, true) : null)
             ->sortable()
             ->toggleable();
     }

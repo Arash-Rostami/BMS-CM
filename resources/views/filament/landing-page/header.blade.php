@@ -4,6 +4,8 @@
         'dark'  => 'hidden dark:block',
     ];
 
+    $attentionVisible = $attentionVisible ?? false;
+
     $tabs = [
         [
             'id' => 'customize',
@@ -31,6 +33,15 @@
             'class' => 'ms-auto',
         ],
     ];
+
+    if ($attentionVisible) {
+        array_splice($tabs, array_search('search', array_column($tabs, 'id'), true) + 1, 0, [[
+            'id' => 'attention',
+            'icon' => 'heroicon-o-bell-alert',
+            'label' => __('resources/dashboard/strings.landing_page.attention.tab'),
+            'click' => "activeTab = 'attention'",
+        ]]);
+    }
 @endphp
 
 <div class="mb-4 sm:mb-5">

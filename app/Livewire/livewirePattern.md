@@ -2,7 +2,7 @@ Verified against source on branch `master` (2026-09-26). Authoritative home for 
 
 # BMS-CM Livewire Pattern
 
-Two kinds of component live under `app/Livewire/`:
+Three kinds of component live under `app/Livewire/`:
 
 | Component | View (`resources/views/livewire/…`) | Role |
 |---|---|---|
@@ -10,6 +10,13 @@ Two kinds of component live under `app/Livewire/`:
 | `TableStateToggle` | `table-state-toggle.blade.php` | Topbar "remember my table setup" toggle, session-backed (`persist_table_state`), dispatches `table-state-toggled` |
 | `RowClickToggle` | `row-click-toggle.blade.php` | Topbar "clicking a row opens Edit" toggle, session-backed (`row_click_edit`), dispatches `row-click-toggled` — Operational resources only, see its own consumer-wiring entry below |
 | `LandingPage\{Workflow, Workspace, Search, Features}` | `landing-page/*.blade.php` | Landing-page tab bodies — see `viewsPattern.md`, eager render-only, no Livewire reactivity |
+| `CalendarDatabaseNotifications` | none (extends vendor `DatabaseNotifications`, reuses its view) | Panel-wide bell renderer — see the section below |
+
+## The calendar bell renderer (2026-10-08)
+
+`CalendarDatabaseNotifications` extends vendor `Filament\Notifications\Livewire\DatabaseNotifications` and overrides exactly one method, `getNotification()`. Reason: calendar alerts are queued with no recipient locale, so the stored payload carries translation keys + params (`title`/`body` = `{key, params}`) resolved at READ time in the viewer's locale — but vendor `Notification::fromArray()` calls `->title($data['title'])`, which TypeErrors on an array. The override maps the stored data through `fromArray()` with keys resolved first, re-attaching `->id($notification->getKey())` and `->date(...)` exactly like vendor `fromDatabase()` does (the id is what `notificationClosed` wire actions need). Vendor-shaped payloads (string title/body, `label` actions) pass through untouched; malformed payloads fail closed (empty string title, `actions` coerced to `[]`) — never a 500 in the bell.
+
+Wired in `DashboardPanelProvider` via `->databaseNotificationsLivewireComponent(CalendarDatabaseNotifications::class)` right after `->databaseNotifications()` — the vendor's `where('data->format', 'filament')` query and 401 guard apply unchanged. This is NOT a topbar-toggle component (no view, no session state) and not the render-hook trap above — it swaps the bell's implementation class, keeping the vendor's mount point.
 
 ## The topbar-toggle pattern (CalendarToggle → TableStateToggle → RowClickToggle mirror family)
 

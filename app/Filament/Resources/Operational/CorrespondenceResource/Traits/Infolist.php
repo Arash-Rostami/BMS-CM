@@ -106,7 +106,7 @@ trait Infolist
                     ->hiddenLabel()
                     ->badge()
                     ->state(fn ($record) => $record?->pivot?->read_at
-                        ? __('resources/correspondence/strings.infolist.read_label', ['date' => $record->pivot->read_at->format('M j, H:i')])
+                        ? __('resources/correspondence/strings.infolist.read_label', ['date' => adaptiveDate($record->pivot->read_at, true)])
                         : __('resources/correspondence/strings.infolist.unread_label'))
                     ->icon(fn ($record) => $record?->pivot?->read_at ? 'heroicon-m-check-circle' : 'heroicon-m-clock')
                     ->color(fn ($record) => $record?->pivot?->read_at ? 'success' : 'gray'),

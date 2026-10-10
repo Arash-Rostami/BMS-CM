@@ -19,6 +19,7 @@ use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\Table as P
 use App\Filament\Resources\Operational\PurchaseRequestResource\Traits\TotalCostCalculation;
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\PurchaseRequest;
@@ -47,7 +48,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PurchaseRequestResource extends Resource
 {
-    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow, PurchaseRequestFilters, PurchaseRequestForm, PurchaseRequestInfolist, PurchaseRequestTable, TotalCostCalculation;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasGlobalSearchConvention, HasResourcePermissions, HasStatusWorkflow, PurchaseRequestFilters, PurchaseRequestForm, PurchaseRequestInfolist, PurchaseRequestTable, TotalCostCalculation;
 
     protected static ?string $model = PurchaseRequest::class;
 
@@ -173,9 +174,9 @@ class PurchaseRequestResource extends Resource
             ]);
     }
 
-    public static function getGlobalSearchEloquentQuery(): Builder
+    protected static function globalSearchRelations(): array
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['status', 'requester']);
+        return ['status', 'requester'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
@@ -183,7 +184,7 @@ class PurchaseRequestResource extends Resource
         return [
             __('resources/purchaseRequest/strings.form.status') => $record->status?->localized_name ?? '—',
             __('resources/purchaseRequest/strings.form.requester') => $record->requester?->name ?? '—',
-            __('resources/purchaseRequest/strings.form.required_by_date') => $record->required_by_date?->format('Y-m-d') ?? '—',
+            __('resources/purchaseRequest/strings.form.required_by_date') => $record->required_by_date ? adaptiveDate($record->required_by_date) : '—',
         ];
     }
 

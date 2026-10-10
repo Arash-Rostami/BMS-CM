@@ -97,16 +97,17 @@ class TopbarTest extends TestCase
         $this->assertStringNotContainsString('/dashboard/shipments/create', $html);
     }
 
-    public function test_work_actions_hides_the_create_button_without_any_create_permissions(): void
+    public function test_work_actions_hides_every_operational_create_entry_without_create_permissions(): void
     {
         $this->actingAsUserWithPermissions(['purchase_request.view']);
 
         $html = view('filament.partials.work-actions')->render();
 
-        $this->assertStringNotContainsString(__('resources/general/strings.topbar.quick_create'), $html);
         foreach ($this->operationalSlugs as $slug) {
             $this->assertStringNotContainsString("/dashboard/{$slug}/create", $html);
         }
+
+        $this->assertStringContainsString('/dashboard/notification-settings?action=create', $html, 'The open Notification Settings module keeps the create button available to everyone.');
     }
 
     public function test_work_actions_create_groups_follow_pipeline_navigation_groups(): void
@@ -137,6 +138,67 @@ class TopbarTest extends TestCase
         $this->assertLessThan($positions['operational_second'], $positions['operational_first']);
         $this->assertLessThan($positions['operational_third'], $positions['operational_second']);
         $this->assertLessThan($positions['operational_fourth'], $positions['operational_third']);
+    }
+
+    public function test_work_actions_lists_the_calendar_rule_quick_create_entry(): void
+    {
+        $this->actingAsUserWithPermissions(['calendar_rule.view', 'calendar_rule.create']);
+
+        $html = view('filament.partials.work-actions')->render();
+        $menu = preg_replace('/<script>.*?<\/script>/s', '', $html);
+
+        $this->assertStringContainsString('/dashboard/calendar-rules?action=create', $menu);
+        $this->assertStringContainsString(__('resources/calendarRule/strings.general.plural_model_label'), $menu);
+    }
+
+    public function test_work_actions_lists_the_notification_settings_entry_for_every_logged_in_user(): void
+    {
+        $this->actingAsUserWithPermissions([]);
+
+        $html = view('filament.partials.work-actions')->render();
+        $menu = preg_replace('/<script>.*?<\/script>/s', '', $html);
+
+        $this->assertStringContainsString('/dashboard/notification-settings?action=create', $menu);
+        $this->assertStringNotContainsString('calendar-rules?action=create', $menu);
+    }
+
+    public function test_work_actions_lists_both_alert_entries_for_a_user_who_can_use_both(): void
+    {
+        $this->actingAsUserWithPermissions(['calendar_rule.view', 'calendar_rule.create']);
+
+        $menu = preg_replace('/<script>.*?<\/script>/s', '', view('filament.partials.work-actions')->render());
+
+        $this->assertStringContainsString('/dashboard/notification-settings?action=create', $menu);
+        $this->assertStringContainsString('/dashboard/calendar-rules?action=create', $menu);
+    }
+
+    public function test_work_actions_hides_the_calendar_entry_without_its_permissions(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_request.create']);
+
+        $html = view('filament.partials.work-actions')->render();
+
+        $this->assertStringNotContainsString('calendar-rules?action=create', $html);
+    }
+
+    public function test_work_actions_renders_the_calendar_entry_inside_the_alerts_group_last(): void
+    {
+        $this->actingAsUserWithPermissions([
+            'purchase_request.view', 'purchase_request.create',
+            'calendar_rule.view', 'calendar_rule.create',
+        ]);
+
+        $menu = preg_replace('/<script>.*?<\/script>/s', '', view('filament.partials.work-actions')->render());
+
+        $alerts = __('resources/dashboard/strings.navigation_group.alerts');
+        $calendarUrl = strpos($menu, '/dashboard/calendar-rules?action=create');
+        $this->assertNotFalse($calendarUrl);
+        $this->assertStringNotContainsString(__('resources/dashboard/strings.navigation_group.base'), $menu);
+        $this->assertLessThan($calendarUrl, strpos($menu, $alerts));
+        $this->assertLessThan(
+            strpos($menu, $alerts),
+            strpos($menu, __('resources/dashboard/strings.navigation_group.operational_first'))
+        );
     }
 
     public function test_work_actions_exports_the_full_resource_map_for_recents(): void
@@ -414,5 +476,77 @@ class TopbarTest extends TestCase
                 "Missing nav_dock.switch_to_peek in {$locale}"
             );
         }
+    }
+
+    public function test_the_landing_locale_dropdown_uses_the_opaque_float_surface(): void
+    {
+        $html = view('filament.landing-page.switchers', [
+            'isRtl' => false,
+            'locale' => 'en',
+            'locales' => [
+                ['code' => 'en', 'flag' => 'usa.svg', 'alt' => 'English'],
+                ['code' => 'fa', 'flag' => 'iran.svg', 'alt' => 'فارسی'],
+                ['code' => 'fr', 'flag' => 'france.svg', 'alt' => 'Français'],
+            ],
+        ])->render();
+
+        $this->assertStringContainsString('lp-float rounded-lg overflow-hidden min-w-[64px] z-50', $html);
+    }
+
+    public function test_below_lg_the_landing_switchers_collapse_behind_a_corner_toggler(): void
+    {
+        $html = view('filament.landing-page.switchers', [
+            'isRtl' => false,
+            'locale' => 'en',
+            'locales' => [
+                ['code' => 'en', 'flag' => 'usa.svg', 'alt' => 'English'],
+                ['code' => 'fa', 'flag' => 'iran.svg', 'alt' => 'فارسی'],
+                ['code' => 'fr', 'flag' => 'france.svg', 'alt' => 'Français'],
+            ],
+        ])->render();
+
+        $this->assertStringContainsString('@click="panelOpen = !panelOpen"', $html);
+        $this->assertStringContainsString('lp-fab', $html);
+        $this->assertStringContainsString('lg:hidden fixed bottom-5 end-5 z-[70]', $html);
+        $this->assertStringContainsString('x-show="isWide || panelOpen"', $html);
+        $this->assertStringContainsString('x-transition:enter-start="opacity-0 translate-y-3"', $html);
+        $this->assertStringContainsString('bottom-5 end-20 z-[80] lp-dock', $html);
+        $this->assertStringContainsString('top-4 sm:top-6 right-4 sm:right-6 z-50 flex-col', $html);
+        $this->assertStringContainsString(__('dashboard/strings.switchers_toggle'), $html);
+
+        $css = file_get_contents(resource_path('css/landing-page.css'));
+        $this->assertStringContainsString('.lp-fab {', $css);
+        $this->assertStringContainsString('border-radius: 9px !important;', $css);
+        $this->assertStringContainsString('background-color: var(--custom-neutral) !important;', $css);
+        $this->assertStringContainsString('.lp-dock .absolute {', $css);
+        $this->assertStringContainsString('.lp-dock .lp-surface {', $css);
+
+        foreach (['en', 'fa', 'fr'] as $locale) {
+            app()->setLocale($locale);
+            $this->assertNotSame('dashboard/strings.switchers_toggle', __('dashboard/strings.switchers_toggle'));
+        }
+
+        app()->setLocale('en');
+    }
+
+    public function test_the_brand_logo_links_to_the_landing_page(): void
+    {
+        $this->assertSame(
+            route('filament.dashboard.pages.landing-page'),
+            \Filament\Facades\Filament::getPanel('dashboard')->getHomeUrl()
+        );
+    }
+
+    public function test_the_brand_logo_carries_a_localized_home_page_tooltip(): void
+    {
+        foreach (['en' => 'Home page', 'fa' => 'صفحه ابتدایی', 'fr' => "Page d'accueil"] as $locale => $label) {
+            app()->setLocale($locale);
+            $html = (string) \App\Providers\Filament\DashboardPanelProvider::brandImage('light');
+
+            $this->assertStringContainsString('title="'.e($label).'"', $html);
+            $this->assertStringContainsString('<img ', $html);
+        }
+
+        app()->setLocale('en');
     }
 }

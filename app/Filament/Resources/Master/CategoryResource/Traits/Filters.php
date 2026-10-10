@@ -25,7 +25,7 @@ trait Filters
             ->label(__('resources/category/strings.filters.level'))
             ->options(fn () => SmartCacheManager::remember(
                 'Category',
-                ['filter' => 'level'],
+                ['filter' => 'level', 'locale' => app()->getLocale()],
                 150,
                 fn () => Category::pluck('level')
                     ->unique()

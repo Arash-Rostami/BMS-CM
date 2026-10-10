@@ -388,6 +388,21 @@ class TargetResourceTest extends TestCase
         Queue::assertPushed(\App\Jobs\ExportTargets::class);
     }
 
+    public function test_activate_and_deactivate_bulk_actions_follow_the_edit_permission(): void
+    {
+        $this->actingAsUserWithPermissions(['target.view']);
+
+        Livewire::test(ManageTargets::class)
+            ->assertTableBulkActionHidden('activate')
+            ->assertTableBulkActionHidden('deactivate');
+
+        $this->actingAsUserWithPermissions(['target.view', 'target.edit']);
+
+        Livewire::test(ManageTargets::class)
+            ->assertTableBulkActionVisible('activate')
+            ->assertTableBulkActionVisible('deactivate');
+    }
+
     public function test_bulk_actions_toolbar_orders_export_before_delete_and_restore(): void
     {
         $this->actingAsUserWithPermissions(['target.view', 'target.delete', 'target.restore']);

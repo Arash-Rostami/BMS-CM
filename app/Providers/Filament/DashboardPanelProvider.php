@@ -6,6 +6,8 @@ use App\Filament\Pages\Auth\CustomLogin;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Resources\Master\UserResource\Enums\UserRole;
 use App\Filament\Widgets\AccountWidget;
+use App\Filament\Widgets\CalendarDayWidget;
+use App\Filament\Widgets\CalendarGridWidget;
 use App\Filament\Widgets\ConcentrationRiskWidget;
 use App\Filament\Widgets\ExposureAgingWidget;
 use App\Filament\Widgets\OpenCurrencyExposureWidget;
@@ -13,6 +15,7 @@ use App\Filament\Widgets\PipelineStallWidget;
 use App\Filament\Widgets\ShipmentPunctualityWidget;
 use App\Filament\Widgets\TradeCycleTimeWidget;
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Livewire\CalendarDatabaseNotifications;
 use Filament\Actions\Action;
 use Filament\Enums\GlobalSearchPosition;
 use Filament\Enums\ThemeMode;
@@ -34,6 +37,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class DashboardPanelProvider extends PanelProvider
@@ -55,6 +59,9 @@ class DashboardPanelProvider extends PanelProvider
                     ->collapsed(),
                 NavigationGroup::make()
                     ->label(fn () => __('resources/dashboard/strings.navigation_group.operational_fourth'))
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label(fn () => __('resources/dashboard/strings.navigation_group.alerts'))
                     ->collapsed(),
                 NavigationGroup::make()
                     ->label(fn () => __('resources/dashboard/strings.navigation_group.base'))
@@ -94,6 +101,8 @@ class DashboardPanelProvider extends PanelProvider
             ])
             ->widgets([
                 AccountWidget::class,
+                CalendarGridWidget::class,
+                CalendarDayWidget::class,
                 ConcentrationRiskWidget::class,
                 PipelineStallWidget::class,
                 ShipmentPunctualityWidget::class,
@@ -118,6 +127,7 @@ class DashboardPanelProvider extends PanelProvider
                 url: Vite::asset('resources/css/layout/fonts.css'),
                 provider: LocalFontProvider::class)
             ->databaseNotifications(isLazy: false)
+            ->databaseNotificationsLivewireComponent(CalendarDatabaseNotifications::class)
             ->databaseNotificationsPolling('30s')
             ->maxContentWidth(Width::Full)
             ->spa()
@@ -131,13 +141,22 @@ class DashboardPanelProvider extends PanelProvider
             ->globalSearchDebounce('1000ms')
             ->breadcrumbs()
             ->brandName(config('app.name'))
-            ->brandLogo(Vite::asset('resources/'.config('app.branding.logo.light')))
-            ->darkModeBrandLogo(Vite::asset('resources/'.config('app.branding.logo.dark')))
+            ->brandLogo(fn (): HtmlString => static::brandImage('light'))
+            ->darkModeBrandLogo(fn (): HtmlString => static::brandImage('dark'))
             ->brandLogoHeight('3rem')
+            ->homeUrl(fn (): string => route('filament.dashboard.pages.landing-page'))
             ->sidebarWidth('15.5rem')
             ->sidebarCollapsibleOnDesktop()
             ->default()
             ->authMiddleware([Authenticate::class, EnsureUserIsActive::class])
             ->defaultThemeMode(ThemeMode::Dark);
+    }
+
+    public static function brandImage(string $theme): HtmlString
+    {
+        $title = e(__('resources/general/strings.topbar.home'));
+        $src = e(Vite::asset('resources/'.config("app.branding.logo.{$theme}")));
+
+        return new HtmlString("<img src=\"{$src}\" alt=\"{$title}\" title=\"{$title}\" style=\"height: 100%; width: auto;\">");
     }
 }

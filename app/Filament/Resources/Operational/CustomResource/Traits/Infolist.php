@@ -71,7 +71,7 @@ trait Infolist
     {
         return TextEntry::make('clearance_date')
             ->label(__('resources/custom/strings.form.clearance_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -170,7 +170,7 @@ trait Infolist
     {
         return TextEntry::make('doc_submission_date')
             ->label(__('resources/custom/strings.form.doc_submission_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -214,7 +214,7 @@ trait Infolist
     {
         return TextEntry::make('rial_return_date')
             ->label(__('resources/custom/strings.form.rial_return_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->visible(fn ($record) => $record?->clearance_type === 'percentage')
             ->placeholder('-');
@@ -237,7 +237,7 @@ trait Infolist
     {
         return TextEntry::make('ten_percent_exit_date')
             ->label(__('resources/custom/strings.form.ten_percent_exit_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->visible(fn ($record) => $record?->clearance_type === 'percentage')
             ->placeholder('-');

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Config;
 
 use App\Configurators\FilamentAssets;
+use App\Filament\Resources\Master\CalendarRuleResource\Enums\CalendarColor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 /**
- * Master file for the three project-owned config files. palettes.php's six
+ * Master file for the four project-owned config files. palettes.php's six
  * drift checks folded in from the former tests/Unit/Config companion
  * (config <-> themes.css <-> lang <-> meta partial <-> theme.js must stay
  * in lockstep); workspace.php and desk-reference.php get the contracts the
@@ -18,7 +19,11 @@ use Tests\TestCase;
  * entry must point at a real model, a real named edit route, and real
  * table columns (a wrong route/column silently breaks record pinning with
  * no other signal), and every desk-reference entry must carry its required
- * keys with a resolvable model.
+ * keys with a resolvable model; calendar.php's queue/time/limit keys must
+ * exist (the scheduler, the jobs' onQueue() and the engine's limits all
+ * read them — a renamed key degrades silently to defaults) and every
+ * CalendarColor case must keep its fi-custom.css var and its 3-locale
+ * label (a dropped case renders an unstyled gray rule name).
  */
 class ConfigTest extends TestCase
 {
@@ -130,9 +135,14 @@ class ConfigTest extends TestCase
         $js = File::get(resource_path('js/filament/theme.js'));
 
         $this->assertStringContainsString("'palette-changed'", $js);
-        $this->assertStringNotContainsString("CustomEvent('theme-changed'", $js);
-        $this->assertStringNotContainsString("'theme-changed'", $js);
+        $this->assertStringNotContainsString("CustomEvent('theme-changed', { detail: { palette", $js);
         $this->assertStringContainsString("addEventListener('livewire:navigated'", $js);
+        $this->assertStringContainsString("addEventListener('livewire:navigating'", $js);
+        $this->assertStringContainsString('onSwap', $js);
+        $this->assertStringContainsString('applySavedTheme();', $js);
+        $this->assertStringContainsString("addEventListener('storage'", $js);
+        $this->assertStringContainsString('applySavedDarkMode', $js);
+        $this->assertStringContainsString("CustomEvent('dark-mode-toggled'", $js);
     }
 
     // config/workspace.php
@@ -165,6 +175,43 @@ class ConfigTest extends TestCase
                 Schema::hasColumns($table, $columns),
                 "Workspace entry [{$key}] references a column that doesn't exist on [{$table}]."
             );
+        }
+    }
+
+    // config/calendar.php
+
+    public function test_calendar_config_declares_its_expected_keys(): void
+    {
+        foreach (['channels', 'queue', 'alert_time', 'rebuild_time', 'max_overdue_alerts', 'max_path_depth', 'preview_limit', 'sync_chunk'] as $key) {
+            $this->assertArrayHasKey(
+                $key,
+                config('calendar'),
+                "config/calendar.php is missing its [{$key}] key — scheduler, jobs or the engine silently fall back to defaults."
+            );
+        }
+
+        $this->assertSame('07:00', config('calendar.alert_time'));
+        $this->assertSame('02:00', config('calendar.rebuild_time'));
+        $this->assertSame(3, config('calendar.max_overdue_alerts'));
+        $this->assertSame(500, config('calendar.sync_chunk'));
+    }
+
+    public function test_every_calendar_color_has_a_css_var_and_labels(): void
+    {
+        $css = File::get(resource_path('css/fi-custom.css'));
+
+        foreach (CalendarColor::cases() as $color) {
+            $this->assertStringContainsString(
+                "--cal-color-{$color->value}:",
+                $css,
+                "CalendarColor [{$color->value}] has no --cal-color- var in fi-custom.css."
+            );
+            foreach (['en', 'fa', 'fr'] as $locale) {
+                $this->assertTrue(
+                    trans()->has("resources/calendarRule/strings.color.{$color->value}", $locale),
+                    "CalendarColor [{$color->value}] has no {$locale} label."
+                );
+            }
         }
     }
 

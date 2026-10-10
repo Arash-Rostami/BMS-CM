@@ -2,6 +2,7 @@
     $counts = $counts ?? [];
     $locale = app()->getLocale();
     $isRtl  = in_array($locale, ['fa', 'ar']);
+    $attentionVisible = \App\Services\Calendar\CalendarModules::viewableBy(auth()->user()) !== [];
     $locales = [
         ['code' => 'en', 'flag' => 'usa.svg',    'alt' => 'English'],
         ['code' => 'fa', 'flag' => 'iran.svg',   'alt' => 'فارسی'],
@@ -47,7 +48,7 @@
         <div class="relative z-10 h-full overflow-y-auto pt-8 custom-scrollbar">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 pb-10 max-w-7xl">
 
-                @include('filament.landing-page.header')
+                @include('filament.landing-page.header', ['attentionVisible' => $attentionVisible])
 
                 <div x-show="activeTab === 'customize'"
                      x-transition:enter="transition-opacity duration-150 ease-in"
@@ -93,6 +94,19 @@
                      x-cloak>
                     @livewire('landing-page.features', ['isRtl' => $isRtl])
                 </div>
+
+                @if ($attentionVisible)
+                    <div x-show="activeTab === 'attention'"
+                         x-transition:enter="transition-opacity duration-150 ease-in"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="transition-opacity duration-100 ease-out"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         x-cloak>
+                        @livewire('landing-page.attention', ['isRtl' => $isRtl])
+                    </div>
+                @endif
 
             </div>
         </div>

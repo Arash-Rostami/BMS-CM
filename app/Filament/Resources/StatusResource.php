@@ -8,6 +8,7 @@ use App\Filament\Resources\Master\StatusResource\Traits\Filters as StatusFilters
 use App\Filament\Resources\Master\StatusResource\Traits\Form as StatusForm;
 use App\Filament\Resources\Master\StatusResource\Traits\Infolist as StatusInfolist;
 use App\Filament\Resources\Master\StatusResource\Traits\Table as StatusTable;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Status;
 use Filament\Actions\ActionGroup;
@@ -30,7 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class StatusResource extends Resource
 {
-    use HasResourcePermissions, StatusFilters, StatusForm, StatusInfolist, StatusTable;
+    use HasGlobalSearchConvention, HasResourcePermissions, StatusFilters, StatusForm, StatusInfolist, StatusTable;
 
     protected static ?string $model = Status::class;
 
@@ -93,14 +94,13 @@ class StatusResource extends Resource
         ]);
     }
 
-    public static function getGlobalSearchResultUrl(Model $record): ?string
+    public static function getGlobalSearchResultDetails(Model $record): array
     {
-        return static::getUrl('index', ['search' => $record->english_name ?? $record->name ?? '']);
-    }
-
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['name', 'english_name'];
+        return [
+            __('resources/status/strings.table.type') => $record->type ?? '—',
+            __('resources/status/strings.table.english_name') => $record->english_name ?? '—',
+            __('resources/status/strings.table.stage_order') => $record->stage_order ?? '—',
+        ];
     }
 
     public static function getModelLabel(): string

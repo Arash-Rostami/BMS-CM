@@ -11,3 +11,4 @@
 - Last Login is shown by default, highlighted when empty or older than 30 days, with the exact date on hover; new "No login in 30 days" filter.
 - Export now matches every other module (same CSV shape, Jalali dates, download notification) instead of the old generic exporter.
 - Inactive users' rows are now dimmed in the list (full brightness on hover).
+- Bulk Activate / Deactivate now only appear for people who can edit Users.

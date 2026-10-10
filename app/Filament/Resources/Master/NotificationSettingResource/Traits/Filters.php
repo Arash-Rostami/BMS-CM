@@ -56,10 +56,7 @@ trait Filters
             ->label(__('resources/notificationSetting/strings.filters.mine'))
             ->indicator(__('resources/notificationSetting/strings.filters.mine_indicator'))
             ->toggle()
-            ->query(fn ($query) => $query->where(fn ($q) => $q
-                ->where('user_id', auth()->id())
-                ->orWhereJsonContains('settings->users', auth()->id())
-                ->orWhereJsonContains('settings->users', (string) auth()->id())));
+            ->query(fn ($query) => $query->ownedOrReceivedBy(auth()->id()));
     }
 
     public static function getNotificationChannelFilter(): SelectFilter

@@ -7,41 +7,133 @@ use App\Models\User;
 use App\Notifications\ModelEventEmail;
 use App\Notifications\ModelEventNotification;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 class NotificationEvaluator
 {
+    private const SYSTEM_COLUMNS = ['updated_at', 'updated_by_id'];
+
+    private const CHANNELS = [
+        'in_app' => ModelEventNotification::class,
+        'email' => ModelEventEmail::class,
+    ];
+
+    /**
+     * @var array<string, mixed>
+     */
+    private array $displayValues = [];
+
+    /**
+     * @param  array<string, mixed>  $dirty
+     */
     public function evaluate(Model $model, string $action, array $dirty = []): void
     {
-        $tableName = $model->getTable();
+        $this->displayValues = [];
+        $settings = $this->matchingSettings($model, $action, $dirty);
 
-        $settings = NotificationSetting::whereJsonContains('settings->tables', $tableName)
-            ->whereJsonContains('settings->actions', $action)
-            ->where(fn ($query) => $query->where('settings->is_active', true)->orWhereJsonLength('settings->is_active', 0))
-            ->get();
+        if ($settings->isEmpty()) {
+            return;
+        }
+
+        $recipients = $this->recipients($settings, $model);
 
         foreach ($settings as $setting) {
-            if (! $this->shouldNotify($setting, $model, $action, $dirty)) {
-                continue;
+            try {
+                $this->dispatch($setting, $model, $action, $dirty, $recipients);
+            } catch (\Throwable $exception) {
+                report($exception);
             }
-
-            $this->dispatch($setting, $model, $action, $dirty);
         }
     }
 
-    private function buildChangeData(Model $model, string $action, array $dirty): array
+    /**
+     * @param  array<string, mixed>  $dirty
+     * @return Collection<int, NotificationSetting>
+     */
+    private function matchingSettings(Model $model, string $action, array $dirty): Collection
     {
-        if ($action !== 'update' || empty($dirty)) {
+        return NotificationSetting::activeRules()->filter(
+            fn (NotificationSetting $setting): bool => in_array($model->getTable(), $setting->getTables(), true)
+                && in_array($action, $setting->getActions(), true)
+                && $this->shouldNotify($setting, $model, $action, $dirty)
+        )->values();
+    }
+
+    /**
+     * @param  Collection<int, NotificationSetting>  $settings
+     * @return Collection<int, User>
+     */
+    private function recipients(Collection $settings, Model $model): Collection
+    {
+        $ids = $settings->flatMap(fn (NotificationSetting $setting): array => $setting->getUsers())->unique()->values();
+        $permission = Str::snake(class_basename($model)).'.view';
+
+        return User::query()
+            ->whereIn('id', $ids)
+            ->where('status', '!=', 'inactive')
+            ->with(['roles', 'permissions'])
+            ->get()
+            ->filter(fn (User $user): bool => $user->can($permission))
+            ->keyBy('id');
+    }
+
+    /**
+     * @param  array<string, mixed>  $dirty
+     * @param  Collection<int, User>  $recipients
+     */
+    private function dispatch(NotificationSetting $setting, Model $model, string $action, array $dirty, Collection $recipients): void
+    {
+        $users = $recipients->only(array_map('intval', $setting->getUsers()))->values();
+
+        if ($users->isEmpty()) {
+            return;
+        }
+
+        $changes = $this->buildChangeData($model, $action, $dirty, $setting);
+
+        foreach (self::CHANNELS as $type => $notificationClass) {
+            if (in_array($setting->notification_type, [$type, 'all'], true)) {
+                $this->send($users, new $notificationClass($model, $action, $changes, $setting));
+            }
+        }
+    }
+
+    /**
+     * @param  Collection<int, User>  $users
+     */
+    private function send(Collection $users, object $notification): void
+    {
+        foreach ($users as $user) {
+            try {
+                Notification::send($user, clone $notification);
+            } catch (\Throwable $exception) {
+                report($exception);
+            }
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $dirty
+     * @return array<string, array{old: mixed, new: mixed}>
+     */
+    private function buildChangeData(Model $model, string $action, array $dirty, NotificationSetting $setting): array
+    {
+        if ($action !== 'update') {
             return [];
         }
 
+        $watched = $setting->getColumns();
         $changes = [];
+
         foreach ($dirty as $column => $newValue) {
-            $oldValue = $model->getOriginal($column);
+            if (in_array($column, self::SYSTEM_COLUMNS, true) || ($watched !== [] && ! in_array($column, $watched, true))) {
+                continue;
+            }
 
             $changes[$column] = [
-                'old' => $this->resolveDisplayValue($model, $column, $oldValue),
+                'old' => $this->resolveDisplayValue($model, $column, $model->getOriginal($column)),
                 'new' => $this->resolveDisplayValue($model, $column, $newValue),
             ];
         }
@@ -49,89 +141,98 @@ class NotificationEvaluator
         return $changes;
     }
 
-    private function dispatch(NotificationSetting $setting, Model $model, string $action, array $dirty): void
+    private function resolveDisplayValue(Model $model, string $column, mixed $value): mixed
     {
-        $users = User::whereIn('id', $setting->getUsers())->get();
-        if ($users->isEmpty()) {
-            return;
+        $relationName = Str::camel(Str::beforeLast($column, '_id'));
+
+        if (! str_ends_with($column, '_id') || ! is_scalar($value) || ! method_exists($model, $relationName)) {
+            return $value;
         }
 
-        $changedData = $this->buildChangeData($model, $action, $dirty);
+        return $this->displayValues[$model::class.'|'.$column.'|'.$value] ??= $this->lookupDisplayValue($model, $relationName, $value);
+    }
 
-        $notifications = [
-            'in_app' => ModelEventNotification::class, 'email' => ModelEventEmail::class,
-        ];
-
-        foreach ($notifications as $type => $notificationClass) {
-            if ($setting->notification_type === $type || $setting->notification_type === 'all') {
-                Notification::send($users, new $notificationClass($model, $action, $changedData, $setting));
-            }
+    private function lookupDisplayValue(Model $model, string $relationName, mixed $value): mixed
+    {
+        try {
+            return NameSearch::labels($model->{$relationName}()->getRelated(), [$value])[$value] ?? $value;
+        } catch (\Throwable) {
+            return $value;
         }
     }
 
-    private function resolveDisplayValue(Model $model, string $column, $value)
-    {
-        if (str_ends_with($column, '_id') &&
-            method_exists($model, $relationName = Str::camel(str_replace('_id', '', $column)))) {
-            try {
-                $relation = $model->{$relationName}();
-                $relatedModel = $relation->getRelated();
-                $displayColumn = $relatedModel->english_name ?? $relatedModel->name ?? 'name';
-
-                return $relatedModel->where($relatedModel->getKeyName(), $value)->value($displayColumn) ?? $value;
-            } catch (\Throwable $e) {
-                return $value;
-            }
-        }
-
-        return $value;
-    }
-
+    /**
+     * @param  array<string, mixed>  $dirty
+     */
     private function shouldNotify(NotificationSetting $setting, Model $model, string $action, array $dirty): bool
     {
         $columns = $setting->getColumns();
-        $values = $setting->getValues();
 
-        // CASE 1: No column filter → Notify on any action for this table
-        if (empty($columns)) {
+        if ($columns === []) {
             return true;
         }
 
-        // CASE 2: UPDATE action with column filters
-        if ($action === 'update') {
-            $changedColumns = array_keys($dirty);
-            $relevantColumns = array_intersect($columns, $changedColumns);
-
-            // None of the watched columns changed → Skip notification
-            if (empty($relevantColumns)) {
-                return false;
-            }
-
-            // Watched columns changed, but no value filter → Notify
-            if (empty($values)) {
-                return true;
-            }
-
-            // Check if ANY watched column (not just changed ones) has a value in the values pool
-            foreach ($columns as $column) {
-                $columnValue = $model->getAttribute($column);
-                if (in_array($columnValue, $values, true)) {
-                    return true;
-                }
-            }
-
+        if ($setting->hasMalformedValues()) {
             return false;
         }
 
-        // CASE 3: CREATE/DELETE actions with column filters
-        if (empty($values)) {
+        $values = $setting->getColumnValues();
+
+        return $action === 'update'
+            ? $this->updateMatches($model, $columns, $values, $dirty)
+            : $this->currentMatches($model, $values);
+    }
+
+    /**
+     * @param  array<int, string>  $columns
+     * @param  array<string, array<int, mixed>>  $values
+     * @param  array<string, mixed>  $dirty
+     */
+    private function updateMatches(Model $model, array $columns, array $values, array $dirty): bool
+    {
+        foreach (array_intersect($columns, array_keys($dirty)) as $column) {
+            if (! isset($values[$column])) {
+                return true;
+            }
+
+            $new = NotificationValueNormalizer::normalize($dirty[$column], $model->getTable(), $column);
+            $old = NotificationValueNormalizer::normalize($model->getOriginal($column), $model->getTable(), $column);
+
+            if ($new !== null && $new !== $old && $this->listed($model, $column, $new, $values[$column], $old, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  array<string, array<int, mixed>>  $values
+     */
+    private function currentMatches(Model $model, array $values): bool
+    {
+        if ($values === []) {
             return true;
         }
 
-        // Check if ANY watched column has a value in the values pool
-        foreach ($columns as $column) {
-            $value = $model->getAttribute($column);
-            if (in_array($value, $values, true)) {
+        foreach ($values as $column => $list) {
+            $current = NotificationValueNormalizer::normalize($model->getAttribute($column), $model->getTable(), $column);
+
+            if ($current !== null && $this->listed($model, $column, $current, $list)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  array<int, mixed>  $list
+     */
+    private function listed(Model $model, string $column, string $normalized, array $list, ?string $previous = null, bool $isUpdate = false): bool
+    {
+        foreach ($list as $candidate) {
+            if (NotificationValueNormalizer::matches($candidate, $normalized, $model->getTable(), $column, $previous, $isUpdate)) {
                 return true;
             }
         }

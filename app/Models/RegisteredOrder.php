@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasReliableCodeGeneration;
 use App\Models\Traits\General\Relationships;
-use App\Models\Traits\General\SellerEntity;
 use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\RegisteredOrder\HasComputedAttributes;
@@ -26,7 +25,6 @@ class RegisteredOrder extends Model
         HasReliableCodeGeneration,
         HasSearchableRelations,
         Relationships,
-        SellerEntity,
         SoftDeletes,
         TracksStatusHistory,
         UserStamps;

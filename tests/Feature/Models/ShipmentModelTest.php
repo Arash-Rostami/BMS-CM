@@ -3,6 +3,7 @@
 namespace Tests\Feature\Models;
 
 use App\Models\Company;
+use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrder;
 use App\Models\Shipment;
 use App\Models\Status;
@@ -215,5 +216,17 @@ class ShipmentModelTest extends TestCase
         $shipment->setDocumentChecklist([['name' => 'ci', 'received' => true]]);
 
         $this->assertSame([['name' => 'ci', 'received' => true]], $shipment->fresh()->docs);
+    }
+
+    public function test_purchase_requests_match_the_manual_chain_through_the_registered_order(): void
+    {
+        $ro = RegisteredOrder::factory()->create();
+        $linked = PurchaseRequest::factory()->create();
+        PurchaseRequest::factory()->create()->registeredOrders()->attach(RegisteredOrder::factory()->create());
+        $linked->registeredOrders()->attach($ro);
+        $shipment = Shipment::factory()->create(['registered_order_id' => $ro->id]);
+
+        $this->assertSame($shipment->registeredOrder->purchaseRequests->pluck('id')->sort()->values()->all(), $shipment->purchaseRequests->pluck('id')->sort()->values()->all());
+        $this->assertSame([$linked->id], $shipment->purchaseRequests->pluck('id')->all());
     }
 }

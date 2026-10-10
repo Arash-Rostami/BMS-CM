@@ -8,37 +8,37 @@ use App\Filament\Resources\Master\NotificationSettingResource\Traits\Filters as 
 use App\Filament\Resources\Master\NotificationSettingResource\Traits\Form as NotificationSettingForm;
 use App\Filament\Resources\Master\NotificationSettingResource\Traits\Infolist as NotificationSettingInfolist;
 use App\Filament\Resources\Master\NotificationSettingResource\Traits\Table as NotificationSettingTable;
+use App\Filament\Traits\HasDeskReferenceAction;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Models\NotificationSetting;
-use App\Models\User;
-use App\Services\SmartCacheManager;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Str;
 
 class NotificationSettingResource extends Resource
 {
-    use NotificationSettingFilters, NotificationSettingForm, NotificationSettingInfolist, NotificationSettingTable;
+    use HasDeskReferenceAction, HasGlobalSearchConvention, NotificationSettingFilters, NotificationSettingForm, NotificationSettingInfolist, NotificationSettingTable;
 
     protected static ?string $model = NotificationSetting::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bell';
 
-    protected static ?int $navigationSort = 12;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
@@ -49,7 +49,7 @@ class NotificationSettingResource extends Resource
                         static::getTableSelector(),
                         static::getActionSelector(),
                         static::getColumnSelector(),
-                        static::getColumnValueSelector(),
+                        static::getColumnValueSelectors(),
                         static::getUserSelector(),
                         static::getNotificationChannel(),
                         static::getIsActive(),
@@ -72,14 +72,44 @@ class NotificationSettingResource extends Resource
             ]);
     }
 
+    public static function getEditAuthorizationResponse(Model $record): Response
+    {
+        return static::ownerResponse($record);
+    }
+
+    public static function getUpdateAuthorizationResponse(Model $record): Response
+    {
+        return static::ownerResponse($record);
+    }
+
     public static function getDeleteAuthorizationResponse(Model $record): Response
     {
-        return static::isOwnerOrRecipient($record) ? Response::allow() : Response::deny();
+        return static::ownerResponse($record);
+    }
+
+    public static function getRestoreAuthorizationResponse(Model $record): Response
+    {
+        return static::ownerResponse($record);
+    }
+
+    public static function canEdit($record): bool
+    {
+        return static::getEditAuthorizationResponse($record)->allowed();
     }
 
     public static function canDelete($record): bool
     {
         return static::getDeleteAuthorizationResponse($record)->allowed();
+    }
+
+    public static function canRestore($record): bool
+    {
+        return static::getRestoreAuthorizationResponse($record)->allowed();
+    }
+
+    protected static function ownerResponse(Model $record): Response
+    {
+        return static::isOwnerOrRecipient($record) ? Response::allow() : Response::deny();
     }
 
     protected static function isOwnerOrRecipient(Model $record): bool
@@ -97,35 +127,43 @@ class NotificationSettingResource extends Resource
         return in_array((int) $userId, array_map('intval', $record->getUsers()), true);
     }
 
+    public static function withPerColumnValues(array $data, Model $record): array
+    {
+        $data['settings'] = is_array($data['settings'] ?? null) ? $data['settings'] : [];
+        $data['settings']['values'] = $record->getColumnValues();
+
+        return $data;
+    }
+
+    public static function withSanitizedSettings(array $data): array
+    {
+        $data['settings'] = NotificationSetting::sanitizeSettings($data['settings'] ?? []);
+
+        return $data;
+    }
+
+    protected static function restrictGlobalSearch(Builder $query): Builder
+    {
+        return $query->ownedOrReceivedBy(auth()->id());
+    }
+
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        $details = [];
-
-        if ($columns = $record->getColumns()) {
-            $details[] = 'Columns: '.implode(', ', array_map(fn ($c) => Str::headline($c), $columns));
-        }
-
-        if ($users = $record->getUsers()) {
-            $userNames = User::whereIn('id', $users)->pluck('name')->join(', ');
-            $details[] = 'Recipients: '.$userNames;
-        }
-
-        return $details;
+        return [
+            __('resources/notificationSetting/strings.table.notification_type') => $record->notification_channel,
+            __('resources/notificationSetting/strings.table.actions') => implode(', ', $record->getLocalizedActions()) ?: '—',
+            __('resources/notificationSetting/strings.table.columns') => implode(', ', NotificationSetting::columnLabels($record->getTables(), $record->getColumns())) ?: '—',
+        ];
     }
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        $tables = implode(', ', array_map(fn ($t) => Str::headline($t), $record->getTables()));
-        $actions = implode(', ', array_map('ucfirst', $record->getActions()));
-
-        return "🔔 {$tables} · {$actions}";
+        return '🔔  '.(implode(', ', $record->getLocalizedTables()) ?: '—');
     }
 
     public static function getGlobalSearchResultUrl(Model $record): ?string
     {
-        $tables = $record->getTables();
-
-        return static::getUrl('index', ['search' => ! empty($tables) ? $tables[0] : '']);
+        return static::getUrl('index', ['search' => $record->getTables()[0] ?? '']);
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -138,26 +176,9 @@ class NotificationSettingResource extends Resource
         return __('resources/notificationSetting/strings.general.model_label');
     }
 
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SmartCacheManager::remember(
-            'NotificationSetting',
-            ['user_id' => auth()->id(), 'type' => 'total_count'],
-            3600,
-            fn () => static::getModel()::count()
-        );
-
-        return $count > 0 ? (string) $count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'info';
-    }
-
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/dashboard/strings.navigation_group.base');
+        return __('resources/dashboard/strings.navigation_group.alerts');
     }
 
     public static function getPages(): array
@@ -225,8 +246,9 @@ class NotificationSettingResource extends Resource
             ->filtersFormColumns(3)
             ->recordActions([
                 ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make(),
+                    ViewAction::make()
+                        ->extraModalFooterActions(fn (): array => [DeleteAction::make(), CreateAction::make()->icon(Heroicon::Plus), static::getEditAction()]),
+                    static::getEditAction(),
                     DeleteAction::make(),
                     RestoreAction::make(),
                 ]),
@@ -245,7 +267,7 @@ class NotificationSettingResource extends Resource
                 BulkActionGroup::make([
                     static::getExportBulkAction(),
                     DeleteBulkAction::make()->authorizeIndividualRecords(),
-                    RestoreBulkAction::make(),
+                    RestoreBulkAction::make()->authorizeIndividualRecords(),
                 ]),
             ])
             ->striped()

@@ -9,6 +9,7 @@ use App\Filament\Resources\Master\ProductResource\Traits\Filters as ProductFilte
 use App\Filament\Resources\Master\ProductResource\Traits\Form as ProductForm;
 use App\Filament\Resources\Master\ProductResource\Traits\Infolist as ProductInfolist;
 use App\Filament\Resources\Master\ProductResource\Traits\Table as ProductTable;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Product;
 use App\Services\SmartCacheManager;
@@ -35,7 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProductResource extends Resource
 {
-    use CategoryDrilldown, HasResourcePermissions, ProductFilters, ProductForm, ProductInfolist, ProductTable;
+    use CategoryDrilldown, HasGlobalSearchConvention, HasResourcePermissions, ProductFilters, ProductForm, ProductInfolist, ProductTable;
 
     protected static ?string $model = Product::class;
 
@@ -140,14 +141,18 @@ class ProductResource extends Resource
         return "📦   {$name} (📆 {$date})";
     }
 
-    public static function getGlobalSearchResultUrl(Model $record): ?string
+    protected static function globalSearchRelations(): array
     {
-        return static::getUrl('index', ['search' => $record->english_name ?? $record->name ?? '']);
+        return ['category'];
     }
 
-    public static function getGloballySearchableAttributes(): array
+    public static function getGlobalSearchResultDetails(Model $record): array
     {
-        return ['name', 'english_name'];
+        return [
+            __('resources/product/strings.table.code') => $record->code ?? '—',
+            __('resources/product/strings.table.category') => $record->category?->getLocalizedNameAttribute() ?? '—',
+            __('resources/product/strings.table.english_name') => $record->english_name ?? '—',
+        ];
     }
 
     public static function getModelLabel(): string

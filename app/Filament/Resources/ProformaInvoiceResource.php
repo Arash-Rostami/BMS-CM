@@ -18,6 +18,7 @@ use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\Table as P
 use App\Filament\Resources\Operational\ProformaInvoiceResource\Traits\TotalAmountCalculation;
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\ProformaInvoice;
 use Filament\Actions\ActionGroup;
@@ -44,7 +45,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProformaInvoiceResource extends Resource
 {
-    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, ProformaInvoiceFilters, ProformaInvoiceForm, ProformaInvoiceInfolist, ProformaInvoiceTable, TotalAmountCalculation;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasGlobalSearchConvention, HasResourcePermissions, ProformaInvoiceFilters, ProformaInvoiceForm, ProformaInvoiceInfolist, ProformaInvoiceTable, TotalAmountCalculation;
 
     protected static ?string $model = ProformaInvoice::class;
 
@@ -179,10 +180,9 @@ class ProformaInvoiceResource extends Resource
             ]);
     }
 
-    public static function getGlobalSearchEloquentQuery(): Builder
+    protected static function globalSearchRelations(): array
     {
-        return parent::getGlobalSearchEloquentQuery()
-            ->with(['sellerCompany']);
+        return ['sellerCompany', 'buyerCompany'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
@@ -190,7 +190,7 @@ class ProformaInvoiceResource extends Resource
         return [
             __('resources/proformaInvoice/strings.form.seller_company') => $record->sellerCompany?->localized_name ?? '—',
             __('resources/proformaInvoice/strings.form.buyer_company') => $record->buyerCompany?->localized_name ?? '—',
-            __('resources/proformaInvoice/strings.form.invoice_date') => $record->invoice_date?->format('Y-m-d') ?? '—',
+            __('resources/proformaInvoice/strings.form.invoice_date') => $record->invoice_date ? adaptiveDate($record->invoice_date) : '—',
         ];
     }
 

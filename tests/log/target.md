@@ -9,3 +9,4 @@
 - Saving an active target that overlaps another active target for the same product or category is now rejected; bulk Activate skips overlapping ones and says how many.
 - New "Ended, still active" filter (last in the list) finds targets whose end date passed but are still active; their end date turns red.
 - Picking a year now fills the start and end dates for you when both are empty (Farsi uses the Jalali year).
+- Bulk Activate / Deactivate now only appear for people who can edit Targets.

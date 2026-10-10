@@ -98,9 +98,9 @@ class NotificationSettingResourceTest extends TestCase
     }
 
     // This module is deliberately open to every authenticated user, no Spatie permission
-    // required — only Delete is restricted, by ownership/recipient, not by a permission grant.
+    // required — viewing and creating are open; edit, toggle, restore and delete follow ownership/recipient.
 
-    public function test_view_create_edit_are_open_to_any_authenticated_user_with_no_permissions(): void
+    public function test_view_and_create_are_open_but_edit_and_delete_follow_ownership(): void
     {
         $otherOwner = User::factory()->create();
         $this->actingAs($otherOwner);
@@ -110,8 +110,82 @@ class NotificationSettingResourceTest extends TestCase
 
         $this->assertTrue(NotificationSettingResource::canViewAny());
         $this->assertTrue(NotificationSettingResource::canCreate());
-        $this->assertTrue(NotificationSettingResource::canEdit($someoneElsesRecord));
+        $this->assertFalse(NotificationSettingResource::canEdit($someoneElsesRecord));
         $this->assertFalse(NotificationSettingResource::canDelete($someoneElsesRecord));
+
+        $this->actingAs($otherOwner);
+        $this->assertTrue(NotificationSettingResource::canEdit($someoneElsesRecord), 'Positive control: the owner may edit.');
+    }
+
+    public function test_every_write_authorization_method_follows_owner_or_recipient_with_no_admin_bypass(): void
+    {
+        $owner = User::factory()->create();
+        $recipient = User::factory()->create();
+        $this->actingAs($owner);
+        $record = NotificationSetting::factory()->create(['settings' => $this->baseSettings(['users' => [$recipient->id]])]);
+        $record->delete();
+
+        $stranger = $this->actingAsUserWithPermissions(['notification_setting.edit', 'notification_setting.delete', 'notification_setting.restore']);
+
+        foreach (['canEdit', 'canDelete', 'canRestore'] as $method) {
+            $this->assertFalse(NotificationSettingResource::$method($record), "{$method} must deny a stranger even with a permission grant.");
+        }
+        foreach (['getEditAuthorizationResponse', 'getUpdateAuthorizationResponse', 'getDeleteAuthorizationResponse', 'getRestoreAuthorizationResponse'] as $method) {
+            $this->assertTrue(NotificationSettingResource::$method($record)->denied(), "{$method} must deny a stranger.");
+        }
+
+        foreach ([$owner, $recipient] as $allowed) {
+            $this->actingAs($allowed);
+
+            foreach (['canEdit', 'canDelete', 'canRestore'] as $method) {
+                $this->assertTrue(NotificationSettingResource::$method($record), "{$method} must allow the owner and a recipient.");
+            }
+            foreach (['getEditAuthorizationResponse', 'getUpdateAuthorizationResponse', 'getDeleteAuthorizationResponse', 'getRestoreAuthorizationResponse'] as $method) {
+                $this->assertTrue(NotificationSettingResource::$method($record)->allowed(), "{$method} must allow the owner and a recipient.");
+            }
+        }
+    }
+
+    public function test_the_toggle_is_disabled_and_refused_server_side_for_a_stranger_but_works_for_the_owner(): void
+    {
+        $owner = User::factory()->create();
+        $this->actingAs($owner);
+        $record = NotificationSetting::factory()->create(['settings' => $this->baseSettings()]);
+
+        $this->actingAsUserWithPermissions([]);
+        Livewire::test(ManageNotificationSettings::class)
+            ->assertTableColumnExists('settings.is_active', fn ($column) => $column->isDisabled(), $record)
+            ->call('updateTableColumnState', 'settings.is_active', $record->getKey(), false);
+        $this->assertTrue($record->fresh()->isActive(), 'A stranger cannot switch the rule off.');
+
+        $this->actingAs($owner);
+        Livewire::test(ManageNotificationSettings::class)
+            ->assertTableColumnExists('settings.is_active', fn ($column) => ! $column->isDisabled(), $record)
+            ->call('updateTableColumnState', 'settings.is_active', $record->getKey(), false);
+        $this->assertFalse($record->fresh()->isActive(), 'Positive control: the owner can.');
+    }
+
+    public function test_edit_restore_and_bulk_restore_are_refused_for_a_stranger_and_allowed_for_the_owner(): void
+    {
+        $owner = User::factory()->create();
+        $this->actingAs($owner);
+        $mine = NotificationSetting::factory()->create(['settings' => $this->baseSettings()]);
+        $mine->delete();
+        $recipientOwner = User::factory()->create();
+        $this->actingAs($recipientOwner);
+        $theirs = NotificationSetting::factory()->create(['settings' => $this->baseSettings()]);
+        $theirs->delete();
+
+        $this->actingAs($owner);
+        Livewire::test(ManageNotificationSettings::class)
+            ->filterTable('trashed')
+            ->assertTableActionHidden('restore', $theirs)
+            ->assertTableActionVisible('restore', $mine)
+            ->assertTableActionHidden('edit', $theirs)
+            ->callTableBulkAction('restore', [$mine, $theirs]);
+
+        $this->assertNull(NotificationSetting::find($theirs->id), 'Bulk restore skips the stranger\'s rule.');
+        $this->assertNotNull(NotificationSetting::find($mine->id), 'Positive control: it restores the owned one.');
     }
 
     public function test_delete_is_denied_for_a_record_owned_by_someone_else_even_with_the_delete_permission(): void
@@ -313,7 +387,7 @@ class NotificationSettingResourceTest extends TestCase
 
     public function test_create_happy_path_saves_a_new_notification_setting(): void
     {
-        $this->actingAsUserWithPermissions(['notification_setting.view', 'notification_setting.create']);
+        $this->actingAsUserWithPermissions(['notification_setting.view', 'notification_setting.create', 'purchase_request.view']);
 
         Livewire::test(ManageNotificationSettings::class)
             ->callAction('create', data: [
@@ -412,7 +486,7 @@ class NotificationSettingResourceTest extends TestCase
 
     public function test_edit_action_updates_the_notes(): void
     {
-        $actor = $this->actingAsUserWithPermissions(['notification_setting.view', 'notification_setting.edit']);
+        $actor = $this->actingAsUserWithPermissions(['notification_setting.view', 'notification_setting.edit', 'bank_profile.view']);
         $record = NotificationSetting::factory()->create([
             'notes' => 'Before',
             'settings' => $this->baseSettings(['users' => [$actor->id]]),
@@ -530,5 +604,61 @@ class NotificationSettingResourceTest extends TestCase
             ->callTableAction('restore', $record);
 
         $this->assertNotNull(NotificationSetting::find($record->id));
+    }
+
+    public function test_the_view_modal_footer_shows_delete_and_edit_to_the_owner_and_a_recipient_but_not_a_stranger(): void
+    {
+        $stranger = $this->actingAsUserWithPermissions([]);
+        $recipient = User::factory()->create();
+        $owner = User::factory()->create();
+        $this->actingAs($owner);
+        $mine = NotificationSetting::factory()->create(['settings' => $this->baseSettings(['users' => [$recipient->id]])]);
+
+        $footerFor = function (User $user) use ($mine): \Illuminate\Support\Collection {
+            $this->actingAs($user);
+            $view = Livewire::test(ManageNotificationSettings::class)->instance()->getTable()->getAction('view');
+
+            return collect($view->record($mine)->getExtraModalFooterActions());
+        };
+
+        foreach ([$owner, $recipient] as $allowed) {
+            $footer = $footerFor($allowed);
+            $this->assertSame(['delete', 'create', 'edit'], $footer->keys()->all());
+            $this->assertTrue($footer->only(['delete', 'edit'])->every(fn ($action): bool => $action->isVisible()));
+        }
+
+        $this->assertFalse($footerFor($stranger)->only(['delete', 'edit'])->contains(fn ($action): bool => $action->isVisible()));
+    }
+
+    public function test_the_view_modal_edit_footer_reuses_the_table_edit_action_data_hooks(): void
+    {
+        $actor = $this->actingAsUserWithPermissions([]);
+        $record = NotificationSetting::factory()->create(['user_id' => $actor->id]);
+        $view = Livewire::test(ManageNotificationSettings::class)->instance()->getTable()->getAction('view');
+
+        $edit = $view->record($record)->getExtraModalFooterActions()['edit'];
+        $reflection = new \ReflectionProperty($edit, 'mutateRecordDataUsing');
+
+        $this->assertNotNull($reflection->getValue($edit));
+    }
+
+    public function test_global_search_only_returns_rules_the_viewer_owns_or_receives_and_skips_deleted_ones(): void
+    {
+        $viewer = $this->actingAsUserWithPermissions([]);
+        $owned = NotificationSetting::factory()->create(['user_id' => $viewer->id, 'settings' => $this->baseSettings(['tables' => ['users']])]);
+        $this->actingAs(User::factory()->create());
+        $received = NotificationSetting::factory()->create(['settings' => $this->baseSettings(['tables' => ['users'], 'users' => [$viewer->id]])]);
+        $stranger = NotificationSetting::factory()->create(['settings' => $this->baseSettings(['tables' => ['users'], 'users' => []])]);
+        $this->actingAs($viewer);
+        $gone = NotificationSetting::factory()->create(['user_id' => $viewer->id, 'settings' => $this->baseSettings(['tables' => ['users']])]);
+        $gone->delete();
+
+        $ids = NotificationSettingResource::getGlobalSearchEloquentQuery()->pluck('id');
+
+        $this->assertEqualsCanonicalizing([$owned->id, $received->id], $ids->intersect([$owned->id, $received->id, $stranger->id, $gone->id])->values()->all());
+        $this->assertSame(
+            [__('resources/notificationSetting/strings.table.notification_type'), __('resources/notificationSetting/strings.table.actions'), __('resources/notificationSetting/strings.table.columns')],
+            array_keys(NotificationSettingResource::getGlobalSearchResultDetails($owned))
+        );
     }
 }

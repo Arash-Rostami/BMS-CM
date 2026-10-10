@@ -17,6 +17,7 @@ use App\Filament\Resources\Operational\PaymentResource\Traits\Table as PaymentTa
 use App\Filament\Resources\Operational\PaymentResource\Traits\VisibilityCheck;
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\BankProfile;
@@ -49,7 +50,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PaymentResource extends Resource
 {
-    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow, PaymentFilters, PaymentForm, PaymentInfolist, PaymentTable, VisibilityCheck;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasGlobalSearchConvention, HasResourcePermissions, HasStatusWorkflow, PaymentFilters, PaymentForm, PaymentInfolist, PaymentTable, VisibilityCheck;
 
     protected static ?string $model = Payment::class;
 
@@ -185,10 +186,9 @@ class PaymentResource extends Resource
             ]);
     }
 
-    public static function getGlobalSearchEloquentQuery(): Builder
+    protected static function globalSearchRelations(): array
     {
-        return parent::getGlobalSearchEloquentQuery()
-            ->with(['payor', 'payee']);
+        return ['payor', 'payee'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
@@ -196,7 +196,7 @@ class PaymentResource extends Resource
         return [
             __('resources/payment/strings.form.payor') => $record->payor?->localized_name ?? '—',
             __('resources/payment/strings.form.payee') => $record->payee?->localized_name ?? '—',
-            __('resources/payment/strings.form.payment_date') => $record->payment_date?->format('Y-m-d') ?? '—',
+            __('resources/payment/strings.form.payment_date') => $record->payment_date ? adaptiveDate($record->payment_date) : '—',
         ];
     }
 

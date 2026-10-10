@@ -18,6 +18,7 @@ use App\Filament\Resources\Operational\ShipmentResource\Traits\InvoiceForm as Sh
 use App\Filament\Resources\Operational\ShipmentResource\Traits\Table as ShipmentTable;
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\Shipment;
@@ -46,7 +47,7 @@ use Illuminate\Support\Str;
 
 class ShipmentResource extends Resource
 {
-    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow, ShipmentFilters, ShipmentForm, ShipmentInfolist, ShipmentInvoiceForm, ShipmentTable;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasGlobalSearchConvention, HasResourcePermissions, HasStatusWorkflow, ShipmentFilters, ShipmentForm, ShipmentInfolist, ShipmentInvoiceForm, ShipmentTable;
 
     protected static ?string $model = Shipment::class;
 
@@ -184,10 +185,9 @@ class ShipmentResource extends Resource
             ]);
     }
 
-    public static function getGlobalSearchEloquentQuery(): Builder
+    protected static function globalSearchRelations(): array
     {
-        return parent::getGlobalSearchEloquentQuery()
-            ->with(['carrier', 'status']);
+        return ['carrier', 'status'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array

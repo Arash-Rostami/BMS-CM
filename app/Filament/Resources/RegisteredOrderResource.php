@@ -22,6 +22,7 @@ use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Infolist a
 use App\Filament\Resources\Operational\RegisteredOrderResource\Traits\Table as RegisteredOrderTable;
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\RegisteredOrder;
@@ -53,7 +54,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class RegisteredOrderResource extends Resource
 {
-    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow, RegisteredOrderFilters, RegisteredOrderForm, RegisteredOrderInfolist, RegisteredOrderTable;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasGlobalSearchConvention, HasResourcePermissions, HasStatusWorkflow, RegisteredOrderFilters, RegisteredOrderForm, RegisteredOrderInfolist, RegisteredOrderTable;
 
     protected static ?string $model = RegisteredOrder::class;
 
@@ -210,14 +211,13 @@ class RegisteredOrderResource extends Resource
         return [
             __('resources/registeredOrder/strings.form.seller') => $record->sellerCompanyExclusive?->localized_name ?? '—',
             __('resources/registeredOrder/strings.form.status') => $record->status?->localized_name ?? '—',
-            __('resources/registeredOrder/strings.form.order_date') => $record->order_date?->format('Y-m-d') ?? '—',
+            __('resources/registeredOrder/strings.form.order_date') => $record->order_date ? adaptiveDate($record->order_date) : '—',
         ];
     }
 
-    public static function getGlobalSearchEloquentQuery(): Builder
+    protected static function globalSearchRelations(): array
     {
-        return parent::getGlobalSearchEloquentQuery()
-            ->with(['sellerCompanyExclusive', 'status']);
+        return ['sellerCompanyExclusive', 'status'];
     }
 
     public static function getGloballySearchableAttributes(): array

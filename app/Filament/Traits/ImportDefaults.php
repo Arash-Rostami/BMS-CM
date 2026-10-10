@@ -2,8 +2,11 @@
 
 namespace App\Filament\Traits;
 
+use App\Jobs\SyncCalendarRule;
+use App\Models\CalendarRule;
 use App\Observers\CodeGeneratingObserver;
 use App\Observers\NotificationDispatcher;
+use App\Services\Calendar\Sync\CalendarRouter;
 use App\Services\CodeGenerator;
 use App\Services\Imports\ImportColumnDefinition;
 use Filament\Actions\Imports\Exceptions\RowImportFailedException;
@@ -28,12 +31,19 @@ trait ImportDefaults
         try {
             CodeGeneratingObserver::duringImport(
                 fn () => NotificationDispatcher::suspended(
-                    fn () => $this->runInTransaction($data)
+                    fn () => CalendarRouter::suspended(fn () => $this->runInTransaction($data))
                 )
             );
+            $this->resyncCalendarRules();
         } finally {
             app()->setLocale($previousLocale);
         }
+    }
+
+    protected function resyncCalendarRules(): void
+    {
+        CalendarRule::query()->active()->where('subject', static::getModel())->pluck('id')
+            ->each(fn (int $id) => SyncCalendarRule::dispatch($id)->delay(120));
     }
 
     protected function runInTransaction(array $data): void

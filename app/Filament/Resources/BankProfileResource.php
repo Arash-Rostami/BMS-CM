@@ -15,6 +15,7 @@ use App\Filament\Resources\Operational\BankProfileResource\Traits\Infolist as Ba
 use App\Filament\Resources\Operational\BankProfileResource\Traits\Table as BankProfileTable;
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\BankProfile;
@@ -44,7 +45,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BankProfileResource extends Resource
 {
-    use BankProfileFilters, BankProfileForm, BankProfileInfolist, BankProfileTable, HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow;
+    use BankProfileFilters, BankProfileForm, BankProfileInfolist, BankProfileTable, HasDeskReferenceAction, HasExtraAttributesManagement, HasGlobalSearchConvention, HasResourcePermissions, HasStatusWorkflow;
 
     protected static ?string $model = BankProfile::class;
 
@@ -166,10 +167,9 @@ class BankProfileResource extends Resource
             ]);
     }
 
-    public static function getGlobalSearchEloquentQuery(): Builder
+    protected static function globalSearchRelations(): array
     {
-        return parent::getGlobalSearchEloquentQuery()
-            ->with(['bank', 'company', 'status']);
+        return ['bank', 'company', 'status'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array

@@ -8,6 +8,7 @@ use App\Filament\Resources\Master\PermissionResource\Traits\Filters as Permissio
 use App\Filament\Resources\Master\PermissionResource\Traits\Form as PermissionForm;
 use App\Filament\Resources\Master\PermissionResource\Traits\Infolist as PermissionInfolist;
 use App\Filament\Resources\Master\PermissionResource\Traits\Table as PermissionTable;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Permission;
 use App\Services\PermissionLabeler;
@@ -23,12 +24,13 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class PermissionResource extends Resource
 {
-    use HasResourcePermissions, PermissionFilters, PermissionForm, PermissionInfolist, PermissionTable;
+    use HasGlobalSearchConvention, HasResourcePermissions, PermissionFilters, PermissionForm, PermissionInfolist, PermissionTable;
 
     protected static ?string $model = Permission::class;
 
@@ -59,6 +61,21 @@ class PermissionResource extends Resource
     protected static function deleteWarning(int $roles, int $users): string
     {
         return __('resources/permission/strings.actions.delete_warning', ['roles' => $roles, 'users' => $users]);
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/permission/strings.table.roles_count') => $record->roles_count ?? '—',
+            __('resources/permission/strings.table.users_count') => $record->users_count ?? '—',
+        ];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        $date = toYmdDate($record);
+
+        return "🔐  {$record->name} (📆 {$date})";
     }
 
     public static function getModelLabel(): string

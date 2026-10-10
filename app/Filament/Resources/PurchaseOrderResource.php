@@ -19,6 +19,7 @@ use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\Table as Pur
 use App\Filament\Resources\Operational\PurchaseOrderResource\Traits\TotalCalculation;
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\PurchaseOrder;
@@ -49,7 +50,7 @@ use UnitEnum;
 
 class PurchaseOrderResource extends Resource
 {
-    use HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow, PurchaseOrderFilters, PurchaseOrderForm, PurchaseOrderInfolist, PurchaseOrderTable, TotalCalculation;
+    use HasDeskReferenceAction, HasExtraAttributesManagement, HasGlobalSearchConvention, HasResourcePermissions, HasStatusWorkflow, PurchaseOrderFilters, PurchaseOrderForm, PurchaseOrderInfolist, PurchaseOrderTable, TotalCalculation;
 
     protected static ?string $model = PurchaseOrder::class;
 
@@ -180,10 +181,9 @@ class PurchaseOrderResource extends Resource
             ]);
     }
 
-    public static function getGlobalSearchEloquentQuery(): Builder
+    protected static function globalSearchRelations(): array
     {
-        return parent::getGlobalSearchEloquentQuery()
-            ->with(['sellerCompanyExclusive', 'status']);
+        return ['sellerCompanyExclusive', 'status'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
@@ -191,7 +191,7 @@ class PurchaseOrderResource extends Resource
         return [
             __('resources/purchaseOrder/strings.form.seller') => $record->sellerCompanyExclusive?->localized_name ?? '—',
             __('resources/purchaseOrder/strings.form.status') => $record->status?->localized_name ?? '—',
-            __('resources/purchaseOrder/strings.form.order_date') => $record->order_date?->format('Y-m-d') ?? '—',
+            __('resources/purchaseOrder/strings.form.order_date') => $record->order_date ? adaptiveDate($record->order_date) : '—',
         ];
     }
 

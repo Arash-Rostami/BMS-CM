@@ -1,4 +1,4 @@
-Seven observers, registered in `AppServiceProvider::boot()`. Each is a focused, single-concern side-effect handler — no shared base class, no shared behavior between them beyond the Eloquent observer contract itself.
+Nine observers, registered in `AppServiceProvider::boot()`. Each is a focused, single-concern side-effect handler — no shared base class, no shared behavior between them beyond the Eloquent observer contract itself.
 
 | Observer | Model(s) | Fires on | Does |
 |---|---|---|---|
@@ -9,6 +9,8 @@ Seven observers, registered in `AppServiceProvider::boot()`. Each is a focused, 
 | `AttachmentObserver` | `Attachment` | `forceDeleted` | Deletes the underlying file from the `public` disk once the DB row is permanently gone (soft-delete alone leaves the file in place). |
 | `CodeGeneratingObserver` | any model in `CodeGenerator::$map` | `creating` | Calls `CodeGenerator::generate($field)` for each mapped identifier column, unless `duringImport(fn () => ...)` is wrapping the call (import pipelines generate/validate identifiers themselves). |
 | `NotificationDispatcher` | gated via `NotificationEvaluator` | model save events | Evaluates `NotificationSetting` rules and fires matching notifications, unless `suspended(fn () => ...)` is wrapping the call (bulk/import paths that would otherwise spam one notification per row). |
+| `CalendarRuleObserver` | `CalendarRule` | `saving`/`saved`/`deleted` | Keeps the calendar subsystem consistent per rule change: fingerprints + `watched_columns` on save, cache/routing invalidation, debounced `SyncCalendarRule` dispatch (immediate on delete, which purges a trashed rule's hits). |
+| `CalendarTouchObserver` | every class in its `OBSERVED` const (all models except `CalendarRule`/`CalendarHit`) | `created`/`saved`/`deleted`/`restored`/`forceDeleted` | Feeds `CalendarRouter::touch($model, $event)` so a subject save resyncs matching rules' hits — O(1) early-out for classes outside the routing map. |
 
 ## `CategoryObserver`'s closure table — the one observer here with real algorithmic weight
 
@@ -21,3 +23,13 @@ Seven observers, registered in `AppServiceProvider::boot()`. Each is a focused, 
 **Ordering gotcha, caught by the fix's own regression test, not by reading the code**: the self-link upsert MUST happen before the subtree is read. On `created()`, a brand-new category has no closure rows yet at all — if you query "this category's subtree" before its own self-link exists, you get an EMPTY result, and the category itself silently never gets linked to its parent's ancestor chain. Reversing the two lines breaks `created()` silently while leaving `updated()` unaffected (an existing category already has its self-link from when it was created) — exactly the kind of bug that passes a reparent test but fails a plain create, so test both paths, not just the one you're actively fixing.
 
 No dedicated test file exists for `CategoryObserver` as of this writing — its coverage lives inline in `CategoryModelTest.php`/`CategoryResourceTest.php` (see `tests/testPattern.md`'s model-layer bar) alongside the cycle-guard feature that depends on it.
+
+## The calendar observers (2026-10-08)
+
+`CalendarRuleObserver`: `saving` computes `fingerprint`/`conditions_hash` (`computeFingerprints()`) and `watched_columns` (`CalendarRouter::computeWatchedColumns()`) — never trust client-submitted values for these. `saved` returns early when nothing changed (`!wasRecentlyCreated && !wasChanged()` — Eloquent fires `saved` for a no-op save; a freshly created instance keeps `wasRecentlyCreated`, so test with a fresh instance), otherwise logs the `rule_updated` activity row, invalidates the `CalendarRule` SmartCache key, and ALWAYS bumps the routing version (`CalendarRouter::flushRoutes()` — even under suspension, since a rule change mid-import must refresh routing), then dispatches `SyncCalendarRule` with a 120s debounce — but the dispatch itself is gated on `!CalendarRouter::isSuspended()`. `deleted` does the invalidations plus an IMMEDIATE dispatch: the sync job looks the rule up `withTrashed`, sees it inactive, and purges its hits — purge-on-delete rides the existing tested sync path rather than a second engine method.
+
+`CalendarTouchObserver` is registered in a loop over its `OBSERVED` const list (31 classes, `CalendarRule`/`CalendarHit` excluded at the source) in `AppServiceProvider::registerObservers()` — deliberately NOT a second `File::allFiles` scan, since `NotificationServiceProvider` already scans `app/Models` once per request; a const list is the explicit alternative the calendar plan settled on. The engine still guards (Pivot subclasses, the suspended flag, `wasChanged(watched_columns)` for `saved`), and classes outside the routing map return in O(1) — unrelated saves cost nothing. Query-builder `update()`/`upsert()` paths fire no Eloquent events, so the 02:00 `RebuildCalendarHits` schedule is the designed catch-up.
+
+**Test-layer consequence (bites every calendar test):** observers are live and phpunit runs `QUEUE_CONNECTION=sync`, so an observer's dispatch would run the full `SyncCalendarRule` inline during fixture setup. Every calendar test file therefore puts `Queue::fake()` in `setUp()` — without it, factory-created rules silently sync against the whole dev-DB `PurchaseRequest` table mid-test.
+
+**NotificationDispatcher (2026-10-08):** a restore (the `deleted_at` change back to null) sends nothing; the dispatcher wraps its evaluator call in try/catch + `report()` and `CalendarTouchObserver` does the same around its router call, so neither observer can silence the other; notifications are queued after commit. Details: `app/Services/servicesPattern.md` (NotificationEvaluator).

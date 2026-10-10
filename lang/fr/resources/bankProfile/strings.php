@@ -124,7 +124,7 @@ return [
         'summary_commission_amount' => 'Montant de la commission',
         'summary_commission_equivalent' => 'Équivalent de la commission',
         'summary_final_equivalent' => 'Équivalent final',
-        'summary_final_eur' => 'Final EUR',
+        'summary_final_eur' => 'Équivalent final en EUR',
         'summary_remaining' => 'Engagement restant',
         'summary_total_rial' => 'Total (Rial, net)',
         'summary_total_purchased' => 'Total des remises achetées',

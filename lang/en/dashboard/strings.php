@@ -91,7 +91,7 @@ return [
                     'title' => 'Automation that runs itself',
                     'items' => [
                         ['title' => 'Prepare-From Chain Reactions', 'description' => 'Create an order from a request, or an invoice from an order, and line items, prices, and terms auto-fill from the source document.'],
-                        ['title' => 'Auto-Numbered Documents', 'description' => 'Every request, order, payment, and shipment gets a clean reference number the instant it is created, with the database itself enforcing that no two records ever end up sharing one.'],
+                        ['title' => 'Auto-Numbered Documents', 'description' => 'Every request, invoice, order, payment, shipment, and customs entry gets a clean sequential reference number the moment it is created — generated from a daily sequence and validated unique at entry, so no two records ever share one.'],
                         ['title' => 'Status Cascades on Its Own', 'description' => 'Approve or decline a request once, and every line item inside it updates to match automatically.'],
                         ['title' => 'Checklists That Tick Themselves', 'description' => 'Upload shipment paperwork and the system detects which required documents were provided just from the file names — including Persian-script spelling variants.'],
                     ],
@@ -104,8 +104,16 @@ return [
                         ['title' => 'Supplier & Currency Concentration Score', 'description' => 'Calculates how dependent the business is on one supplier or currency, color-coded so no finance background is needed to read it.'],
                         ['title' => 'Aging & Exposure Reports', 'description' => 'Unpaid invoices are automatically bucketed into 30/60/90+ day windows, with open currency exposure refreshed automatically per deal.'],
                         ['title' => 'Deal Speed X-Ray', 'description' => 'Shows typical vs. slowest-10% turnaround time for every pipeline stage, so a slow deal is obvious before it becomes a crisis.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Keeps You Ahead',
+                    'title' => 'Alerts and answers, not just records',
+                    'items' => [
                         ['title' => 'Notifications That Explain Themselves', 'description' => 'When a record you\'re watching changes, the emailed alert shows the actual before-and-after values in plain terms — not just "record updated."'],
                         ['title' => '"Explain This Number" on Every Chart', 'description' => 'Every dashboard metric has a plain-language explanation built in — what it measures and why it matters — with a technical drill-down for anyone who wants it.'],
+                        ['title' => 'Date Reminders That Watch For You', 'description' => 'Define a rule once — say, an order\'s delivery date minus 7 days — and the system keeps a live list of every matching record. Alerts arrive in-app or by email before the date, and a date that needs action keeps reminding you if it passes; only people allowed to see that module receive them. Share each rule with everyone, specific people, or specific roles — and every match and change is logged per record.'],
+                        ['title' => 'A Calendar Built Into the Dashboard', 'description' => 'The dashboard\'s calendar tab lays matching records out as a month grid, Gregorian or Jalali — days carry color-coded badges per rule, overdue days stand out, and clicking a day lists its records with one click through to each. Filter by rule or module, export any day to Excel, and the home page keeps its own shortlist of what is overdue or due within seven days.'],
                     ],
                 ],
                 [
@@ -131,10 +139,16 @@ return [
                     'tag' => 'Remembers You',
                     'title' => 'A workspace that adapts to each person',
                     'items' => [
-                        ['title' => 'Pin What You Actually Use', 'description' => 'Save frequent modules and specific records to a personal shortcut panel instead of navigating the same menu path every day.'],
+                        ['title' => 'Pin What You Actually Use', 'description' => 'Save frequent modules and specific records to a personal shortcut panel instead of navigating the same menu path every day. The workspace shows only the modules your role may open, each pinned record carries its current status chip, and recently opened records are offered as one-click pin candidates.'],
                         ['title' => 'In-Context Help, Not a Manual', 'description' => 'A tailored reference panel per module, with an unread flag that clears once you have seen it — and reappears automatically if the guidance itself is later updated.'],
-                        ['title' => 'A Greeting That Knows the Time of Day', 'description' => 'A small human touch generic procurement software never bothers with.'],
                         ['title' => 'Sidebar, Your Way', 'description' => 'Switch the navigation menu between a side panel and a bottom dock with one click, and the app remembers your choice.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Day-To-Day Comfort',
+                    'title' => 'Small touches that add up',
+                    'items' => [
+                        ['title' => 'A Greeting That Knows the Time of Day', 'description' => 'The welcome message on the dashboard changes with the time of day — a small human touch, built right in.'],
                         ['title' => 'A Toolkit That Follows You', 'description' => 'A floating clock, a Pomodoro-style countdown timer to help you concentrate, and calming background music to ease tension — all one click away anywhere in the workspace, with your music picks and volume remembered between visits.'],
                         ['title' => 'A Topbar That Works For You', 'description' => 'A quick-create button that lists only the documents your role may actually create, grouped by pipeline stage — plus a recent-records menu that remembers the last documents you opened, one click away from anywhere.'],
                     ],
@@ -161,7 +175,7 @@ return [
                     'items' => [
                         ['title' => 'File Attachments on Every Order Record', 'description' => 'Supporting documents attach directly to every request, invoice, order, payment, and shipment record, so paperwork never gets separated from the data.'],
                         ['title' => 'Internal Correspondence Log', 'description' => 'Team messages tied to a specific order keep context in one place instead of scattered across email.'],
-                        ['title' => 'Configurable Notifications', 'description' => 'Users are notified when records they care about change, with administrators able to configure what triggers an alert.'],
+                        ['title' => 'Configurable Notifications', 'description' => 'Users are alerted when the records they watch change — each person chooses which events trigger alerts, for themselves or named colleagues.'],
                         ['title' => 'Multi-Company & Multi-Currency', 'description' => 'The same company can be a seller, buyer, or supplier, and every order can carry its own currency — built for real cross-border trade.'],
                     ],
                 ],
@@ -234,6 +248,7 @@ return [
     'workspace_records' => 'Records',
     'workspace_modules_hint' => 'Pin the modules you use most',
     'workspace_records_hint' => 'Pin specific records for one-click access',
+    'switchers_toggle' => 'Quick buttons',
     'pinned_suffix' => 'pinned',
     'section_pinned' => 'Pinned',
     'section_add' => 'Add',
@@ -252,7 +267,9 @@ return [
         'retry' => 'Retry',
         'found' => 'found',
         'tap' => 'Tap to pin',
+        'rename' => 'Rename',
         'add' => 'Add',
         'added' => 'Added',
+        'recent' => 'Recently opened',
     ],
 ];

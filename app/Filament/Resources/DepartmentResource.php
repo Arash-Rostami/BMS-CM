@@ -9,6 +9,7 @@ use App\Filament\Resources\Master\DepartmentResource\Traits\Form as DepartmentFo
 use App\Filament\Resources\Master\DepartmentResource\Traits\Infolist as DepartmentInfolist;
 use App\Filament\Resources\Master\DepartmentResource\Traits\Table as DepartmentTable;
 use App\Filament\Traits\HandleActivation;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Department;
 use Filament\Actions\ActionGroup;
@@ -26,10 +27,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class DepartmentResource extends Resource
 {
-    use DepartmentFilters, DepartmentForm, DepartmentInfolist, DepartmentTable, HandleActivation, HasResourcePermissions;
+    use DepartmentFilters, DepartmentForm, DepartmentInfolist, DepartmentTable, HandleActivation, HasGlobalSearchConvention, HasResourcePermissions;
 
     protected static ?string $model = Department::class;
 
@@ -73,14 +75,18 @@ class DepartmentResource extends Resource
         return "🏢  {$name} (🔑 {$record->code})";
     }
 
-    public static function getGlobalSearchResultUrl(Model $record): ?string
+    protected static function globalSearchRelations(): array
     {
-        return static::getUrl('index', ['search' => $record->english_name ?? $record->name ?? '']);
+        return ['creator'];
     }
 
-    public static function getGloballySearchableAttributes(): array
+    public static function getGlobalSearchResultDetails(Model $record): array
     {
-        return ['name', 'english_name', 'code'];
+        return [
+            __('resources/department/strings.table.english_name') => $record->english_name ?? '—',
+            __('resources/department/strings.table.description') => Str::limit($record->description, 40) ?: '—',
+            __('resources/department/strings.table.creator') => $record->creator?->name ?? '—',
+        ];
     }
 
     public static function getModelLabel(): string

@@ -17,6 +17,7 @@ use App\Filament\Resources\Operational\CustomResource\Traits\Table as CustomTabl
 use App\Filament\Resources\Operational\RegisteredOrderResource\RelationManagers\CorrespondenceRelationManager;
 use App\Filament\Traits\HasDeskReferenceAction;
 use App\Filament\Traits\HasExtraAttributesManagement;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\Custom;
@@ -44,7 +45,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomResource extends Resource
 {
-    use CustomFilters, CustomForm, CustomInfolist, CustomTable, HasDeskReferenceAction, HasExtraAttributesManagement, HasResourcePermissions, HasStatusWorkflow;
+    use CustomFilters, CustomForm, CustomInfolist, CustomTable, HasDeskReferenceAction, HasExtraAttributesManagement, HasGlobalSearchConvention, HasResourcePermissions, HasStatusWorkflow;
 
     protected static ?string $model = Custom::class;
 
@@ -145,10 +146,9 @@ class CustomResource extends Resource
             ]);
     }
 
-    public static function getGlobalSearchEloquentQuery(): Builder
+    protected static function globalSearchRelations(): array
     {
-        return parent::getGlobalSearchEloquentQuery()
-            ->with(['shipment', 'clearanceStatus']);
+        return ['shipment', 'clearanceStatus'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array

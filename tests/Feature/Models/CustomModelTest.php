@@ -3,6 +3,7 @@
 namespace Tests\Feature\Models;
 
 use App\Models\Custom;
+use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrder;
 use App\Models\Shipment;
 use App\Models\Status;
@@ -282,5 +283,17 @@ class CustomModelTest extends TestCase
         ]);
 
         $this->assertArrayHasKey('clearance_aging_days', $custom->toArray());
+    }
+
+    public function test_purchase_requests_match_the_manual_chain_through_the_registered_order(): void
+    {
+        $ro = RegisteredOrder::factory()->create();
+        $linked = PurchaseRequest::factory()->create();
+        PurchaseRequest::factory()->create()->registeredOrders()->attach(RegisteredOrder::factory()->create());
+        $linked->registeredOrders()->attach($ro);
+        $custom = Custom::factory()->create(['registered_order_id' => $ro->id]);
+
+        $this->assertSame($custom->registeredOrder->purchaseRequests->pluck('id')->sort()->values()->all(), $custom->purchaseRequests->pluck('id')->sort()->values()->all());
+        $this->assertSame([$linked->id], $custom->purchaseRequests->pluck('id')->all());
     }
 }

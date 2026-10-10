@@ -49,7 +49,7 @@ trait Relationships
         return $this->belongsToMany(PurchaseRequest::class, 'proforma_invoice_purchase_request');
     }
 
-    public function registeredOrders()
+    public function registeredOrders(): BelongsToMany
     {
         return $this->belongsToMany(
             RegisteredOrder::class,

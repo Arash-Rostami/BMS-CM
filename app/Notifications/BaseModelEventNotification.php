@@ -4,48 +4,68 @@ namespace App\Notifications;
 
 use App\Models\NotificationSetting;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notification;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 
-abstract class BaseModelEventNotification extends Notification
+abstract class BaseModelEventNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, SerializesModels;
+
+    protected const STRINGS = 'resources/notificationSetting/strings.notification.';
+
+    public bool $deleteWhenMissingModels = true;
 
     public function __construct(
         protected Model $model,
         protected string $action,
         protected array $changes,
         protected NotificationSetting $setting
-    ) {}
-
-    protected function buildBody(): string
-    {
-        $modelName = Str::headline(class_basename($this->model));
-        $identifier = $this->getModelIdentifier();
-
-        if ($this->action === 'update' && ! empty($this->changes)) {
-            $columns = array_keys($this->changes);
-            $columnsList = implode(', ', array_map(fn ($c) => Str::headline($c), $columns));
-
-            return "{$modelName} {$identifier} updated: {$columnsList}";
-        }
-
-        return match ($this->action) {
-            'create' => "{$modelName} {$identifier} has been created",
-            'delete' => "{$modelName} {$identifier} has been deleted",
-            default => "{$modelName} {$identifier} has changed",
-        };
+    ) {
+        $this->afterCommit();
     }
 
-    protected function buildTitle(string $modelName): string
+    /**
+     * @return array<string, mixed>
+     */
+    protected function bodyText(): array
     {
-        return match ($this->action) {
-            'create' => "{$modelName} Created",
-            'update' => "{$modelName} Updated",
-            'delete' => "{$modelName} Deleted",
-            default => "{$modelName} Changed",
-        };
+        $type = $this->action === 'update' && empty($this->changes) ? 'default' : $this->actionKey();
+
+        return $this->text('body.'.$type, [
+            'columns' => implode(', ', NotificationSetting::columnLabels([$this->model->getTable()], array_keys($this->changes))),
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function titleText(): array
+    {
+        return $this->text('title.'.$this->actionKey());
+    }
+
+    /**
+     * @param  array<string, mixed>  $extra
+     * @return array{key: string, params: array<string, string>}
+     */
+    protected function text(string $suffix, array $extra = []): array
+    {
+        return [
+            'key' => self::STRINGS.$suffix,
+            'params' => [
+                'model' => Str::headline(class_basename($this->model)),
+                'module' => Str::snake(class_basename($this->model)),
+                'identifier' => $this->getModelIdentifier(),
+            ] + $extra,
+        ];
+    }
+
+    protected function actionKey(): string
+    {
+        return in_array($this->action, NotificationSetting::ACTIONS, true) ? $this->action : 'default';
     }
 
     protected function getIcon(): string
@@ -68,21 +88,13 @@ abstract class BaseModelEventNotification extends Notification
         };
     }
 
-    protected function getIntroLine(string $modelName, string $identifier): string
-    {
-        return match ($this->action) {
-            'create' => "A new {$modelName} **{$identifier}** has been created.🟢",
-            'update' => "The {$modelName} **{$identifier}** has been updated.🟡",
-            'delete' => "The {$modelName} **{$identifier}** has been deleted.🔴",
-            default => "The {$modelName} **{$identifier}** has changed.⚙️",
-        };
-    }
-
     protected function getRecordUrl(): string
     {
         $slug = Str::kebab(Str::pluralStudly(class_basename($this->model)));
 
-        return "/dashboard/{$slug}/{$this->model->getKey()}/edit";
+        return $this->action === 'delete'
+            ? "/dashboard/{$slug}"
+            : "/dashboard/{$slug}/{$this->model->getKey()}/edit";
     }
 
     protected function getModelIdentifier(): string
@@ -102,16 +114,6 @@ abstract class BaseModelEventNotification extends Notification
             $identifier .= " ({$contractNo})";
         }
 
-        return $identifier;
-    }
-
-    protected function getSubject(string $modelName, string $identifier): string
-    {
-        return match ($this->action) {
-            'create' => "{$modelName} Created: {$identifier}",
-            'update' => "{$modelName} Updated: {$identifier}",
-            'delete' => "{$modelName} Deleted: {$identifier}",
-            default => "{$modelName} Changed: {$identifier}",
-        };
+        return Str::limit((string) $identifier, 120);
     }
 }

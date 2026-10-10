@@ -175,7 +175,7 @@ trait Infolist
     {
         return TextEntry::make('eta')
             ->label(__('resources/shipment/strings.form.eta'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-clock')
             ->placeholder('-');
     }
@@ -184,7 +184,7 @@ trait Infolist
     {
         return TextEntry::make('etd')
             ->label(__('resources/shipment/strings.form.etd'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-clock')
             ->placeholder('-');
     }
@@ -193,7 +193,7 @@ trait Infolist
     {
         return TextEntry::make('exit_date')
             ->label(__('resources/shipment/strings.form.exit_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -304,7 +304,7 @@ trait Infolist
     {
         return TextEntry::make('warehouse_date')
             ->label(__('resources/shipment/strings.form.warehouse_date'))
-            ->jalaliDate()
+            ->adaptiveDate()
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }

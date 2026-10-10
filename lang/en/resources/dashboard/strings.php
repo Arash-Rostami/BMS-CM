@@ -7,12 +7,40 @@ return [
         'operational_second' => '【2】 RO Mangs.',
         'operational_third' => '【3】 Fin. Mangs',
         'operational_fourth' => '【4】 Logs Mangs',
+        'alerts' => '【!】 Logs & Alerts',
     ],
     'widgets' => [
         'tabs' => [
+            'calendar' => 'Calendar',
             'risk' => 'Risk Overview',
             'performance' => 'Performance',
             'exposure' => 'Exposure',
+        ],
+        'calendar' => [
+            'heading' => 'Calendar',
+            'description' => 'Rule-driven dates across your pipeline modules',
+            'today' => 'Today',
+            'previous' => 'Previous month',
+            'next' => 'Next month',
+            'jump' => 'Go',
+            'month' => 'Month',
+            'agenda' => 'Agenda',
+            'legend' => 'Legend',
+            'overdue' => 'Overdue',
+            'empty' => 'Nothing scheduled this month',
+            'agenda_capped' => 'Showing the first :count items of this month',
+            'filters' => [
+                'all_rules' => 'All rules',
+                'all_modules' => 'All modules',
+            ],
+            'day' => [
+                'heading' => 'Selected Day',
+                'none' => 'Pick a day on the calendar',
+                'item' => 'Item',
+                'rule' => 'Rule',
+                'status' => 'Status',
+                'export' => 'Export hits',
+            ],
         ],
         'cycle_time' => [
             'heading' => 'Trade Cycle Time',
@@ -74,6 +102,12 @@ return [
             'data_label' => 'Data used',
             'why_label' => 'Why it matters',
             'technical_label' => 'Technical',
+            'calendar' => [
+                'what' => 'The dates that matter for your records — matched by your calendar rules — in one month view, with a side panel listing everything that falls on the day you pick.',
+                'data' => 'Your calendar rules (name, color, type) and the items each rule currently matches, per module and date.',
+                'why' => 'See what is due, overdue, or coming up across all pipeline modules without opening each one.',
+                'technical' => 'calendar_hits joined to calendar_rules, grouped by event_date + calendar_rule_id in a single grouped count query per view (never all rows of the month); heads-up hits past their date are excluded on the read side; every read path (grid, agenda, day table, export) goes through CalendarHit::visibleTo — module .view applies to admins too.',
+            ],
             'cycle_time' => [
                 'what' => 'Days it typically takes to move through each stage of the buying process — approval, ordering, payment, shipping, customs — shown as both a typical (median) and worst-case (90th percentile) duration.',
                 'data' => 'Purchase Requests, Registered Orders, Payments, Shipments, and Customs, matched by their date columns at each stage (approval date, order date, payment date, ETA, exit date, clearance date).',
@@ -110,6 +144,15 @@ return [
                 'why' => 'The "what needs attention today" list, ranked by days overdue.',
                 'technical' => 'Four queries unioned: purchase_requests (approval_date IS NULL AND required_by_date < CURDATE()); registered_orders (expected_delivery_date < CURDATE() and no matching shipments.registered_order_id); payments (payment_date IS NULL AND payment_deadline < CURDATE()); shipments (exit_date IS NULL AND eta < CURDATE()). Each computes DATEDIFF(CURDATE(), target_date); combined result ORDER BY that value DESC LIMIT 15.',
             ],
+        ],
+    ],
+    'landing_page' => [
+        'attention' => [
+            'tab' => 'Needs Attention',
+            'count_label' => 'items',
+            'empty' => 'Nothing needs your attention right now',
+            'open_calendar' => 'Open calendar',
+            'more' => '+:count more',
         ],
     ],
 ];

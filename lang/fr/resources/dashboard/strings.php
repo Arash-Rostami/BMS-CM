@@ -7,12 +7,40 @@ return [
         'operational_second' => '【2】 CE Gest.',
         'operational_third' => '【3】 Fin. Gest.',
         'operational_fourth' => '【4】 Log. Gest.',
+        'alerts' => '【!】 Journaux & Alertes',
     ],
     'widgets' => [
         'tabs' => [
+            'calendar' => 'Calendrier',
             'risk' => 'Aperçu des risques',
             'performance' => 'Performance',
             'exposure' => 'Exposition',
+        ],
+        'calendar' => [
+            'heading' => 'Calendrier',
+            'description' => 'Dates clés de vos dossiers, déterminées par vos règles de calendrier',
+            'today' => 'Aujourd\'hui',
+            'previous' => 'Mois précédent',
+            'next' => 'Mois suivant',
+            'jump' => 'Aller',
+            'month' => 'Mois',
+            'agenda' => 'Agenda',
+            'legend' => 'Légende',
+            'overdue' => 'En retard',
+            'empty' => 'Rien de prévu ce mois-ci',
+            'agenda_capped' => 'Affichage des :count premiers éléments du mois',
+            'filters' => [
+                'all_rules' => 'Toutes les règles',
+                'all_modules' => 'Tous les modules',
+            ],
+            'day' => [
+                'heading' => 'Jour sélectionné',
+                'none' => 'Choisissez un jour dans le calendrier',
+                'item' => 'Élément',
+                'rule' => 'Règle',
+                'status' => 'Statut',
+                'export' => 'Exporter les éléments',
+            ],
         ],
         'cycle_time' => [
             'heading' => 'Durée du cycle commercial',
@@ -74,6 +102,12 @@ return [
             'data_label' => 'Données utilisées',
             'why_label' => "Pourquoi c'est important",
             'technical_label' => 'Détails techniques',
+            'calendar' => [
+                'what' => 'Les dates qui comptent pour vos dossiers — identifiées par vos règles de calendrier — en une vue mensuelle, avec un panneau latéral listant tout ce qui tombe sur le jour choisi.',
+                'data' => 'Vos règles de calendrier (nom, couleur, type) et les éléments auxquels chaque règle correspond actuellement, par module et par date.',
+                'why' => 'Voir ce qui arrive à échéance, ce qui est en retard ou à venir dans tous les modules du processus, sans ouvrir chacun d\'eux.',
+                'technical' => 'calendar_hits joint à calendar_rules, regroupé par event_date + calendar_rule_id en une seule requête groupée par vue (jamais toutes les lignes du mois) ; les alertes de type heads-up passées sont exclues à la lecture ; chaque chemin de lecture (grille, agenda, tableau du jour, export) passe par CalendarHit::visibleTo — la permission .view du module s\'applique aussi aux administrateurs.',
+            ],
             'cycle_time' => [
                 'what' => "Le nombre de jours qu'il faut généralement pour franchir chaque étape du processus d'achat — approbation, commande, paiement, expédition, dédouanement — exprimé comme durée typique (médiane) et pire cas (90e percentile).",
                 'data' => "Demandes d'achat, Commandes enregistrées, Paiements, Expéditions et Douanes, reliés par leurs dates à chaque étape (date d'approbation, date de commande, date de paiement, ETA, date de sortie, date de dédouanement).",
@@ -110,6 +144,15 @@ return [
                 'why' => 'La liste « ce qui nécessite une attention aujourd\'hui », classée par nombre de jours de retard.',
                 'technical' => 'Quatre requêtes réunies par UNION : purchase_requests (approval_date IS NULL AND required_by_date < CURDATE()) ; registered_orders (expected_delivery_date < CURDATE() et aucun shipments.registered_order_id correspondant) ; payments (payment_date IS NULL AND payment_deadline < CURDATE()) ; shipments (exit_date IS NULL AND eta < CURDATE()). Chacune calcule DATEDIFF(CURDATE(), date_cible) ; le résultat combiné est trié par cette valeur décroissante, limité à 15.',
             ],
+        ],
+    ],
+    'landing_page' => [
+        'attention' => [
+            'tab' => 'À traiter',
+            'count_label' => 'éléments',
+            'empty' => 'Rien ne nécessite votre attention pour le moment',
+            'open_calendar' => 'Ouvrir le calendrier',
+            'more' => '+:count de plus',
         ],
     ],
 ];

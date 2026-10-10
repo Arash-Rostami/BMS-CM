@@ -26,6 +26,10 @@ class Correspondence extends Model
 
     public const TYPE_CORRESPONDENCE_STATUS = 'Correspondence Status';
 
+    public const SCANNABLE_TABLE = 'correspondences';
+
+    public const SCANNABLE_IDENTIFIER = 'subject';
+
     protected $fillable = [
         'correspondable_type',
         'correspondable_id',

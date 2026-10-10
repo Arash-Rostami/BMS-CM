@@ -64,4 +64,10 @@ trait Relationships
     {
         return $this->morphTo();
     }
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class, 'currency_id')
+            ->where('is_active', 1);
+    }
 }

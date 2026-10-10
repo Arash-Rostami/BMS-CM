@@ -3,6 +3,8 @@
 namespace Tests\Feature\Models;
 
 use App\Models\NotificationSetting;
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -142,21 +144,28 @@ class NotificationSettingModelTest extends TestCase
         $this->assertFalse($ids->contains($excluded->id));
     }
 
-    public function test_model_inspector_headlines_the_fillable_columns_and_ignores_unknown_classes(): void
+    public function test_model_inspector_localizes_the_fillable_columns_and_ignores_unknown_classes(): void
     {
         $this->assertSame(
-            ['Settings', 'Notification type', 'Notes', 'User id', 'Updated by id'],
+            ['Settings', 'Channel', 'Additional Notes', 'Created by', 'Updated by'],
             NotificationSetting::getAvailableColumns(NotificationSetting::class)
         );
         $this->assertSame([], NotificationSetting::getAvailableColumns('App\\Models\\DoesNotExist'));
     }
 
-    public function test_model_inspector_lists_columns_for_selected_tables(): void
+    public function test_model_inspector_lists_columns_only_for_selectable_tables_the_user_can_view(): void
     {
-        $columns = NotificationSetting::getColumnsForSelectedTables(['notification_settings']);
+        $user = User::factory()->create();
+        $role = Role::create(['name' => 'model_test_role_'.uniqid(), 'guard_name' => 'web']);
+        $role->givePermissionTo(Permission::firstOrCreate(['name' => 'purchase_request.view', 'guard_name' => 'web']));
+        $user->assignRole($role);
 
-        $this->assertArrayHasKey('Notification Settings', $columns);
-        $this->assertArrayHasKey('notification_type', $columns['Notification Settings']);
-        $this->assertSame('Notification Type', $columns['Notification Settings']['notification_type']);
+        $this->assertSame([], NotificationSetting::getColumnsForSelectedTables(['purchase_requests']), 'Guests see nothing.');
+
+        $this->actingAs($user);
+        $columns = NotificationSetting::getColumnsForSelectedTables(['purchase_requests', 'notification_settings']);
+
+        $this->assertSame(['Purchase Request'], array_keys($columns), 'The non-selectable table is not listed.');
+        $this->assertSame('Urgency Level', $columns['Purchase Request']['urgency_level']);
     }
 }

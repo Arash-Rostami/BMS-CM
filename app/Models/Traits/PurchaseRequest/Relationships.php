@@ -3,11 +3,15 @@
 namespace App\Models\Traits\PurchaseRequest;
 
 use App\Models\Attachment;
+use App\Models\Attributes\Indirect;
+use App\Models\Custom;
 use App\Models\Department;
+use App\Models\Payment;
 use App\Models\ProformaInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequestItem;
 use App\Models\RegisteredOrder;
+use App\Models\Shipment;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +36,13 @@ trait Relationships
         return $this->belongsTo(Department::class, 'cost_center_id');
     }
 
+    #[Indirect]
+    public function customs(): BelongsToMany
+    {
+        return $this->belongsToMany(Custom::class, 'registered_order_purchase_request', 'purchase_request_id', 'registered_order_id', 'id', 'registered_order_id')
+            ->distinct();
+    }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
@@ -52,7 +63,15 @@ trait Relationships
         return $this->belongsToMany(PurchaseOrder::class, 'purchase_order_purchase_request');
     }
 
-    public function registeredOrders()
+    #[Indirect]
+    public function purchaseOrderPayments(): BelongsToMany
+    {
+        return $this->belongsToMany(Payment::class, 'purchase_order_purchase_request', 'purchase_request_id', 'purchase_order_id', 'id', 'targetable_id')
+            ->where('payments.targetable_type', (new PurchaseOrder)->getMorphClass())
+            ->distinct();
+    }
+
+    public function registeredOrders(): BelongsToMany
     {
         return $this->belongsToMany(
             RegisteredOrder::class,
@@ -65,6 +84,13 @@ trait Relationships
     public function requester(): BelongsTo
     {
         return $this->belongsTo(User::class, 'requester_id');
+    }
+
+    #[Indirect]
+    public function shipments(): BelongsToMany
+    {
+        return $this->belongsToMany(Shipment::class, 'registered_order_purchase_request', 'purchase_request_id', 'registered_order_id', 'id', 'registered_order_id')
+            ->distinct();
     }
 
     public function status(): BelongsTo

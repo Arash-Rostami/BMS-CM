@@ -9,6 +9,7 @@ use App\Filament\Resources\Master\UserResource\Traits\Filters;
 use App\Filament\Resources\Master\UserResource\Traits\Form as UserForm;
 use App\Filament\Resources\Master\UserResource\Traits\Infolist as UserInfolist;
 use App\Filament\Resources\Master\UserResource\Traits\Table as TableTrait;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\User;
 use BackedEnum;
@@ -29,7 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
 {
-    use Filters, HasResourcePermissions, TableTrait, UserForm, UserInfolist;
+    use Filters, HasGlobalSearchConvention, HasResourcePermissions, TableTrait, UserForm, UserInfolist;
 
     protected static ?string $model = User::class;
 
@@ -116,14 +117,23 @@ class UserResource extends Resource
         return "👨🏻‍💻 {$name} (📆 {$date})";
     }
 
-    public static function getGlobalSearchResultUrl(Model $record): ?string
+    protected static function globalSearchRelations(): array
     {
-        return static::getUrl('index', ['search' => $record->name ?? '']);
+        return ['department'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/user/strings.table.email') => $record->email ?? '—',
+            __('resources/user/strings.table.department') => $record->department?->code ?? '—',
+            __('resources/user/strings.table.position') => $record->position ?? '—',
+        ];
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name'];
+        return ['name', 'email'];
     }
 
     public static function getModelLabel(): string

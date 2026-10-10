@@ -5,6 +5,7 @@ namespace Tests\Feature\Services;
 use App\Models\Permission;
 use App\Models\PurchaseRequest;
 use App\Models\Role;
+use App\Models\Status;
 use App\Models\User;
 use App\Services\WorkspaceSearchService;
 use Illuminate\Support\Facades\Cache;
@@ -96,7 +97,7 @@ class WorkspaceSearchServiceTest extends TestCase
 
     public function test_search_returns_the_matching_record_with_the_pin_key_and_edit_url(): void
     {
-        $this->actingAsUserWithPermissions(['purchase_request.view']);
+        $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_request.edit']);
 
         $request = PurchaseRequest::factory()->create();
         $term = 'PIN'.strtoupper(uniqid());
@@ -113,6 +114,76 @@ class WorkspaceSearchServiceTest extends TestCase
             route('filament.dashboard.resources.purchase-requests.edit', ['record' => $request->id]),
             $results[0]['url']
         );
+    }
+
+    public function test_a_view_only_user_gets_the_index_url_and_an_editor_gets_the_edit_url(): void
+    {
+        $request = PurchaseRequest::factory()->create();
+        $term = 'PIN'.strtoupper(uniqid());
+        PurchaseRequest::whereKey($request->id)->update(['pr_number' => $term]);
+
+        $this->actingAsUserWithPermissions(['purchase_request.view']);
+        $results = app(WorkspaceSearchService::class)->search('purchaseRequests', $term);
+
+        $this->assertSame(route('filament.dashboard.resources.purchase-requests.index'), $results[0]['url']);
+
+        $this->actingAsUserWithPermissions(['purchase_request.view', 'purchase_request.edit']);
+        $results = app(WorkspaceSearchService::class)->search('purchaseRequests', $term);
+
+        $this->assertSame(
+            route('filament.dashboard.resources.purchase-requests.edit', ['record' => $request->id]),
+            $results[0]['url']
+        );
+    }
+
+    public function test_rows_carry_the_localized_status_name_when_the_resource_declares_one(): void
+    {
+        app()->setLocale('en');
+        $this->actingAsUserWithPermissions(['purchase_request.view']);
+
+        $status = Status::factory()->create([
+            'type' => PurchaseRequest::TYPE_PURCHASE_REQUEST,
+            'english_type' => PurchaseRequest::TYPE_PURCHASE_REQUEST,
+            'name' => 'درخواست باز',
+            'english_name' => 'Open '.strtoupper(uniqid()),
+        ]);
+
+        $request = PurchaseRequest::factory()->create(['status_id' => $status->id]);
+        $term = 'PIN'.strtoupper(uniqid());
+        PurchaseRequest::whereKey($request->id)->update(['pr_number' => $term]);
+
+        $results = app(WorkspaceSearchService::class)->search('purchaseRequests', $term);
+
+        $this->assertSame($status->english_name, $results[0]['status']);
+    }
+
+    public function test_subtitle_columns_with_a_translate_map_render_the_localized_label_not_the_raw_value(): void
+    {
+        app()->setLocale('fa');
+        $this->actingAsUserWithPermissions(['purchase_request.view']);
+
+        $request = PurchaseRequest::factory()->create(['urgency_level' => 'medium']);
+        $term = 'PIN'.strtoupper(uniqid());
+        PurchaseRequest::whereKey($request->id)->update(['pr_number' => $term]);
+
+        $results = app(WorkspaceSearchService::class)->search('purchaseRequests', $term);
+
+        $this->assertStringContainsString('متوسط', $results[0]['subtitle']);
+        $this->assertStringNotContainsString('edium', $results[0]['subtitle']);
+    }
+
+    public function test_the_status_config_key_covers_exactly_the_resources_with_a_status_relation(): void
+    {
+        $withStatus = ['purchaseRequests', 'registeredOrders', 'bankProfiles', 'purchaseOrders', 'payments', 'shipments', 'correspondence'];
+
+        foreach (config('workspace.resources') as $id => $config) {
+            if (in_array($id, $withStatus)) {
+                $this->assertSame('status', $config['status']);
+                $this->assertTrue(method_exists($config['model'], 'status'));
+            } else {
+                $this->assertArrayNotHasKey('status', $config);
+            }
+        }
     }
 
     public function test_search_with_an_empty_term_lists_recent_records_first(): void

@@ -302,6 +302,16 @@ class Country
     }
 
     /**
+     * @param  array{code: string, name: string, name_english: string}  $country
+     */
+    private function frenchName(array $country): string
+    {
+        $name = extension_loaded('intl') ? \Locale::getDisplayRegion('-'.$country['code'], 'fr') : '';
+
+        return $name === '' || $name === $country['code'] ? $country['name_english'] : $name;
+    }
+
+    /**
      * @param  string  $locale  The locale for which to build the cache.
      */
     private function buildLocaleCache(string $locale): void
@@ -313,9 +323,10 @@ class Country
         foreach ($this->countries as $country) {
             $code = $country['code'];
             // Prioritize localized name, then English name as fallback for direct lookup
-            $nameIndex[$code] = $country[$nameKey] ?? $country['name_english'] ?? null;
+            $name = $locale === 'fr' ? $this->frenchName($country) : ($country[$nameKey] ?? $country['name_english'] ?? null);
+            $nameIndex[$code] = $name;
             // For the sorted list, also ensure a fallback
-            $countriesList[$code] = $country[$nameKey] ?? $country['name_english'] ?? null;
+            $countriesList[$code] = $name;
         }
 
         asort($countriesList);

@@ -16,6 +16,7 @@ use App\Models\RegisteredOrderItem;
 use App\Models\Shipment;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
@@ -49,7 +50,7 @@ trait Relationships
             ->where('is_active', 1);
     }
 
-    public function customs()
+    public function customs(): HasMany
     {
         return $this->hasMany(Custom::class);
     }
@@ -64,7 +65,7 @@ trait Relationships
         return $this->morphMany(Payment::class, 'targetable');
     }
 
-    public function proformaInvoices()
+    public function proformaInvoices(): BelongsToMany
     {
         return $this->belongsToMany(
             ProformaInvoice::class,
@@ -74,7 +75,7 @@ trait Relationships
         )->withTimestamps();
     }
 
-    public function purchaseOrders()
+    public function purchaseOrders(): BelongsToMany
     {
         return $this->belongsToMany(
             PurchaseOrder::class,
@@ -84,7 +85,7 @@ trait Relationships
         )->withTimestamps();
     }
 
-    public function purchaseRequests()
+    public function purchaseRequests(): BelongsToMany
     {
         return $this->belongsToMany(
             PurchaseRequest::class,
@@ -110,5 +111,26 @@ trait Relationships
     {
         return $this->belongsTo(Status::class)
             ->where('english_type', static::TYPE_REGISTERED_ORDER);
+    }
+
+    public function manufacturerCompanyExclusive(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'seller_id')
+            ->manufacturers()
+            ->where('is_active', 1);
+    }
+
+    public function sellerCompanyExclusive(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'seller_id')
+            ->sellers()
+            ->where('is_active', 1);
+    }
+
+    public function supplierCompanyExclusive(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'seller_id')
+            ->suppliers()
+            ->where('is_active', 1);
     }
 }

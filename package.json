@@ -1,16 +1,20 @@
 {
     "scripts": {
         "dev": "vite",
-        "build": "vite build"
+        "build": "vite build",
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
     "devDependencies": {
         "@tailwindcss/postcss": "^4.1.13",
         "autoprefixer": "^10.4.21",
+        "jsdom": "^29.1.1",
         "laravel-vite-plugin": "^1.2.0",
         "postcss": "^8.5.3",
         "tailwindcss": "^4.1.13",
         "vite": "^6.3.5",
-        "vite-plugin-static-copy": "^3.1.4"
+        "vite-plugin-static-copy": "^3.1.4",
+        "vitest": "^3.2.7"
     },
     "dependencies": {
         "@tailwindcss/vite": "^4.1.13",

@@ -9,6 +9,7 @@ use App\Filament\Resources\Master\BankResource\Traits\Form as BankForm;
 use App\Filament\Resources\Master\BankResource\Traits\Infolist as BankInfolist;
 use App\Filament\Resources\Master\BankResource\Traits\Table as BankTable;
 use App\Filament\Traits\HandleActivation;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Filament\Traits\HasUsageGuard;
 use App\Models\Bank;
@@ -27,10 +28,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class BankResource extends Resource
 {
-    use BankFilters, BankForm, BankInfolist, BankTable, HandleActivation, HasResourcePermissions, HasUsageGuard;
+    use BankFilters, BankForm, BankInfolist, BankTable, HandleActivation, HasGlobalSearchConvention, HasResourcePermissions, HasUsageGuard;
 
     protected static ?string $model = Bank::class;
 
@@ -75,14 +77,18 @@ class BankResource extends Resource
         return "🏦  {$name} (📆 {$date})";
     }
 
-    public static function getGlobalSearchResultUrl(Model $record): ?string
+    protected static function globalSearchRelations(): array
     {
-        return static::getUrl('index', ['search' => $record->english_name ?? $record->name ?? '']);
+        return ['creator'];
     }
 
-    public static function getGloballySearchableAttributes(): array
+    public static function getGlobalSearchResultDetails(Model $record): array
     {
-        return ['name', 'english_name'];
+        return [
+            __('resources/bank/strings.table.english_name') => $record->english_name ?? '—',
+            __('resources/bank/strings.table.description') => Str::limit($record->description, 40) ?: '—',
+            __('resources/bank/strings.table.creator') => $record->creator?->name ?? '—',
+        ];
     }
 
     public static function getModelLabel(): string

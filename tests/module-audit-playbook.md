@@ -58,7 +58,53 @@ If any row's result disagrees with the table below, **the live command output is
 | EntityAttribute, Permission, Role, Target (Master/Operational) | ✅ merged to master 2026-10-07 (pulled in from the parked worktree, fixed/extended against this session's QA-driven bug fixes, all green) | ✅ all written by the user 2026-10-06 | Permission/Role/Target converted from native to the shared flat `write()` shape + queued job this session (2026-10-07, QA-driven — none of these three had an exporter wired before) | **Deliberately none for any of these four** — settled 2026-10-06, see §4 | ✅ 2026-10-08 — ideas built (Permission: delete guard, direct-users viewer, "not granted" filter; Role: delete guard, Duplicate, grouped permissions viewer; EntityAttribute: owner link, key badge, cached filters; Target: progress column, overlap guard, "ended still active" filter, year prefill; NotificationSetting: required recipients, no per-row lookups, "My Notifications" filter; User: safer bulk Deactivate, stale-login column+filter, dimmed inactive rows); independent review done, 6 fixes applied, browser QA cleared 2026-10-08 | **Resource-test + exporter lanes done for these four.** Browser QA pass completed 2026-10-07 (see `tests/qa-findings.json`) found and fixed: Role's missing `Str` import (crashed grouping/edit/view-close), User's Closure-as-string filter bug (not User — see its own row), Permission's search/validation gaps, Target's bad heroicon name + untranslated-metric accessor bug + no bulk activate/deactivate, and an app-wide ViewAction-footer authorization gap (Delete/Create/Edit buttons not matching what each table actually offers — see `app_wide_view_modal_footer_sync` in qa-findings.json). EntityAttribute's total lack of permission gating (no `HasResourcePermissions`, no seeded permissions) was investigated and resolved 2026-10-07: deliberately left open to every authenticated user, no permission gate — same final policy as NotificationSetting (view/create/edit open to all; only create/edit are additionally denied via `getCreateAuthorizationResponse()`/`getEditAuthorizationResponse()` since EntityAttribute is meant as a read/reference surface, not a Spatie-gated one). Also rebuilt its infolist value renderer into a labelled key/value HTML view (was raw unreadable JSON) and added a toggleable-off-by-default `showId()` table column. Ideator pass still pending for all four. |
 | NotificationSetting, User (Master) | Both: ✅ merged to master 2026-10-07 (pulled in + extended) | ✅ written by the user 2026-10-06 | Both converted from NATIVE to the shared flat `write()` shape + queued job 2026-10-07 — `NotificationSettingExporter`/`ExportNotificationSettings` (built by a dedicated QA-fix agent) and `UserExporter`/`ExportUsers` (closing out the parked branch) | **Deliberately none for either** — settled 2026-10-06, see §4 | ✅ 2026-10-08 — ideas built (Permission: delete guard, direct-users viewer, "not granted" filter; Role: delete guard, Duplicate, grouped permissions viewer; EntityAttribute: owner link, key badge, cached filters; Target: progress column, overlap guard, "ended still active" filter, year prefill; NotificationSetting: required recipients, no per-row lookups, "My Notifications" filter; User: safer bulk Deactivate, stale-login column+filter, dimmed inactive rows); independent review done, 6 fixes applied, browser QA cleared 2026-10-08 | **User: QA-driven fixes merged 2026-10-07** — department filter (Closure-as-string bug), no phone format validation, status had no default, form reorganized into General/Details tabs, Delete button wrongly reachable via the global ViewAction footer, added status-column-based bulk Activate/Deactivate, exporter conversion. **NotificationSetting: QA-driven fixes merged 2026-10-07** — table-name localization, sort crash on a non-column accessor, required notification_type/tables/actions validation, ownership-scoped delete (final shape: open to all authenticated users, no permission gate anywhere except Delete, which is restricted to the record's creator/recipient — a same-day role-gating attempt was tried and explicitly reverted), exporter added. |
 
-**Open question (2026-10-08 review):** the shared `HandleActivation` bulk Activate/Deactivate has no permission check, so anyone who can open a list can change statuses on User and Target (pre-existing, not introduced this session) — user decision pending on adding `->authorize(canEditAny)`. Browser QA (Step 7) cleared by the user 2026-10-08 for the six modules above (EntityAttribute, Permission, Role, Target, NotificationSetting, User); changelogs (Step 8) written.
+**Resolved 2026-10-08:** shared `HandleActivation` bulk Activate/Deactivate (Bank, Company, Currency, Department) and the User/Target copies now require `canEditAny()` — view-only users no longer see them. Browser QA (Step 7) cleared by the user 2026-10-08 for EntityAttribute, Permission, Role, Target, NotificationSetting, User; changelogs (Step 8) written.
+
+### Change index — 2026-10-08 UX wave (EntityAttribute, Permission, Role, Target, NotificationSetting, User)
+
+**New features**
+- Permission: users-with-this-permission in the view modal; "Not granted to anyone" filter.
+- Role: Duplicate action (`_copy`, no users); permissions grouped by module in the view modal.
+- EntityAttribute: `entity_id` links to the owner record; key shown as a badge.
+- NotificationSetting: "My Notifications" filter (last in the list).
+- Target: achieved-% progress column; "Ended, still active" filter (last in the list); year fills start/end dates.
+- User: stale-login column + "No login in 30 days" filter; dimmed inactive rows (`.user-row-inactive`).
+
+**Safety guards**
+- Delete confirmations naming impact: Permission (roles + users), Role (users).
+- Target: overlap guard on active targets; bulk Activate skips overlaps.
+- User: bulk Deactivate confirms and skips yourself and `admin_junior`.
+- NotificationSetting: recipients required, default to creator.
+- Bulk Activate/Deactivate now require edit permission on the module — Bank, Company, Currency, Department (shared trait), User, Target.
+- EntityAttribute owner link shown only if the viewer can edit the owner.
+
+**Performance**
+- NotificationSetting: no per-row recipient queries; user picker uses `pluck`.
+- EntityAttribute: filter option lists cached 5 min + `EntityAttributeObserver` invalidation.
+
+**Bug fixes found on the way**
+- Role Duplicate: pre-check of the combined name (no 500 on a taken name).
+- Mine filter: also matches string-stored recipient ids.
+- Target: Jalali year bounds only for the `fa` locale; bulk Activate stamps `updated_by`.
+- User: skipped-count excludes already-inactive users; Last Login no longer crashes on `null`.
+
+**Tests (all in existing master files unless noted)**
+- New tests for every item above; User's 2 skipped exporter tests replaced with real ones.
+- New mirrored job tests: `ExportNotificationSettings/Permissions/Roles/Targets/Users` (23/23 jobs covered, failure path included).
+- Model tests grown: Permission 1 → 10, EntityAttribute 4 → 13.
+- Spot check: `--filter=ResourceTest` 1033 passed.
+
+**Docs and logs**
+- `tests/log/*` bullets for the six modules; `tests/qa-findings.json` (module sections + `app_wide_2026_10_08`).
+- Pattern docs: `filamentPattern.md` §1.31, `stylesPattern.md`, `modelsPattern.md`, `jobsPattern.md`, `observersPattern.md`; this playbook's table.
+
+**Data and housekeeping**
+- Dev DB: removed 4 `finalcheck*` + 12 `probe`/odd junk roles and the 4 attached test users (they broke avatar rendering); 11 role-less probe users remain.
+- Root: deleted `delete()`, `er.lock`, `composer.lock~`; emptied `storage/logs/laravel.log`; `.env` workers line commented out.
+- Rejected/skipped: Permission raw-name-under-label; EntityAttribute group-by-type; NotificationSetting Replicate.
+
+**Still open**
+- Nothing committed yet (HEAD `a6a4c49`); Shipment/Custom rows above still say browser QA pending. The bulk Activate/Deactivate permission question is resolved (see above).
 
 ### Parked worktree — now fully consumed, kept for history only
 

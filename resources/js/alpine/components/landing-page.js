@@ -19,6 +19,8 @@ export default function landingPage() {
         activeTab: 'workflow',
         widgetOpen: false,
         widgetMinimized: false,
+        panelOpen: false,
+        isWide: window.innerWidth >= 1024,
 
         init() {
             const theme = getItem(THEME_KEY);
@@ -47,6 +49,10 @@ export default function landingPage() {
             this.$watch('activeTab', val => setItem(TAB_KEY, val));
             this.$watch('widgetMinimized', val => setItem(WIDGET_MIN_KEY, val ? STATE_ON : STATE_OFF));
             this.$watch('widgetOpen', val => setItem(WIDGET_OPEN_KEY, val ? STATE_ON : STATE_OFF));
+
+            window.addEventListener('resize', () => {
+                this.isWide = window.innerWidth >= 1024;
+            });
         },
     };
 }

@@ -2,18 +2,25 @@
 
 namespace App\Models\Traits\Category;
 
+use App\Models\BankProfile;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Specification;
 use App\Models\Target;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait Relationships
 {
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    public function bankProfiles(): MorphMany
+    {
+        return $this->morphMany(BankProfile::class, 'targetable');
     }
 
     public function children(): HasMany

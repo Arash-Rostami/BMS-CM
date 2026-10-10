@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Master\NotificationSettingResource\Exports;
 use App\Models\NotificationSetting;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 
@@ -75,8 +74,8 @@ class NotificationSettingExporter
         $values['id'] = (string) $record->id;
         $values['tables'] = implode(', ', $record->getLocalizedTables());
         $values['actions'] = implode(', ', $record->getLocalizedActions());
-        $values['columns'] = implode(', ', array_map(fn ($column) => Str::headline($column), $record->getColumns()));
-        $values['users'] = implode(', ', collect($record->getUsers())->map(fn ($id) => $userNames[$id] ?? $id)->all());
+        $values['columns'] = implode(', ', NotificationSetting::columnLabels($record->getTables(), $record->getColumns()));
+        $values['users'] = static::plainText(implode(', ', collect($record->getUsers())->map(fn ($id) => $userNames[$id] ?? $id)->all()));
         $values['notification_type'] = static::plainText($record->notification_channel);
         $values['is_active'] = $record->isActive()
             ? __('resources/notificationSetting/strings.export.active')

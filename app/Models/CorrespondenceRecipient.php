@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class CorrespondenceRecipient extends Pivot
@@ -14,6 +15,16 @@ class CorrespondenceRecipient extends Pivot
     protected $casts = [
         'read_at' => 'datetime',
     ];
+
+    public function correspondence(): BelongsTo
+    {
+        return $this->belongsTo(Correspondence::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function markAsRead(): void
     {

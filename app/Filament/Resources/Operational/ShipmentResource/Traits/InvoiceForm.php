@@ -42,7 +42,7 @@ trait InvoiceForm
                                         )
                                             ->get()
                                             ->mapWithKeys(fn ($pi) => [
-                                                $pi->id => ($pi->invoice_no ?? '—').' — '.($pi->invoice_date?->format('Y-m-d') ?? ''),
+                                                $pi->id => ($pi->invoice_no ?? '—').' — '.($pi->invoice_date ? adaptiveDate($pi->invoice_date) : ''),
                                             ]);
                                     })
                                     ->live()

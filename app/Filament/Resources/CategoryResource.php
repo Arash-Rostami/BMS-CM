@@ -8,6 +8,7 @@ use App\Filament\Resources\Master\CategoryResource\Traits\Filters as CategoryFil
 use App\Filament\Resources\Master\CategoryResource\Traits\Form as CategoryForm;
 use App\Filament\Resources\Master\CategoryResource\Traits\Infolist as CategoryInfolist;
 use App\Filament\Resources\Master\CategoryResource\Traits\Table as CategoryTable;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Category;
 use App\Services\SmartCacheManager;
@@ -27,7 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CategoryResource extends Resource
 {
-    use CategoryFilters, CategoryForm, CategoryInfolist, CategoryTable, HasResourcePermissions;
+    use CategoryFilters, CategoryForm, CategoryInfolist, CategoryTable, HasGlobalSearchConvention, HasResourcePermissions;
 
     protected static ?string $model = Category::class;
 
@@ -73,14 +74,18 @@ class CategoryResource extends Resource
         return "📁   {$name} (📆 {$date})";
     }
 
-    public static function getGlobalSearchResultUrl(Model $record): ?string
+    protected static function globalSearchRelations(): array
     {
-        return static::getUrl('index', ['search' => $record->english_name ?? $record->name ?? '']);
+        return ['parent'];
     }
 
-    public static function getGloballySearchableAttributes(): array
+    public static function getGlobalSearchResultDetails(Model $record): array
     {
-        return ['name', 'english_name'];
+        return [
+            __('resources/category/strings.table.english_name') => $record->english_name ?? '—',
+            __('resources/category/strings.table.parent') => $record->parent?->getLocalizedNameAttribute() ?? '—',
+            __('resources/category/strings.table.level') => $record->level ?? '—',
+        ];
     }
 
     public static function getModelLabel(): string

@@ -21,6 +21,11 @@ trait Relationships
         return $this->hasMany(ProformaInvoice::class, 'secondary_currency_id');
     }
 
+    public function bankProfiles(): HasMany
+    {
+        return $this->hasMany(BankProfile::class, 'currency_id');
+    }
+
     public function bankProfilesAsRequested(): HasMany
     {
         return $this->hasMany(BankProfile::class, 'requested_currency_id');

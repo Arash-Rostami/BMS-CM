@@ -5,15 +5,15 @@
 
     $tabs = [
         'clock' => [
-            'aria' => 'Clock',
+            'aria' => __('resources/general/strings.widget.clock'),
             'path' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
         ],
         'timer' => [
-            'aria' => 'Timer',
+            'aria' => __('resources/general/strings.widget.timer'),
             'path' => 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0',
         ],
         'music' => [
-            'aria' => 'Music',
+            'aria' => __('resources/general/strings.widget.music'),
             'path' => 'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3',
         ],
     ];
@@ -76,7 +76,7 @@
                                 class="lp-tab flex-1 text-center p-2"
                                 :class="tab==='{{ $key }}' ? 'lp-tab-active' : ''"
                                 aria-label="{{ $tab['aria'] }}"
-                                :title="tab==='{{ $key }}' ? 'Selected' : '{{ $tab['aria'] }}'">
+                                :title="tab==='{{ $key }}' ? @js(__('resources/general/strings.widget.selected')) : @js($tab['aria'])">
                             <svg class="w-4.5 h-4.5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $tab['path'] }}"/>
                             </svg>
@@ -116,25 +116,25 @@
                         </div>
 
                         <div class="text-xs text-slate-500">
-                            <span x-text="timer.running ? 'Running...' : 'Paused'"></span>
+                            <span x-text="timer.running ? @js(__('resources/general/strings.widget.running')) : @js(__('resources/general/strings.widget.paused'))"></span>
                         </div>
                     </div>
 
                     <div class="flex justify-center gap-3 mb-4">
-                        <button @click="toggleTimer()" class="lp-surface lp-surface-hover p-3.5 rounded-full cursor-pointer" :class="{!! $primaryColor !!}" :title="timer.running ? 'Pause' : 'Start'">
+                        <button @click="toggleTimer()" class="lp-surface lp-surface-hover p-3.5 rounded-full cursor-pointer" :class="{!! $primaryColor !!}" :title="timer.running ? @js(__('resources/general/strings.widget.pause')) : @js(__('resources/general/strings.widget.start'))">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path x-show="!timer.running" d="M8 5v14l11-7z"/>
                                 <path x-show="timer.running" d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
                             </svg>
                         </button>
 
-                        <button @click="resetTimer()" class="lp-surface lp-surface-hover p-3.5 rounded-full cursor-pointer" :class="{!! $primaryColor !!}" title="Reset">
+                        <button @click="resetTimer()" class="lp-surface lp-surface-hover p-3.5 rounded-full cursor-pointer" :class="{!! $primaryColor !!}" title="{{ __('resources/general/strings.widget.reset') }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
                         </button>
 
-                        <button x-show="alarmInterval" @click="stopAlarm()" class="p-3.5 rounded-full border animate-pulse transition-colors duration-150" :class="darkMode ? 'border-red-500/30 bg-red-500/10 text-red-400' : 'border-red-200 bg-red-50 text-red-700'" title="Stop Alarm">
+                        <button x-show="alarmInterval" @click="stopAlarm()" class="p-3.5 rounded-full border animate-pulse transition-colors duration-150" :class="darkMode ? 'border-red-500/30 bg-red-500/10 text-red-400' : 'border-red-200 bg-red-50 text-red-700'" title="{{ __('resources/general/strings.widget.stop_alarm') }}">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M6 6h12v12H6z"/>
                             </svg>
@@ -197,20 +197,20 @@
                     </div>
 
                     <div class="flex items-center justify-center gap-3 mb-4">
-                        <button @click="prev()" class="lp-surface lp-surface-hover p-2.5 rounded-full" :class="{!! $primaryColor !!}" title="Previous">
+                        <button @click="prev()" class="lp-surface lp-surface-hover p-2.5 rounded-full" :class="{!! $primaryColor !!}" title="{{ __('resources/general/strings.widget.previous') }}">
                             <svg class="w-4.5 h-4.5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
                             </svg>
                         </button>
 
-                        <button @click="playPause()" class="lp-surface lp-surface-hover p-3.5 rounded-full" :class="{!! $primaryColor !!}" :title="music.playing ? 'Pause' : 'Play'">
+                        <button @click="playPause()" class="lp-surface lp-surface-hover p-3.5 rounded-full" :class="{!! $primaryColor !!}" :title="music.playing ? @js(__('resources/general/strings.widget.pause')) : @js(__('resources/general/strings.widget.play'))">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path x-show="!music.playing" d="M8 5v14l11-7z"/>
                                 <path x-show="music.playing" d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
                             </svg>
                         </button>
 
-                        <button @click="next()" class="lp-surface lp-surface-hover p-2.5 rounded-full" :class="{!! $primaryColor !!}" title="Next">
+                        <button @click="next()" class="lp-surface lp-surface-hover p-2.5 rounded-full" :class="{!! $primaryColor !!}" title="{{ __('resources/general/strings.widget.next') }}">
                             <svg class="w-4.5 h-4.5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
                             </svg>

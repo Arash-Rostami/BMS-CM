@@ -6,8 +6,10 @@ use App\Models\Attachment;
 use App\Models\Correspondence;
 use App\Models\CorrespondenceRecipient;
 use App\Models\Department;
+use App\Models\DeskReference;
 use App\Models\ProformaInvoice;
 use App\Models\PurchaseRequest;
+use App\Models\StatusHistory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,6 +36,11 @@ trait Relationships
         return $this->belongsTo(Department::class);
     }
 
+    public function deskReferences(): HasMany
+    {
+        return $this->hasMany(DeskReference::class);
+    }
+
     public function proformaInvoices(): HasMany
     {
         return $this->hasMany(ProformaInvoice::class, 'user_id');
@@ -58,5 +65,10 @@ trait Relationships
     public function sentCorrespondences(): HasMany
     {
         return $this->hasMany(Correspondence::class, 'user_id');
+    }
+
+    public function statusChanges(): HasMany
+    {
+        return $this->hasMany(StatusHistory::class);
     }
 }

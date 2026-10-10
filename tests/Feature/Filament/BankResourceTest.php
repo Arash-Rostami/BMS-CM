@@ -265,6 +265,21 @@ class BankResourceTest extends TestCase
         $this->assertTrue($record->fresh()->is_active);
     }
 
+    public function test_activate_and_deactivate_bulk_actions_follow_the_edit_permission(): void
+    {
+        $this->actingAsUserWithPermissions(['bank.view']);
+
+        Livewire::test(ManageBanks::class)
+            ->assertTableBulkActionHidden('activate')
+            ->assertTableBulkActionHidden('deactivate');
+
+        $this->actingAsUserWithPermissions(['bank.view', 'bank.edit']);
+
+        Livewire::test(ManageBanks::class)
+            ->assertTableBulkActionVisible('activate')
+            ->assertTableBulkActionVisible('deactivate');
+    }
+
     public function test_bulk_actions_toolbar_orders_export_activate_deactivate_before_delete_and_restore(): void
     {
         $this->actingAsUserWithPermissions(['bank.view', 'bank.delete', 'bank.restore']);

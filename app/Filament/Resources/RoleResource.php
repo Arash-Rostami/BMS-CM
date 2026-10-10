@@ -8,6 +8,7 @@ use App\Filament\Resources\Master\RoleResource\Traits\Filters as RoleFilters;
 use App\Filament\Resources\Master\RoleResource\Traits\Form as RoleForm;
 use App\Filament\Resources\Master\RoleResource\Traits\Infolist as RoleInfolist;
 use App\Filament\Resources\Master\RoleResource\Traits\Table as RoleTable;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Role;
 use Filament\Actions\Action;
@@ -25,12 +26,13 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class RoleResource extends Resource
 {
-    use HasResourcePermissions, RoleFilters, RoleForm, RoleInfolist, RoleTable;
+    use HasGlobalSearchConvention, HasResourcePermissions, RoleFilters, RoleForm, RoleInfolist, RoleTable;
 
     protected static ?string $model = Role::class;
 
@@ -105,6 +107,21 @@ class RoleResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->withCount(['permissions', 'users']);
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/role/strings.table.permissions_count') => $record->permissions_count ?? '—',
+            __('resources/role/strings.table.users_count') => $record->users_count ?? '—',
+        ];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        $date = toYmdDate($record);
+
+        return "🛡️  {$record->name} (📆 {$date})";
     }
 
     public static function getModelLabel(): string

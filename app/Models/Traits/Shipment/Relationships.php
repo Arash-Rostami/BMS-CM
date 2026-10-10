@@ -3,13 +3,17 @@
 namespace App\Models\Traits\Shipment;
 
 use App\Models\Attachment;
+use App\Models\Attributes\Indirect;
 use App\Models\Company;
 use App\Models\Correspondence;
 use App\Models\Custom;
+use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrder;
 use App\Models\Shipment;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait Relationships
@@ -31,7 +35,7 @@ trait Relationships
             ->where('english_type', Shipment::TYPE_CONTAINER_STATUS);
     }
 
-    public function customs()
+    public function customs(): HasMany
     {
         return $this->hasMany(Custom::class);
     }
@@ -52,6 +56,13 @@ trait Relationships
     {
         return $this->belongsTo(Status::class, 'operation_status_id')
             ->where('english_type', Shipment::TYPE_OPERATION_STATUS);
+    }
+
+    #[Indirect]
+    public function purchaseRequests(): BelongsToMany
+    {
+        return $this->belongsToMany(PurchaseRequest::class, 'registered_order_purchase_request', 'registered_order_id', 'purchase_request_id', 'registered_order_id', 'id')
+            ->distinct();
     }
 
     public function registeredOrder(): BelongsTo

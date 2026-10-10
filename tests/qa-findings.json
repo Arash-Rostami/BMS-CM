@@ -509,6 +509,24 @@
             "result": "fail",
             "note": "User suggested the roles_count column header be pluralized.",
             "status": "no change needed — table.roles_count/users_count already resolve to \"Roles\"/\"Users\" (and the fa/fr equivalents), already plural in all 3 locales."
+        },
+        "ux_wave_2026_10_08": {
+            "_note": "UX ideation wave: ideas 1,3,4 built; idea 2 (raw name under label) rejected by the user.",
+            "delete_guard": {
+                "result": "pass",
+                "note": "Row/bulk delete confirmation names how many roles and users lose the access (withCount, no extra query).",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "direct_users_viewer": {
+                "result": "pass",
+                "note": "View modal lists users holding the permission directly (limitList 10).",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "ungranted_filter": {
+                "result": "pass",
+                "note": "'Not granted to anyone' toggle filter; fa/fr wording written by the builder, user-reviewed.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            }
         }
     },
     "role": {
@@ -547,6 +565,24 @@
             "result": "fail",
             "note": "User: \"check ur own bulk action\" — expected export like other master modules, found none wired.",
             "status": "fixed — added RoleExporter + queued ExportRoles job + exportRoles BulkAction, same shape as Permission's. Covered by RoleResourceTest::test_export_bulk_action_dispatches_the_queued_export_job."
+        },
+        "ux_wave_2026_10_08": {
+            "_note": "UX ideation wave: ideas 1,2,3 built.",
+            "delete_guard": {
+                "result": "pass",
+                "note": "Row/bulk delete confirmation names affected users; warn-and-confirm, not a block.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "duplicate": {
+                "result": "pass",
+                "note": "Duplicate action: _copy suffix loop, no users copied. Reviewer finding fixed: pre-check of Role::combineName before create (form unique rule checks only the base name, a taken combined name threw RoleAlreadyExists).",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "grouped_permissions_viewer": {
+                "result": "pass",
+                "note": "Infolist groups permissions by module with an 'N of M' summary badge.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            }
         }
     },
     "user": {
@@ -590,6 +626,24 @@
             "result": "n/a",
             "note": "User's exporter was still the old native Filament Exporter/ExportColumn shape (2026-10-07) — the one piece of the parked worktree branch (worktree-agent-a5f81ad74b0cf6b52) left unconsumed.",
             "status": "fixed 2026-10-07 — converted to the custom write(Builder,string):int shape (see filamentPattern.md §1.8b), paired with a new queued ExportUsers job and an exportUsers BulkAction replacing ExportBulkAction::make()->exporter(...). Verified via a direct UserExporter::write() run against live dev data (correct CSV, Jalali dates) and a regression test (test_export_bulk_action_dispatches_the_queued_export_job); the full Livewire table-render path for this test is currently blocked by a pre-existing, unrelated stale-avatar Vite-manifest bug affecting all ManageUsers table tests (flagged separately, out of scope here). This closes out the parked branch — nothing of its content remains unconsumed."
+        },
+        "ux_wave_2026_10_08": {
+            "_note": "UX ideation wave: ideas 1,2,3 built.",
+            "bulk_deactivate_safety": {
+                "result": "pass",
+                "note": "Confirmation; excludes auth()->id() and admin_junior; skipped count fixed (selected minus targeted, already-inactive not counted). users table has no updated_by_id.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "stale_login": {
+                "result": "pass",
+                "note": "Last Login visible by default, colored >30 days/never, 'No login in 30 days' filter, null-safe formatting.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "dim_inactive_rows": {
+                "result": "pass",
+                "note": ".user-row-inactive via ->recordClasses() + fi-custom.css (opacity .55, 1 on hover); first row-class hook in the project.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            }
         }
     },
     "department": {
@@ -646,6 +700,24 @@
             "result": "fail",
             "note": "User: \"record id must be in badge\". Follow-up clarified: the record's own primary-key id had no table column at all (only the related entity_id already had one); wanted it added, styled as a badge like entity_id already is.",
             "status": "fixed — added showId() (badge-styled, gray, sortable+searchable) as the table's first column. Covered by EntityAttributeResourceTest::test_table_shows_a_badge_styled_id_column."
+        },
+        "ux_wave_2026_10_08": {
+            "_note": "UX ideation wave: ideas 1,2,4 built (3, group-by-entity-type, not accepted).",
+            "owner_link": {
+                "result": "pass",
+                "note": "entity_id renders 'Shipment #42' and links to the owner edit page. Reviewer finding fixed: link only when the viewer canEdit the owner resource.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "key_badge": {
+                "result": "pass",
+                "note": "Table key column is an info badge, still copyable.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "filter_cache": {
+                "result": "pass",
+                "note": "Filter option lists cached 5 min via SmartCacheManager; EntityAttributeObserver invalidates on save/delete/restore.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            }
         }
     },
     "target": {
@@ -684,6 +756,29 @@
             "result": "fail",
             "note": "User: wants Target's export converted to match the shared custom-export shape used by every other module.",
             "status": "fixed — TargetExporter converted from a native Filament Exporter (ExportColumn-based) to the shared flat write()/columnLabels() shape, with a new queued ExportTargets job and exportTargets BulkAction, mirroring Bank/Department/Role/Permission. Status/metrics values in the export now go through the same localization as the rest of the app."
+        },
+        "ux_wave_2026_10_08": {
+            "_note": "UX ideation wave: ideas 1,2,3,4 built.",
+            "progress_column": {
+                "result": "pass",
+                "note": "Achieved-% badge (danger<50, warning<100, success>=100), no query, via HasAchievementProgress.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "overlap_guard": {
+                "result": "pass",
+                "note": "end_in rule rejects overlapping ACTIVE targets for the same targetable. Reviewer finding fixed: bulk Activate now skips overlapping records and stamps updated_by.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "ended_still_active_filter": {
+                "result": "pass",
+                "note": "Uses today() boundary; registered LAST in the filter list on user request.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "year_prefill": {
+                "result": "pass",
+                "note": "Year fills start/end when both empty; Reviewer finding fixed: Jalali bounds gated on app()->isLocale('fa') to match PersianCalendar::convertYear. User checked Nowruz-date behavior.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            }
         }
     },
     "notification_setting": {
@@ -717,6 +812,24 @@
             "result": "fail",
             "note": "User: no export existed for this module at all.",
             "status": "fixed — added NotificationSettingExporter + queued ExportNotificationSettings job + exportNotificationSettings BulkAction, same shape as Bank/Department/Role/Permission. Exported table/action values go through the same localization fix as the list/infolist."
+        },
+        "ux_wave_2026_10_08": {
+            "_note": "UX ideation wave: ideas 1,2,3 built (4, Replicate, not accepted).",
+            "required_recipients": {
+                "result": "pass",
+                "note": "settings.users required, defaults to creator. Existing rules with empty recipients now fail validation on next edit (intended).",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "recipient_n_plus_one": {
+                "result": "pass",
+                "note": "Per-request User::pluck map in request()->attributes; form options use pluck, not User::all().",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            },
+            "mine_filter": {
+                "result": "pass",
+                "note": "'My Notifications' toggle, registered LAST in the filter list on user request. Reviewer finding fixed: also matches string-stored recipient ids.",
+                "status": "built, browser QA cleared by the user 2026-10-08"
+            }
         }
     },
     "custom": {
@@ -733,6 +846,29 @@
             "result": "fail",
             "note": "2026-10-07 exhaustive validation-i18n audit: priority (Select, options(Priority::class) — a BackedEnum) leaked raw English even with a wired 'in' key, since a BackedEnum-options single-value Select actually validates via Rule::enum() (message key 'enum'). type (ToggleButtons, same enum options) correctly uses 'in' but had no message wired. recipients_to (multi Select) and status_id (relationship Select, via getStatusWorkflowField) also missing '*.in'/'in'.",
             "status": "fixed — priority re-wired to the 'enum' key; type/recipients_to/status_id wired with 'in'/'*.in'. Regression tests test_create_rejects_an_invalid_priority_with_translated_message, ..._type_..., ..._recipient_id_..., ..._status_id_... added."
+        }
+    },
+    "app_wide_2026_10_08": {
+        "_note": "Cross-cutting findings from the 2026-10-08 session.",
+        "junk_roles_broke_user_table": {
+            "result": "fail",
+            "note": "User table and every UserResourceTest table render crashed with 'Unable to locate file in Vite manifest: resources/img/avatars/finalcheck4.png'.",
+            "status": "fixed — root cause was leftover QA test data in the dev DB (roles finalcheck*/probe_role_*/nsddncvcjsdd_junior, 4 + 11 attached Faker users). UserImage::getFilamentAvatarUrl() derives the avatar filename from the first role name, so any role without a matching resources/img/avatars/<base>.png crashes rendering. Junk roles/finalcheck users removed 2026-10-08; 11 role-less probe users remain (fall back to legacy users.role)."
+        },
+        "bulk_activate_no_permission_check": {
+            "result": "pass",
+            "note": "HandleActivation getActivateBulkAction/getDeactivateBulkAction have no authorize(); anyone who can open a User/Target list can bulk-change status. Pre-existing, not introduced by this wave.",
+            "status": "fixed 2026-10-08 — ->authorize(fn () => static::canEditAny()) added to every bulk activate/deactivate (HandleActivation trait: Bank/Company/Currency/Department; own copies: User, Target). Unauthorized actions are hidden. One test per module (test_activate_and_deactivate_bulk_actions_follow_the_edit_permission)."
+        },
+        "root_junk_removed": {
+            "result": "pass",
+            "note": "Deleted root files delete() (cmd '>' redirect artifact), er.lock (saved git diff output), composer.lock~ (editor backup); emptied storage/logs/laravel.log and removed the stale 'laravel (1).log'.",
+            "status": "fixed"
+        },
+        "test_spot_check": {
+            "result": "pass",
+            "note": "php artisan test --filter=ResourceTest: 1033 passed, 2 skipped, 0 failed; the 2 skips (UserExporter tests waiting on the parked worktree) were then replaced by real tests the same day, UserResourceTest = 26 passed, 0 skipped.",
+            "status": "verified 2026-10-08"
         }
     }
 }

@@ -6,9 +6,11 @@ use App\Jobs\ExportNotificationSettings;
 use App\Models\NotificationSetting;
 use App\Models\User;
 use Filament\Actions\BulkAction;
+use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 trait Table
@@ -30,6 +32,13 @@ trait Table
             ->deselectRecordsAfterCompletion();
     }
 
+    public static function getEditAction(): EditAction
+    {
+        return EditAction::make()
+            ->mutateRecordDataUsing(fn (array $data, Model $record): array => static::withPerColumnValues($data, $record))
+            ->mutateDataUsing(fn (array $data): array => static::withSanitizedSettings($data));
+    }
+
     public static function showActions(): TextColumn
     {
         return TextColumn::make('settings.actions')
@@ -46,7 +55,7 @@ trait Table
     {
         return TextColumn::make('settings.values')
             ->label(__('resources/notificationSetting/strings.table.column_values'))
-            ->sortable()
+            ->getStateUsing(fn ($record) => $record->getValueLabels())
             ->listWithLineBreaks()
             ->badge()
             ->toggleable(isToggledHiddenByDefault: true)
@@ -57,15 +66,11 @@ trait Table
     {
         return TextColumn::make('settings.columns')
             ->label(__('resources/notificationSetting/strings.table.columns'))
-            ->sortable()
             ->searchable()
             ->badge()
             ->listWithLineBreaks()
             ->toggleable(isToggledHiddenByDefault: true)
-            ->getStateUsing(fn ($record) => array_keys(
-                NotificationSetting::getColumnValuesForSelectedColumns(
-                    $record->getColumns() ?? [], $record->getTables() ?? [])
-            ));
+            ->getStateUsing(fn ($record) => NotificationSetting::columnLabels($record->getTables(), $record->getColumns()));
     }
 
     public static function showCreationTime(): TextColumn
@@ -94,6 +99,7 @@ trait Table
             ->offIcon('heroicon-o-x-circle')
             ->onColor('success')
             ->offColor('danger')
+            ->disabled(fn ($record): bool => ! static::isOwnerOrRecipient($record))
             ->toggleable(isToggledHiddenByDefault: false)
             ->sortable();
     }

@@ -11,6 +11,7 @@ trait HandleActivation
     protected static function getActivateBulkAction(): BulkAction
     {
         return BulkAction::make('activate')
+            ->authorize(fn (): bool => static::canEditAny())
             ->label(__('resources/general/strings.bulk.activate.label'))
             ->action(function (Collection $records) {
                 static::getModel()::whereIn('id', $records->pluck('id'))->update(['is_active' => 1]);
@@ -27,6 +28,7 @@ trait HandleActivation
     protected static function getDeactivateBulkAction(): BulkAction
     {
         return BulkAction::make('deactivate')
+            ->authorize(fn (): bool => static::canEditAny())
             ->label(__('resources/general/strings.bulk.deactivate.label'))
             ->action(function (Collection $records) {
                 static::getModel()::whereIn('id', $records->pluck('id'))->update(['is_active' => 0]);

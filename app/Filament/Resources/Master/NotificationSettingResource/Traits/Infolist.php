@@ -22,9 +22,9 @@ trait Infolist
     {
         return TextEntry::make('settings.values')
             ->label(__('resources/notificationSetting/strings.infolist.column_values'))
+            ->getStateUsing(fn ($record) => $record->getValueLabels())
             ->badge()
             ->wrap()
-            ->html()
             ->listWithLineBreaks()
             ->placeholder('-');
     }
@@ -35,12 +35,8 @@ trait Infolist
             ->label(__('resources/notificationSetting/strings.infolist.columns'))
             ->badge()
             ->wrap()
-            ->html()
             ->listWithLineBreaks()
-            ->state(fn ($record) => array_keys(
-                NotificationSetting::getColumnValuesForSelectedColumns(
-                    $record->getColumns() ?? [], $record->getTables() ?? [])
-            ))
+            ->state(fn ($record) => NotificationSetting::columnLabels($record->getTables(), $record->getColumns()))
             ->placeholder('-');
     }
 
@@ -116,9 +112,7 @@ trait Infolist
         return TextEntry::make('recipient.*.name')
             ->label(__('resources/notificationSetting/strings.infolist.users'))
             ->badge()
-            ->badge()
             ->wrap()
-            ->html()
             ->listWithLineBreaks()
             ->placeholder('-');
     }

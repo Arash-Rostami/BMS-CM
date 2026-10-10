@@ -19,6 +19,8 @@ class WorkspaceSearchService
 
         $permissionPrefix = Str::snake(class_basename($config['model']));
         abort_unless(auth()->user()?->can($permissionPrefix.'.view') ?? false, 403);
+        $canEdit = auth()->user()?->can($permissionPrefix.'.edit');
+        $indexRoute = Str::replaceLast('.edit', '.index', $config['route']);
 
         /** @var Model $model */
         $model = new $config['model'];
@@ -33,6 +35,7 @@ class WorkspaceSearchService
         $escaped = addcslashes($term, '%_\\');
 
         $records = $model->newQuery()
+            ->when(isset($config['status']), fn ($query) => $query->with($config['status']))
             ->when($term !== '' && ! empty($searchable), function ($query) use ($searchable, $escaped) {
                 $query->where(function ($q) use ($searchable, $escaped) {
                     foreach ($searchable as $column) {
@@ -44,14 +47,20 @@ class WorkspaceSearchService
             ->limit(25)
             ->get();
 
-        return $records->map(fn (Model $record) => [
-            'key' => $resource.':'.$record->getKey(),
-            'resourceId' => $resource,
-            'recordId' => $record->getKey(),
-            'label' => $this->compose($record, $config['title'] ?? []) ?: ('#'.$record->getKey()),
-            'subtitle' => $this->compose($record, $config['subtitle'] ?? [], ' · '),
-            'url' => route($config['route'], ['record' => $record->getKey()]),
-        ])->all();
+        return $records->map(function (Model $record) use ($resource, $config, $canEdit, $indexRoute) {
+            return array_merge([
+                'key' => $resource.':'.$record->getKey(),
+                'resourceId' => $resource,
+                'recordId' => $record->getKey(),
+                'label' => $this->compose($record, $config['title'] ?? []) ?: ('#'.$record->getKey()),
+                'subtitle' => $this->compose($record, $config['subtitle'] ?? [], ' · ', $config['translate'] ?? []),
+                'url' => $canEdit
+                    ? route($config['route'], ['record' => $record->getKey()])
+                    : route($indexRoute),
+            ], isset($config['status'])
+                ? ['status' => $record->{$config['status']}?->localizedName ?? '']
+                : []);
+        })->all();
     }
 
     protected function columns(Model $model): array
@@ -66,7 +75,7 @@ class WorkspaceSearchService
         );
     }
 
-    protected function compose(Model $record, array $columns, string $glue = ' '): string
+    protected function compose(Model $record, array $columns, string $glue = ' ', array $translate = []): string
     {
         $parts = [];
 
@@ -74,13 +83,15 @@ class WorkspaceSearchService
             $value = $record->{$column} ?? null;
 
             if ($value instanceof \DateTimeInterface) {
-                $parts[] = $value->format('Y-m-d');
+                $parts[] = adaptiveDate($value);
             } elseif ($value instanceof \BackedEnum) {
                 $parts[] = (string) $value->value;
             } elseif (is_scalar($value)) {
                 $string = trim((string) $value);
                 if ($string !== '') {
-                    $parts[] = $string;
+                    $parts[] = isset($translate[$column])
+                        ? $this->translateColumn($translate[$column], $string)
+                        : $string;
                 }
             } elseif (is_object($value) && method_exists($value, '__toString')) {
                 $parts[] = (string) $value;
@@ -88,5 +99,13 @@ class WorkspaceSearchService
         }
 
         return trim(implode($glue, $parts));
+    }
+
+    protected function translateColumn(string $namespace, string $value): string
+    {
+        $key = $namespace.'.'.strtolower($value);
+        $translated = __($key);
+
+        return $translated === $key ? $value : $translated;
     }
 }

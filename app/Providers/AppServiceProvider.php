@@ -12,6 +12,7 @@ use App\Configurators\LanguageSwitcher;
 use App\Models\Attachment;
 use App\Models\Bank;
 use App\Models\BankProfile;
+use App\Models\CalendarRule;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\Correspondence;
@@ -31,11 +32,14 @@ use App\Models\Status;
 use App\Models\Target;
 use App\Models\User;
 use App\Observers\AttachmentObserver;
+use App\Observers\CalendarRuleObserver;
+use App\Observers\CalendarTouchObserver;
 use App\Observers\CategoryObserver;
 use App\Observers\CodeGeneratingObserver;
 use App\Observers\EntityAttributeObserver;
 use App\Observers\PurchaseRequestObserver;
 use App\Observers\StatusObserver;
+use App\Services\Calendar\CalendarPathResolver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -78,7 +82,10 @@ class AppServiceProvider extends ServiceProvider
         $this->registerObservers();
     }
 
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->singleton(CalendarPathResolver::class);
+    }
 
     private function configureFilament(): void
     {
@@ -98,6 +105,11 @@ class AppServiceProvider extends ServiceProvider
         PurchaseRequest::observe(PurchaseRequestObserver::class);
         Status::observe(StatusObserver::class);
         EntityAttribute::observe(EntityAttributeObserver::class);
+        CalendarRule::observe(CalendarRuleObserver::class);
+
+        foreach (CalendarTouchObserver::OBSERVED as $model) {
+            $model::observe(CalendarTouchObserver::class);
+        }
 
         foreach (self::CODE_GENERATED_MODELS as $model) {
             $model::observe(CodeGeneratingObserver::class);

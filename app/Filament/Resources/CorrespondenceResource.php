@@ -14,6 +14,7 @@ use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Filters as 
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Form as CorrespondenceForm;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Infolist as CorrespondenceInfolist;
 use App\Filament\Resources\Operational\CorrespondenceResource\Traits\Table as CorrespondenceTable;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Filament\Traits\HasStatusWorkflow;
 use App\Models\Correspondence;
@@ -43,13 +44,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CorrespondenceResource extends Resource
 {
-    use CorrespondenceFilters, CorrespondenceForm, CorrespondenceInfolist, CorrespondenceTable, HasResourcePermissions, HasStatusWorkflow;
+    use CorrespondenceFilters, CorrespondenceForm, CorrespondenceInfolist, CorrespondenceTable, HasGlobalSearchConvention, HasResourcePermissions, HasStatusWorkflow;
 
     protected static ?string $model = Correspondence::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 3;
 
     public static function statusWorkflowType(): string
     {
@@ -120,6 +121,20 @@ class CorrespondenceResource extends Resource
             ]);
     }
 
+    protected static function globalSearchRelations(): array
+    {
+        return ['status'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('resources/correspondence/strings.table.type') => Type::tryFrom((string) $record->type)?->getLabel() ?? '—',
+            __('resources/correspondence/strings.table.priority') => Priority::tryFrom((string) $record->priority)?->getLabel() ?? '—',
+            __('resources/correspondence/strings.table.status') => $record->status?->localized_name ?? '—',
+        ];
+    }
+
     public static function getGlobalSearchResultTitle(Model $record): string
     {
         $date = toYmdDate($record);
@@ -163,7 +178,7 @@ class CorrespondenceResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('resources/dashboard/strings.navigation_group.operational_second');
+        return __('resources/dashboard/strings.navigation_group.alerts');
     }
 
     public static function getPages(): array

@@ -2,39 +2,38 @@
 
 namespace App\Notifications;
 
+use App\Models\NotificationSetting;
+use App\Services\PermissionLabeler;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Support\Str;
 
 class ModelEventEmail extends BaseModelEventNotification
 {
     public function toMail($notifiable): MailMessage
     {
-        $modelName = Str::headline(class_basename($this->model));
-        $identifier = $this->getModelIdentifier();
+        $params = [
+            'model' => PermissionLabeler::getEntityLabel(get_class($this->model)),
+            'identifier' => $this->getModelIdentifier(),
+        ];
 
         $mail = (new MailMessage)
-            ->subject($this->getSubject($modelName, $identifier))
-            ->greeting("Hello {$notifiable->name},")
-            ->line($this->getIntroLine($modelName, $identifier));
+            ->subject($this->line('subject.'.$this->actionKey(), $params))
+            ->greeting($this->line('greeting', ['name' => $notifiable->name]))
+            ->line($this->line('intro.'.$this->actionKey(), $params));
 
         if ($this->action === 'update' && ! empty($this->changes)) {
-            $mail->line('**Changes:**');
+            $mail->line($this->line('changes'));
             foreach ($this->changes as $column => $change) {
-                $columnName = Str::headline($column);
-                $oldValue = $this->formatValue($change['old']);
-                $newValue = $this->formatValue($change['new']);
-                $mail->line("• **{$columnName}:** {$oldValue} → {$newValue}");
+                $mail->line('• **'.NotificationSetting::columnLabel([$this->model->getTable()], $column).':** '.$this->formatValue($change['old']).' → '.$this->formatValue($change['new']));
             }
         }
 
         if (! empty($this->setting->notes)) {
-            $mail->line('')->line('**Additional Notes:**')->line($this->setting->notes);
+            $mail->line('')->line($this->line('notes'))->line($this->setting->notes);
         }
 
-        $url = config('app.url').$this->getRecordUrl();
-        $mail->action('View Record', $url);
-
-        return $mail->line('This notification was sent based on your notification settings.');
+        return $mail
+            ->action(__(self::STRINGS.'action_view'), rtrim((string) config('app.url'), '/').$this->getRecordUrl())
+            ->line($this->line('outro'));
     }
 
     public function via($notifiable): array
@@ -42,18 +41,31 @@ class ModelEventEmail extends BaseModelEventNotification
         return ['mail'];
     }
 
+    private function line(string $suffix, array $params = []): string
+    {
+        return __(self::STRINGS.'mail.'.$suffix, $params);
+    }
+
     private function formatValue($value): string
     {
         if (is_null($value)) {
-            return '(empty)';
+            return $this->line('empty');
         }
         if (is_bool($value)) {
-            return $value ? 'Yes' : 'No';
+            return $this->line($value ? 'yes' : 'no');
         }
-        if ($value instanceof \DateTime) {
-            return $value->format('Y-m-d H:i');
+        if ($value instanceof \DateTimeInterface || (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}(:\d{2})?)?$/', $value))) {
+            return $this->formatDate($value);
         }
 
-        return (string) $value;
+        return is_scalar($value) ? (string) $value : '';
+    }
+
+    private function formatDate($value): string
+    {
+        $value = $value instanceof \DateTimeInterface ? \DateTime::createFromInterface($value) : $value;
+        $withTime = is_string($value) ? str_contains($value, ':') : $value->format('His') !== '000000';
+
+        return app()->isLocale('fa') ? toPersianDate($value, $withTime) : toGregorianDate($value, $withTime);
     }
 }

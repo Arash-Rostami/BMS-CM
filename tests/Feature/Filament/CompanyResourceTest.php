@@ -306,6 +306,21 @@ class CompanyResourceTest extends TestCase
 
     // Bulk actions — toolbar order
 
+    public function test_activate_and_deactivate_bulk_actions_follow_the_edit_permission(): void
+    {
+        $this->actingAsUserWithPermissions(['company.view']);
+
+        Livewire::test(ManageCompanies::class)
+            ->assertTableBulkActionHidden('activate')
+            ->assertTableBulkActionHidden('deactivate');
+
+        $this->actingAsUserWithPermissions(['company.view', 'company.edit']);
+
+        Livewire::test(ManageCompanies::class)
+            ->assertTableBulkActionVisible('activate')
+            ->assertTableBulkActionVisible('deactivate');
+    }
+
     public function test_bulk_actions_toolbar_orders_export_activate_deactivate_before_delete_and_restore(): void
     {
         $this->actingAsUserWithPermissions(['company.view', 'company.delete', 'company.restore']);

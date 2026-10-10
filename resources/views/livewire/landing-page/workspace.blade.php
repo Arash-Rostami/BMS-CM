@@ -1,16 +1,16 @@
 @php
     $ui = [
-        'list'         => 'lp-well mt-1.5 rounded-md border lp-divider overflow-hidden',
-        'tile'         => 'flex items-center gap-2.5 rounded-md border lp-divider lp-surface-hover px-2.5 py-2 transition-colors duration-150',
-        'chip'         => 'group inline-flex items-center gap-1.5 rounded-full border py-1 pl-1 pr-2.5 text-xs font-medium transition-colors !cursor-pointer',
+        'list'         => 'lp-well mt-1.5 rounded-lg border lp-divider overflow-hidden',
+        'tile'         => 'flex items-center gap-2.5 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 shadow-[var(--md-elevation-1)] lp-surface-hover px-2.5 py-2 transition-colors duration-150',
+        'chip'         => 'group inline-flex items-center gap-1.5 rounded-lg border py-1 pl-1 pr-2.5 text-xs font-medium transition-colors !cursor-pointer',
         'chipTone'     => "darkMode ? 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'",
         'labelTone'    => "darkMode ? 'text-slate-500' : 'text-slate-400'",
-        'removeBtn'    => 'absolute top-1/2 -translate-y-1/2 right-2 w-6 h-6 rounded-md flex items-center justify-center transition-colors !cursor-pointer',
+        'removeBtn'    => 'absolute top-1/2 -translate-y-1/2 end-2 z-30 w-6 h-6 rounded-md flex items-center justify-center transition-colors !cursor-pointer',
         'removeTone'   => "darkMode ? 'text-slate-400 hover:bg-red-500/20 hover:text-red-300' : 'text-slate-400 hover:bg-red-50 hover:text-red-500'",
-        'renameBtn'    => 'absolute top-1/2 -translate-y-1/2 right-9 w-6 h-6 rounded-md flex items-center justify-center transition-colors !cursor-pointer',
+        'renameBtn'    => 'absolute top-1/2 -translate-y-1/2 end-9 z-30 w-6 h-6 rounded-md flex items-center justify-center transition-colors !cursor-pointer',
         'renameTone'   => "darkMode ? 'text-slate-400 hover:bg-primary-500/20 hover:text-primary-300' : 'text-slate-400 hover:bg-primary-50 hover:text-primary-500'",
         'sectionLabel' => 'text-[11px] font-semibold uppercase tracking-wide mb-2 flex items-center gap-1.5',
-        'editBtn'      => 'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold border lp-divider transition-colors !cursor-pointer',
+        'editBtn'      => 'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold border lp-divider transition-colors !cursor-pointer',
         'editBtnTone'  => "darkMode ? 'text-slate-400 bg-white/5 hover:bg-white/10 hover:text-slate-200' : 'text-slate-500 bg-white hover:bg-slate-50 hover:text-slate-700'",
         'closeTone'    => "darkMode ? 'text-slate-500 hover:bg-white/10 hover:text-slate-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'",
     ];
@@ -27,16 +27,16 @@
                             <p class="{{ $ui['sectionLabel'] }}" :class="{!! $ui['labelTone'] !!}">{{ __('dashboard/strings.section_pinned') }}</p>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                                 <template x-for="m in pinnedModules()" :key="m.id">
-                                    <div class="relative group">
-                                        <a :href="m.route" target="_blank" rel="noopener noreferrer" class="{{ $ui['tile'] }} pr-10">
+                                    <div class="relative">
+                                        <a :href="m.route" target="_blank" rel="noopener noreferrer" class="{{ $ui['tile'] }} pe-10">
                                             <span class="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0" :class="m.theme">
                                                 <span class="w-3.5 h-3.5" x-html="m.icon"></span>
                                             </span>
                                             <span class="font-semibold text-xs sm:text-sm truncate flex-1" :class="darkMode ? 'text-slate-100' : 'text-slate-800'" x-text="m.label"></span>
+                                            <template x-if="moduleStat(m.id)">
+                                                <span class="text-[10px] font-bold rounded-md min-w-[20px] h-5 px-1 flex items-center justify-center tabular-nums flex-shrink-0" :class="m.badge" x-text="moduleStat(m.id)"></span>
+                                            </template>
                                         </a>
-                                        <template x-if="moduleStat(m.id)">
-                                            <span class="absolute top-1/2 -translate-y-1/2 right-2 text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center tabular-nums transition-opacity group-hover:opacity-0 pointer-events-none" :class="m.badge" x-text="moduleStat(m.id)"></span>
-                                        </template>
                                         <button type="button" @click="unpinModule(m.id)" class="{{ $ui['removeBtn'] }}" :class="{!! $ui['removeTone'] !!}" title="{{ __('dashboard/strings.record_pin.added') }}">
                                             <x-heroicon-o-x-mark class="w-3.5 h-3.5"/>
                                         </button>
@@ -63,7 +63,7 @@
                             <div class="flex flex-wrap gap-1.5">
                                 <template x-for="m in unpinnedModules()" :key="m.id">
                                     <button type="button" @click="pinModule(m.id)" class="{{ $ui['chip'] }}" :class="{!! $ui['chipTone'] !!}">
-                                        <span class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" :class="m.theme">
+                                        <span class="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0" :class="m.theme">
                                             <span class="w-3 h-3" x-html="m.icon"></span>
                                         </span>
                                         <span x-text="m.label"></span>
@@ -93,8 +93,8 @@
                             <p class="{{ $ui['sectionLabel'] }}" :class="{!! $ui['labelTone'] !!}">{{ __('dashboard/strings.section_pinned') }}</p>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                                 <template x-for="p in recordPins" :key="p.key">
-                                    <div class="relative group">
-                                        <a :href="p.url" target="_blank" rel="noopener noreferrer" @click="editingKey === p.key && $event.preventDefault()" class="{{ $ui['tile'] }} pr-16">
+                                    <div class="relative">
+                                        <a :href="p.url" target="_blank" rel="noopener noreferrer" @mousedown="editingKey === p.key && $event.preventDefault()" @click="editingKey === p.key && $event.preventDefault()" class="{{ $ui['tile'] }} pe-16">
                                             <span class="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0" :class="p.theme">
                                                 <span class="w-3.5 h-3.5" x-html="p.icon"></span>
                                             </span>
@@ -103,12 +103,13 @@
                                                     <span class="block font-semibold text-xs sm:text-sm truncate" :class="darkMode ? 'text-slate-100' : 'text-slate-800'" x-text="p.label"></span>
                                                 </template>
                                                 <template x-if="editingKey === p.key">
-                                                    <input type="text" x-model="editingLabel" class="block w-full font-semibold text-xs sm:text-sm bg-transparent border-b focus:outline-none" :class="darkMode ? 'text-slate-100 border-primary-400' : 'text-slate-800 border-primary-500'" @click.stop @mousedown.stop @keydown.enter.stop="renameRecord(p.key, editingLabel)" @keydown.escape.stop="editingKey = null" @blur="renameRecord(p.key, editingLabel)" x-init="$nextTick(() => $el.focus())">
+                                                    <input type="text" x-model="editingLabel" class="block w-full font-semibold text-xs sm:text-sm bg-transparent border-b focus:outline-none" :class="darkMode ? 'text-slate-100 border-primary-400' : 'text-slate-800 border-primary-500'" @click.stop @mousedown.stop @keydown.enter.stop="renameRecord(p.key, editingLabel)" @keydown.escape.stop="editingKey = null" @blur="renameRecord(p.key, editingLabel)" @click.stop.prevent x-init="$nextTick(() => $el.focus())">
                                                 </template>
                                                 <span x-show="p.subtitle" class="block text-[11px] truncate mt-0.5" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="p.subtitle"></span>
+                                                <span x-show="p.status" class="inline-flex items-center rounded-md border px-1.5 py-0.5 text-[9px] font-medium truncate mt-1" :class="darkMode ? 'border-white/10 bg-white/5 text-slate-300' : 'border-slate-200 bg-slate-50 text-slate-500'" x-text="p.status"></span>
                                             </span>
                                         </a>
-                                        <button type="button" @click.stop="editingKey = p.key; editingLabel = p.label" class="{{ $ui['renameBtn'] }}" :class="{!! $ui['renameTone'] !!}" title="Rename">
+                                        <button type="button" @click.stop="editingKey = p.key; editingLabel = p.label" class="{{ $ui['renameBtn'] }}" :class="{!! $ui['renameTone'] !!}" title="{{ __('dashboard/strings.record_pin.rename') }}">
                                             <x-heroicon-o-pencil class="w-3.5 h-3.5"/>
                                         </button>
                                         <button type="button" @click="removeRecord(p.key)" class="{{ $ui['removeBtn'] }}" :class="{!! $ui['removeTone'] !!}" title="{{ __('dashboard/strings.record_pin.added') }}">
@@ -138,7 +139,7 @@
                             <div class="flex flex-wrap gap-1.5 mb-2.5">
                                 <template x-for="m in searchableModules()" :key="m.id">
                                     <button type="button" @click="selectResource(m.id)" class="{{ $ui['chip'] }}" :class="pickerResource === m.id ? (darkMode ? 'border-primary-400/50 bg-primary-500/15 text-white' : 'border-primary-300 bg-primary-50 text-primary-700') : ({!! $ui['chipTone'] !!})">
-                                        <span class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" :class="m.theme">
+                                        <span class="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0" :class="m.theme">
                                             <span class="w-3 h-3" x-html="m.icon"></span>
                                         </span>
                                         <span x-text="m.label"></span>
@@ -147,11 +148,11 @@
                             </div>
 
                             <div class="relative">
-                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" :class="darkMode ? 'text-slate-500' : 'text-slate-400'">
+                                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none" :class="darkMode ? 'text-slate-500' : 'text-slate-400'">
                                     <x-heroicon-o-magnifying-glass class="w-4 h-4"/>
                                 </div>
-                                <input type="text" x-model="recordQuery" @input.debounce.300ms="searchRecords()" @focus="recordResults.length === 0 && searchRecords()" @keydown.escape.stop="recordQuery = ''; searchRecords()" placeholder="{{ __('dashboard/strings.record_pin.placeholder') }}" class="w-full rounded-md border pl-9 pr-9 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40 transition-colors" :class="darkMode ? 'bg-slate-800/70 border-white/10 text-slate-200 focus:bg-slate-800 focus:border-primary-400/60' : 'bg-slate-50 border-slate-200 text-slate-700 focus:bg-white focus:border-primary-400'">
-                                <button type="button" x-show="recordQuery" x-cloak @click="recordQuery = ''; searchRecords()" class="absolute inset-y-0 right-0 flex items-center pr-3 transition-colors !cursor-pointer" :class="darkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'">
+                                <input type="text" x-model="recordQuery" @input.debounce.300ms="searchRecords()" @focus="recordResults.length === 0 && searchRecords()" @keydown.escape.stop="recordQuery = ''; searchRecords()" placeholder="{{ __('dashboard/strings.record_pin.placeholder') }}" class="w-full rounded-lg border ps-9 pe-9 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40 transition-colors" :class="darkMode ? 'bg-slate-800/70 border-white/10 text-slate-200 focus:bg-slate-800 focus:border-primary-400/60' : 'bg-slate-50 border-slate-200 text-slate-700 focus:bg-white focus:border-primary-400'">
+                                <button type="button" x-show="recordQuery" x-cloak @click="recordQuery = ''; searchRecords()" class="absolute inset-y-0 end-0 flex items-center pe-3 transition-colors !cursor-pointer" :class="darkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'">
                                     <x-heroicon-o-x-circle class="w-4 h-4"/>
                                 </button>
                             </div>
@@ -165,6 +166,31 @@
 
                             <div class="{{ $ui['list'] }}">
                                 <div class="max-h-64 overflow-y-auto custom-scrollbar">
+                                    <template x-if="!recordQuery && recentCandidates().length > 0">
+                                        <div class="mx-2 mt-2 mb-3 rounded-lg border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5">
+                                            <div class="flex items-center gap-2 px-3 pt-2.5">
+                                                <p class="{{ $ui['sectionLabel'] }}" :class="{!! $ui['labelTone'] !!}">{{ __('dashboard/strings.record_pin.recent') }}</p>
+                                                <span class="h-px flex-1 rounded-full bg-slate-200 dark:bg-white/10"></span>
+                                            </div>
+                                            <ul class="divide-y" :class="darkMode ? 'divide-white/5' : 'divide-slate-200/60'">
+                                                <template x-for="rec in recentCandidates()" :key="rec.key">
+                                                    <li @click="addRecent(rec)" class="group flex items-center gap-3 px-3 py-2.5 transition-colors !cursor-pointer" :class="darkMode ? 'hover:bg-white/5' : 'hover:bg-white'">
+                                                        <span class="flex items-center justify-center w-8 h-8 rounded-md flex-shrink-0" :class="pickerTheme">
+                                                            <x-heroicon-o-clock class="w-4 h-4"/>
+                                                        </span>
+                                                        <div class="flex-1 min-w-0">
+                                                            <p class="font-semibold text-sm truncate" :class="darkMode ? 'text-slate-100' : 'text-slate-800'">
+                                                                <span x-text="rec.label"></span>
+                                                                <span class="ms-1 font-normal" dir="ltr">#<span x-text="rec.number"></span></span>
+                                                            </p>
+                                                        </div>
+                                                        <x-heroicon-o-plus class="w-3.5 h-3.5 flex-shrink-0 opacity-0 group-hover:opacity-60 transition-opacity"/>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </template>
+
                                     <template x-if="recordLoading">
                                         <div class="p-2 space-y-1">
                                             <template x-for="i in 3" :key="i">
@@ -203,9 +229,12 @@
                                                     <span :class="['flex items-center justify-center w-8 h-8 rounded-md text-[11px] font-extrabold tracking-tight flex-shrink-0', pickerTheme]" x-text="initials(rec.label)"></span>
                                                     <div class="flex-1 min-w-0">
                                                         <p class="font-semibold text-sm truncate" :class="darkMode ? 'text-slate-100' : 'text-slate-800'" x-text="rec.label"></p>
-                                                        <p x-show="rec.subtitle" class="text-xs truncate" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="rec.subtitle"></p>
+                                                        <div class="flex items-center gap-1.5 min-w-0">
+                                                            <p x-show="rec.subtitle" class="text-xs truncate" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="rec.subtitle"></p>
+                                                            <span x-show="rec.status" class="inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-medium truncate" :class="darkMode ? 'border-white/10 bg-white/5 text-slate-300' : 'border-slate-200 bg-slate-50 text-slate-500'" x-text="rec.status"></span>
+                                                        </div>
                                                     </div>
-                                                    <button type="button" @click="addRecord(rec)" :disabled="isRecordPinned(rec.key)" class="flex-shrink-0 inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors disabled:cursor-default !cursor-pointer" :class="isRecordPinned(rec.key) ? (darkMode ? 'bg-green-500/15 text-green-400' : 'bg-green-50 text-green-700') : (darkMode ? 'bg-primary-500/15 text-primary-300 hover:bg-primary-500/25' : 'bg-primary-50 text-primary-600 hover:bg-primary-100')">
+                                                    <button type="button" @click="addRecord(rec)" :disabled="isRecordPinned(rec.key)" class="flex-shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors disabled:cursor-default !cursor-pointer" :class="isRecordPinned(rec.key) ? (darkMode ? 'bg-green-500/15 text-green-400' : 'bg-green-50 text-green-700') : (darkMode ? 'bg-primary-500/15 text-primary-300 hover:bg-primary-500/25' : 'bg-primary-50 text-primary-600 hover:bg-primary-100')">
                                                         <span x-show="!isRecordPinned(rec.key)" class="inline-flex items-center gap-1">
                                                             <x-heroicon-o-plus class="w-3.5 h-3.5"/>
                                                             {{ __('dashboard/strings.record_pin.add') }}

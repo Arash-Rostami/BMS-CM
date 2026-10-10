@@ -34,6 +34,7 @@ trait Table
     public static function getActivateBulkAction(): BulkAction
     {
         return BulkAction::make('activate')
+            ->authorize(fn (): bool => static::canEditAny())
             ->label(__('resources/general/strings.bulk.activate.label'))
             ->icon('heroicon-o-check-circle')
             ->color('success')
@@ -68,6 +69,7 @@ trait Table
     public static function getDeactivateBulkAction(): BulkAction
     {
         return BulkAction::make('deactivate')
+            ->authorize(fn (): bool => static::canEditAny())
             ->label(__('resources/general/strings.bulk.deactivate.label'))
             ->icon('heroicon-o-x-circle')
             ->color('danger')
@@ -110,7 +112,6 @@ trait Table
         return TextColumn::make('start_from')
             ->label(__('resources/target/strings.table.start_from'))
             ->adaptiveDate()
-            ->when(app()->isLocale('fa'), fn ($column) => $column->jalaliDate())
             ->toggleable(isToggledHiddenByDefault: true)
             ->sortable();
     }
@@ -120,7 +121,6 @@ trait Table
         return TextColumn::make('end_in')
             ->label(__('resources/target/strings.table.end_in'))
             ->adaptiveDate()
-            ->when(app()->isLocale('fa'), fn ($column) => $column->jalaliDate())
             ->color(fn (Target $record): ?string => $record->ended_still_active ? 'danger' : null)
             ->toggleable(isToggledHiddenByDefault: true)
             ->sortable();

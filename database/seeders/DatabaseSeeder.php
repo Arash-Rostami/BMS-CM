@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $permissions = [
             'bank.view', 'bank.create', 'bank.edit', 'bank.delete', 'bank.restore',
             'bank_profile.view', 'bank_profile.create', 'bank_profile.edit', 'bank_profile.delete', 'bank_profile.restore',
+            'calendar_rule.view', 'calendar_rule.create', 'calendar_rule.edit', 'calendar_rule.delete', 'calendar_rule.restore',
             'category.view', 'category.create', 'category.edit', 'category.delete', 'category.restore',
             'company.view', 'company.create', 'company.edit', 'company.delete', 'company.restore',
             'correspondence.view', 'correspondence.create', 'correspondence.edit', 'correspondence.delete', 'correspondence.restore',

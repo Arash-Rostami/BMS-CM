@@ -105,7 +105,7 @@ trait Table
             ->badge()
             ->copyable()
             ->sortable()
-            ->tooltip(fn ($record) => $record->payment_date?->format('Y-m-d'));
+            ->tooltip(fn ($record) => $record->payment_date ? adaptiveDate($record->payment_date) : null);
     }
 
     public static function showPayor(): TextColumn

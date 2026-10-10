@@ -1,39 +1,39 @@
 /* Palettes: keep in sync with config/palettes.php + lang labels (ConfigTest trips on drift) */
 
 html[data-theme="zinc"] {
-    --primary-50: #F7F7F8;
-    --primary-100: #EAEBEF;
-    --primary-200: #D3D5DA;
-    --primary-300: #B2B6BE;
-    --primary-400: #8D929D;
-    --primary-500: #717580;
-    --primary-600: #555962;
-    --primary-700: #44474E;
-    --primary-800: #34373C;
-    --primary-900: #25282B;
-    --primary-950: #121316;
+    --primary-50: #F5F7FA;
+    --primary-100: #E8ECF3;
+    --primary-200: #D2D9E5;
+    --primary-300: #B0BBD0;
+    --primary-400: #8B98B3;
+    --primary-500: #6F7C97;
+    --primary-600: #535F7A;
+    --primary-700: #414B61;
+    --primary-800: #313949;
+    --primary-900: #222834;
+    --primary-950: #11141C;
 
-    --custom-first: #FBFBFC;
-    --custom-second: #EFF0F3;
-    --custom-third: #D9DBE0;
-    --custom-fourth: #9FA4AF;
-    --custom-neutral: #EBECF0;
-    --filament-dark: #0C0D0F;
-    --filament-dark-mid: #16181C;
+    --custom-first: #FAFBFD;
+    --custom-second: #EDF0F6;
+    --custom-third: #D6DCE9;
+    --custom-fourth: #9AA6BF;
+    --custom-neutral: #E8ECF4;
+    --filament-dark: #0A0C10;
+    --filament-dark-mid: #141822;
     --google-fourth-light: #0284C7;
     --google-fourth-dark: #38BDF8;
-    --google-second-light: #EFF0F3;
+    --google-second-light: #EBF0F8;
 }
 
 html[data-theme="zinc"].dark {
-    --primary-400: #B2B6BE;
-    --primary-500: #8D929D;
-    --google-first-dark: #0C0D0F;
-    --google-second-dark: #16181C;
-    --google-third-dark: #23262B;
-    --gray-800: #23262B;
-    --gray-900: #16181C;
-    --gray-950: #0C0D0F;
+    --primary-400: #B0BBD0;
+    --primary-500: #8B98B3;
+    --google-first-dark: #0A0C10;
+    --google-second-dark: #141822;
+    --google-third-dark: #202838;
+    --gray-800: #202838;
+    --gray-900: #141822;
+    --gray-950: #0A0C10;
 }
 
 html[data-theme="purple"] {
@@ -142,4 +142,40 @@ html[data-theme="olive"].dark {
     --gray-800: #202710;
     --gray-900: #14180A;
     --gray-950: #090B04;
+}
+
+html[data-theme="steel"] {
+    --primary-50: #FAFAFA;
+    --primary-100: #F1F1F2;
+    --primary-200: #E5E5E7;
+    --primary-300: #D8D8D8;
+    --primary-400: #A8A8B0;
+    --primary-500: #7B7B85;
+    --primary-600: #52525B;
+    --primary-700: #3E3E45;
+    --primary-800: #2A2A2F;
+    --primary-900: #1A1A1E;
+    --primary-950: #0B0B0E;
+
+    --custom-first: #FBFBFC;
+    --custom-second: #F0F0F2;
+    --custom-third: #DDDDDE;
+    --custom-fourth: #9E9EA8;
+    --custom-neutral: #EBEBEE;
+    --filament-dark: #0A0A0C;
+    --filament-dark-mid: #151518;
+    --google-fourth-light: #E11D48;
+    --google-fourth-dark: #FB7185;
+    --google-second-light: #F0F0F2;
+}
+
+html[data-theme="steel"].dark {
+    --primary-400: #A8A8B0;
+    --primary-500: #7B7B85;
+    --google-first-dark: #0A0A0C;
+    --google-second-dark: #151518;
+    --google-third-dark: #202024;
+    --gray-800: #202024;
+    --gray-900: #151518;
+    --gray-950: #0A0A0C;
 }

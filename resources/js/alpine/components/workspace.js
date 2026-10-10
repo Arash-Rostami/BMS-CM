@@ -1,7 +1,18 @@
 const STORAGE_KEY = 'user_shortcuts';
+const RECENTS_KEY = 'recent_records';
 const DEFAULT_THEME = 'from-slate-500 to-slate-600';
 const REGEX_SPLIT = /[\s\-_/.]+/;
 const REGEX_ALNUM = /[^a-zA-Z0-9]/g;
+const RECENT_ID = /\/(\d+)(?:\/edit)?\/?$/;
+
+const readRecents = () => {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(RECENTS_KEY) || 'null');
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        return [];
+    }
+};
 
 export default function workspace(config = {}) {
     const rawModules = Array.isArray(config.modules) ? config.modules : [];
@@ -10,11 +21,14 @@ export default function workspace(config = {}) {
 
     const moduleMap = new Map();
     const searchableMods = [];
+    const slugByModuleId = new Map();
 
     for (let i = 0; i < rawModules.length; i++) {
         const m = rawModules[i];
         moduleMap.set(m.id, m);
         if (m.searchable) searchableMods.push(m);
+        const segments = String(m.route || '').split('?')[0].split('/').filter(Boolean);
+        if (segments.length) slugByModuleId.set(m.id, segments[segments.length - 1]);
     }
 
     return {
@@ -152,6 +166,7 @@ export default function workspace(config = {}) {
                 recordId: p.recordId,
                 label: p.label,
                 subtitle: p.subtitle,
+                status: p.status || '',
                 url: p.url,
                 icon: parent.icon || p.icon || '',
                 theme: parent.theme || p.theme || DEFAULT_THEME,
@@ -176,6 +191,7 @@ export default function workspace(config = {}) {
             }
 
             this._abortCtrl = new AbortController();
+            const ctrl = this._abortCtrl;
             this.recordLoading = true;
             this.recordError = false;
 
@@ -185,7 +201,7 @@ export default function workspace(config = {}) {
                 const r = await fetch(url, {
                     headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                     credentials: 'same-origin',
-                    signal: this._abortCtrl.signal
+                    signal: ctrl.signal
                 });
 
                 if (!r.ok) throw r;
@@ -197,7 +213,7 @@ export default function workspace(config = {}) {
                 this.recordError = true;
                 this.recordResults = [];
             } finally {
-                if (this._abortCtrl && !this._abortCtrl.signal.aborted) {
+                if (!ctrl.signal.aborted) {
                     this.recordLoading = false;
                 }
             }
@@ -205,6 +221,40 @@ export default function workspace(config = {}) {
 
         isRecordPinned(key) {
             return this.recordPins.findIndex(p => p.key === key) !== -1;
+        },
+
+        recentCandidates() {
+            if (this.recordQuery || !this.pickerResource) return [];
+            const slug = slugByModuleId.get(this.pickerResource);
+            if (!slug) return [];
+            const module = moduleMap.get(this.pickerResource) || {};
+            const out = [];
+            const entries = readRecents();
+
+            for (let i = 0; i < entries.length; i++) {
+                const entry = entries[i];
+                if (!entry || entry.slug !== slug || typeof entry.url !== 'string' || entry.url.indexOf('/dashboard/') !== 0) continue;
+                const match = entry.url.match(RECENT_ID);
+                if (!match) continue;
+                const key = this.pickerResource + ':' + match[1];
+                if (this.isRecordPinned(key)) continue;
+                if (this.recordResults.findIndex(r => r.key === key) !== -1) continue;
+                out.push({
+                    key,
+                    resourceId: this.pickerResource,
+                    recordId: Number(match[1]),
+                    label: module.label || entry.label || '',
+                    number: match[1],
+                    url: entry.url,
+                    subtitle: '',
+                });
+            }
+
+            return out;
+        },
+
+        addRecent(rec) {
+            this.addRecord({ ...rec, label: rec.label + ' #' + rec.number });
         },
 
         addRecord(rec) {

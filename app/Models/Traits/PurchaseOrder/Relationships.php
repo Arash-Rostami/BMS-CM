@@ -56,7 +56,7 @@ trait Relationships
         return $this->belongsToMany(PurchaseRequest::class, 'purchase_order_purchase_request');
     }
 
-    public function registeredOrders()
+    public function registeredOrders(): BelongsToMany
     {
         return $this->belongsToMany(
             RegisteredOrder::class,
@@ -77,5 +77,26 @@ trait Relationships
     {
         return $this->belongsTo(Status::class)
             ->where('english_type', static::TYPE_PURCHASE_ORDER);
+    }
+
+    public function manufacturerCompanyExclusive(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'seller_id')
+            ->manufacturers()
+            ->where('is_active', 1);
+    }
+
+    public function sellerCompanyExclusive(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'seller_id')
+            ->sellers()
+            ->where('is_active', 1);
+    }
+
+    public function supplierCompanyExclusive(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'seller_id')
+            ->suppliers()
+            ->where('is_active', 1);
     }
 }

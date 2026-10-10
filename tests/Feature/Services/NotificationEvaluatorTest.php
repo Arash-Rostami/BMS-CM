@@ -3,11 +3,14 @@
 namespace Tests\Feature\Services;
 
 use App\Models\NotificationSetting;
+use App\Models\Permission;
 use App\Models\PurchaseRequest;
+use App\Models\Role;
 use App\Models\Status;
 use App\Models\User;
 use App\Notifications\ModelEventEmail;
 use App\Notifications\ModelEventNotification;
+use App\Services\NameSearch;
 use App\Services\NotificationEvaluator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -55,6 +58,16 @@ class NotificationEvaluatorTest extends TestCase
         config(['database.default' => 'mysql']);
     }
 
+    private function recipient(array $attributes = [], string $permission = 'purchase_request.view'): User
+    {
+        $user = User::factory()->create($attributes);
+        $role = Role::create(['name' => 'eval_role_'.uniqid(), 'guard_name' => 'web']);
+        $role->givePermissionTo(Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']));
+        $user->assignRole($role);
+
+        return $user;
+    }
+
     private function makeSetting(User $recipient, array $overrides = [], string $type = 'in_app'): NotificationSetting
     {
         return NotificationSetting::create([
@@ -81,7 +94,7 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_create_event_notifies_the_recipients_of_a_matching_setting(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $this->makeSetting($recipient);
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
@@ -91,7 +104,7 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_setting_for_another_action_is_skipped(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $this->makeSetting($recipient, ['actions' => ['update']]);
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
@@ -101,7 +114,7 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_setting_for_another_table_is_skipped(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $this->makeSetting($recipient, ['tables' => ['shipments']]);
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
@@ -111,7 +124,7 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_inactive_setting_is_skipped(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $this->makeSetting($recipient, ['is_active' => false]);
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
@@ -119,19 +132,30 @@ class NotificationEvaluatorTest extends TestCase
         Notification::assertNothingSentTo($recipient);
     }
 
-    public function test_setting_with_an_empty_is_active_flag_is_treated_as_active(): void
+    public function test_is_active_accepts_true_one_and_string_forms_but_not_empty_or_junk(): void
     {
-        $recipient = User::factory()->create();
-        $this->makeSetting($recipient, ['is_active' => []]);
+        foreach ([true, 1, '1', 'true'] as $flag) {
+            $recipient = $this->recipient();
+            $this->makeSetting($recipient, ['is_active' => $flag]);
 
-        app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
+            app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
 
-        Notification::assertSentTo($recipient, ModelEventNotification::class);
+            Notification::assertSentTo($recipient, ModelEventNotification::class);
+        }
+
+        foreach ([[], 'no', 0, '0', null, ['x']] as $flag) {
+            $recipient = $this->recipient();
+            $this->makeSetting($recipient, ['is_active' => $flag]);
+
+            app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
+
+            Notification::assertNothingSentTo($recipient);
+        }
     }
 
     public function test_setting_without_an_is_active_flag_never_fires(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         NotificationSetting::create([
             'settings' => [
                 'actions' => ['create'],
@@ -149,7 +173,7 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_update_with_a_column_filter_notifies_when_a_watched_column_changed(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $this->makeSetting($recipient, ['actions' => ['update'], 'columns' => ['status_id']]);
 
         $request = PurchaseRequest::factory()->create();
@@ -163,7 +187,7 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_update_with_a_column_filter_is_skipped_when_no_watched_column_changed(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $this->makeSetting($recipient, ['actions' => ['update'], 'columns' => ['status_id', 'notes']]);
 
         $request = PurchaseRequest::factory()->create();
@@ -176,12 +200,12 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_update_with_a_value_filter_notifies_when_the_current_value_is_in_the_pool(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $newStatus = Status::factory()->create();
         $this->makeSetting($recipient, [
             'actions' => ['update'],
             'columns' => ['status_id'],
-            'values' => [$newStatus->id],
+            'values' => ['status_id' => [$newStatus->id]],
         ]);
 
         $request = PurchaseRequest::factory()->create();
@@ -194,12 +218,12 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_update_with_a_value_filter_is_skipped_when_the_current_value_is_outside_the_pool(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $newStatus = Status::factory()->create();
         $this->makeSetting($recipient, [
             'actions' => ['update'],
             'columns' => ['status_id'],
-            'values' => [-1],
+            'values' => ['status_id' => [-1]],
         ]);
 
         $request = PurchaseRequest::factory()->create();
@@ -212,11 +236,11 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_update_notification_resolves_fk_columns_to_display_values(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $this->makeSetting($recipient, ['actions' => ['update']]);
 
         $request = PurchaseRequest::factory()->create();
-        $originalName = Status::find($request->getOriginal('status_id'))->english_name;
+        $originalName = NameSearch::label(Status::find($request->getOriginal('status_id')));
         $newStatus = Status::factory()->create();
         $request->status_id = $newStatus->id;
 
@@ -224,12 +248,13 @@ class NotificationEvaluatorTest extends TestCase
 
         $changes = $this->sentChanges($recipient, ModelEventNotification::class);
         $this->assertSame($originalName, $changes['status_id']['old']);
-        $this->assertSame($newStatus->english_name, $changes['status_id']['new']);
+        $this->assertSame(NameSearch::label($newStatus), $changes['status_id']['new']);
+        $this->assertStringContainsString($newStatus->english_name, $changes['status_id']['new']);
     }
 
     public function test_email_type_sends_only_the_email_notification(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $this->makeSetting($recipient, type: 'email');
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
@@ -240,7 +265,7 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_all_type_sends_both_notifications(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $this->makeSetting($recipient, type: 'all');
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');
@@ -251,7 +276,7 @@ class NotificationEvaluatorTest extends TestCase
 
     public function test_no_notification_is_sent_when_the_recipient_list_is_empty(): void
     {
-        $recipient = User::factory()->create();
+        $recipient = $this->recipient();
         $this->makeSetting($recipient, ['users' => []]);
 
         app(NotificationEvaluator::class)->evaluate(PurchaseRequest::factory()->create(), 'create');

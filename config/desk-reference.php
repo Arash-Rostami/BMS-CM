@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\BankProfile;
+use App\Models\CalendarRule;
 use App\Models\Custom;
+use App\Models\NotificationSetting;
 use App\Models\Payment;
 use App\Models\ProformaInvoice;
 use App\Models\PurchaseOrder;
@@ -56,6 +58,18 @@ return [
         'model' => Custom::class,
         'icon' => 'heroicon-o-book-open',
         'group' => 'logistics',
+        'version' => 1,
+    ],
+    'notificationSetting' => [
+        'model' => NotificationSetting::class,
+        'icon' => 'heroicon-o-book-open',
+        'group' => 'notification_settings',
+        'version' => 1,
+    ],
+    'calendarRule' => [
+        'model' => CalendarRule::class,
+        'icon' => 'heroicon-o-book-open',
+        'group' => 'calendar_rules',
         'version' => 1,
     ],
 ];

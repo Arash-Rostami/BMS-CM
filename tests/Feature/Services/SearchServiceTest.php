@@ -6,6 +6,7 @@ use App\Models\Permission;
 use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrder;
 use App\Models\Role;
+use App\Models\Status;
 use App\Models\User;
 use App\Services\SearchService;
 use Illuminate\Support\Facades\DB;
@@ -88,6 +89,27 @@ class SearchServiceTest extends TestCase
         $this->assertSame('purchaseRequest', $response['results'][0]['type']);
         $this->assertSame($request->id, $response['results'][0]['id']);
         $this->assertSame('completed', $response['breadcrumb']['purchaseRequest']['state']);
+    }
+
+    public function test_search_results_carry_the_localized_status_name(): void
+    {
+        app()->setLocale('en');
+        $this->actingAsUserWithPermissions(['purchase_request.view']);
+
+        $status = Status::factory()->create([
+            'type' => PurchaseRequest::TYPE_PURCHASE_REQUEST,
+            'english_type' => PurchaseRequest::TYPE_PURCHASE_REQUEST,
+            'name' => 'درخواست باز',
+            'english_name' => 'Open '.strtoupper(uniqid()),
+        ]);
+
+        $request = PurchaseRequest::factory()->create(['status_id' => $status->id]);
+        $term = 'FIND'.strtoupper(uniqid());
+        PurchaseRequest::whereKey($request->id)->update(['pr_number' => $term]);
+
+        $response = app(SearchService::class)->search($term);
+
+        $this->assertSame($status->english_name, $response['results'][0]['status']);
     }
 
     public function test_search_hides_models_the_user_cannot_view(): void

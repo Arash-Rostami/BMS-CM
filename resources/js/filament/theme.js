@@ -18,6 +18,16 @@
         } catch (e) {}
     };
 
+    const applySavedDarkMode = () => {
+        try {
+            const mode = localStorage.getItem(KEY_OLD);
+            if (mode === 'dark' || mode === 'light') {
+                window.dispatchEvent(new CustomEvent('theme-changed', { detail: mode }));
+                window.dispatchEvent(new CustomEvent('dark-mode-toggled', { detail: mode === 'dark' }));
+            }
+        } catch (e) {}
+    };
+
     window.setTheme = (key) => {
         const safeKey = isValidTheme(key) ? key : THEME_DEFAULT;
 
@@ -29,7 +39,16 @@
         window.dispatchEvent(new CustomEvent(EVENT_PALETTE, { detail: { palette: safeKey } }));
     };
 
+    document.addEventListener('livewire:navigating', e => e.detail?.onSwap?.(applySavedTheme));
     document.addEventListener('livewire:navigated', applySavedTheme);
+    window.addEventListener('storage', e => {
+        if (e.key === KEY_NEW) applySavedTheme();
+        if (e.key === KEY_OLD) applySavedDarkMode();
+    });
+    document.addEventListener('visibilitychange', () => {
+        applySavedTheme();
+        applySavedDarkMode();
+    });
 
     try {
         const oldTheme = localStorage.getItem(KEY_OLD);
@@ -37,4 +56,6 @@
             localStorage.removeItem(KEY_OLD);
         }
     } catch (e) {}
+
+    applySavedTheme();
 })();

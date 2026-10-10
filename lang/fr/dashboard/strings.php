@@ -91,7 +91,7 @@ return [
                     'title' => 'Une automatisation qui s\'exécute d\'elle-même',
                     'items' => [
                         ['title' => 'Réactions en chaîne « Préparer à partir de »', 'description' => 'Créez une commande à partir d\'une demande, ou une facture pro forma à partir d\'une commande, et les lignes, prix et conditions se remplissent automatiquement depuis le document source.'],
-                        ['title' => 'Numérotation automatique des documents', 'description' => 'Chaque demande, commande, paiement et expédition reçoit un numéro de référence propre dès sa création, la base de données garantissant elle-même qu\'aucun numéro ne se retrouve jamais partagé entre deux dossiers.'],
+                        ['title' => 'Numérotation automatique des documents', 'description' => 'Chaque demande, facture, commande, paiement, expédition et dédouanement reçoit un numéro de référence séquentiel propre dès sa création — généré par une séquence quotidienne et validé unique à la saisie, pour qu\'aucun dossier ne partage jamais un numéro.'],
                         ['title' => 'Le statut se propage tout seul', 'description' => 'Approuvez ou refusez une demande une seule fois, et chaque ligne qu\'elle contient se met à jour automatiquement.'],
                         ['title' => 'Des listes de contrôle qui se cochent seules', 'description' => 'Téléversez les documents d\'expédition et le système détecte, rien qu\'au nom des fichiers, lesquels ont été fournis — y compris les variantes d\'écriture persane — puis les coche automatiquement.'],
                     ],
@@ -104,8 +104,16 @@ return [
                         ['title' => 'Score de concentration fournisseur/devise', 'description' => 'Calcule à quel point l\'entreprise dépend d\'un seul fournisseur ou d\'une seule devise, avec un code couleur ne nécessitant aucune expertise financière.'],
                         ['title' => 'Rapports d\'ancienneté et d\'exposition', 'description' => 'Les factures impayées sont automatiquement classées par tranches de 30/60/90+ jours, avec l\'exposition de change par transaction actualisée automatiquement.'],
                         ['title' => 'Radiographie de la vitesse des transactions', 'description' => 'Affiche le délai typique face au délai des 10 % de cas les plus lents pour chaque étape du processus, rendant visible un dossier lent avant qu\'il ne devienne un problème.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Vous garde en avance',
+                    'title' => 'Alertes et explications, pas seulement des enregistrements',
+                    'items' => [
                         ['title' => 'Des notifications qui s\'expliquent d\'elles-mêmes', 'description' => 'Lorsqu\'un dossier que vous surveillez change, l\'alerte envoyée par e-mail affiche les valeurs avant et après en termes clairs — pas seulement « dossier mis à jour ».'],
                         ['title' => '« Ce que signifie ce chiffre » sur chaque graphique', 'description' => 'Chaque indicateur du tableau de bord intègre une explication en langage clair — ce qu\'il mesure et pourquoi il compte — avec un détail technique disponible pour qui le souhaite.'],
+                        ['title' => 'Des rappels de dates qui veillent pour vous', 'description' => 'Définissez une règle une fois — par exemple la date de livraison d\'une commande moins 7 jours — et le système tient une liste à jour de chaque dossier concerné. Les alertes arrivent dans l\'application ou par e-mail avant l\'échéance, et une date exigeant une action continue de vous le rappeler si elle passe ; seules les personnes autorisées à voir ce module les reçoivent. Partagez chaque règle avec tout le monde, des personnes précises ou des rôles précis — chaque correspondance et changement est journalisé par dossier.'],
+                        ['title' => 'Un calendrier intégré au tableau de bord', 'description' => 'L\'onglet calendrier du tableau de bord présente les dossiers concernés sous forme de grille mensuelle, grégorienne ou jalali — chaque jour porte des pastilles colorées par règle, les jours en retard se détachent, et un clic sur un jour liste ses dossiers avec un accès direct à chacun. Filtrez par règle ou par module, exportez un jour vers Excel — la page d\'accueil garde elle-même sa propre liste de ce qui est en retard ou dû dans les sept jours.'],
                     ],
                 ],
                 [
@@ -131,10 +139,16 @@ return [
                     'tag' => 'Se souvient de vous',
                     'title' => 'Un espace de travail qui s\'adapte à chacun',
                     'items' => [
-                        ['title' => 'Épinglez ce que vous utilisez vraiment', 'description' => 'Enregistrez les modules et dossiers fréquemment utilisés dans un panneau de raccourcis personnel, au lieu de reparcourir le même menu chaque jour.'],
+                        ['title' => 'Épinglez ce que vous utilisez vraiment', 'description' => 'Enregistrez les modules et dossiers fréquemment utilisés dans un panneau de raccourcis personnel, au lieu de reparcourir le même menu chaque jour. L\'espace de travail n\'affiche que les modules que votre rôle autorise à ouvrir, chaque dossier épinglé affiche son statut actuel, et les dossiers récemment ouverts sont proposés d\'un clic comme candidats à épingler.'],
                         ['title' => 'Une aide contextuelle, pas un manuel', 'description' => 'Un panneau de référence dédié à chaque module — avec un indicateur « non lu » qui disparaît après consultation, et qui réapparaît automatiquement si le contenu du guide est ensuite mis à jour.'],
-                        ['title' => 'Une salutation qui connaît l\'heure', 'description' => 'Une petite attention humaine qu\'un logiciel d\'achat classique ne prend jamais la peine d\'offrir.'],
                         ['title' => 'La barre latérale, à votre façon', 'description' => 'Basculez le menu de navigation entre un panneau latéral et un dock en bas d\'écran en un clic, et l\'application retient votre choix.'],
+                    ],
+                ],
+                [
+                    'tag' => 'Confort au quotidien',
+                    'title' => 'De petites attentions qui comptent',
+                    'items' => [
+                        ['title' => 'Une salutation qui connaît l\'heure', 'description' => 'Le message d\'accueil du tableau de bord change selon le moment de la journée — une petite attention humaine, intégrée d\'origine.'],
                         ['title' => 'Une boîte à outils qui vous suit', 'description' => 'Une horloge flottante, un minuteur façon Pomodoro pour vous aider à vous concentrer, et une musique apaisante pour relâcher la tension — tout reste accessible en un clic partout dans l\'espace de travail, avec vos choix de musique et de volume mémorisés d\'une visite à l\'autre.'],
                         ['title' => 'Une barre supérieure à votre service', 'description' => 'Un bouton de création rapide qui ne propose que les documents que votre rôle est autorisé à créer, regroupés par étape du processus — plus un menu d\'enregistrements récents qui garde à portée de clic les derniers dossiers ouverts.'],
                     ],
@@ -161,7 +175,7 @@ return [
                     'items' => [
                         ['title' => 'Pièces jointes sur chaque dossier de commande', 'description' => 'Les documents justificatifs s\'attachent directement à chaque demande, facture, commande, paiement et expédition, pour que les pièces ne soient jamais séparées des données.'],
                         ['title' => 'Journal de correspondance interne', 'description' => 'Les échanges d\'équipe liés à une commande précise gardent le contexte au même endroit, plutôt que dispersé dans les e-mails.'],
-                        ['title' => 'Notifications configurables', 'description' => 'Les utilisateurs sont alertés lorsque les dossiers qui les concernent changent, et les administrateurs définissent quels événements déclenchent une alerte.'],
+                        ['title' => 'Notifications configurables', 'description' => 'Les utilisateurs sont alertés lorsque les dossiers qu\'ils surveillent changent — chacun choisit lui-même les événements qui déclenchent des alertes, pour lui-même ou pour des collègues désignés.'],
                         ['title' => 'Multi-entreprise et multi-devise', 'description' => 'Une même entreprise peut être vendeur, acheteur ou fournisseur, et chaque commande peut porter sa propre devise — pensé pour le commerce international réel.'],
                     ],
                 ],
@@ -234,6 +248,7 @@ return [
     'workspace_records' => 'Enregistrements',
     'workspace_modules_hint' => 'Épinglez les modules que vous utilisez le plus',
     'workspace_records_hint' => 'Épinglez des enregistrements spécifiques pour un accès en un clic',
+    'switchers_toggle' => 'Boutons rapides',
     'pinned_suffix' => 'épinglé(s)',
     'section_pinned' => 'Épinglés',
     'section_add' => 'Ajouter',
@@ -252,7 +267,9 @@ return [
         'retry' => 'Réessayer',
         'found' => 'trouvé(s)',
         'tap' => 'Appuyez pour épingler',
+        'rename' => 'Renommer',
         'add' => 'Ajouter',
         'added' => 'Ajouté',
+        'recent' => 'Ouverts récemment',
     ],
 ];

@@ -8,3 +8,4 @@
 - The company list now shows an "In Use" count — how many records reference each company — as a colored badge: amber when referenced, gray when free.
 - A tooltip now shows the full description on hover when it's too long to fit the table column.
 - Export now works the standard way: one click, arrives as a notification with a download link, safe to open in Excel.
+- Bulk Activate / Deactivate now only appear for people who can edit Companies.

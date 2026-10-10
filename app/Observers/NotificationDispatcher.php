@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Services\NotificationEvaluator;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Throwable;
 
 class NotificationDispatcher
 {
@@ -28,28 +29,36 @@ class NotificationDispatcher
 
     public function created(Model $model): void
     {
-        if (static::$suspended) {
-            return;
-        }
-
-        $this->evaluator->evaluate($model, 'create');
+        $this->run($model, 'create');
     }
 
     public function updated(Model $model): void
     {
-        if (static::$suspended) {
+        if ($model->isDirty('deleted_at') && $model->getAttribute('deleted_at') === null) {
             return;
         }
 
-        $this->evaluator->evaluate($model, 'update', $model->getDirty());
+        $this->run($model, 'update', $model->getDirty());
     }
 
     public function deleted(Model $model): void
+    {
+        $this->run($model, 'delete');
+    }
+
+    /**
+     * @param  array<string, mixed>  $dirty
+     */
+    private function run(Model $model, string $action, array $dirty = []): void
     {
         if (static::$suspended) {
             return;
         }
 
-        $this->evaluator->evaluate($model, 'delete');
+        try {
+            $this->evaluator->evaluate($model, $action, $dirty);
+        } catch (Throwable $exception) {
+            report($exception);
+        }
     }
 }

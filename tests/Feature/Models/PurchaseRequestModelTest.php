@@ -3,9 +3,14 @@
 namespace Tests\Feature\Models;
 
 use App\Models\Attachment;
+use App\Models\Custom;
 use App\Models\Department;
+use App\Models\Payment;
 use App\Models\Product;
+use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
+use App\Models\RegisteredOrder;
+use App\Models\Shipment;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\SmartCacheManager;
@@ -327,5 +332,40 @@ class PurchaseRequestModelTest extends TestCase
         $pr->update(['notes' => 'just a note change']);
 
         $this->assertSame($itemStatus->id, $item->fresh()->status_id);
+    }
+
+    public function test_purchase_order_payments_match_the_manual_chain_and_ignore_registered_order_payments(): void
+    {
+        $pr = PurchaseRequest::factory()->create();
+        $po = PurchaseOrder::factory()->create();
+        $ro = RegisteredOrder::factory()->create();
+        $pr->purchaseOrders()->attach($po);
+        $pr->registeredOrders()->attach($ro);
+        $viaPo = Payment::factory()->create(['targetable_type' => PurchaseOrder::class, 'targetable_id' => $po->id]);
+        Payment::factory()->create(['targetable_type' => RegisteredOrder::class, 'targetable_id' => $ro->id]);
+        Payment::factory()->create(['targetable_type' => PurchaseOrder::class, 'targetable_id' => PurchaseOrder::factory()->create()->id]);
+
+        $manual = $pr->purchaseOrders->flatMap->payments->pluck('id')->sort()->values()->all();
+
+        $this->assertSame([$viaPo->id], $manual);
+        $this->assertSame($manual, $pr->purchaseOrderPayments->pluck('id')->sort()->values()->all());
+        $this->assertSame($manual, PurchaseRequest::with('purchaseOrderPayments')->find($pr->id)->purchaseOrderPayments->pluck('id')->sort()->values()->all());
+    }
+
+    public function test_shipments_and_customs_match_the_manual_chain_through_registered_orders(): void
+    {
+        $pr = PurchaseRequest::factory()->create();
+        $ro = RegisteredOrder::factory()->create();
+        $other = RegisteredOrder::factory()->create();
+        $pr->registeredOrders()->attach($ro);
+        $shipment = Shipment::factory()->create(['registered_order_id' => $ro->id]);
+        Shipment::factory()->create(['registered_order_id' => $other->id]);
+        $custom = Custom::factory()->create(['registered_order_id' => $ro->id, 'shipment_id' => $shipment->id]);
+        Custom::factory()->create(['registered_order_id' => $other->id]);
+
+        $this->assertSame($pr->registeredOrders->flatMap->shipments->pluck('id')->sort()->values()->all(), $pr->shipments->pluck('id')->sort()->values()->all());
+        $this->assertSame($pr->registeredOrders->flatMap->customs->pluck('id')->sort()->values()->all(), $pr->customs->pluck('id')->sort()->values()->all());
+        $this->assertSame([$shipment->id], $pr->shipments->pluck('id')->all());
+        $this->assertSame([$custom->id], $pr->customs->pluck('id')->all());
     }
 }

@@ -2,9 +2,16 @@
 
 namespace Tests\Feature\Integrity;
 
+use App\Filament\Resources\EntityAttributeResource;
+use App\Filament\Resources\TargetResource;
+use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -87,6 +94,11 @@ class ResourceAuthorizationIntegrityTest extends TestCase
     private const ALLOWED_OVERRIDES = [
         'App\\Filament\\Resources\\UserResource' => [
             'canDelete', 'canDeleteAny', 'getDeleteAuthorizationResponse', 'getDeleteAnyAuthorizationResponse',
+        ],
+        'App\\Filament\\Resources\\CalendarRuleResource' => [
+            'canEdit', 'canDelete', 'canRestore',
+            'getEditAuthorizationResponse', 'getUpdateAuthorizationResponse',
+            'getDeleteAuthorizationResponse', 'getRestoreAuthorizationResponse',
         ],
     ];
 
@@ -186,5 +198,69 @@ class ResourceAuthorizationIntegrityTest extends TestCase
         }
 
         $this->assertEmpty($violations, implode("\n", $violations));
+    }
+
+    public function test_every_conventional_resource_is_safely_globally_searchable(): void
+    {
+        $classes = collect(glob(app_path('Filament/Resources/*Resource.php')))
+            ->map(fn (string $file): string => 'App\\Filament\\Resources\\'.basename($file, '.php'))
+            ->filter(fn (string $class): bool => in_array(HasGlobalSearchConvention::class, class_uses_recursive($class)));
+
+        $this->assertGreaterThanOrEqual(20, $classes->count());
+
+        $gated = $classes->filter(fn (string $class): bool => in_array(HasResourcePermissions::class, class_uses_recursive($class)));
+        $viewer = User::factory()->create();
+        $role = Role::create(['name' => 'gs_role_'.uniqid(), 'guard_name' => 'web']);
+        $gated->each(fn (string $class) => $role->givePermissionTo(Permission::firstOrCreate(['name' => $class::getPermissionPrefix().'.view', 'guard_name' => 'web'])));
+        $viewer->assignRole($role);
+        $violations = [];
+
+        $this->actingAs(User::factory()->create());
+        foreach ($gated as $class) {
+            $class::canGloballySearch() && $violations[] = "{$class} is searchable without its view permission";
+        }
+
+        $this->actingAs($viewer);
+        Model::preventLazyLoading();
+
+        try {
+            foreach ($classes as $class) {
+                $model = $class::getModel();
+                $record = $model::factory()->create();
+                $found = $class::getGlobalSearchEloquentQuery()->whereKey($record->getKey())->get()->first();
+
+                $found === null && $violations[] = "{$class} cannot find its own record";
+
+                $class::canGloballySearch() || $violations[] = "{$class} is not globally searchable for a viewer";
+                $found === null || $this->globalSearchShapeViolations($class, $found, $violations);
+
+                if (in_array(SoftDeletes::class, class_uses_recursive($model))) {
+                    $record->delete();
+                    $class::getGlobalSearchEloquentQuery()->whereKey($record->getKey())->exists() && $violations[] = "{$class} returns soft-deleted records";
+                }
+            }
+        } finally {
+            Model::preventLazyLoading(false);
+        }
+
+        foreach ([EntityAttributeResource::class, TargetResource::class] as $excluded) {
+            $this->assertSame([], $excluded::getGloballySearchableAttributes(), "{$excluded} is intentionally not globally searchable");
+        }
+
+        $this->assertEmpty($violations, implode("\n", $violations));
+    }
+
+    private function globalSearchShapeViolations(string $class, Model $found, array &$violations): void
+    {
+        $class::getGloballySearchableAttributes() === [] && $violations[] = "{$class} has no searchable attributes";
+        blank($class::getGlobalSearchResultTitle($found)) && $violations[] = "{$class} has an empty title";
+        blank($class::getGlobalSearchResultUrl($found)) && $violations[] = "{$class} has no result URL";
+
+        $details = $class::getGlobalSearchResultDetails($found);
+        count($details) > 3 && $violations[] = "{$class} shows more than 3 detail pairs";
+
+        foreach ($details as $label => $value) {
+            (is_string($label) && is_scalar($value)) || $violations[] = "{$class} detail '{$label}' is not a label => value pair";
+        }
     }
 }

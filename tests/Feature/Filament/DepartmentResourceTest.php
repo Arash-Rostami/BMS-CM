@@ -196,6 +196,21 @@ class DepartmentResourceTest extends TestCase
             ->assertTableBulkActionHidden('deactivate');
     }
 
+    public function test_activate_and_deactivate_bulk_actions_follow_the_edit_permission(): void
+    {
+        $this->actingAsUserWithPermissions(['department.view']);
+
+        Livewire::test(ManageDepartments::class)
+            ->assertTableBulkActionHidden('activate')
+            ->assertTableBulkActionHidden('deactivate');
+
+        $this->actingAsUserWithPermissions(['department.view', 'department.edit']);
+
+        Livewire::test(ManageDepartments::class)
+            ->assertTableBulkActionVisible('activate')
+            ->assertTableBulkActionVisible('deactivate');
+    }
+
     public function test_bulk_actions_toolbar_orders_export_activate_deactivate_before_delete_and_restore(): void
     {
         $this->actingAsUserWithPermissions(['department.view', 'department.delete', 'department.restore']);

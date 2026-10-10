@@ -2,8 +2,13 @@
 
 namespace Tests\Feature\Models;
 
+use App\Models\BankProfile;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\PurchaseOrderItem;
+use App\Models\PurchaseRequest;
+use App\Models\PurchaseRequestItem;
+use App\Models\RegisteredOrderItem;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -174,5 +179,30 @@ class ProductModelTest extends TestCase
         $second = Product::factory()->create(['english_name' => 'Duplicate Slug Source']);
 
         $this->assertSame('duplicate-slug-source-1', $second->fresh()->slug);
+    }
+
+    public function test_purchase_requests_match_the_manual_chain_and_are_not_duplicated_per_item(): void
+    {
+        $product = Product::factory()->create();
+        $pr = PurchaseRequest::factory()->create();
+        PurchaseRequestItem::factory()->count(2)->create(['product_id' => $product->id, 'purchase_request_id' => $pr->id]);
+        PurchaseRequestItem::factory()->create(['purchase_request_id' => PurchaseRequest::factory()->create()->id]);
+
+        $manual = $product->purchaseItems->pluck('purchase_request_id')->unique()->sort()->values()->all();
+
+        $this->assertSame([$pr->id], $manual);
+        $this->assertSame($manual, $product->purchaseRequests->pluck('id')->sort()->values()->all());
+    }
+
+    public function test_order_item_inverses_and_bank_profile_target_resolve(): void
+    {
+        $product = Product::factory()->create();
+        $poItem = PurchaseOrderItem::factory()->create(['product_id' => $product->id]);
+        $roItem = RegisteredOrderItem::factory()->create(['product_id' => $product->id]);
+        $profile = BankProfile::factory()->create(['targetable_type' => Product::class, 'targetable_id' => $product->id]);
+
+        $this->assertSame([$poItem->id], $product->purchaseOrderItems->pluck('id')->all());
+        $this->assertSame([$roItem->id], $product->registeredOrderItems->pluck('id')->all());
+        $this->assertSame([$profile->id], $product->bankProfiles->pluck('id')->all());
     }
 }

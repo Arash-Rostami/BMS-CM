@@ -76,6 +76,9 @@
                             <span x-text="result.title" class="truncate"></span>
                         </h4>
                         <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 truncate" x-text="result.subtitle"></p>
+                        <span x-show="result.status" x-cloak
+                              class="mt-1.5 inline-flex items-center rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-300"
+                              x-text="result.status"></span>
                     </div>
 
                     <template x-if="result.progress > 0">

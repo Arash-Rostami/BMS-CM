@@ -29,6 +29,21 @@
             ];
         }
     }
+
+    $alertResources = [
+        \App\Filament\Resources\NotificationSettingResource::class,
+        \App\Filament\Resources\CalendarRuleResource::class,
+    ];
+
+    foreach ($alertResources as $alertResource) {
+        if ($alertResource::canCreate() && $alertResource::canViewAny()) {
+            $createGroups[$alertResource::getNavigationGroup()][] = [
+                'label' => $alertResource::getNavigationLabel(),
+                'icon' => $alertResource::getNavigationIcon(),
+                'url' => $alertResource::getUrl('index', ['action' => 'create']),
+            ];
+        }
+    }
 @endphp
 
 <script>

@@ -79,7 +79,6 @@ trait Infolist
         return TextEntry::make('end_in')
             ->label(__('resources/target/strings.infolist.end_in'))
             ->adaptiveDate()
-            ->unless(app()->isLocale('en'), fn (TextEntry $column) => $column->jalaliDate())
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }
@@ -107,7 +106,6 @@ trait Infolist
         return TextEntry::make('start_from')
             ->label(__('resources/target/strings.infolist.start_from'))
             ->adaptiveDate()
-            ->unless(app()->isLocale('en'), fn (TextEntry $column) => $column->jalaliDate())
             ->icon('heroicon-m-calendar-days')
             ->placeholder('-');
     }

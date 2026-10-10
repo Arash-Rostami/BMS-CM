@@ -25,6 +25,8 @@
                 hideTimer = setTimeout(() => {
                     document.documentElement.classList.remove(CLASS_HIDDEN);
                 }, 400);
+            } else {
+                rootClasses.remove(CLASS_HIDDEN);
             }
         };
 

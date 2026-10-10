@@ -172,4 +172,14 @@ class CurrencyModelTest extends TestCase
         $this->assertNull(Currency::find($currency->id));
         $this->assertNotNull(Currency::withTrashed()->find($currency->id));
     }
+
+    public function test_bank_profiles_returns_only_profiles_on_that_currency_and_the_inverse_resolves(): void
+    {
+        $currency = Currency::factory()->create();
+        $profile = BankProfile::factory()->create(['currency_id' => $currency->id]);
+        BankProfile::factory()->create(['currency_id' => Currency::factory()->create()->id]);
+
+        $this->assertSame([$profile->id], $currency->bankProfiles()->pluck('id')->all());
+        $this->assertTrue($profile->currency->is($currency));
+    }
 }

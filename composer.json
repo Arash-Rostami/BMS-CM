@@ -23,6 +23,7 @@
         "morilog/jalali": "^3.4",
         "mpdf/mpdf": "^8.3",
         "openspout/openspout": "^4.28",
+        "spatie/laravel-activitylog": "^4.12",
         "spatie/laravel-permission": "^6.24",
         "ysfkaya/filament-phone-input": "^4.0"
     },
@@ -70,7 +71,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74,#86efac\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan schedule:work\" \"npm run dev\" --names='server,queue,scheduler,vite'"
         ],
         "test": [
             "@php artisan config:clear --ansi",

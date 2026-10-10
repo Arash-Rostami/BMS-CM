@@ -56,20 +56,21 @@ export default function search() {
             this.chain = [];
             this.chainError = false;
             this._searchCtrl = new AbortController();
+            const ctrl = this._searchCtrl;
 
             try {
                 const r = await axios.get('/api/search/spotlight', {
                     params: { q: this.searchQuery },
-                    signal: this._searchCtrl.signal
+                    signal: ctrl.signal
                 });
 
                 this.results = r.data?.results || [];
                 this.byUser = r.data?.by_user || null;
             } catch (e) {
-                if (this._searchCtrl.signal.aborted) return;
+                if (ctrl.signal.aborted) return;
                 this.results = [];
             } finally {
-                if (!this._searchCtrl.signal.aborted) {
+                if (!ctrl.signal.aborted) {
                     this.isSearching = false;
                 }
             }
@@ -86,11 +87,12 @@ export default function search() {
 
             this.chainLoading = true;
             this._chainCtrl = new AbortController();
+            const ctrl = this._chainCtrl;
 
             try {
                 const r = await axios.get('/api/search/chain', {
                     params: { type: result.type, id: result.id },
-                    signal: this._chainCtrl.signal
+                    signal: ctrl.signal
                 });
 
                 this.chain = r.data?.chain || [];
@@ -100,11 +102,11 @@ export default function search() {
                     this._cachedStages = buildStages(this.breadcrumb);
                 }
             } catch (e) {
-                if (this._chainCtrl.signal.aborted) return;
+                if (ctrl.signal.aborted) return;
                 this.chain = [];
                 this.chainError = true;
             } finally {
-                if (!this._chainCtrl.signal.aborted) {
+                if (!ctrl.signal.aborted) {
                     this.chainLoading = false;
                 }
             }

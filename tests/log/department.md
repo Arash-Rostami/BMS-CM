@@ -28,3 +28,4 @@
 # Department — 2026-10-07 follow-up
 
 - Tried making the bulk Activate/Deactivate buttons smarter (only show when relevant) — didn't work reliably in the browser, reverted. Both buttons always show, same as before.
+- Bulk Activate / Deactivate now only appear for people who can edit Departments.

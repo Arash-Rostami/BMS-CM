@@ -2,12 +2,25 @@
 
 namespace Tests\Feature\Helpers;
 
+use App\Filament\Resources\BankProfileResource;
+use App\Filament\Resources\CustomResource;
+use App\Filament\Resources\PaymentResource;
+use App\Filament\Resources\ShipmentResource;
+use App\Filament\Resources\TargetResource;
+use App\Models\BankProfile;
+use App\Models\Custom;
+use App\Models\Payment;
 use App\Models\PurchaseRequest;
+use App\Models\Shipment;
 use App\Models\Status;
+use App\Models\Target;
+use App\Services\SearchService;
+use App\Services\WorkspaceSearchService;
 use DateTime;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\File;
+use ReflectionMethod;
 use Tests\TestCase;
 
 class AdaptiveDateTest extends TestCase
@@ -55,6 +68,39 @@ class AdaptiveDateTest extends TestCase
         $this->assertSame(toGregorianDate('2026-09-17 14:30:00', true), $entry->formatState('2026-09-17 14:30:00'));
 
         $this->assertNull($column->formatState(null));
+    }
+
+    public function test_user_visible_date_surfaces_follow_the_calendar_session(): void
+    {
+        app()->setLocale('fa');
+        $payment = (new Payment)->setAttribute('payment_date', '2026-09-17');
+        $items = [['label' => 'X', 'date' => '2026-09-17']];
+
+        foreach (['jalali' => 'toPersianDate', 'gregorian' => 'toGregorianDate'] as $calendar => $format) {
+            session(['calendar_type' => $calendar]);
+            $expected = $format('2026-09-17');
+
+            foreach ([
+                [ShipmentResource::viewEtd(), new Shipment],
+                [CustomResource::viewClearanceDate(), new Custom],
+                [BankProfileResource::viewAllocationDate(), new BankProfile],
+                [TargetResource::viewStartFrom(), new Target],
+            ] as [$entry, $model]) {
+                $this->assertSame($expected, $entry->model($model)->formatState('2026-09-17'), "{$calendar}: ".$entry->getName());
+            }
+
+            $this->assertContains($expected, PaymentResource::getGlobalSearchResultDetails($payment), "{$calendar}: global search detail");
+            $this->assertStringContainsString($expected, view('filament.calendar.preview', ['preview' => ['count' => 1, 'items' => $items]])->render(), "{$calendar}: rule preview");
+
+            foreach ([[SearchService::class, 'd'], [WorkspaceSearchService::class, 'compose']] as [$class, $method]) {
+                $reflection = new ReflectionMethod($class, $method);
+                $reflection->setAccessible(true);
+                $result = $reflection->isStatic()
+                    ? $reflection->invoke(null, '2026-09-17')
+                    : $reflection->invoke(new $class, $payment, ['payment_date']);
+                $this->assertSame($expected, $result, "{$calendar}: {$class}");
+            }
+        }
     }
 
     public function test_tab_badge_renders_the_label_and_the_count_span(): void

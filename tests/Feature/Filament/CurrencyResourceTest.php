@@ -286,6 +286,21 @@ class CurrencyResourceTest extends TestCase
         $this->assertTrue($record->fresh()->is_active);
     }
 
+    public function test_activate_and_deactivate_bulk_actions_follow_the_edit_permission(): void
+    {
+        $this->actingAsUserWithPermissions(['currency.view']);
+
+        Livewire::test(ManageCurrencies::class)
+            ->assertTableBulkActionHidden('activate')
+            ->assertTableBulkActionHidden('deactivate');
+
+        $this->actingAsUserWithPermissions(['currency.view', 'currency.edit']);
+
+        Livewire::test(ManageCurrencies::class)
+            ->assertTableBulkActionVisible('activate')
+            ->assertTableBulkActionVisible('deactivate');
+    }
+
     public function test_bulk_actions_toolbar_orders_export_activate_deactivate_before_delete_and_restore(): void
     {
         $this->actingAsUserWithPermissions(['currency.view', 'currency.delete', 'currency.restore']);

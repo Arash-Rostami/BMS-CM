@@ -74,6 +74,17 @@ a:focus-visible {
     box-shadow: var(--md-elevation-1-dark);
 }
 
+.lp-fab {
+    padding: 5px !important;
+    border-radius: 9px !important;
+    box-shadow: var(--md-elevation-1);
+    background-color: var(--custom-neutral) !important;
+}
+
+.dark .lp-fab {
+    background-color: var(--filament-dark-mid) !important;
+}
+
 .lp-surface-hover:hover {
     background-color: var(--custom-neutral);
     box-shadow: var(--md-elevation-2);
@@ -175,6 +186,20 @@ a:focus-visible {
 .dark .lp-float {
     background-color: var(--filament-dark-mid);
     box-shadow: var(--md-elevation-3-dark);
+}
+
+.lp-dock .absolute {
+    top: auto;
+    bottom: calc(100% + 0.5rem);
+    margin-top: 0;
+}
+
+.lp-dock .lp-surface {
+    background-color: var(--custom-neutral) !important;
+}
+
+.dark .lp-dock .lp-surface {
+    background-color: var(--filament-dark-mid) !important;
 }
 
 .lp-dock-pulse {
@@ -384,12 +409,18 @@ input[type="range"]::-moz-range-thumb {
 }
 
 @keyframes bulbPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: .4; }
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .4;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .lp-insight-flag svg { animation: none; }
+    .lp-insight-flag svg {
+        animation: none;
+    }
 }
 
 /* ==========================================================================
@@ -531,7 +562,7 @@ input[type="range"]::-moz-range-thumb {
     color: var(--primary-900);
     letter-spacing: -.06em;
     animation: lIn .65s cubic-bezier(.23, 1, .32, 1) both;
-    animation-delay: calc(.28s + var(--i) * .07s)!important;
+    animation-delay: calc(.28s + var(--i) * .07s) !important;
     text-shadow: 0 0 60px color-mix(in oklab, var(--primary-600) 14%, transparent);
     will-change: transform, opacity, filter;
 }
@@ -911,33 +942,63 @@ input[type="range"]::-moz-range-thumb {
 }
 
 @keyframes lFill {
-    from { transform: scaleX(0); }
-    to { transform: scaleX(1); }
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
 }
 
 @keyframes lScan {
-    0% { transform: translateY(-55vh); opacity: 0; }
-    8% { opacity: .65; }
-    88% { opacity: .25; }
-    100% { transform: translateY(55vh); opacity: 0; }
+    0% {
+        transform: translateY(-55vh);
+        opacity: 0;
+    }
+    8% {
+        opacity: .65;
+    }
+    88% {
+        opacity: .25;
+    }
+    100% {
+        transform: translateY(55vh);
+        opacity: 0;
+    }
 }
 
 @keyframes lCorner {
-    from { opacity: 0; transform: scale(.88); }
-    to { opacity: 1; transform: none; }
+    from {
+        opacity: 0;
+        transform: scale(.88);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 @keyframes lGlow {
-    0%, 100% { opacity: .1; }
-    50% { opacity: .26; }
+    0%, 100% {
+        opacity: .1;
+    }
+    50% {
+        opacity: .26;
+    }
 }
 
 @keyframes lGrid {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .ldr-scan, .ldr-glow { animation: none !important; }
+    .ldr-scan, .ldr-glow {
+        animation: none !important;
+    }
 }
 

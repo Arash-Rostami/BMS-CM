@@ -140,7 +140,7 @@ trait Table
             ->badge()
             ->copyable()
             ->sortable()
-            ->tooltip(fn ($record) => $record->order_date->format('Y-m-d'));
+            ->tooltip(fn ($record) => adaptiveDate($record->order_date));
     }
 
     public static function showOfficialRegistrationNo(): TextColumn

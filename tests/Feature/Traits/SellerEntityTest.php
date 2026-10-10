@@ -5,15 +5,13 @@ namespace Tests\Feature\Traits;
 use App\Models\Company;
 use App\Models\PurchaseOrder;
 use App\Models\RegisteredOrder;
-use App\Models\Traits\General\SellerEntity;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /**
- * App\Models\Traits\General\SellerEntity provides three BelongsTo(Company, 'seller_id')
- * variants, each scoped by company type + is_active=1: manufacturerCompanyExclusive(),
- * sellerCompanyExclusive(), supplierCompanyExclusive(). Composed on 2 unrelated models
- * (RegisteredOrder, PurchaseOrder) — cross-cutting, no existing coverage.
+ * The three BelongsTo(Company, 'seller_id') variants, each scoped by company type + is_active=1:
+ * manufacturerCompanyExclusive(), sellerCompanyExclusive(), supplierCompanyExclusive(). They live in
+ * the Relationships trait of both RegisteredOrder and PurchaseOrder.
  */
 class SellerEntityTest extends TestCase
 {
@@ -51,14 +49,13 @@ class SellerEntityTest extends TestCase
         config(['database.default' => 'mysql']);
     }
 
-    public function test_purchase_order_composes_the_trait(): void
+    public function test_both_models_declare_the_three_variants_in_their_relationships_trait(): void
     {
-        $this->assertContains(SellerEntity::class, class_uses_recursive(PurchaseOrder::class));
-    }
-
-    public function test_registered_order_composes_the_trait(): void
-    {
-        $this->assertContains(SellerEntity::class, class_uses_recursive(RegisteredOrder::class));
+        foreach ([PurchaseOrder::class, RegisteredOrder::class] as $model) {
+            foreach (['manufacturerCompanyExclusive', 'sellerCompanyExclusive', 'supplierCompanyExclusive'] as $relation) {
+                $this->assertStringEndsWith('Traits/'.class_basename($model).'/Relationships.php', str_replace(DIRECTORY_SEPARATOR, '/', (new \ReflectionMethod($model, $relation))->getFileName()), $model.'::'.$relation);
+            }
+        }
     }
 
     public function test_seller_company_exclusive_resolves_only_an_active_seller(): void

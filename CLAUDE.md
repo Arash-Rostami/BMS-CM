@@ -15,6 +15,7 @@ Co-located pattern files are the canonical, verified reference for their domains
 | Dashboard analytics widgets | `app/Filament/Widgets/widgetsPattern.md` | Tabbed `Dashboard` page, `AnalyticsService` caching contract, widget data lineage |
 | Services layer | `app/Services/servicesPattern.md` | All 15 services — public APIs, consumers, caching/locale gotchas; `SearchService` spotlight + chain contract |
 | Shared import pipeline | `app/Services/Imports/importsPattern.md` | The Pipeline-driven bulk-import architecture shared by every module |
+| Calendar rules subsystem | `app/Services/Calendar/calendarPattern.md` | Rule → hits engine (`Sync/`), model-save routing, alerts, activity log, month presenter (`Display/`), permission rules, tracing guide |
 | Model layer / migrations | `app/Models/modelsPattern.md` | Model-trait composition, EAV model side, `Status`/`StatusFinder`, migration conventions |
 | Global helpers / locale | `app/Utils/helpersPattern.md` | `app/Utils/helpers.php` signatures, `calendar_type` contract, cache-helper internals |
 | Localization | `lang/localizationPattern.md` | Locale/key structure, validation-message wiring, implicit DatePicker `date` rule |
@@ -53,6 +54,7 @@ composer run test       # all tests (SQLite in-memory)
 php artisan test --filter PurchaseRequestResourceTest   # single test class/method
 ./vendor/bin/pint       # lint / auto-fix code style
 npm run build           # build frontend assets
+npm run test            # JS test suite (vitest, co-located `__tests__/` — see scriptPattern.md §12)
 php artisan filament:assets   # REQUIRED after editing any FilamentAssets.php-registered file (Css::make()/Js::make() entries — Vite HMR does NOT cover them; Filament serves the public/ copy, so an edit without a re-publish is invisible in the browser)
 php artisan optimize:clear && php artisan filament:clear-cached-components   # clear all caches
 php artisan config:cache && php artisan route:cache && php artisan filament:cache-components   # rebuild caches
@@ -100,7 +102,7 @@ app/Filament/Resources/
 
 - **Naming**: form field `getXxxField()`, table column `showXxx()`, infolist entry `viewXxx()`, filter `getXxxFilter()`.
 - **Forms/infolists**: uniform two-tab structure across all 8 operational resources; `getExtraAttributesFormTab()`/`getExtraAttributesInfolistTab()` always last; `->columns(3)` on the Tab, never the Schema root; `->columnSpanFull()` on Tabs; translate every user-facing string; new tabs get `tab_*` keys in all 3 locale files. Full structure: `filamentPattern.md`.
-- **Model traits** (`app/Models/Traits/General/`): `Relationships` (`creator()`/`updater()`), `UserStamps` (auto user_id/updated_by_id), `HasCustomAttributes` (EAV morphMany), `Localization` (localized name accessor), `HasScope` (`scopeActive`), `SellerEntity` — `modelsPattern.md`.
+- **Model traits** (`app/Models/Traits/General/`): `Relationships` (`creator()`/`updater()`), `UserStamps` (auto user_id/updated_by_id), `HasCustomAttributes` (EAV morphMany), `Localization` (localized name accessor), `HasScope` (`scopeActive`) — `modelsPattern.md`.
 - **Filament traits**: `HasResourcePermissions` (maps all Filament permission checks to Spatie; prefix `Str::snake(class_basename($model))`, actions view/create/edit/delete; **no `app/Policies/`**), `HasExtraAttributesManagement`, `HandleActivation` (bulk activate/deactivate), `ExportDefaults` (filename + row limit) — `filamentPattern.md`.
 - **EAV**: `EntityAttribute` polymorphic (`entity_type` + `entity_id`), `value` JSON-cast. Two intentional entry points: `ManageCustomAttributesAction` KeyValue modal (`customAttributes()`) and the Repeater form tab (`extraAttributes()`) — same relation, different alias. `EntityAttributeResource` is view-only.
 - **SoftDeletes models** require `withoutGlobalScopes([SoftDeletingScope::class])` in the resource's `getEloquentQuery()`.
@@ -127,7 +129,7 @@ app/Filament/Resources/
 
 - **`SearchController`** (`/api/search/spotlight?q=`, `/api/search/chain?type=&id=`) — auth-guarded; `SearchService::PIPELINE` order is the single source of truth for the 8-model pipeline. Spotlight returns per-hit title/progress/breadcrumb; chain returns the attached pipeline around a record's `RegisteredOrder` hub(s) with batched `whereIn` label lookups (N+1-free). Full contract: `servicesPattern.md` (`SearchService`).
 - **`InvoiceController`** (`/shipments/{shipment}/invoice/pdf`, route `shipments.invoice.pdf`, middleware `auth`) — reads the `commercial_invoice` EntityAttribute, delegates to `InvoicePdfService::download()`; 404 when none saved.
-- **`WorkspaceController`** (`/workspace/records/{resource}?q=`) — record-pinning search for the landing-page workspace; config-driven whitelist of 8 resources in `config/workspace.php` (key must match the `$modules` array id in `App\Livewire\LandingPage\Workspace`); column lists cached 1 day; max 25 results. Pins persist in `localStorage['user_shortcuts']`.
+- **`WorkspaceController`** (`/workspace/records/{resource}?q=`) — record-pinning search for the landing-page workspace; config-driven whitelist of 9 resources in `config/workspace.php` (key must match the `$modules` array id in `App\Livewire\LandingPage\Workspace`); column lists cached 1 day; max 25 results. Pins persist in `localStorage['user_shortcuts']`.
 
 ## Landing page
 

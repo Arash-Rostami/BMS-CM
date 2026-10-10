@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Filament\Resources\Master\UserResource\Exports\UserExporter;
 use App\Filament\Resources\Master\UserResource\Pages\ManageUsers;
 use App\Filament\Resources\UserResource;
 use App\Models\Department;
@@ -236,12 +237,29 @@ class UserResourceTest extends TestCase
 
     public function test_exporter_write_emits_one_row_per_record_without_any_sensitive_fields(): void
     {
-        $this->markTestSkipped('UserExporter::write()/columnLabels() (shared flat-write shape) is parked on worktree-agent-a5f81ad74b0cf6b52 (commit dc6e0d5), unmerged pending review — master\'s UserExporter is still a native Filament Exporter with no write()/columnLabels() statics. Un-skip once that worktree is reviewed and merged.');
+        $first = User::factory()->create(['name' => '=cmd|calc', 'password' => 'Secret-Hash-Marker-1']);
+        $second = User::factory()->create();
+        $path = tempnam(sys_get_temp_dir(), 'user_export_').'.csv';
+
+        $rows = UserExporter::write(User::query()->whereIn('id', [$first->id, $second->id]), $path);
+        $csv = (string) file_get_contents($path);
+        unlink($path);
+
+        $this->assertSame(2, $rows);
+        $this->assertStringStartsWith("\xEF\xBB\xBF", $csv);
+        $this->assertCount(3, array_filter(explode("\n", str_replace("\r\n", "\n", trim($csv)))));
+        $this->assertStringNotContainsString($first->password, $csv);
+        $this->assertStringNotContainsStringIgnoringCase('remember_token', $csv);
+        $this->assertStringContainsString("'=cmd|calc", $csv);
     }
 
     public function test_import_and_export_column_counts_are_pinned(): void
     {
-        $this->markTestSkipped('UserExporter::columnLabels() is parked on worktree-agent-a5f81ad74b0cf6b52 (commit dc6e0d5), unmerged pending review. Un-skip once that worktree is reviewed and merged.');
+        $labels = UserExporter::columnLabels();
+
+        $this->assertCount(14, $labels);
+        $this->assertArrayNotHasKey('password', $labels);
+        $this->assertArrayNotHasKey('remember_token', $labels);
     }
 
     // Delete stays forbidden even with the permission — the global ViewAction footer button
@@ -319,6 +337,21 @@ class UserResourceTest extends TestCase
         Livewire::test(ManageUsers::class)
             ->callTableBulkAction('deactivate', [$actor, $active])
             ->assertNotified(__('resources/user/strings.bulk.deactivate_skipped', ['count' => 1]));
+    }
+
+    public function test_activate_and_deactivate_bulk_actions_follow_the_edit_permission(): void
+    {
+        $this->actingAsUserWithPermissions(['user.view']);
+
+        Livewire::test(ManageUsers::class)
+            ->assertTableBulkActionHidden('activate')
+            ->assertTableBulkActionHidden('deactivate');
+
+        $this->actingAsUserWithPermissions(['user.view', 'user.edit']);
+
+        Livewire::test(ManageUsers::class)
+            ->assertTableBulkActionVisible('activate')
+            ->assertTableBulkActionVisible('deactivate');
     }
 
     public function test_bulk_deactivate_requires_confirmation(): void

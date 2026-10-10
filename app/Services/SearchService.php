@@ -309,7 +309,7 @@ class SearchService
             return null;
         }
 
-        return app()->getLocale() === 'fa' ? toPersianDate($val) : self::d($val);
+        return self::d($val);
     }
 
     private function fieldLabel(string $key, string $col): string
@@ -467,6 +467,7 @@ class SearchService
             'theme' => self::THEME[$cfg['color']],
             'progress' => $total > 0 ? (int) round(($filled / $total) * 100) : 0,
             'url' => ($cfg['url'])($record),
+            'status' => method_exists($record, 'status') ? (string) ($record->status?->localized_name ?? '') : '',
             'details' => $details,
         ];
     }
@@ -477,7 +478,7 @@ class SearchService
             return null;
         }
         try {
-            return ($value instanceof DateTimeInterface ? Carbon::instance($value) : Carbon::parse($value))->format('Y-m-d');
+            return adaptiveDate($value instanceof DateTimeInterface ? $value : Carbon::parse($value));
         } catch (\Throwable) {
             return null;
         }

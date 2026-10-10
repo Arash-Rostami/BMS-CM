@@ -14,6 +14,10 @@ Durable, non-obvious lessons that don't belong to a single domain doc. CLAUDE.md
 
 `PreparePaymentFromTargetable::prepareData()` (Payment's auto-populate-from-target helper) calls `CodeGenerator::generate('payment_no')`, which runs a real `SELECT ... FOR UPDATE` — fine as a one-time call from `afterFill()` on page mount, but wired into a `MorphToSelect`'s `afterStateUpdated` (so re-picking the target live-refills related fields) it re-ran the locking query on every manual re-selection and threw the result away, unused. Fixed by splitting a non-generating `copyTargetableAttributes()` out of `prepareData()` — the live closure calls only the split-out copy method, the one-shot mount-time prefill still calls the full `prepareData()`. Before wiring any existing prefill helper into a live/reactive closure, check whether it does anything beyond copying related-record attributes (a `CodeGenerator` call, a cache write, any DB write) — split it first if so.
 
+## Relations are discovered by reflection - a new relation can leak into the calendar
+
+`CalendarPathResolver::reflectRelations()` (and through it `ModelInspector`, the Calendar router and the Table picker) exposes EVERY typed public relation method declared under `app/Models`. A convenience relation added for code use (`hasManyThrough`, a `belongsToMany` shortcut over a pivot) would show up as a bogus 1-hop "Directly linked" table and could be saved into rules. Mark such relations `#[Indirect]` (through relations are also dropped by class) and keep the invariant test (`CalendarSubsystemTest::test_indirect_relations_never_reach_the_calendar_relations_or_table_options`) green. Adding an inverse can also silently change the picker: the resolver keeps the FIRST relation (method order) that reaches a table, so declare a new relation to an already-reachable table after its siblings in the trait. Details -> `app/Models/modelsPattern.md` §4b.
+
 ## Covered by their domain docs (don't duplicate here)
 
 - Tooltip reliability on client-only toggles → `resources/js/scriptPattern.md` §10
@@ -23,3 +27,5 @@ Durable, non-obvious lessons that don't belong to a single domain doc. CLAUDE.md
 - Long-running queue workers cache class code AND config at boot → `app/Jobs/jobsPattern.md`
 - A RelationManager never gets bulk import → `app/Filament/filamentPattern.md` §1.20, `app/Services/Imports/importsPattern.md`
 - OPcache reset from the CLI never touches the running server's cache (FPM or `php artisan serve`) → `app/Utils/helpersPattern.md`
+- Modal-less actions run inside `mountAction()`; `$set` on an infolist Entry never persists → `tests/testPattern.md` §3j
+- Typing a relation method's return type needs the matching `use` import in that trait file: `php -l` and Pint both pass, the TypeError only fires when the relation is called (it broke `RegisteredOrder`/`Shipment` pipeline links and hid them from the calendar until a broader test run) → `app/Models/modelsPattern.md` §13

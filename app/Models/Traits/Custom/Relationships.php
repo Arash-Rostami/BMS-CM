@@ -3,11 +3,14 @@
 namespace App\Models\Traits\Custom;
 
 use App\Models\Attachment;
+use App\Models\Attributes\Indirect;
 use App\Models\Correspondence;
+use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrder;
 use App\Models\Shipment;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait Relationships
@@ -38,6 +41,13 @@ trait Relationships
     public function correspondences(): MorphMany
     {
         return $this->morphMany(Correspondence::class, 'correspondable');
+    }
+
+    #[Indirect]
+    public function purchaseRequests(): BelongsToMany
+    {
+        return $this->belongsToMany(PurchaseRequest::class, 'registered_order_purchase_request', 'registered_order_id', 'purchase_request_id', 'registered_order_id', 'id')
+            ->distinct();
     }
 
     public function registeredOrder(): BelongsTo
