@@ -2006,6 +2006,10 @@ html:hover {
 /* =========================================================
    Calendar Widget (.cal-*)
    ========================================================= */
+.fi-wi-table .fi-ta-grouping-settings-fields {
+    grid-template-columns: 1fr;
+}
+
 .cal-toolbar {
     display: flex;
     flex-wrap: wrap;

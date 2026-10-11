@@ -163,8 +163,8 @@ return [
         'fields' => [
 
             'group' => [
-                'label' => 'گروه‌بندی براساس',
-                'placeholder' => 'گروه‌بندی براساس',
+                'label' => 'گروه‌بندی',
+                'placeholder' => 'گروه‌بندی',
             ],
 
             'direction' => [

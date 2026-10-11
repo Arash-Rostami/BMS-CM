@@ -40,6 +40,7 @@ return [
                 'rule' => 'قاعده',
                 'status' => 'وضعیت',
                 'export' => 'خروجی موارد',
+                'module' => 'ماژول',
             ],
         ],
         'cycle_time' => [

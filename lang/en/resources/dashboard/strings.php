@@ -40,6 +40,7 @@ return [
                 'rule' => 'Rule',
                 'status' => 'Status',
                 'export' => 'Export hits',
+                'module' => 'Module',
             ],
         ],
         'cycle_time' => [

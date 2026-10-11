@@ -110,6 +110,8 @@ class CalendarDayWidgetTest extends TestCase
             ->assertDontSee('other day hit')
             ->assertSee(CalendarModules::label(PurchaseRequest::class))
             ->assertSee(CalendarModules::label(Shipment::class))
+            ->assertSee(__('resources/dashboard/strings.widgets.calendar.day.module'))
+            ->assertDontSee('Subject type')
             ->assertSeeHtml(CalendarModules::url($request))
             ->assertSuccessful();
     }

@@ -69,6 +69,7 @@ class CalendarDayWidget extends TableWidget
     private function subjectGroup(): Group
     {
         return Group::make('subject_type')
+            ->label(__('resources/dashboard/strings.widgets.calendar.day.module'))
             ->orderQueryUsing(fn (Builder $query, string $direction): Builder => $query->orderByRaw($this->subjectOrderSql($direction), $this->subjectOrder()))
             ->getTitleFromRecordUsing(fn (CalendarHit $record): string => CalendarModules::label($record->subject_type));
     }
