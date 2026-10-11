@@ -35,7 +35,7 @@ See `resources/js/scriptPattern.md`'s "Directory & entry pipeline" section for e
 
 ### Dead code — do not reintroduce
 
-`resources/js/3d.min.js` and `resources/js/landing-page.js` were deleted in the 2026-07-18 redesign (Three.js torus/particle background). Zero references remain anywhere. Do not re-add them to `vite.config.js`.
+`resources/js/3d.min.js` and `resources/js/landing-page.js` were deleted in the 2026-07-18 redesign (Three.js torus/particle background). Zero references remain anywhere. Do not re-add them to `vite.config.mjs`.
 
 ---
 
@@ -311,7 +311,7 @@ Rules are scoped `.light .ldr-*` / `.dark .ldr-*`, not bare — same ancestor-cl
 - ❌ Reintroduce any of the 16 removed landing-page classes (§5) — reimports the dead 3D/glass aesthetic.
 - ❌ Reference `float`/`glow`/`shimmer`/`pulse-ring`/`fadeSlide`/`slide`/`draw-thread`/`pulse-amber` as if they exist in `landing-page.css` — they don't; only the loader keyframes + `bulbPulse` do (§6).
 - ❌ Put `pulse`/`slide-*` keyframes in `landing-page.css` — they live in `fi-custom.css`.
-- ❌ Reintroduce `resources/js/3d.min.js` / `resources/js/landing-page.js` or add them back to `vite.config.js`.
+- ❌ Reintroduce `resources/js/3d.min.js` / `resources/js/landing-page.js` or add them back to `vite.config.mjs`.
 - ❌ Restructure `.fi-body .fi-simple-layout`/`.fi-simple-main` or remove their `::before`/`::after` — the login background lives entirely there; the blade view has no `<video>`.
 - ❌ Use a scale/rotate/spring hover flourish on the landing page — the enterprise redesign is 150–200ms transitions only.
 - ❌ Put `will-change` on elements not using GPU-accelerated properties (`transform`/`opacity`) — project coding-philosophy rule.
