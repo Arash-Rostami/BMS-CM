@@ -51,3 +51,6 @@ auth.json
 public/audio/music/
 resources/audio/music/
 *.zip
+
+.claude/hooks/.state/
+.claude/settings.local.json
