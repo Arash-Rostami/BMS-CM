@@ -1185,4 +1185,53 @@ class BankProfileResourceTest extends TestCase
         $spanReflection->setAccessible(true);
         $this->assertSame(['default' => 1, 'lg' => 2], $spanReflection->getValue($components['status.name']));
     }
+
+    // ManageCustomAttributesAction — the KeyValue modal entry point of the EAV system
+
+    public function test_manage_custom_attributes_exists_on_the_edit_page_only(): void
+    {
+        $this->actingAsUserWithPermissions(['bank_profile.create', 'bank_profile.view', 'bank_profile.edit']);
+        $record = BankProfile::factory()->create();
+
+        Livewire::test(ListBankProfiles::class)->assertActionDoesNotExist('manageCustomAttributes');
+        Livewire::test(EditBankProfile::class, ['record' => $record->getRouteKey()])->assertActionExists('manageCustomAttributes');
+    }
+
+    public function test_manage_custom_attributes_opens_prefilled_with_the_records_current_attributes(): void
+    {
+        $this->actingAsUserWithPermissions(['bank_profile.view', 'bank_profile.edit']);
+        $record = BankProfile::factory()->create();
+        $record->syncCustomAttributes(['swift_hint' => 'ABC123', 'region' => 'EU']);
+
+        Livewire::test(EditBankProfile::class, ['record' => $record->getRouteKey()])
+            ->mountAction('manageCustomAttributes')
+            ->assertActionDataSet(['attributes' => ['swift_hint' => 'ABC123', 'region' => 'EU']]);
+    }
+
+    public function test_manage_custom_attributes_adds_updates_and_removes_attributes_in_one_save(): void
+    {
+        $this->actingAsUserWithPermissions(['bank_profile.view', 'bank_profile.edit']);
+        $record = BankProfile::factory()->create();
+        $record->syncCustomAttributes(['keep' => 'old', 'drop' => 'gone-soon']);
+
+        Livewire::test(EditBankProfile::class, ['record' => $record->getRouteKey()])
+            ->callAction('manageCustomAttributes', data: ['attributes' => ['keep' => 'new', 'added' => 'fresh']])
+            ->assertHasNoActionErrors();
+
+        $this->assertEqualsCanonicalizing(['keep' => 'new', 'added' => 'fresh'], $record->fresh()->getCustomAttributesMap());
+    }
+
+    public function test_manage_custom_attributes_with_an_empty_list_clears_everything_and_a_removed_key_can_return(): void
+    {
+        $this->actingAsUserWithPermissions(['bank_profile.view', 'bank_profile.edit']);
+        $record = BankProfile::factory()->create();
+        $record->syncCustomAttributes(['temp' => 'one']);
+
+        $page = Livewire::test(EditBankProfile::class, ['record' => $record->getRouteKey()]);
+        $page->callAction('manageCustomAttributes', data: ['attributes' => []]);
+        $this->assertSame([], $record->fresh()->getCustomAttributesMap());
+
+        $page->callAction('manageCustomAttributes', data: ['attributes' => ['temp' => 'two']]);
+        $this->assertSame(['temp' => 'two'], $record->fresh()->getCustomAttributesMap());
+    }
 }

@@ -21,12 +21,15 @@ use App\Models\PurchaseRequestItem;
 use App\Models\RegisteredOrder;
 use App\Models\Role;
 use App\Models\Shipment;
+use App\Models\Status;
 use App\Models\User;
 use App\Notifications\CalendarAlertNotification;
+use App\Notifications\CalendarRuleInvalidNotification;
 use App\Services\Calendar\CalendarActivity;
 use App\Services\Calendar\CalendarAlerts;
 use App\Services\Calendar\CalendarModules;
 use App\Services\Calendar\CalendarPathResolver;
+use App\Services\Calendar\CalendarSeen;
 use App\Services\Calendar\Display\CalendarBoard;
 use App\Services\Calendar\Display\CalendarPresenter;
 use App\Services\Calendar\Display\CalendarRange;
@@ -70,6 +73,7 @@ class CalendarSubsystemTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2026-10-08'));
         $this->forgetResolverCaches();
         CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
         CalendarRouter::flushRoutes();
         Queue::fake(); // observers are live: never let a dispatch run inline under QUEUE_CONNECTION=sync
     }
@@ -78,6 +82,7 @@ class CalendarSubsystemTest extends TestCase
     {
         $this->forgetResolverCaches();
         CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
         CalendarRouter::flushRoutes();
         Carbon::setTestNow();
         DB::rollBack();
@@ -782,6 +787,36 @@ class CalendarSubsystemTest extends TestCase
         ], $hitOverrides));
     }
 
+    public function test_the_attention_window_is_one_month_with_overdue_carry_over_only_when_the_range_contains_today(): void
+    {
+        $user = $this->userWithPermissions(['purchase_request.view']);
+        $action = ['type' => RuleType::ACTION->value, 'visibility' => 'everyone'];
+        $headsUp = ['visibility' => 'everyone'];
+        $this->hitOn('2026-08-20', $action, ['subject_type' => PurchaseRequest::class, 'label' => 'august overdue']);
+        $this->hitOn('2026-09-05', $headsUp, ['subject_type' => PurchaseRequest::class, 'label' => 'september past heads up']);
+        $this->hitOn('2026-10-03', $action, ['subject_type' => PurchaseRequest::class, 'label' => 'october overdue']);
+        $this->hitOn('2026-10-28', $headsUp, ['subject_type' => PurchaseRequest::class, 'label' => 'october later']);
+        $this->hitOn('2026-11-04', $headsUp, ['subject_type' => PurchaseRequest::class, 'label' => 'november']);
+        CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
+
+        $labels = fn (?CalendarRange $range): array => $this->attentionLabels($user, $range);
+        $month = fn (string $iso, bool $jalali = false): CalendarRange => CalendarRange::forMonth($iso, $jalali);
+
+        $this->assertSame(['august overdue', 'october overdue', 'october later'], $labels(null));
+        $this->assertSame($labels(null), $labels($month('2026-10-15')));
+        $this->assertSame(['november'], $labels($month('2026-11-15')));
+        $this->assertSame([], $labels($month('2026-09-15')));
+        $this->assertSame(['august overdue'], $labels($month('2026-08-15')));
+
+        foreach ([null, $month('2026-08-01'), $month('2026-09-01'), $month('2026-10-01'), $month('2026-11-01'), $month('2026-10-01', true)] as $range) {
+            $this->assertSame(count($labels($range)), CalendarBoard::attentionCount($user, $range));
+        }
+
+        session(['calendar_type' => 'jalali']);
+        $this->assertSame(['august overdue', 'october overdue'], $labels(null));
+    }
+
     public function test_month_cells_flag_today_selected_and_overdue_action_days(): void
     {
         $this->hitOn('2026-10-12', ['color' => CalendarColor::TEAL->value]);
@@ -801,23 +836,6 @@ class CalendarSubsystemTest extends TestCase
         $this->assertFalse($cells['2026-10-08']['hasOverdue']);
         $this->assertTrue($cells['2026-10-02']['isPast']);
         $this->assertTrue($cells['2026-10-02']['hasOverdue']);
-    }
-
-    public function test_agenda_lists_only_hit_days_with_overdue_actions_first(): void
-    {
-        $this->hitOn('2026-10-02', ['type' => RuleType::ACTION->value], ['label' => 'Zebra case']);
-        $this->hitOn('2026-10-02', [], ['label' => 'Alpha case']);
-
-        $days = (new CalendarPresenter)->agendaDays(
-            CalendarRange::forMonth('2026-10-08', false),
-            CalendarHit::query()->get(),
-        );
-
-        $this->assertCount(1, $days);
-        $this->assertSame('2026-10-02', $days[0]['iso']);
-        $this->assertSame('Zebra case', $days[0]['hits'][0]['label']);
-        $this->assertTrue($days[0]['hits'][0]['overdue']);
-        $this->assertFalse($days[0]['hits'][1]['overdue']);
     }
 
     public function test_jalali_month_cells_carry_jalali_day_numbers(): void
@@ -1227,6 +1245,120 @@ class CalendarSubsystemTest extends TestCase
         $request->save();
 
         Queue::assertPushed(SyncCalendarSubject::class, fn (SyncCalendarSubject $job): bool => $job->class === ProformaInvoice::class && $job->id === $invoice->id);
+    }
+
+    private function drainSubjectJobs(): void
+    {
+        Queue::pushed(SyncCalendarSubject::class)->each(fn (SyncCalendarSubject $job) => $job->handle($this->engine()));
+        Queue::fake();
+    }
+
+    /**
+     * @return array{0: RegisteredOrder, 1: PurchaseRequest, 2: CalendarRule, 3: Status, 4: Status}
+     */
+    private function linkedOrderRule(): array
+    {
+        $open = Status::factory()->create(['english_type' => PurchaseRequest::TYPE_PURCHASE_REQUEST]);
+        $done = Status::factory()->create(['english_type' => PurchaseRequest::TYPE_PURCHASE_REQUEST]);
+        $order = RegisteredOrder::factory()->create();
+        RegisteredOrder::query()->whereKey($order->id)->update(['ro_number' => 'CALPIPE'.uniqid(), 'order_date' => '2026-10-20']);
+        $request = PurchaseRequest::factory()->create(['status_id' => $open->id]);
+        $order->purchaseRequests()->attach($request->id);
+        $rule = CalendarRule::factory()->create([
+            'subject' => RegisteredOrder::class,
+            'date_path' => 'order_date',
+            'extra_paths' => [],
+            'filters' => ['rules' => [
+                ['type' => 'purchaseRequests.status', 'data' => ['operator' => 'isRelatedTo', 'settings' => ['value' => $open->id]]],
+            ]],
+        ]);
+        $this->assertSame([], $this->engine()->filterProblems($rule));
+        $this->engine()->syncRule($rule);
+
+        return [$order->fresh(), $request, $rule, $open, $done];
+    }
+
+    public function test_moving_a_linked_requests_status_removes_and_restores_the_orders_hit(): void
+    {
+        [$order, $request, $rule, $open, $done] = $this->linkedOrderRule();
+        $hits = fn (): int => CalendarHit::query()->where('calendar_rule_id', $rule->id)->where('subject_id', $order->id)->count();
+        $this->assertSame(1, $hits());
+
+        Queue::fake();
+        $request->update(['status_id' => $done->id]);
+        Queue::assertPushed(SyncCalendarSubject::class, fn (SyncCalendarSubject $job): bool => $job->class === RegisteredOrder::class && $job->id === $order->id);
+        $this->drainSubjectJobs();
+        $this->assertSame(0, $hits());
+
+        $request->update(['status_id' => $open->id]);
+        $this->drainSubjectJobs();
+        $this->assertSame(1, $hits());
+    }
+
+    public function test_a_soft_deleted_subject_leaves_the_calendar_and_returns_when_restored(): void
+    {
+        [$order, , $rule] = $this->linkedOrderRule();
+        $viewer = $this->userWithPermissions(['registered_order.view']);
+        CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
+        $rule->update(['visibility' => 'everyone']);
+        CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
+        $listed = fn (): int => CalendarBoard::dayQuery($viewer, Carbon::parse('2026-10-20'), null, null)->count();
+        $this->assertSame(1, $listed());
+
+        Queue::fake();
+        $order->delete();
+        Queue::assertPushed(SyncCalendarSubject::class, fn (SyncCalendarSubject $job): bool => $job->id === $order->id);
+        $this->drainSubjectJobs();
+        $this->assertSame(0, $listed());
+
+        $order->restore();
+        $this->drainSubjectJobs();
+        $this->assertSame(1, $listed());
+    }
+
+    public function test_relinking_a_request_through_the_orders_own_form_save_resyncs_the_order(): void
+    {
+        [$order, $request, $rule, $open] = $this->linkedOrderRule();
+        $other = PurchaseRequest::factory()->create(['status_id' => Status::factory()->create(['english_type' => PurchaseRequest::TYPE_PURCHASE_REQUEST])->id]);
+        $order->purchaseRequests()->sync([$other->id]);
+        $this->engine()->syncSubject(RegisteredOrder::class, $order->id);
+        $this->assertSame(0, CalendarHit::query()->where('calendar_rule_id', $rule->id)->count());
+
+        Queue::fake();
+        $order->save();
+        $order->purchaseRequests()->sync([$request->id]);
+        Queue::assertPushed(SyncCalendarSubject::class, fn (SyncCalendarSubject $job): bool => $job->class === RegisteredOrder::class && $job->id === $order->id);
+        $this->drainSubjectJobs();
+
+        $this->assertSame(1, CalendarHit::query()->where('calendar_rule_id', $rule->id)->count());
+    }
+
+    public function test_a_save_that_changes_nothing_stays_silent_when_no_rule_links_through_a_pivot(): void
+    {
+        $needle = 'CALQUIET'.uniqid();
+        $request = $this->createMatchingRequests(1, $needle)->first();
+        CalendarRule::factory()->create(['filters' => $this->filterOn($needle)]);
+
+        Queue::fake();
+        $request->fresh()->save();
+
+        Queue::assertNotPushed(SyncCalendarSubject::class);
+    }
+
+    public function test_renaming_a_record_refreshes_the_hit_label_even_when_no_filter_reads_the_identifier(): void
+    {
+        $request = PurchaseRequest::factory()->create(['required_by_date' => '2026-10-20']);
+        $rule = CalendarRule::factory()->create(['filters' => ['rules' => []]]);
+        $this->engine()->syncSubject(PurchaseRequest::class, $request->id);
+
+        Queue::fake();
+        $request->update(['pr_number' => 'RENAMED-'.uniqid()]);
+        Queue::assertPushed(SyncCalendarSubject::class, fn (SyncCalendarSubject $job): bool => $job->id === $request->id);
+        $this->drainSubjectJobs();
+
+        $this->assertSame($request->fresh()->pr_number, CalendarHit::query()->where('calendar_rule_id', $rule->id)->where('subject_id', $request->id)->value('label'));
     }
 
     public function test_a_linked_selector_leaf_on_a_hostile_path_is_rejected(): void
@@ -1811,6 +1943,41 @@ class CalendarSubsystemTest extends TestCase
             $this->assertSame(0, CalendarHit::query()->where('calendar_rule_id', $rule->id)->count());
             $this->assertSame(1, $this->ruleInvalidCount($rule), 'Exactly one rule_invalid row, never per record.');
         }
+    }
+
+    public function test_an_invalid_rule_notifies_its_owner_once_per_problem_change_with_a_translatable_payload(): void
+    {
+        Notification::fake();
+        $owner = User::factory()->create();
+        $rule = CalendarRule::factory()->create(['user_id' => $owner->id, 'filters' => ['rules' => [
+            ['type' => 'renamed_column', 'data' => ['operator' => 'equals', 'settings' => ['text' => 'X']]],
+        ]]]);
+
+        $this->engine()->syncRule($rule);
+        $this->engine()->syncRule($rule->fresh());
+
+        Notification::assertSentToTimes($owner, CalendarRuleInvalidNotification::class, 1);
+        Notification::assertSentTo($owner, CalendarRuleInvalidNotification::class, function (CalendarRuleInvalidNotification $notification) use ($owner, $rule): bool {
+            $payload = $notification->toDatabase($owner);
+
+            return $payload['title']['key'] === 'resources/calendarRule/strings.invalid.title'
+                && $payload['title']['params'] === ['rule' => $rule->name]
+                && $payload['rule_id'] === $rule->id;
+        });
+    }
+
+    public function test_a_same_day_rerun_after_a_cache_clear_never_mails_again(): void
+    {
+        $owner = $this->userWithPermissions(['purchase_request.view']);
+        $hit = $this->hitOn('2026-10-01', ['user_id' => $owner->id, 'type' => RuleType::ACTION->value, 'lead_times' => [], 'on_day' => false, 'notification_type' => 'email']);
+        CalendarHit::flushVisibleRuleIds();
+
+        Notification::fake();
+        $this->alerts()->sendForRule($hit->rule, today());
+        Cache::flush();
+        $this->alerts()->sendForRule($hit->rule->fresh(), today());
+
+        Notification::assertSentToTimes($owner, CalendarAlertNotification::class, 1);
     }
 
     public function test_empty_filter_tree_matches_all_module_records(): void
@@ -3037,5 +3204,337 @@ class CalendarSubsystemTest extends TestCase
         }
 
         $this->assertContains('PurchaseRequest > Department: costCenter, department', array_map(fn (string $line): string => implode(', ', [Str::before($line, ': ').': '.collect(explode(', ', Str::after($line, ': ')))->sort()->implode(', ')]), $multi));
+    }
+
+    public function test_for_rule_reads_only_rule_level_edit_and_invalid_events_of_that_rule_newest_first(): void
+    {
+        $rule = CalendarRule::factory()->create();
+        $other = CalendarRule::factory()->create();
+        $request = PurchaseRequest::factory()->create();
+        $activity = app(CalendarActivity::class);
+
+        $activity->log('rule_updated', $rule, $rule, ['marker' => 'old']);
+        $activity->log('matched', $request, $rule);
+        $activity->log('rule_updated', $other, $other, ['marker' => 'foreign']);
+        Carbon::setTestNow(Carbon::parse('2026-10-08')->addMinute());
+        $activity->log('rule_invalid', $rule, $rule, ['marker' => 'new']);
+
+        $rows = $activity->forRule($rule);
+
+        $marked = $rows->filter(fn (array $row): bool => isset($row['properties']['marker']));
+
+        $this->assertSame(['rule_invalid', 'rule_updated'], $marked->pluck('event')->values()->all());
+        $this->assertSame(['new', 'old'], $marked->pluck('properties.marker')->values()->all());
+        $this->assertEmpty($rows->pluck('event')->diff(['rule_updated', 'rule_invalid']));
+        $this->assertNotContains('foreign', $rows->pluck('properties.marker')->all());
+
+        foreach (range(1, 6) as $n) {
+            $activity->log('rule_updated', $rule, $rule, ['marker' => 'bulk'.$n]);
+        }
+
+        $this->assertCount(5, $activity->forRule($rule));
+        $this->assertCount(2, $activity->forRule($rule, 2));
+    }
+
+    private function reasonHit(array $texts, string $date = '2026-10-16'): CalendarHit
+    {
+        $rule = CalendarRule::factory()->create([
+            'subject' => PurchaseRequest::class,
+            'filters' => ['rules' => array_map(fn (string $text): array => ['type' => 'pr_number', 'data' => ['operator' => 'equals', 'settings' => ['text' => $text]]], $texts)],
+        ]);
+
+        return CalendarHit::factory()->create(['calendar_rule_id' => $rule->id, 'subject_type' => PurchaseRequest::class, 'subject_id' => 1, 'event_date' => $date])->load('rule');
+    }
+
+    public function test_the_reason_sentence_names_the_date_field_the_date_and_the_first_two_conditions(): void
+    {
+        $presenter = new CalendarPresenter;
+        $none = $presenter->reason($this->reasonHit([]));
+        $one = $presenter->reason($this->reasonHit(['AAA1']));
+        $two = $presenter->reason($this->reasonHit(['AAA1', 'BBB2']));
+        $three = $presenter->reason($this->reasonHit(['AAA1', 'BBB2', 'CCC3']));
+
+        $this->assertStringContainsString(__('resources/dashboard/strings.widgets.calendar.reason.all', ['module' => CalendarModules::label(PurchaseRequest::class)]), $none['text']);
+        $this->assertStringStartsWith('Required By Date: '.adaptiveDate('2026-10-16').' · because ', $one['text']);
+        $this->assertStringContainsString('AAA1', $one['text']);
+        $this->assertStringNotContainsString(' +', $two['text']);
+        $this->assertStringContainsString('BBB2', $two['text']);
+        $this->assertStringContainsString(' +1', $three['text']);
+        $this->assertStringNotContainsString('CCC3', $three['text']);
+        $this->assertStringContainsString('CCC3', $three['full']);
+        $this->assertStringNotContainsString(' +1', $three['full']);
+    }
+
+    public function test_the_reason_date_follows_the_calendar_type_and_text_follows_the_locale(): void
+    {
+        $hit = $this->reasonHit(['AAA1']);
+        $presenter = new CalendarPresenter;
+
+        session(['calendar_type' => 'jalali']);
+        $this->assertStringContainsString(adaptiveDate($hit->event_date), $presenter->reason($hit)['text']);
+        $jalali = $presenter->reason($hit)['text'];
+        session(['calendar_type' => 'gregorian']);
+        $this->assertNotSame($jalali, (new CalendarPresenter)->reason($hit)['text']);
+
+        foreach (['fa', 'fr'] as $locale) {
+            app()->setLocale($locale);
+            $prefix = trim(Str::before(Lang::get('resources/dashboard/strings.widgets.calendar.reason.because', [], $locale), ':conditions'));
+            $this->assertStringContainsString($prefix, (new CalendarPresenter)->reason($hit)['text']);
+            $this->assertNotSame(Lang::get('resources/dashboard/strings.widgets.calendar.reason.because', [], 'en'), Lang::get('resources/dashboard/strings.widgets.calendar.reason.because', [], $locale));
+        }
+    }
+
+    public function test_the_reason_guide_is_built_once_per_rule_however_many_hits_share_it(): void
+    {
+        $hit = $this->reasonHit(['AAA1']);
+        $other = CalendarHit::factory()->create(['calendar_rule_id' => $hit->calendar_rule_id, 'subject_type' => PurchaseRequest::class, 'subject_id' => 2, 'event_date' => '2026-10-17'])->load('rule');
+        $presenter = new CalendarPresenter;
+        $presenter->reason($hit);
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $presenter->reason($other);
+        $presenter->reason($hit);
+        $queries = DB::getQueryLog();
+        DB::disableQueryLog();
+
+        $this->assertSame([], $queries);
+    }
+
+    // CalendarSeen
+
+    private function seenHit(string $date = '2026-10-15'): CalendarHit
+    {
+        return $this->hitOn($date, ['visibility' => 'everyone'], ['subject_type' => PurchaseRequest::class]);
+    }
+
+    private function storedReads(User $user): array
+    {
+        return DB::table('calendar_reads')->where('user_id', $user->id)->get()->keyBy('calendar_hit_id')->all();
+    }
+
+    private function attentionLabels(User $user, ?CalendarRange $range = null, string $read = 'all', ?string $time = null): array
+    {
+        $total = CalendarBoard::attentionCount($user, $range, $read, $time);
+
+        return CalendarBoard::attentionPage($user, $range, $read, $time, null, 50, 1, $total)->getCollection()->pluck('label')->all();
+    }
+
+    public function test_seen_marks_read_with_a_timestamp_and_unmarks_without_touching_other_settings(): void
+    {
+        $user = $this->userWithPermissions(['purchase_request.view']);
+        $user->forceFill(['settings' => ['theme' => 'dark']])->saveQuietly();
+        $hit = $this->seenHit();
+        $seen = app(CalendarSeen::class);
+
+        $seen->mark($user, [$hit]);
+
+        $this->assertSame([$hit->id], $seen->readIds($user));
+        $this->assertTrue($seen->isRead($user, $hit));
+        $this->assertSame(now()->toIso8601String(), $seen->seenAt($user, $hit->id)->toIso8601String());
+        $stored = $this->storedReads($user);
+        $this->assertSame('2026-10-15', Carbon::parse($stored[$hit->id]->event_date)->toDateString());
+        $this->assertSame(now()->toDateTimeString(), $stored[$hit->id]->read_at);
+        $this->assertSame(['theme' => 'dark'], $user->fresh()->settings);
+
+        $seen->unmark($user, [$hit->id]);
+
+        $this->assertSame([], $seen->readIds($user));
+        $this->assertNull($seen->seenAt($user, $hit->id));
+        $this->assertSame([], $this->storedReads($user));
+        $this->assertSame(['theme' => 'dark'], $user->fresh()->settings);
+    }
+
+    public function test_seen_state_reopens_when_the_event_date_moves(): void
+    {
+        $user = $this->userWithPermissions(['purchase_request.view']);
+        $hit = $this->seenHit();
+        $seen = app(CalendarSeen::class);
+        $seen->mark($user, [$hit]);
+
+        $hit->update(['event_date' => '2026-10-20']);
+        CalendarSeen::flush();
+        $this->assertSame([], $seen->readIds($user));
+
+        $hit->update(['event_date' => '2026-10-15']);
+        CalendarSeen::flush();
+        $this->assertSame([$hit->id], $seen->readIds($user));
+    }
+
+    public function test_seen_ignores_forged_ids_and_hits_the_user_cannot_see(): void
+    {
+        $user = $this->userWithPermissions(['purchase_request.view']);
+        $shipment = $this->hitOn('2026-10-15', ['visibility' => 'everyone'], ['subject_type' => Shipment::class]);
+        $private = $this->hitOn('2026-10-15', ['visibility' => 'me', 'user_id' => User::factory()->create()->id], ['subject_type' => PurchaseRequest::class]);
+
+        app(CalendarSeen::class)->mark($user, [$shipment, $private, 999999999, 'abc', -4, null]);
+
+        $this->assertSame([], app(CalendarSeen::class)->readIds($user));
+        $this->assertSame([], $this->storedReads($user));
+    }
+
+    public function test_marking_twice_keeps_one_row_a_read_dies_with_its_hit_and_rereading_after_a_move_updates_the_row(): void
+    {
+        $user = $this->userWithPermissions(['purchase_request.view']);
+        $seen = app(CalendarSeen::class);
+        $keep = $this->seenHit();
+        $gone = $this->seenHit();
+
+        $seen->mark($user, [$keep, $gone]);
+        $seen->mark($user, [$keep]);
+        $this->assertCount(2, $this->storedReads($user));
+
+        $keep->update(['event_date' => '2026-10-20']);
+        CalendarSeen::flush();
+        $seen->mark($user, [$keep]);
+        $this->assertSame('2026-10-20', Carbon::parse($this->storedReads($user)[$keep->id]->event_date)->toDateString());
+        $this->assertCount(2, $this->storedReads($user));
+
+        $gone->delete();
+        $this->assertSame([$keep->id], array_keys($this->storedReads($user)));
+    }
+
+    public function test_the_legacy_settings_marks_are_copied_to_the_table_once_in_both_shapes(): void
+    {
+        $user = $this->userWithPermissions(['purchase_request.view']);
+        $old = $this->seenHit('2026-10-15');
+        $compact = $this->seenHit('2026-10-16');
+        $user->forceFill(['settings' => ['theme' => 'dark', 'calendar_seen' => [
+            (string) $old->id => ['seen_at' => '2026-10-07T09:30:00+00:00', 'event_date' => '2026-10-15'],
+            (string) $compact->id => [strtotime('2026-10-07 10:00:00'), '2026-10-16'],
+            '999999999' => [strtotime('2026-10-07 10:00:00'), '2026-10-16'],
+        ]]])->saveQuietly();
+
+        $migration = require base_path('database/migrations/2026_10_12_100000_create_calendar_reads_table.php');
+        $copy = new \ReflectionMethod($migration, 'copyLegacyMarks');
+
+        $copy->invoke($migration);
+        $copy->invoke($migration);
+
+        $this->assertEqualsCanonicalizing([$old->id, $compact->id], array_keys($this->storedReads($user)));
+        $this->assertSame(['theme' => 'dark'], $user->fresh()->settings);
+    }
+
+    public function test_seen_memoises_reads_per_request_until_flushed(): void
+    {
+        $user = $this->userWithPermissions(['purchase_request.view']);
+        $hit = $this->seenHit();
+        $seen = app(CalendarSeen::class);
+        $seen->mark($user, [$hit]);
+        $seen->readIds($user);
+
+        DB::enableQueryLog();
+        $seen->readIds($user);
+        $seen->isRead($user, $hit);
+        $this->assertSame([], DB::getQueryLog());
+        DB::disableQueryLog();
+
+        $hit->update(['event_date' => '2026-10-21']);
+        $this->assertSame([$hit->id], $seen->readIds($user));
+        CalendarSeen::flush();
+        $this->assertSame([], $seen->readIds($user));
+    }
+
+    public function test_the_board_filters_by_read_mode_and_the_month_groups_always_hide_read_hits(): void
+    {
+        $user = $this->userWithPermissions(['purchase_request.view']);
+        $read = $this->seenHit('2026-10-15');
+        $unread = $this->seenHit('2026-10-15');
+        app(CalendarSeen::class)->mark($user, [$read]);
+        $day = Carbon::parse('2026-10-15');
+        $range = CalendarRange::forMonth('2026-10-15', false);
+
+        $this->assertSame([$unread->id], CalendarBoard::dayQuery($user, $day, null, null, 'unread')->pluck('id')->all());
+        $this->assertSame([$read->id], CalendarBoard::dayQuery($user, $day, null, null, 'read')->pluck('id')->all());
+        $this->assertCount(2, CalendarBoard::dayQuery($user, $day, null, null)->get());
+        $this->assertSame(1, (int) CalendarBoard::monthGroups($user, $range, null, null)->sum('hit_count'));
+        $this->assertCount(1, CalendarBoard::monthQuery($user, $range, null, null, 'read')->get());
+    }
+
+    public function test_the_attention_window_narrows_by_read_state_and_time_and_the_badge_matches_the_list_for_every_combination(): void
+    {
+        $user = $this->userWithPermissions(['purchase_request.view']);
+        $action = ['type' => RuleType::ACTION->value, 'visibility' => 'everyone'];
+        $headsUp = ['visibility' => 'everyone'];
+        $old = $this->hitOn('2026-08-20', $action, ['subject_type' => PurchaseRequest::class, 'label' => 'august overdue']);
+        $this->hitOn('2026-10-03', $action, ['subject_type' => PurchaseRequest::class, 'label' => 'october overdue']);
+        $today = $this->hitOn('2026-10-08', $headsUp, ['subject_type' => PurchaseRequest::class, 'label' => 'today']);
+        $this->hitOn('2026-10-28', $headsUp, ['subject_type' => PurchaseRequest::class, 'label' => 'october later']);
+        $this->hitOn('2026-11-04', $headsUp, ['subject_type' => PurchaseRequest::class, 'label' => 'november']);
+        CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
+        app(CalendarSeen::class)->mark($user, [$old, $today]);
+
+        $labels = fn (?CalendarRange $range, string $read, ?string $time): array => $this->attentionLabels($user, $range, $read, $time);
+
+        $this->assertSame(['october overdue', 'october later'], $labels(null, 'unread', null));
+        $this->assertSame(['august overdue', 'today'], $labels(null, 'read', null));
+        $this->assertSame(['august overdue', 'october overdue'], $labels(null, 'all', 'previous'));
+        $this->assertSame(['today', 'october later'], $labels(null, 'all', 'upcoming'));
+        $this->assertSame(['october overdue'], $labels(null, 'unread', 'previous'));
+        $this->assertSame(['october later'], $labels(null, 'unread', 'upcoming'));
+        $this->assertSame([], $labels(CalendarRange::forMonth('2026-11-01', false), 'all', 'previous'));
+        $this->assertSame(['november'], $labels(CalendarRange::forMonth('2026-11-01', false), 'unread', 'upcoming'));
+
+        foreach ([null, CalendarRange::forMonth('2026-08-01', false), CalendarRange::forMonth('2026-11-01', false), CalendarRange::forMonth('2026-10-01', true)] as $range) {
+            foreach (['unread', 'read', 'all'] as $read) {
+                foreach ([null, 'previous', 'upcoming'] as $time) {
+                    $this->assertSame(count($labels($range, $read, $time)), CalendarBoard::attentionCount($user, $range, $read, $time));
+                }
+            }
+        }
+    }
+
+    public function test_a_delivered_alert_never_reopens_a_hidden_item(): void
+    {
+        $owner = $this->userWithPermissions(['purchase_request.view']);
+        $alerted = $this->hitOn('2026-10-11', ['user_id' => $owner->id, 'lead_times' => [3], 'on_day' => false]);
+        $other = CalendarHit::factory()->create(['calendar_rule_id' => $alerted->calendar_rule_id, 'subject_type' => PurchaseRequest::class, 'event_date' => '2026-10-25']);
+        CalendarHit::flushVisibleRuleIds();
+        $seen = app(CalendarSeen::class);
+        $seen->mark($owner, [$alerted, $other]);
+        $this->assertEqualsCanonicalizing([$alerted->id, $other->id], $seen->readIds($owner));
+
+        Notification::fake();
+        $this->alerts()->sendForRule($alerted->rule, today());
+
+        CalendarSeen::flush();
+        $this->assertEqualsCanonicalizing([$alerted->id, $other->id], $seen->readIds($owner->fresh()));
+    }
+
+    public function test_an_overdue_reminder_leaves_a_hidden_item_hidden(): void
+    {
+        $owner = $this->userWithPermissions(['purchase_request.view']);
+        $hit = $this->hitOn('2026-10-01', ['user_id' => $owner->id, 'type' => RuleType::ACTION->value, 'lead_times' => [], 'on_day' => false, 'notification_type' => 'email']);
+        CalendarHit::flushVisibleRuleIds();
+        $seen = app(CalendarSeen::class);
+        $seen->mark($owner, [$hit]);
+
+        Notification::fake();
+        $this->alerts()->sendForRule($hit->rule, today());
+        CalendarSeen::flush();
+        $this->assertSame([$hit->id], $seen->readIds($owner->fresh()));
+        $this->assertCount(1, $this->storedReads($owner));
+    }
+
+    public function test_alert_delivery_costs_the_same_number_of_queries_for_one_hit_or_many(): void
+    {
+        $count = function (int $hits): int {
+            $owner = $this->userWithPermissions(['purchase_request.view']);
+            $first = $this->hitOn('2026-10-11', ['user_id' => $owner->id, 'lead_times' => [3], 'on_day' => false]);
+            $all = collect([$first])->concat(CalendarHit::factory()->count($hits - 1)->create(['calendar_rule_id' => $first->calendar_rule_id, 'subject_type' => PurchaseRequest::class, 'event_date' => '2026-10-11']));
+            CalendarHit::flushVisibleRuleIds();
+            app(CalendarSeen::class)->mark($owner, $all);
+            Notification::fake();
+            DB::flushQueryLog();
+            DB::enableQueryLog();
+            $this->alerts()->sendForRule($first->rule, today());
+            $queries = count(DB::getQueryLog());
+            DB::disableQueryLog();
+
+            return $queries;
+        };
+
+        $this->assertSame($count(2), $count(12));
     }
 }

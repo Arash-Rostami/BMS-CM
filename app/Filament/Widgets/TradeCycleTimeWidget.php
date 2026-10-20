@@ -35,8 +35,9 @@ class TradeCycleTimeWidget extends ChartWidget
 
         return [
             'labels' => array_map(
-                fn (string $key) => __("resources/dashboard/strings.widgets.cycle_time.stages.{$key}"),
-                array_keys($stages)
+                fn (string $key, array $stage) => __("resources/dashboard/strings.widgets.cycle_time.stages.{$key}").' (n='.$stage['count'].')',
+                array_keys($stages),
+                array_values($stages)
             ),
             'datasets' => [
                 [

@@ -368,4 +368,47 @@ class PurchaseRequestModelTest extends TestCase
         $this->assertSame([$shipment->id], $pr->shipments->pluck('id')->all());
         $this->assertSame([$custom->id], $pr->customs->pluck('id')->all());
     }
+
+    // Repeater lines — PurchaseRequestItem
+
+    public function test_repeater_items_belong_to_the_request_and_product_and_cast_numbers_to_five_decimals(): void
+    {
+        $pr = PurchaseRequest::factory()->create();
+        $product = Product::factory()->create();
+
+        $pr->items()->create(['product_id' => $product->id, 'quantity' => 7.5, 'unit' => 'kg', 'estimated_cost' => 199.9]);
+
+        $item = $pr->fresh()->items->first();
+
+        $this->assertTrue($item->purchaseRequest->is($pr));
+        $this->assertTrue($item->product->is($product));
+        $this->assertSame(['7.50000', '199.90000'], [$item->quantity, $item->estimated_cost]);
+    }
+
+    public function test_item_status_resolves_only_for_the_purchase_item_status_type(): void
+    {
+        $pr = PurchaseRequest::factory()->create();
+        $itemStatus = $this->itemStatus('Awaiting Quote');
+        $wrongType = $this->prStatus('Wrong Type');
+        $item = $pr->items()->create(['product_id' => Product::factory()->create()->id, 'quantity' => 1, 'unit' => 'pcs', 'estimated_cost' => 1, 'status_id' => $itemStatus->id]);
+
+        $this->assertTrue($item->fresh()->status->is($itemStatus));
+
+        $item->update(['status_id' => $wrongType->id]);
+
+        $this->assertNull($item->fresh()->status);
+    }
+
+    public function test_a_removed_repeater_item_is_soft_deleted_and_leaves_the_request_lines(): void
+    {
+        $pr = PurchaseRequest::factory()->create();
+        $product = Product::factory()->create();
+        $keep = $pr->items()->create(['product_id' => $product->id, 'quantity' => 1, 'unit' => 'pcs', 'estimated_cost' => 1]);
+        $drop = $pr->items()->create(['product_id' => $product->id, 'quantity' => 2, 'unit' => 'pcs', 'estimated_cost' => 2]);
+
+        $drop->delete();
+
+        $this->assertSame([$keep->id], $pr->fresh()->items->pluck('id')->all());
+        $this->assertTrue($pr->items()->withTrashed()->whereKey($drop->id)->first()->trashed());
+    }
 }

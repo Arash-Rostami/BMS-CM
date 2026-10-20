@@ -5,9 +5,12 @@ namespace Tests\Feature\Notifications;
 use App\Livewire\CalendarDatabaseNotifications;
 use App\Models\CalendarHit;
 use App\Models\CalendarRule;
+use App\Models\Permission;
 use App\Models\PurchaseRequest;
+use App\Models\Role;
 use App\Models\User;
 use App\Notifications\CalendarAlertNotification;
+use App\Services\Calendar\CalendarSeen;
 use App\Services\Calendar\Sync\CalendarRouter;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Carbon;
@@ -27,6 +30,7 @@ class CalendarAlertNotificationTest extends TestCase
         app()->setLocale('en');
         Carbon::setTestNow(Carbon::parse('2026-10-08'));
         CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
         CalendarRouter::flushRoutes();
         Queue::fake(); // observers are live: never let a dispatch run inline under QUEUE_CONNECTION=sync
     }
@@ -34,6 +38,7 @@ class CalendarAlertNotificationTest extends TestCase
     protected function tearDown(): void
     {
         CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
         CalendarRouter::flushRoutes();
         Carbon::setTestNow();
         DB::rollBack();
@@ -65,6 +70,24 @@ class CalendarAlertNotificationTest extends TestCase
                 ->assertSee($open)
                 ->assertSee($seen);
         }
+    }
+
+    public function test_the_topbar_bell_trigger_and_unread_badge_render(): void
+    {
+        $user = User::factory()->create();
+        $this->insertNotification($user, ['title' => 'Plain title', 'body' => 'Plain body', 'format' => 'filament']);
+
+        $this->actingAs($user);
+
+        Livewire::test(CalendarDatabaseNotifications::class)
+            ->assertSeeHtml('fi-topbar-database-notifications-btn')
+            ->assertSeeHtml('fi-icon-btn-badge-ctn');
+    }
+
+    public function test_the_bell_extends_the_panel_database_notifications_component(): void
+    {
+        $this->assertTrue(is_subclass_of(CalendarDatabaseNotifications::class, \Filament\Livewire\DatabaseNotifications::class));
+        $this->assertSame(\Filament\Livewire\DatabaseNotifications::class, get_parent_class(CalendarDatabaseNotifications::class));
     }
 
     public function test_vendor_shaped_notifications_render_unchanged(): void
@@ -235,5 +258,96 @@ class CalendarAlertNotificationTest extends TestCase
         }
         DB::purge('mysql');
         config(['database.default' => 'mysql']);
+    }
+
+    private function viewer(): User
+    {
+        $user = User::factory()->create();
+        $role = Role::create(['name' => 'bell_test_role_'.uniqid(), 'guard_name' => 'web']);
+        $role->givePermissionTo(Permission::firstOrCreate(['name' => 'purchase_request.view', 'guard_name' => 'web']));
+        $user->assignRole($role);
+
+        return $user;
+    }
+
+    private function seenHitFor(CalendarRule $rule): CalendarHit
+    {
+        return CalendarHit::factory()->forSubject(PurchaseRequest::factory()->create())->create(['calendar_rule_id' => $rule->id, 'event_date' => '2026-10-11']);
+    }
+
+    /**
+     * @param  array<int, CalendarHit>  $hits
+     */
+    private function alertFor(User $user, CalendarRule $rule, array $hits): string
+    {
+        $before = $user->notifications()->pluck('id')->all();
+        $user->notify(new CalendarAlertNotification(
+            $rule,
+            collect($hits)->map(fn (CalendarHit $hit): array => ['hit' => $hit, 'leads' => [3], 'on_day' => false, 'overdue' => false]),
+            '2026-10-08',
+        ));
+
+        return $user->notifications()->whereNotIn('id', $before)->value('id');
+    }
+
+    private function isUnread(string $id): bool
+    {
+        return DB::table('notifications')->where('id', $id)->whereNull('read_at')->exists();
+    }
+
+    public function test_marking_the_bell_alert_as_seen_only_clears_the_bell_and_hides_no_item(): void
+    {
+        $user = $this->viewer();
+        $rule = CalendarRule::factory()->create(['user_id' => $user->id, 'visibility' => 'me']);
+        CalendarHit::flushVisibleRuleIds();
+        [$a, $b] = [$this->seenHitFor($rule), $this->seenHitFor($rule)];
+        $id = $this->alertFor($user, $rule, [$a, $b]);
+        $this->actingAs($user);
+
+        Livewire::test(CalendarDatabaseNotifications::class)->call('markNotificationAsRead', $id)->assertSuccessful();
+
+        $this->assertFalse($this->isUnread($id));
+        CalendarSeen::flush();
+        $this->assertSame([], app(CalendarSeen::class)->readIds($user->fresh()));
+        $this->assertSame(0, DB::table('calendar_reads')->where('user_id', $user->id)->count());
+    }
+
+    public function test_hiding_cards_never_touches_a_bell_alert_and_unhiding_changes_nothing_either(): void
+    {
+        $user = $this->viewer();
+        $rule = CalendarRule::factory()->create(['user_id' => $user->id, 'visibility' => 'everyone']);
+        CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
+        [$h1, $h2, $h3] = [$this->seenHitFor($rule), $this->seenHitFor($rule), $this->seenHitFor($rule)];
+        $full = $this->alertFor($user, $rule, [$h1, $h2]);
+        $partial = $this->alertFor($user, $rule, [$h1, $h3]);
+        $teammate = $this->viewer();
+        $theirs = $this->alertFor($teammate, $rule, [$h1, $h2]);
+
+        app(CalendarSeen::class)->mark($user, [$h1, $h2]);
+
+        $this->assertTrue($this->isUnread($full));
+        $this->assertTrue($this->isUnread($partial));
+        $this->assertTrue($this->isUnread($theirs));
+
+        app(CalendarSeen::class)->unmark($user, [$h1, $h2]);
+        app(CalendarSeen::class)->mark($user, [$h1, $h3]);
+
+        $this->assertTrue($this->isUnread($full));
+        $this->assertTrue($this->isUnread($partial));
+    }
+
+    public function test_hiding_cards_works_for_rules_that_have_no_notification_rows(): void
+    {
+        $user = $this->viewer();
+        $rule = CalendarRule::factory()->create(['user_id' => $user->id, 'visibility' => 'me', 'notification_type' => CalendarRule::NOTIFICATION_CHANNEL_EMAIL]);
+        CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
+        $hit = $this->seenHitFor($rule);
+
+        app(CalendarSeen::class)->mark($user, [$hit]);
+
+        $this->assertSame([$hit->id], app(CalendarSeen::class)->readIds($user));
+        $this->assertSame(0, DB::table('notifications')->where('notifiable_id', $user->id)->count());
     }
 }

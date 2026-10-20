@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasReliableCodeGeneration;
+use App\Models\Traits\General\LogsAudit;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
@@ -24,6 +25,7 @@ class RegisteredOrder extends Model
         HasFormattedName,
         HasReliableCodeGeneration,
         HasSearchableRelations,
+        LogsAudit,
         Relationships,
         SoftDeletes,
         TracksStatusHistory,
@@ -36,6 +38,11 @@ class RegisteredOrder extends Model
     public const TYPE_REGISTERED_ORDER = 'Registered Order Status';
 
     protected $appends = ['total_amount', 'total_quantity'];
+
+    public static function auditColumns(): array
+    {
+        return ['contract_no', 'official_registration_no', 'seller_id', 'buyer_id', 'order_date', 'validity_date', 'expected_delivery_date', 'incoterms', 'currency_id'];
+    }
 
     protected $fillable = [
         'ro_number',

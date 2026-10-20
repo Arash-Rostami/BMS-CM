@@ -145,6 +145,8 @@ return [
     ],
     'table' => [
         'name' => 'Name',
+        'problems' => 'Problems',
+        'needs_fixing' => 'Needs fixing',
         'subject' => 'Module',
         'type' => 'Type',
         'notification_type' => 'Channel',
@@ -170,6 +172,7 @@ return [
         'only_inactive' => 'Inactive',
     ],
     'infolist' => [
+        'problems' => 'This rule cannot be applied',
         'name' => 'Name',
         'subject' => 'Module',
         'filters' => 'Conditions',
@@ -191,6 +194,11 @@ return [
         'updated_by' => 'Updated by',
         'created_at' => 'Created at',
         'updated_at' => 'Updated at',
+    ],
+    'invalid' => [
+        'title' => 'Rule ":rule" needs fixing',
+        'body' => 'It could not be applied: :problems. Open the rule and fix its conditions.',
+        'action_open' => 'Open rule',
     ],
     'actions' => [
         'duplicate' => 'Duplicate',
@@ -220,6 +228,15 @@ return [
         'active' => 'active',
         'inactive' => 'inactive',
         'deleted' => 'deleted',
+        'hints' => [
+            'matched' => "Matched — the record started matching this rule.",
+            'cleared' => "Stopped matching — the record no longer fits this rule.",
+            'date_changed' => "Date moved — the record's due date changed.",
+            'alert_sent' => "Alert sent — a notification went out for this record.",
+            'rule_updated' => "Rule edited — someone changed this rule.",
+            'rule_invalid' => "Rule invalid — the rule could not be applied.",
+            'seen' => "Seen — you marked the alert as seen.",
+        ],
     ],
     'alerts' => [
         'title' => ':rule · :count',

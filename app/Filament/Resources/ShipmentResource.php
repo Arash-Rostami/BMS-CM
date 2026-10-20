@@ -180,6 +180,7 @@ class ShipmentResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with(static::eagerRelations())
+            ->withExists(['customAttributes as has_commercial_invoice' => fn (Builder $query) => $query->where('key', 'commercial_invoice')])
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
@@ -351,6 +352,10 @@ class ShipmentResource extends Resource
                 static::showUpdateTime(),
                 static::getStatusWorkflowProgressColumn('status_id', Shipment::TYPE_SHIPMENT_STATUS, qualifierLabel: __('resources/shipment/strings.table.status')),
                 static::getStatusWorkflowProgressColumn('shipment_status_id', Shipment::TYPE_TRACKING_STATUS, toggledHiddenByDefault: true, qualifierLabel: __('resources/shipment/strings.table.tracking_status')),
+                static::showTotalNetWeight(),
+                static::showTotalGrossWeight(),
+                static::showGrandTotal(),
+                static::showCommercialInvoice(),
             ])
             ->filters([
                 static::getCarrierFilter(),

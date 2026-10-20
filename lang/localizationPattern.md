@@ -123,6 +123,10 @@ Laravel placeholders `:attribute` / `:max` / `:date` / `:min` are used in templa
 
 `lang/{en,fa,fr}/resources/calendarRule/strings.php` uses the documented groups plus four feature groups: `export` (column labels for the plain `write()` exporter), `activity` (event descriptions with `:rule`, `:label`, `:date`, `:old_date`, `:status` placeholders, rendered at READ time from stored event keys so all three locales work), `alerts` (title/body/kind keys the notification stores as key + params and `CalendarDatabaseNotifications` renders in the viewer's locale) and `calendar` (grid UI). Enum labels (`type`, `visibility`, `color`) are separate top-level groups like `notificationSetting`/`target`, not nested under `general`. Message keys by field type: Select with an options array → `in`, Select with enum options → `enum`, `ToggleButtons` → `in`, multiple selects → `*.in`; the form has no DatePicker so no implicit `date` key. `LangKeyIntegrityTest` scans only literal keys under `app/Filament`, so keys used by `app/Services/Calendar`, the notification and the renderer are covered by the calendar tests instead.
 
+### Audit trail lang groups (2026-10-18)
+
+`resources/activity/strings.php` follows the documented groups (`general`/`infolist`/`table`/`filters`). Event names and the Activity-tab/«System» labels are shared by the resource and the 8 infolists, so they live in `resources/general/strings.php` under `audit` (`tab_label`, `when`, `who`, `event`, `changes`, `field`, `old`, `new`, `system`, `events.{created,updated,deleted,restored}`). Changed-field names come from the existing column labels (`CalendarPathResolver::columnLabel`), not new keys.
+
 ## 4. Wording Conventions
 
 **Farsi word for "character": use کاراکتر, never نویسه.** For length-limit/password-hint copy, کاراکتر (plural کاراکترهای) is the contemporary, universally understood term. نویسه is the Persian Academy's formal/purist term — native readers find it meaningless and stiff. Applies project-wide (verified clean across all 16 fa lang files that reference "character").

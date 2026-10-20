@@ -94,6 +94,27 @@ class CalendarActivity
             ->take(self::READ_LIMIT);
     }
 
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    public function forRule(CalendarRule $rule, int $limit = 5): Collection
+    {
+        return DB::table(config('activitylog.table_name'))
+            ->where('log_name', self::LOG_NAME)
+            ->where('subject_type', $rule->getMorphClass())
+            ->where('subject_id', $rule->id)
+            ->whereIn('description', ['rule_updated', 'rule_invalid'])
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->get()
+            ->map(fn ($row): array => [
+                'event' => $row->description,
+                'created_at' => $row->created_at,
+                'properties' => json_decode($row->properties, true) ?? [],
+            ]);
+    }
+
     private function rowsFor(Model $record, ?array $ruleIds): QueryBuilder
     {
         return DB::table(config('activitylog.table_name'))

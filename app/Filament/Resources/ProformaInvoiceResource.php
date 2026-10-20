@@ -305,6 +305,7 @@ class ProformaInvoiceResource extends Resource
                                 $record?->attachments->count() ?? 0,
                                 'info'
                             )),
+                        InfoComponents::getStatusHistoryTab(),
                         static::getExtraAttributesInfolistTab(),
                     ])->columnSpanFull(),
             ]);

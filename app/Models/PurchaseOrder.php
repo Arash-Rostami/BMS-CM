@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasReliableCodeGeneration;
+use App\Models\Traits\General\LogsAudit;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
@@ -24,6 +25,7 @@ class PurchaseOrder extends Model
         HasFormattedName,
         HasReliableCodeGeneration,
         HasSearchableRelations,
+        LogsAudit,
         Relationships,
         SoftDeletes,
         TracksStatusHistory,
@@ -36,6 +38,11 @@ class PurchaseOrder extends Model
     public const TYPE_PURCHASE_ORDER = 'Purchase Order Status';
 
     protected $appends = ['total_amount', 'total_quantity'];
+
+    public static function auditColumns(): array
+    {
+        return ['seller_id', 'buyer_id', 'order_date', 'validity_date', 'expected_delivery_date', 'incoterms', 'currency_id'];
+    }
 
     protected $fillable = [
         'po_number',

@@ -1,0 +1,420 @@
+<?php
+
+return [
+    "intro" => "This report shows the cargo that is at sea: shipments that have left but not arrived, what they are worth in euro, and whether the foreign currency for them is already secured. A shipment is at sea when it has not arrived and counts as departed (by default: an exit date or the tracking status In Transit); arrived shipments and, unless you turn on Include cancelled, cancelled and rejected shipments are left out everywhere. The value of a shipment is its invoice grand total in the invoice currency; when it has no invoice total, it is estimated from its registered order and clearly marked as estimated. Euro amounts use only exchange rates found in purchased or received bank profiles; amounts of different currencies are never added together and a currency with no rate is shown on an Excluded line, never guessed. Many shipments still have no invoice, no ETA or no rate, so read the Excluded and Estimated lines before trusting a total. The table shows one row per shipment by default; the button at the top switches it to one row per product.",
+    "sections" => [
+        "filters" => [
+            "title" => "Filters",
+            "intro" => "Filters narrow the cards, the charts, both table views and the data issues together. Every dropdown lists all active records of its master list. A date range entered in reverse order is swapped automatically. The common filters are on top; the Advanced section holds the accuracy switches and thresholds and is collapsed by default.",
+            "items" => [
+                "date_from" => [
+                    "title" => "From Date",
+                    "meaning" => "Keeps only shipments whose date, chosen in Filter dates by, is on or after this day.",
+                    "how" => "It is compared with the date chosen in Filter dates by (the ETA by default). Shipments with no date there stay visible while Include undated is on.",
+                    "change" => "Clear it to include earlier dates.",
+                ],
+                "date_until" => [
+                    "title" => "Until Date",
+                    "meaning" => "Keeps only shipments whose date, chosen in Filter dates by, is on or before this day, including that whole day.",
+                    "how" => "Same rule as From Date.",
+                    "change" => "Clear it to include later dates.",
+                ],
+                "seller_id" => [
+                    "title" => "Seller",
+                    "meaning" => "Shows only shipments whose registered order has this seller.",
+                    "how" => "The seller is read from the registered order of the shipment.",
+                    "change" => "Clear it to see all sellers.",
+                ],
+                "buyer_id" => [
+                    "title" => "Buyer",
+                    "meaning" => "Shows only shipments whose registered order has this buyer.",
+                    "how" => "The buyer is read from the registered order of the shipment.",
+                    "change" => "Clear it to see all buyers.",
+                ],
+                "registered_order_id" => [
+                    "title" => "Registered Order",
+                    "meaning" => "Shows only the shipments of one registered order.",
+                    "how" => "Matches the registered order of the shipment.",
+                    "change" => "Clear it to see all orders.",
+                ],
+                "product_id" => [
+                    "title" => "Product",
+                    "meaning" => "Shows only shipments that contain this product.",
+                    "how" => "A shipment matches when the product is on its own invoice lines or on the items of its registered order, the same two sources the Products column uses.",
+                    "change" => "Clear it to see all products.",
+                ],
+                "category_id" => [
+                    "title" => "Category",
+                    "meaning" => "Shows only shipments that contain a product of this category or of one of its subcategories.",
+                    "how" => "Same matching as Product, on the invoice lines of the shipment or the items of its registered order, for every product of the chosen category and of the categories below it.",
+                    "change" => "Clear it, or choose a parent category to include more products.",
+                ],
+                "company_id" => [
+                    "title" => "Carrier",
+                    "meaning" => "Shows only shipments handled by this carrier.",
+                    "how" => "Matches the carrier saved on the shipment. Shipments with no carrier disappear once one is chosen.",
+                    "change" => "Clear it to see all carriers.",
+                ],
+                "status_id" => [
+                    "title" => "Tracking status",
+                    "meaning" => "Shows only shipments whose current tracking status is one of the statuses you tick.",
+                    "how" => "Matches the tracking status saved on the shipment. Arrived shipments are never part of this report, so ticking an arrived stage leaves nothing.",
+                    "change" => "Clear the ticks to see all stages.",
+                ],
+                "shipment_status_id" => [
+                    "title" => "Shipment status",
+                    "meaning" => "Shows only shipments with one of the shipment statuses you tick.",
+                    "how" => "Matches the Shipment Status saved on the shipment (not the tracking status). Ticking Cancelled or Rejected while Include cancelled is off leaves the report empty.",
+                    "change" => "Clear the ticks to see all statuses.",
+                ],
+                "doc_status_id" => [
+                    "title" => "Documentation status",
+                    "meaning" => "Shows only shipments with this documentation status.",
+                    "how" => "Matches the documentation status saved on the shipment.",
+                    "change" => "Clear it to see all shipments.",
+                ],
+                "date_basis" => [
+                    "title" => "Filter dates by",
+                    "meaning" => "Chooses which date the From Date and Until Date filters look at.",
+                    "how" => "Four options: ETA (the default), ETD, Exit Date and Warehouse Receipt Date, all taken from the shipment.",
+                    "change" => "Switch it to look at shipments by the date that matters to you.",
+                ],
+                "include_undated" => [
+                    "title" => "Include undated",
+                    "meaning" => "Decides what happens to shipments that have no date in the field chosen in Filter dates by while a date range is set.",
+                    "how" => "On (the default): they stay, so nothing disappears silently. Off: only shipments dated inside the range are kept. It has no effect without a From Date or Until Date.",
+                    "change" => "Turn it off to see strictly the shipments dated inside the range.",
+                ],
+                "include_flagged_invoices" => [
+                    "title" => "Include flagged invoices",
+                    "meaning" => "Decides whether a shipment whose invoice currency differs from its order currency counts in the euro total.",
+                    "how" => "Off (the default): such shipments are excluded and counted in Excluded by data rules. On: the invoice amount is converted with the invoice currency.",
+                    "change" => "Turn it on if you trust the invoice currency over the order currency.",
+                ],
+                "include_outliers" => [
+                    "title" => "Include outliers",
+                    "meaning" => "Decides whether a shipment whose invoice grand total is far above the sum of its items counts in the euro total.",
+                    "how" => "A total is an outlier when it is more than the outlier factor times the sum of the invoice items (tested only when the items sum is above zero). Off (the default): excluded and counted in Excluded by data rules. On: counted.",
+                    "change" => "Turn it on if the high totals are real, for example large freight charges.",
+                ],
+                "weight_basis" => [
+                    "title" => "Weight basis",
+                    "meaning" => "Chooses whether the weight is gross or net.",
+                    "how" => "Taken from the invoice lines of the shipment; when the shipment has no invoice line weights, from the order lines in proportion to the shipped share, and shown as estimated. The default is gross.",
+                    "change" => "Switch to net weight to leave packaging out.",
+                ],
+                "departure_basis" => [
+                    "title" => "Count as departed when",
+                    "meaning" => "Decides which shipments are at sea.",
+                    "how" => "By default a shipment that has not arrived counts as departed when it has an exit date or the tracking status In Transit. The other options also accept an ETD, or only the tracking status.",
+                    "change" => "Choose the rule that matches how your team fills in the shipment.",
+                ],
+                "include_void" => [
+                    "title" => "Include cancelled",
+                    "meaning" => "Adds shipments whose Shipment Status is Cancelled or Rejected.",
+                    "how" => "Off by default: they are left out of everything in this report.",
+                    "change" => "Turn it on to see them with the others.",
+                ],
+                "th_arrive_1" => [
+                    "title" => "First arrival (days)",
+                    "meaning" => "The length of the first ETA group of the ETA chart.",
+                    "how" => "Shipments with an ETA from today up to this many days ahead. Now :th_arrive_1 days (default 7).",
+                    "change" => "Enter another number of days.",
+                ],
+                "th_arrive_2" => [
+                    "title" => "Second arrival (days)",
+                    "meaning" => "The end of the second ETA group of the ETA chart.",
+                    "how" => "Shipments with an ETA after the first window and up to this many days ahead. Now :th_arrive_2 days (default 14).",
+                    "change" => "Enter another number of days.",
+                ],
+                "th_outlier_factor" => [
+                    "title" => "Outlier factor",
+                    "meaning" => "How many times the sum of the invoice items an invoice grand total may be before it counts as an outlier.",
+                    "how" => "Now :th_outlier_factor times (default 3).",
+                    "change" => "Raise it to accept bigger totals, lower it to be stricter.",
+                ],
+                "th_supply_full" => [
+                    "title" => "Fully supplied above (%)",
+                    "meaning" => "The share of the order value that purchased or received bank profiles must cover for the order to count as fully supplied.",
+                    "how" => "Now above :th_supply_full% (default 99). The supplied amount is converted to the order currency with the same exchange rates as the euro totals.",
+                    "change" => "Enter 100 to require more than the whole order value, or a lower number to be more lenient.",
+                ],
+                "th_top_n" => [
+                    "title" => "Top suppliers shown",
+                    "meaning" => "How many sellers the Top suppliers card lists before grouping the rest under Others.",
+                    "how" => "Now :th_top_n (default 5).",
+                    "change" => "Enter another number between 1 and 20.",
+                ],
+            ],
+        ],
+        "cards" => [
+            "title" => "Cards",
+            "intro" => "The cards count the shipments at sea under the filters above. Click any line that has a count to filter the table to exactly the shipments that line counts: the table then switches to the shipment view and a Table filtered by chip appears with a way to remove it, and the CSV export follows it. Lines with money amounts, the weight and the percentages are not clickable. The cards, the charts and the data issues never change when you click.",
+            "items" => [
+                "cargo" => [
+                    "title" => "Cargo at sea",
+                    "meaning" => "How many shipments are at sea, how many of them are late or have no ETA, and their weight.",
+                    "how" => "Shipments in transit: shipments that have not arrived and count as departed. Delayed: among these, those whose ETA is before today (an ETA of today is not delayed); the link opens the In-Transit Shipments report with the same filters when you may see it. Without ETA: those with an empty ETA. Weight is in tonnes, from the invoice lines or, flagged as estimated, from the order lines. Weight unknown: shipments whose weight could not be found in either place; they add nothing to the tonnes above, and the line opens exactly those shipments.",
+                    "change" => "Enter the missing ETAs on the shipments, and use the filters to narrow the shipments.",
+                ],
+                "value" => [
+                    "title" => "Value at sea (EUR)",
+                    "meaning" => "What the cargo at sea is worth in euro, and how much of it is left out or only estimated.",
+                    "how" => "Total in euro adds only the shipments that are counted. Below it, one line per currency shows the counted amounts in their own currency, and an Excluded (no rate) line per currency shows the amounts that have no exchange rate. Counted, Excluded by data rules and Excluded: no exchange rate always add up to the shipments of the first card. Excluded by data rules covers shipments with no value, no readable currency, a currency mismatch or an outlier total (see the filters). The currency of an invoice amount is the invoice's own currency; when the invoice has none, the order's currency (then the proforma's) is used, the shipment is still counted and carries the Order currency used flag. Estimated counts shipments valued from their order because they have no invoice total: the order value times the shipped share (shipped quantity divided by the order quantity, at most 1); when that share is unknown, the whole order value counts only if the order has just this one shipment, otherwise the shipment has no value. The last line is the share of the counted euro value that is estimated.",
+                    "change" => "Enter the invoice on the shipment, fix the data issues, and record purchased bank profiles to create rates.",
+                ],
+                "cover" => [
+                    "title" => "FX cover",
+                    "meaning" => "How much of the cargo at sea has its foreign currency already purchased.",
+                    "how" => "Supplied is the euro value of the shipments whose order is fully supplied, divided by the counted euro value; partly supplied orders do not count in it. Unsupplied exposure is the euro value still uncovered, each shipment in proportion to how much of its order is not supplied (only orders whose supply can be computed). The lines below count every shipment at sea by the supply state of its order: Full (the purchased and received profiles cover more than the threshold of the order value), Partial, None, Allocated awaiting purchase (nothing purchased yet but an allocated profile exists) and Unknown (the order has no currency or value, or a purchased currency has no rate). The link of Unknown opens the FX Commitment Settlement report on overdue commitments when you may see it.",
+                    "change" => "Create and purchase bank profiles for the orders, fix the Unknown ones, or change the supply threshold.",
+                ],
+                "suppliers" => [
+                    "title" => "Top suppliers",
+                    "meaning" => "Which sellers hold most of the counted value at sea.",
+                    "how" => "The seller of the order of each counted shipment, ranked by euro value. Each line shows the share of the counted euro total and the number of shipments. Sellers beyond the top list are grouped under Others, and shipments whose order has no seller under No seller, so the lines add up to the euro total of the Value card.",
+                    "change" => "Change how many sellers are listed in the Advanced filters.",
+                ],
+            ],
+        ],
+        "charts" => [
+            "title" => "Charts",
+            "intro" => "Both charts follow the filters and show only counted shipments, so each adds up to the Total in euro of the Value card.",
+            "items" => [
+                "by_category" => [
+                    "title" => "Value at sea by category (EUR)",
+                    "meaning" => "Which product categories the euro value at sea belongs to, and how well supplied it is.",
+                    "how" => "One bar per top-level category, stacked by the supply state of the order: fully supplied, partly supplied, not supplied (including allocated only) and unknown. The value comes from the invoice lines of the shipment, or from the order lines in proportion to the shipped share for estimated shipments, converted at the same rate as the card. The last bars hold what cannot be placed: No category, lines with no product, and Not attributed to a product, which is the invoice charges and discounts (grand total minus the sum of the items) and also the whole total of an invoice that has no item lines.",
+                    "change" => "Enter invoice items with their products, and assign categories to the products.",
+                ],
+                "by_eta" => [
+                    "title" => "Value at sea by ETA (EUR)",
+                    "meaning" => "When the euro value at sea is expected to arrive, and how much of it is only estimated.",
+                    "how" => "A doughnut with one slice per group of the days between today and the ETA: Delayed, the first window (:th_arrive_1 days), the second window (up to :th_arrive_2 days), later, and No ETA. The slices add up to the Total in euro of the Value card; the split between invoice value and estimated value is on that card. The text above the chart lists what is left out: the amounts with no exchange rate per currency and the number of shipments excluded by data rules.",
+                    "change" => "Enter the missing ETAs and invoices, or change the arrival windows.",
+                ],
+            ],
+        ],
+        "table" => [
+            "title" => "Table",
+            "intro" => "By default one row per shipment at sea, sorted by euro value with the largest first. The button at the top switches to one row per product and back; clicking a card line always returns to the shipment view. Several columns are hidden by default: use the column selector to show them. The CSV export follows the view you are looking at, the filters and the clicked card line; it does not follow the table search or sorting.",
+            "items" => [
+                "shipment_no" => [
+                    "title" => "Shipment No.",
+                    "meaning" => "The shipment number. Hover to see its B/L number.",
+                    "how" => "Taken from the shipment. It can be searched, sorted and copied.",
+                ],
+                "part" => [
+                    "title" => "Part No",
+                    "meaning" => "The part of the order carried by this shipment.",
+                    "how" => "Taken from the shipment. It can be sorted.",
+                ],
+                "registeredOrder.ro_number" => [
+                    "title" => "Registered Order",
+                    "meaning" => "The registered order of the shipment.",
+                    "how" => "Taken from the shipment. It can be searched, sorted and copied.",
+                ],
+                "registeredOrder.sellerCompany.name" => [
+                    "title" => "Seller",
+                    "meaning" => "The seller of the order of the shipment.",
+                    "how" => "Taken from the registered order. It can be searched and sorted.",
+                ],
+                "carrier.name" => [
+                    "title" => "Carrier",
+                    "meaning" => "The carrier of the shipment. Hidden by default.",
+                    "how" => "Taken from the shipment. It can be searched and sorted.",
+                ],
+                "products_text" => [
+                    "title" => "Products",
+                    "meaning" => "The products of the shipment. Hidden by default.",
+                    "how" => "Taken from the invoice lines; when the shipment has none, from the order lines. It can be searched and sorted.",
+                ],
+                "led_value" => [
+                    "title" => "Value (original currency)",
+                    "meaning" => "The value of the shipment in the currency it is expressed in.",
+                    "how" => "The invoice grand total in the invoice currency, or the estimate from the order in the order currency. It is shown even when the shipment is excluded from the euro total. It can be sorted.",
+                ],
+                "led_eur" => [
+                    "title" => "Value in euro",
+                    "meaning" => "The euro value counted for the shipment.",
+                    "how" => "Only shown for counted shipments, converted with the exchange rate of purchased or received bank profiles. Excluded shipments show a dash. It can be sorted.",
+                ],
+                "source" => [
+                    "title" => "Value source",
+                    "meaning" => "Whether the value comes from an invoice or is estimated, or why the shipment is excluded.",
+                    "how" => "Invoice, Estimated, or Excluded followed by the single main reason: no value, no currency, invoice currency mismatch, outlier total, or no exchange rate. It can be sorted.",
+                ],
+                "supply" => [
+                    "title" => "Supply",
+                    "meaning" => "How well the order of the shipment is supplied with foreign currency.",
+                    "how" => "Full, Partial, None, Allocated or Unknown, as in the FX cover card. In the product view a product that spans shipments with different supply states shows Mixed. It can be sorted.",
+                ],
+                "supplied_percent" => [
+                    "title" => "Supplied %",
+                    "meaning" => "The share of the order value covered by purchased or received bank profiles.",
+                    "how" => "Supplied amount converted to the order currency divided by the order value. It can be above 100%. Empty when the supply is unknown. It can be sorted.",
+                ],
+                "supplied_remaining" => [
+                    "title" => "Supplied / remaining (order currency)",
+                    "meaning" => "The supplied amount and what is still missing, in the order currency. Hidden by default.",
+                    "how" => "Supplied amount, then the order value minus the supplied amount (never below zero).",
+                ],
+                "led_weight" => [
+                    "title" => "Weight (kg)",
+                    "meaning" => "The weight of the shipment.",
+                    "how" => "Gross or net according to the weight basis, from the invoice lines or, when there are none, estimated from the order lines. It can be sorted.",
+                ],
+                "etd" => [
+                    "title" => "ETD",
+                    "meaning" => "The estimated departure date. Hidden by default.",
+                    "how" => "Taken from the shipment, in the active calendar. It can be sorted.",
+                ],
+                "eta" => [
+                    "title" => "ETA",
+                    "meaning" => "The estimated arrival date (the earliest ETA of the shipments in the product view).",
+                    "how" => "Taken from the shipment, in the active calendar. It can be sorted.",
+                ],
+                "days_to_eta" => [
+                    "title" => "Days to ETA",
+                    "meaning" => "How many days are left before the ETA, or how late the shipment is.",
+                    "how" => "The ETA minus today. The badge is red when late, orange without an ETA or within the first arrival window, green otherwise. It can be sorted.",
+                ],
+                "trackingStatus.name" => [
+                    "title" => "Tracking status",
+                    "meaning" => "The current tracking stage of the shipment.",
+                    "how" => "Taken from the shipment.",
+                ],
+                "flags" => [
+                    "title" => "Flags",
+                    "meaning" => "Every data condition found on the shipment, even when it did not decide the exclusion.",
+                    "how" => "No value, No currency, Currency mismatch, Outlier total, No exchange rate, Order currency used. They match the data issues log.",
+                ],
+                "category" => [
+                    "title" => "Category",
+                    "meaning" => "The category path of the product.",
+                    "how" => "From the product master. It can be searched and sorted.",
+                ],
+                "product" => [
+                    "title" => "Product",
+                    "meaning" => "The product, adding up all its lines of the counted shipments.",
+                    "how" => "Invoice lines are used for shipments with an invoice and order lines, in proportion to the shipped share, for estimated ones. Lines without a product are grouped by name and marked. The last row, Not attributed to a product, holds invoice charges and discounts so that the table adds up to the Value card. It can be searched and sorted.",
+                ],
+                "quantity" => [
+                    "title" => "Quantity",
+                    "meaning" => "The total quantity of the product with its unit.",
+                    "how" => "Sum of the line quantities of the counted shipments. It can be sorted.",
+                ],
+                "net_weight" => [
+                    "title" => "Net weight (kg)",
+                    "meaning" => "The total net weight of the product. Hidden by default.",
+                    "how" => "Sum of the line net weights. It can be sorted.",
+                ],
+                "gross_weight" => [
+                    "title" => "Gross weight (kg)",
+                    "meaning" => "The total gross weight of the product.",
+                    "how" => "Sum of the line gross weights. It can be sorted.",
+                ],
+                "eur" => [
+                    "title" => "Value in euro",
+                    "meaning" => "The euro value of the product.",
+                    "how" => "Sum of the line values converted at the rate of their shipment. It can be sorted.",
+                ],
+                "shipments" => [
+                    "title" => "Shipments",
+                    "meaning" => "How many counted shipments carry the product.",
+                    "how" => "Distinct shipments. It can be sorted.",
+                ],
+            ],
+        ],
+        "issues" => [
+            "title" => "Data issues",
+            "intro" => "This accordion at the bottom appears only when the filtered report has at least one open issue. Each issue has a severity: Error means data that contradicts itself or blocks a value, Warning means missing or late data, Info is a minor gap. The checks about value, currency, mismatch and outliers list every shipment that has the problem, even when a filter switch lets it count. Click a chip to list one severity and Show all to list everything. Shipments, orders and bank profiles of a module the viewer cannot view are not listed. Results are refreshed about every 5 minutes and immediately when a record is saved. Issues never block saving.",
+            "items" => [
+                "shipment_transit_value_unknown" => [
+                    "title" => "The shipment at sea has no value",
+                    "meaning" => "Severity Error. It cannot be valued and is left out of the euro total.",
+                    "how" => "No invoice grand total, and no usable estimate: the order has no item values, or the share is unknown and the order has other shipments.",
+                    "change" => "Enter the commercial invoice on the shipment (Invoice tab), or the shipped quantity on the shipment.",
+                ],
+                "shipment_transit_currency_unknown" => [
+                    "title" => "The value has no readable currency",
+                    "meaning" => "Severity Error. An amount without a known currency cannot be converted, so the shipment is left out.",
+                    "how" => "The invoice has a grand total but no currency can be found: the invoice header currency is empty or not in the master list, and the order and the proforma have none either (in this order of precedence).",
+                    "change" => "On the shipment, fill in the invoice currency (Invoice tab).",
+                ],
+                "shipment_transit_currency_inferred" => [
+                    "title" => "The invoice currency was taken from the order",
+                    "meaning" => "Severity Info. The invoice has no readable currency; the order's currency was used and the amount is counted.",
+                    "how" => "The invoice header currency is empty or not in the master list while the order (or the proforma) has a currency. The FX Commitment Settlement report applies the same rule.",
+                    "change" => "On the shipment, fill in the invoice currency (Invoice tab).",
+                ],
+                "shipment_transit_shipped_above_order" => [
+                    "title" => "Shipped quantities add up to more than the order",
+                    "meaning" => "Severity Info. The value share of each shipment is capped at the whole order, so the value of this order may be understated.",
+                    "how" => "The shipped quantities of the order's shipments at sea in this report add up to more than the order's item quantity (checked only when all items share one unit).",
+                    "change" => "On the shipments, correct the shipped quantity (Logistics & Details tab).",
+                ],
+                "shipment_transit_invoice_currency_mismatch" => [
+                    "title" => "The invoice currency differs from the order currency",
+                    "meaning" => "Severity Error. One of the two currencies is probably wrong.",
+                    "how" => "The invoice header currency is compared with the currency of the registered order. By default such shipments are excluded from the euro total.",
+                    "change" => "Correct the invoice currency (Invoice tab) or the order currency, or turn on Include flagged invoices.",
+                ],
+                "shipment_transit_invoice_total_outlier" => [
+                    "title" => "The invoice grand total is far above its items",
+                    "meaning" => "Severity Warning. A typing error in a charge is likely.",
+                    "how" => "The grand total is more than the outlier factor times the sum of the invoice items. By default such shipments are excluded from the euro total.",
+                    "change" => "Correct the freight, other charges or discount on the invoice, or turn on Include outliers.",
+                ],
+                "shipment_transit_value_estimated" => [
+                    "title" => "The value is estimated from the order",
+                    "meaning" => "Severity Info. The shipment has no invoice total, so its value is the order value times the shipped share.",
+                    "how" => "Shipments without an invoice grand total that could be valued from their order.",
+                    "change" => "Enter the commercial invoice on the shipment (Invoice tab).",
+                ],
+                "shipment_transit_fx_rate_missing" => [
+                    "title" => "No exchange rate to euro",
+                    "meaning" => "Severity Warning. The value cannot be converted, so it appears on an Excluded line.",
+                    "how" => "No purchased or received bank profile links the currency of the shipment value with the euro, in either direction.",
+                    "change" => "Record a purchased bank profile between the two currencies, or fix the invoice currency if it is wrong.",
+                ],
+                "registered_order_transit_supply_unknown" => [
+                    "title" => "The FX supply of the order cannot be computed",
+                    "meaning" => "Severity Warning. The FX cover of its shipments is counted as Unknown.",
+                    "how" => "The order has no currency, its value is zero, or a purchased currency has no rate to the order currency.",
+                    "change" => "On the order, fill in the currency and the items; record the missing rate through a purchased bank profile.",
+                ],
+                "bank_profile_transit_supplied_without_equivalent" => [
+                    "title" => "A purchased profile has no usable purchased amount",
+                    "meaning" => "Severity Error. The supply of its order is understated or unknown.",
+                    "how" => "A purchased or received bank profile of an order at sea has no purchased equivalent (or zero), or no purchased currency.",
+                    "change" => "On the bank profile, enter the purchased equivalent and the purchased currency (Details tab).",
+                ],
+                "shipment_in_transit_missing_eta" => [
+                    "title" => "The shipment is at sea but has no ETA",
+                    "meaning" => "Severity Warning. Its arrival cannot be planned and it sits in the No ETA group.",
+                    "how" => "Shipments at sea whose ETA is empty.",
+                    "change" => "On the shipment, enter the ETA (Logistics & Details tab).",
+                ],
+                "shipment_eta_before_etd" => [
+                    "title" => "The ETA is earlier than the ETD",
+                    "meaning" => "Severity Error. The two dates contradict each other.",
+                    "how" => "Shipments that have not arrived whose ETA is before their ETD.",
+                    "change" => "Correct the ETA or the ETD on the shipment (Logistics & Details tab).",
+                ],
+                "shipment_overdue_eta" => [
+                    "title" => "The ETA has passed and the shipment has not arrived",
+                    "meaning" => "Severity Warning. The shipment is late or its status is not updated.",
+                    "how" => "Shipments that have not arrived whose ETA is before today.",
+                    "change" => "Update the ETA, the tracking status or the warehouse receipt date on the shipment.",
+                ],
+                "shipment_no_invoice" => [
+                    "title" => "The shipment at sea has no invoice lines",
+                    "meaning" => "Severity Warning. Its value is estimated from the order or missing, and its weight is estimated.",
+                    "how" => "Shipments at sea with no commercial invoice item lines.",
+                    "change" => "Enter the commercial invoice items on the shipment (Invoice tab).",
+                ],
+            ],
+        ],
+    ],
+];

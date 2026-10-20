@@ -2,6 +2,11 @@
 
 namespace Tests\Feature\Livewire;
 
+use App\Filament\Pages\Reports\Customs\CustomsReport;
+use App\Filament\Pages\Reports\Executive\ExecutiveReport;
+use App\Filament\Pages\Reports\FxSupply\FxSupplyReport;
+use App\Filament\Pages\Reports\Operations\OperationsReport;
+use App\Filament\Pages\Reports\ReportPage;
 use App\Livewire\LandingPage\Workspace;
 use App\Models\Permission;
 use App\Models\Role;
@@ -154,6 +159,59 @@ class WorkspaceTest extends TestCase
             ->assertSeeHtml('bg-white dark:bg-white/5 shadow-[var(--md-elevation-1)]')
             ->assertDontSeeHtml('rounded-full border')
             ->assertSeeHtml(__('dashboard/strings.record_pin.recent'));
+    }
+
+    public function test_the_reports_accordion_lists_exactly_the_permitted_reports(): void
+    {
+        $this->actingAsUserWithPermissions(['report.view_executive', 'report.view_customs']);
+
+        Livewire::test(Workspace::class, ['counts' => []])
+            ->assertSeeHtml('reportsOpen')
+            ->assertSee(ExecutiveReport::getNavigationLabel())
+            ->assertSeeHtml('href="'.ExecutiveReport::getUrl().'"')
+            ->assertSee(CustomsReport::getNavigationLabel())
+            ->assertSeeHtml('href="'.CustomsReport::getUrl().'"')
+            ->assertDontSeeHtml('href="'.OperationsReport::getUrl().'"')
+            ->assertDontSeeHtml('href="'.FxSupplyReport::getUrl().'"');
+    }
+
+    public function test_every_report_tile_renders_an_svg_icon(): void
+    {
+        $pages = ReportPage::registry();
+        $this->actingAsUserWithPermissions(array_map(fn (string $page): string => 'report.'.$page::permission(), $pages));
+
+        $html = Livewire::test(Workspace::class, ['counts' => []])->html();
+        $tiles = substr($html, (int) strpos($html, 'reportsOpen'));
+
+        $this->assertCount(7, $pages);
+        $this->assertGreaterThanOrEqual(7, substr_count($tiles, '<svg'));
+        foreach ($pages as $page) {
+            $this->assertStringContainsString('href="'.$page::getUrl().'"', $tiles);
+        }
+    }
+
+    public function test_the_reports_accordion_is_hidden_without_report_permissions(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.view']);
+
+        Livewire::test(Workspace::class, ['counts' => []])
+            ->assertDontSeeHtml('open="reportsOpen"')
+            ->assertDontSeeHtml('x-show="reportsOpen"');
+    }
+
+    public function test_the_reports_accordion_is_localized_in_persian_and_french(): void
+    {
+        $this->actingAsUserWithPermissions(['report.view_executive']);
+
+        foreach (['fa' => 'گزارش‌ها', 'fr' => 'Rapports'] as $locale => $title) {
+            app()->setLocale($locale);
+
+            Livewire::test(Workspace::class, ['counts' => []])
+                ->assertSee($title)
+                ->assertSee(ExecutiveReport::getNavigationLabel());
+        }
+
+        app()->setLocale('en');
     }
 
     public function test_the_recent_heading_lang_key_exists_in_all_three_locales(): void

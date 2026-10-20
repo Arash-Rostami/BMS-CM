@@ -334,4 +334,32 @@ class CalendarRuleModelTest extends TestCase
         $this->assertIsList($groups);
         $this->assertIsList($groups[0]['rules']);
     }
+
+    // OutsideEmailsCast
+
+    public function test_outside_emails_are_trimmed_lowercased_deduped_capped_and_unsafe_addresses_dropped(): void
+    {
+        $many = array_map(fn (int $n): string => "user{$n}@example.org", range(1, 12));
+        $rule = $this->rule([
+            'notification_type' => 'email',
+            'notify_emails' => ['  Ops@Example.COM ', 'ops@example.com', 'not an email', "evil@example.com\r\nBcc: x@example.com", '<a@b.co>', 'a,b@example.com', ...$many],
+        ]);
+
+        $emails = $rule->fresh()->notify_emails;
+
+        $this->assertSame('ops@example.com', $emails[0]);
+        $this->assertCount(\App\Models\Casts\OutsideEmailsCast::MAX_ITEMS, $emails);
+        $this->assertSame($emails, array_values(array_unique($emails)));
+        $this->assertSame([], array_filter($emails, fn (string $email): bool => ! \App\Models\Casts\OutsideEmailsCast::isValid($email)));
+        $this->assertNotContains('not an email', $emails);
+    }
+
+    public function test_outside_emails_are_stored_as_null_when_nothing_valid_remains_and_cleared_for_in_app_rules(): void
+    {
+        $invalid = $this->rule(['notification_type' => 'email', 'notify_emails' => ['nope', 'also bad']]);
+        $this->assertNull(DB::table('calendar_rules')->where('id', $invalid->id)->value('notify_emails'));
+
+        $inApp = $this->rule(['notification_type' => 'in_app', 'notify_emails' => ['ops@example.com']]);
+        $this->assertNull($inApp->fresh()->notify_emails);
+    }
 }

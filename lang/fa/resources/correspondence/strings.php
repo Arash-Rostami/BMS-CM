@@ -3,7 +3,7 @@
 return [
     'general' => [
         'model_label' => 'مکاتبه و لاگ',
-        'plural_model_label' => 'مکاتبات و لاگها',
+        'plural_model_label' => 'مکاتبات پرونده ها',
         'create_new' => 'پیام و لاگ جدید',
         'reply' => 'پاسخ',
         'unresolved_cc_warning' => 'برخی نام‌های رونوشت با هیچ کاربری مطابقت نداشتند و نادیده گرفته شدند: :names',

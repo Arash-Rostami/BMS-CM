@@ -1,4 +1,4 @@
-<div class="cal-grid" :class="view === 'month' ? '' : 'cal-hide'">
+<div class="cal-grid">
     @foreach($this->weekdays as $weekday)
         <div class="cal-weekday">{{ $weekday }}</div>
     @endforeach
@@ -16,18 +16,22 @@
         >
             <span class="cal-day-num">{{ $cell['day'] }}</span>
 
-            @if($cell['hasOverdue'])
-                <x-filament::icon icon="heroicon-m-exclamation-triangle" class="cal-alert" />
+            @if($cell['isToday'])
+                <span class="cal-today-tag">{{ __('resources/dashboard/strings.widgets.calendar.today') }}</span>
             @endif
 
-            <span class="cal-dots">
+            @if($cell['hasOverdue'])
+                <x-filament::icon icon="heroicon-m-exclamation-triangle" class="cal-alert" title="{{ __('resources/dashboard/strings.widgets.calendar.hints.overdue') }}" />
+            @endif
+
+            <span class="cal-dots" title="{{ __('resources/dashboard/strings.widgets.calendar.hints.dots') }}">
                 @foreach($cell['colors'] as $color)
                     <span class="cal-dot" style="--cal-c: var(--cal-color-{{ $color }})"></span>
                 @endforeach
             </span>
 
             @if($cell['count'])
-                <span class="cal-badge">+{{ $cell['count'] }}</span>
+                <span class="cal-badge" title="{{ $cell['count'] }} {{ __('resources/dashboard/strings.widgets.calendar.hints.count') }}">+{{ $cell['count'] }}</span>
             @endif
         </button>
     @endforeach

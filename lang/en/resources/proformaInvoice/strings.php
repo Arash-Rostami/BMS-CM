@@ -61,7 +61,6 @@ return [
         'gross_weight' => 'Gross Weight',
         'add_notes' => 'Notes',
         'item_description' => 'Description',
-        'item_english_description' => 'English Description',
         'item_freight_charges' => 'Item Freight Cost (per unit)',
         'item_total_amount' => 'Item Total Amount ⚡',
         'quantity' => 'Quantity',

@@ -2,9 +2,9 @@
 
 ## Overview
 
-17 single-file services (this doc's full subject), plus two multi-file subsystems living in their own subdirectories — **`app/Services/Calendar/`** (the Calendar Rules engine: `Sync/` rule→hits + model-save routing, `Display/` month grid presenter, plus modules/path-resolver/alerts/activity; see `app/Services/Calendar/calendarPattern.md`) and: **`app/Services/Imports/`** — the shared bulk-import pipeline used by every module's Filament `Importer` classes. It's cohesive enough (12 files: column-definition/factory/pipeline core + 5 pipeline stages + supporting helpers) to warrant its own dedicated doc rather than folding into this one — see `app/Services/Imports/importsPattern.md`, not duplicated here.
+21 single-file services (this doc's full subject), plus three multi-file subsystems living in their own subdirectories — **`app/Services/Reports/`** (the reporting engine: euro `FxRateService`, `ShipmentCurrencyResolver` (double-encoded invoice header guard), `ReportStages`, filters, data checks cached under the `SmartCacheManager` model key `'ReportCheck'` (invalidated by `ReportCheckObserver` / `EntityAttributeObserver` through `CheckRegistry::invalidate()`) and one service per report for all seven reports; see `app/Services/Reports/reportsPattern.md`), **`app/Services/Calendar/`** (the Calendar Rules engine: `Sync/` rule→hits + model-save routing, `Display/` month grid presenter, plus modules/path-resolver/alerts/activity; see `app/Services/Calendar/calendarPattern.md`) and **`app/Services/Imports/`** — the shared bulk-import pipeline used by every module's Filament `Importer` classes. It's cohesive enough (12 files: column-definition/factory/pipeline core + 5 pipeline stages + supporting helpers) to warrant its own dedicated doc rather than folding into this one — see `app/Services/Imports/importsPattern.md`, not duplicated here.
 
-The 17 single-file services below are all stateless (static methods) or trivially container-resolvable (plain constructor, no dependencies). None extend a shared base class or implement a shared interface — each is a standalone class grouped here only by directory convention. Two caching strategies coexist and must not be conflated:
+The 18 single-file services below are all stateless (static methods) or trivially container-resolvable (plain constructor, no dependencies). None extend a shared base class or implement a shared interface — each is a standalone class grouped here only by directory convention. Two caching strategies coexist and must not be conflated:
 
 | Strategy | Used by | Shape |
 |---|---|---|
@@ -64,7 +64,9 @@ AnalyticsService::pipelineStalls(): array
 AnalyticsService::shipmentPunctuality(): array
 ```
 
-Every method aggregates in raw SQL (`SUM`/`CASE WHEN`/`DATEDIFF`/HHI math via `DB::select`/`DB::table`), not PHP loops, and is cached individually: `Cache::remember('analytics:{key}', 300, ...)` — **not** `SmartCacheManager`, since these are cross-model aggregates rather than one model's own count/lookup, and there is no per-model invalidation story for them (5-minute TTL is the only eviction). `cycleTimeByStage()` branches on `supportsCte()` (detects MySQL 8+/MariaDB 10.2+ via `DB::getPdo()`'s server-version string, cached in a static local) to use a window-function CTE query where available and a PHP-side percentile fallback (`percentile()`, manual sort + index pick) otherwise — this project's dev DB is MySQL 5.7, so the fallback path is the one that actually runs there.
+Every method aggregates in raw SQL (`SUM`/`CASE WHEN`/`DATEDIFF`/HHI math via `DB::select`/`DB::table`), not PHP loops, and is cached individually: `Cache::remember('analytics:{key}', 300, ...)` — **not** `SmartCacheManager`, since these are cross-model aggregates rather than one model's own count/lookup, and there is no per-model invalidation story for them (5-minute TTL is the only eviction). There is ONE SQL path for every engine (no CTE/window-function branch, because the MySQL 5.7 dev DB cannot run it): `cycleTimeByStage()` returns the `DATEDIFF` rows `ORDER BY stage, duration` and `percentile()` only index-picks the median/P90 in PHP.
+
+Shared SQL building blocks (all `protected static`, values interpolated into the SQL are only int id lists read from `statuses` or a PDO-quoted class name): `statusIds($type, $names)` (status ids by `english_type` + `english_name` using the model `TYPE_*` constants), `paymentNotVoid($alias)` (not Draft/Rejected/Cancelled/Refunded, NULL-safe), `paymentSettled($alias)` (`payment_date` set OR status Completed), `shipmentLive($alias)` (not Cancelled/Rejected), `shipmentArrived($alias)` (tracking status Delivered / Arrived At Destination via `shipment_status_id`) and `orderPaymentsSql()` (payments attributed to a RegisteredOrder: directly, or through a PurchaseOrder linked to EXACTLY ONE order via `registered_order_purchase_order`; fan-out POs are ignored so nothing is double counted). Every metric must reuse these instead of re-deriving "paid", "void" or "arrived" inline, so the six widgets cannot drift apart.
 
 Full per-method SQL/data-lineage breakdown (what each metric measures, which columns, known scope limitations) lives in `app/Filament/Widgets/widgetsPattern.md` — not duplicated here.
 
@@ -293,6 +295,8 @@ public function chain(string $type, int $id): array             // attached-pipe
 
 **`registry()`** (private, rebuilt per call — carries closures, deliberately never cached) is the single source of per-model search config: 8 operational + 7 master-data model entries, each with `model`, `icon`, `color` (mapped to a Tailwind `THEME` class string), `by_user` (whether an unmatched search term additionally tries `user_id = $byUser->id`), `url` (edit-route closure), `label`, `search` (columns), `with` (eager loads), `progress` (columns used for the completion-% ring), `title` (display-title closure), `details` (label/closure pairs for the result card, deliberately excluding whatever the chain view already shows for that model).
 
+**Controller input contract (`SearchController`, and `WorkspaceController` for `/workspace/records`):** only a STRING `q` / `type` and a numeric `id` are honoured; any other shape (arrays, objects, missing) is treated as empty and answers the empty response, never a 500. The HTTP layer is pinned by `tests/Feature/Http/{Search,Workspace}ControllerTest.php`.
+
 **Authorization (2026-09-17):** both public methods gate per pipeline model via `userCan($cfg['model'])`/`userCan($registry[$type]['model'])` (`app/Utils/helpersPattern.md`) — before this, any authenticated user could pull any model's full record regardless of their actual Spatie permissions. `search()` silently `continue`s past a registry entry the user can't view (a spotlight hit for a model you can't see just doesn't appear — no error). `chain($type, $id)` returns the empty `['anchor' => null, 'chain' => []]` response if the user can't view the anchor's own type; for the other 7 pipeline stages in a permitted chain, the `attached` boolean is always accurate (harmless — it's an aggregate fact, not a record) but that stage's `records[]` (and therefore its `extras`) stays empty unless the user also has `.view` on that stage's model — so a `purchase_request.view`-only user sees which stages are attached, but never another model's field-level data.
 
 **`search($term)`**: for each registry entry, finds the latest record matching any `search` column via `LIKE` (term is `addcslashes`-escaped against `% _ \`), or — if nothing matched and `by_user` is enabled and the term also matched a `User` by name — the latest record by that user. Returns `results[]` (one per model with a hit — `buildResult()` also emits `status`, the localized status name via the registry's eager-loaded `status` relation, `''` for models without one (e.g. ProformaInvoice has no status relation; `method_exists` guards it), rendered as a chip on the Search tab's result cards, 2026-10-10) + a `breadcrumb` built from which pipeline stages were found (`buildBreadcrumb()`: stages before the last-found stage are `missing`, after are `upcoming`, found ones are `completed` — this is the *search-match* breadcrumb, distinct from the chain's *attachment* breadcrumb) + `by_user`.
@@ -343,6 +347,26 @@ public function search(string $resource, string $term): array
 5. Each result is composed via `compose()`: joins the config's `title`/`subtitle` column lists into strings, with type-aware formatting (`DateTimeInterface` → `Y-m-d`, `BackedEnum` → `->value`, scalars trimmed, stringable objects via `__toString`) — falls back to `'#'.$record->getKey()` if the composed title is empty. A scalar subtitle column listed in the config's optional `translate` map (`column => lang namespace`, keys = lowercase raw values) is localized via `translateColumn()` — unknown keys fall back to the raw value (e.g. `urgency_level` renders متوسط, not "medium").
 
 Returned shape: `[{key: "{resource}:{id}", resourceId, recordId, label, subtitle, url}]` — `key` is what the frontend's `localStorage['user_shortcuts']` pin entries are keyed by. Resources declaring a `status` relation also return `status` (the localized status name, `''` when absent) — rendered as a chip in the picker rows AND on the pinned tile (pins persist it via `decorateRecord`; pins saved before 2026-10-10 have no `status` and simply hide the chip until re-pinned).
+
+## `AuditChanges`
+
+Read-side presenter for the `LogsAudit` trail (`modelsPattern.md` §6c); resolved with `app(AuditChanges::class)`, stateless. Consumers: `ActivityResource\Traits\{Table,Infolist,Filters}` and the "Change Log" section of the merged Activities tab (`InfoComponents::getStatusHistoryTab()` → `auditSection()`).
+
+```php
+public const LOG_NAME = 'audit';  public const MODELS = [8 audited model classes, incl. ProformaInvoice, excl. Correspondence];
+public function fields(Collection $activities): array   // [activity id => [['label','old','new'], ...]]
+public function viewableModels(): array                   // MODELS the acting user may view ({module}.view)
+public function summary(Activity $activity): string       // first 3 changed-field labels + " +N" (static memo per id + locale)
+public function record(Activity $activity): string        // subject identifier (SCANNABLE_IDENTIFIER) or "#id"
+public function url(Activity $activity): ?string          // edit URL: live subject + resource canEdit + workspace route
+```
+
+- `fields()` is batch-first: it gathers the FK ids of ALL given activities per `subject_type:column` and runs one `NameSearch::labels()` query per FK column (related model from `CalendarPathResolver::relations()` by `foreign_key`); ids with no row, polymorphic `*_id` columns and non-audited subject types fall back to the raw id. Single-record callers pass `collect([$activity])`.
+- Values: null -> `-`, bool -> localized yes/no, arrays JSON (capped 200), UTC ISO strings (`...Z`, how Spatie serializes date casts) converted back to `app.timezone` and shown via `adaptiveDate()` (time only when not midnight). `deleted_at` is hidden from every field list. Numeric values of columns cast `decimal:*` on the audited model go through `preciseNumber()` (12.5, not 12.50000; other digit strings stay raw) and a string that is a Model class renders as its module label (`PermissionLabeler::getEntityLabel`). `summary()` is memoised only for persisted activities; `url()` reads the workspace config on every call.
+- Labels come from `CalendarPathResolver::columnLabel($subject_type, $column)` (localized, humanised fallback); `subject_type` is only ever used after an `in_array(MODELS)` check.
+- Covered by `tests/Feature/Services/AuditChangesTest.php`.
+
+---
 
 ## `PredefinedOptions`
 

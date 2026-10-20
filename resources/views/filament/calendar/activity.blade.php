@@ -1,12 +1,20 @@
 @if (empty($rows))
-    <p class="text-sm text-gray-500 dark:text-gray-400">{{ $empty }}</p>
+    <div class="cal-act-empty">
+        <x-heroicon-o-clock class="w-6 h-6" />
+        <p>{{ $empty }}</p>
+    </div>
 @else
-    <ul class="divide-y divide-gray-200 dark:divide-white/10">
+    <ol class="cal-act">
         @foreach ($rows as $row)
-            <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-1.5">
-                <span class="text-xs whitespace-nowrap text-gray-500 dark:text-gray-400" dir="ltr">{{ $row['when'] }}</span>
-                <span class="text-sm">{{ $row['text'] }}</span>
+            <li class="cal-act-item cal-act-{{ $row['tone'] ?? 'muted' }}">
+                <span class="cal-act-icon" tabindex="0" role="img" aria-label="{{ $row['hint'] ?? '' }}" @if (! empty($row['hint'])) x-data x-tooltip.raw="{{ $row['hint'] }}" @endif><x-filament::icon :icon="$row['icon'] ?? 'heroicon-m-clock'" class="w-4 h-4" /></span>
+                <span class="cal-act-text">{{ $row['text'] }}</span>
+                <span class="cal-act-when" dir="{{ isJalaliCalendar() ? 'rtl' : 'ltr' }}">{{ $row['when'] }}</span>
             </li>
         @endforeach
-    </ul>
+    </ol>
+
+    @if (($paginator ?? null)?->hasPages())
+        <x-filament::pagination :paginator="$paginator" class="mt-3" />
+    @endif
 @endif

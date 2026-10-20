@@ -104,6 +104,7 @@ return [
                         ['title' => 'Score de concentration fournisseur/devise', 'description' => 'Calcule à quel point l\'entreprise dépend d\'un seul fournisseur ou d\'une seule devise, avec un code couleur ne nécessitant aucune expertise financière.'],
                         ['title' => 'Rapports d\'ancienneté et d\'exposition', 'description' => 'Les factures impayées sont automatiquement classées par tranches de 30/60/90+ jours, avec l\'exposition de change par transaction actualisée automatiquement.'],
                         ['title' => 'Radiographie de la vitesse des transactions', 'description' => 'Affiche le délai typique face au délai des 10 % de cas les plus lents pour chaque étape du processus, rendant visible un dossier lent avant qu\'il ne devienne un problème.'],
+                        ['title' => 'Sept rapports vivants dans un seul menu', 'description' => 'Opérations et rapports ouvre sept rapports vivants : synthèse, opérations, allocation de devises, engagements, expéditions en transit, dédouanement et suivi des demandes — chacun réservé aux utilisateurs autorisés.'],
                     ],
                 ],
                 [
@@ -114,6 +115,7 @@ return [
                         ['title' => '« Ce que signifie ce chiffre » sur chaque graphique', 'description' => 'Chaque indicateur du tableau de bord intègre une explication en langage clair — ce qu\'il mesure et pourquoi il compte — avec un détail technique disponible pour qui le souhaite.'],
                         ['title' => 'Des rappels de dates qui veillent pour vous', 'description' => 'Définissez une règle une fois — par exemple la date de livraison d\'une commande moins 7 jours — et le système tient une liste à jour de chaque dossier concerné. Les alertes arrivent dans l\'application ou par e-mail avant l\'échéance, et une date exigeant une action continue de vous le rappeler si elle passe ; seules les personnes autorisées à voir ce module les reçoivent. Partagez chaque règle avec tout le monde, des personnes précises ou des rôles précis — chaque correspondance et changement est journalisé par dossier.'],
                         ['title' => 'Un calendrier intégré au tableau de bord', 'description' => 'L\'onglet calendrier du tableau de bord présente les dossiers concernés sous forme de grille mensuelle, grégorienne ou jalali — chaque jour porte des pastilles colorées par règle, les jours en retard se détachent, et un clic sur un jour liste ses dossiers avec un accès direct à chacun. Filtrez par règle ou par module, exportez un jour vers Excel — la page d\'accueil garde elle-même sa propre liste de ce qui est en retard ou dû dans les sept jours.'],
+                        ['title' => 'Un journal d\'anomalies qui ne bloque jamais', 'description' => 'Chaque rapport liste les enregistrements erronés avec la valeur actuelle et la valeur attendue, qui les a modifiés et quand, et un lien direct vers le champ à corriger — les contrôles ne bloquent jamais l\'enregistrement.'],
                     ],
                 ],
                 [
@@ -122,6 +124,7 @@ return [
                     'items' => [
                         ['title' => 'Ajoutez vos propres champs, sans code', 'description' => 'Tout document du processus — demandes, commandes, factures, paiements, expéditions — peut porter des champs personnalisés définis sur-le-champ par l\'utilisateur, comme ajouter une colonne à un tableur, sans ticket informatique.'],
                         ['title' => 'Workflows d\'approbation pilotés par statut', 'description' => 'Transformez n\'importe quelle étape du pipeline en point d\'approbation contrôlé — définissez l\'ordre requis et choisissez précisément qui peut l\'accorder, directement depuis l\'écran des statuts, modifiable à tout moment sans code.'],
+                        ['title' => 'Redéfinissez vous-même les règles des rapports', 'description' => 'Chaque seuil, base de date, interrupteur « afficher terminés/clôturés » et base de taux est un filtre doté d\'une valeur par défaut : l\'utilisateur décide seul de ce qui compte comme en retard, terminé ou ouvert, sans développeur.'],
                         ['title' => 'Une expérience façonnée par le rôle', 'description' => 'Chaque utilisateur ne voit et ne peut faire que ce que son rôle autorise — valideurs, agents et administrateurs disposent chacun d\'un espace adapté à leur fonction.'],
                         ['title' => 'Reliez des dossiers à tout moment, pas seulement à la création', 'description' => 'Une demande, une commande ou une facture peut se connecter à plusieurs documents liés, et ces liens peuvent être ajoutés, modifiés ou supprimés à n\'importe quelle étape du processus — avant ou après la création initiale du dossier.'],
                     ],
@@ -131,7 +134,8 @@ return [
                     'title' => 'Trois langues, deux calendriers, un seul système',
                     'items' => [
                         ['title' => 'Un vrai droite-à-gauche, pas un ajout', 'description' => 'L\'anglais, le persan et le français sont tous traités de façon native — le persan s\'affiche dans une mise en page réellement droite-à-gauche, pas comme du texte traduit forcé dans un modèle gauche-à-droite.'],
-                        ['title' => 'Double calendrier, un seul interrupteur', 'description' => 'Chaque date bascule instantanément entre le calendrier grégorien et le calendrier persan (jalali), correctement calé sur le véritable Nouvel An persan.'],
+                        ['title' => 'Double calendrier, un seul interrupteur', 'description' => 'Chaque date bascule instantanément entre le calendrier grégorien et le calendrier persan (jalali), correctement calé sur le véritable Nouvel An persan — les rapports suivent aussi l\'interrupteur, des dates et tranches mensuelles aux exports.'],
+                        ['title' => 'Des totaux en euros stricts et fiables', 'description' => 'Les montants en euros proviennent uniquement des taux implicites des profils bancaires Acheté ou Reçu et n\'additionnent jamais des devises différentes ; tout ce qui n\'a pas de taux figure sur une ligne « Exclus (sans taux) ».'],
                         ['title' => 'Des factures lisibles correctement partout', 'description' => 'Les PDF générés basculent automatiquement en mise en page persane droite-à-gauche avec la police adaptée.'],
                     ],
                 ],
@@ -141,6 +145,7 @@ return [
                     'items' => [
                         ['title' => 'Épinglez ce que vous utilisez vraiment', 'description' => 'Enregistrez les modules et dossiers fréquemment utilisés dans un panneau de raccourcis personnel, au lieu de reparcourir le même menu chaque jour. L\'espace de travail n\'affiche que les modules que votre rôle autorise à ouvrir, chaque dossier épinglé affiche son statut actuel, et les dossiers récemment ouverts sont proposés d\'un clic comme candidats à épingler.'],
                         ['title' => 'Une aide contextuelle, pas un manuel', 'description' => 'Un panneau de référence dédié à chaque module — avec un indicateur « non lu » qui disparaît après consultation, et qui réapparaît automatiquement si le contenu du guide est ensuite mis à jour.'],
+                        ['title' => '« Comment lire ce rapport » intégré', 'description' => 'Chaque rapport s\'ouvre sur un guide en persan, anglais et français qui explique chaque filtre, carte, graphique et colonne : ce que cela signifie, comment c\'est calculé et quoi modifier pour voir autre chose.'],
                         ['title' => 'La barre latérale, à votre façon', 'description' => 'Basculez le menu de navigation entre un panneau latéral et un dock en bas d\'écran en un clic, et l\'application retient votre choix.'],
                     ],
                 ],
@@ -151,6 +156,7 @@ return [
                         ['title' => 'Une salutation qui connaît l\'heure', 'description' => 'Le message d\'accueil du tableau de bord change selon le moment de la journée — une petite attention humaine, intégrée d\'origine.'],
                         ['title' => 'Une boîte à outils qui vous suit', 'description' => 'Une horloge flottante, un minuteur façon Pomodoro pour vous aider à vous concentrer, et une musique apaisante pour relâcher la tension — tout reste accessible en un clic partout dans l\'espace de travail, avec vos choix de musique et de volume mémorisés d\'une visite à l\'autre.'],
                         ['title' => 'Une barre supérieure à votre service', 'description' => 'Un bouton de création rapide qui ne propose que les documents que votre rôle est autorisé à créer, regroupés par étape du processus — plus un menu d\'enregistrements récents qui garde à portée de clic les derniers dossiers ouverts.'],
+                        ['title' => 'Cliquez sur un chiffre, le tableau se filtre', 'description' => 'Chaque ligne de comptage des cartes de statistiques d\'un rapport est cliquable et filtre le tableau en dessous, avec une pastille native supprimable, et un clic sur « Réinitialiser les filtres » rétablit la liste complète.'],
                     ],
                 ],
             ],
@@ -185,6 +191,7 @@ return [
                     'items' => [
                         ['title' => 'Export Excel/CSV partout', 'description' => 'Presque toutes les listes du système peuvent être exportées vers un tableur pour un rapport hors ligne ou un partage.'],
                         ['title' => 'Documents PDF professionnels', 'description' => 'Les factures commerciales sont générées en PDF correctement mis en forme et prêts à imprimer, y compris en mise en page persane droite-à-gauche.'],
+                        ['title' => 'Export de rapport en un clic', 'description' => 'Chaque rapport exporte son tableau en CSV en un clic, traité en arrière-plan, avec les mêmes colonnes que le tableau et une ouverture sans accroc dans Excel.'],
                         ['title' => 'Recherche et filtres sur chaque liste', 'description' => 'Chaque tableau permet la recherche et le filtrage, pour que les longues listes ne signifient jamais un défilement sans fin.'],
                     ],
                 ],
@@ -250,6 +257,7 @@ return [
     'workspace_records_hint' => 'Épinglez des enregistrements spécifiques pour un accès en un clic',
     'switchers_toggle' => 'Boutons rapides',
     'pinned_suffix' => 'épinglé(s)',
+    'workspace_reports' => 'Rapports',
     'section_pinned' => 'Épinglés',
     'section_add' => 'Ajouter',
     'pin_modules' => 'Épingler des modules',

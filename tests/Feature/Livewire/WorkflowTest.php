@@ -40,7 +40,10 @@ class WorkflowTest extends TestCase
         $this->assertSame(7, $stats['registeredOrders']);
         $this->assertSame(3, $stats['customs']);
         $this->assertSame(0, $stats['payments']);
-        $this->assertSame(array_keys(config('workspace.resources')), array_keys($stats));
+        $this->assertSame(
+            array_values(array_diff(array_keys(config('workspace.resources')), ['correspondence'])),
+            array_keys($stats)
+        );
         $this->assertTrue($component->get('isRtl'));
     }
 

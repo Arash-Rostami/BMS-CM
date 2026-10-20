@@ -194,7 +194,7 @@ trait Form
                 'required' => __('resources/calendarRule/strings.form.validation_required'),
                 'in' => __('resources/calendarRule/strings.form.validation_notification_type_in'),
             ])
-            ->helperText(__('resources/calendarRule/strings.form.helper_notification_type'));
+            ->helperText(__('resources/calendarRule/strings.form.helper_notification_type').' '.__('resources/dashboard/strings.widgets.calendar.read.hint'));
     }
 
     public static function getFiltersField(): Group

@@ -16,7 +16,9 @@ use App\Models\Attachment;
 use App\Models\Company;
 use App\Models\EntityAttribute;
 use App\Models\Permission;
+use App\Models\Product;
 use App\Models\ProformaInvoice;
+use App\Models\ProformaInvoiceItem;
 use App\Models\RegisteredOrder;
 use App\Models\Role;
 use App\Models\Shipment;
@@ -170,6 +172,113 @@ class ShipmentResourceTest extends TestCase
         $this->assertNotNull($attr);
         $this->assertSame($pi->id, $attr->value['proforma_invoice_id']);
         $this->assertSame('INV-TEST-001', $attr->value['invoice_no']);
+    }
+
+    public function test_the_last_table_column_shows_whether_a_commercial_invoice_exists(): void
+    {
+        $this->actingAsUserWithPermissions(['shipment.view']);
+        $with = Shipment::factory()->create();
+        $without = Shipment::factory()->create();
+        EntityAttribute::create([
+            'entity_type' => Shipment::class,
+            'entity_id' => $with->id,
+            'key' => 'commercial_invoice',
+            'value' => ['invoice_no' => 'INV-COL'],
+        ]);
+
+        Livewire::test(ListShipments::class)
+            ->assertTableColumnStateSet('has_commercial_invoice', true, $with)
+            ->assertTableColumnStateSet('has_commercial_invoice', false, $without);
+    }
+
+    public function test_the_invoice_totals_are_sortable_toggleable_list_columns(): void
+    {
+        $this->actingAsUserWithPermissions(['shipment.view']);
+        $light = Shipment::factory()->create(['total_net_weight' => 10, 'total_gross_weight' => 12, 'grand_total' => 100]);
+        $heavy = Shipment::factory()->create(['total_net_weight' => 90, 'total_gross_weight' => 99, 'grand_total' => 900]);
+
+        Livewire::test(ListShipments::class)
+            ->assertTableColumnExists('total_net_weight')
+            ->assertTableColumnExists('total_gross_weight')
+            ->assertTableColumnExists('grand_total')
+            ->sortTable('grand_total', 'desc')
+            ->assertCanSeeTableRecords([$heavy, $light], inOrder: false);
+    }
+
+    public function test_picking_a_proforma_fills_the_items_with_the_products_own_names(): void
+    {
+        $this->actingAsUserWithPermissions(['shipment.view', 'shipment.edit']);
+        $ro = RegisteredOrder::factory()->create();
+        $shipment = Shipment::factory()->create(['registered_order_id' => $ro->id]);
+        $product = Product::factory()->create(['name' => 'پت بطری', 'english_name' => 'Pet Bottle Grade']);
+        $pi = ProformaInvoice::factory()->create();
+        $pi->registeredOrders()->attach($ro->id);
+        ProformaInvoiceItem::factory()->create(['proforma_invoice_id' => $pi->id, 'product_id' => $product->id, 'description' => 'a free-text note']);
+
+        $items = Livewire::test(EditShipment::class, ['record' => $shipment->getRouteKey()])
+            ->set('data._inv_pi_id', $pi->id)
+            ->get('data._inv_items');
+
+        $first = array_values($items)[0];
+        $this->assertSame($product->id, $first['product_id']);
+        $this->assertSame('پت بطری', $first['name']);
+        $this->assertSame('Pet Bottle Grade', $first['english_name']);
+    }
+
+    public function test_the_item_name_input_follows_the_locale_and_keeps_the_other_name_hidden(): void
+    {
+        $fields = fn () => collect((new \ReflectionMethod(ShipmentResource::class, 'invoiceItemNameFields'))->invoke(null))
+            ->mapWithKeys(fn ($field) => [$field->getName() => class_basename($field)]);
+
+        app()->setLocale('fa');
+        $this->assertSame(['english_name' => 'Hidden', 'name' => 'TextInput'], $fields()->all());
+
+        foreach (['en', 'fr'] as $locale) {
+            app()->setLocale($locale);
+            $this->assertSame(['name' => 'Hidden', 'english_name' => 'TextInput'], $fields()->all());
+        }
+
+        app()->setLocale('en');
+    }
+
+    public function test_save_invoice_stores_keyed_values_and_both_names_for_each_item(): void
+    {
+        $this->actingAsUserWithPermissions(['shipment.view', 'shipment.edit']);
+        $ro = RegisteredOrder::factory()->create();
+        $shipment = Shipment::factory()->create(['registered_order_id' => $ro->id]);
+        $pi = ProformaInvoice::factory()->create();
+        $pi->registeredOrders()->attach($ro->id);
+        $product = Product::factory()->create();
+
+        Livewire::test(EditShipment::class, ['record' => $shipment->getRouteKey()])
+            ->set('data._inv_pi_id', $pi->id)
+            ->set('data._inv_origin_country', 'IR')
+            ->set('data._inv_items', [[
+                'product_id' => $product->id, 'name' => 'کالا', 'english_name' => 'Goods', 'origin' => 'CN', 'unit' => 'kg',
+                'quantity' => 2, 'unit_price' => 5, 'total_amount' => 10, 'net_weight' => 5, 'gross_weight' => 6,
+            ]])
+            ->callAction(TestAction::make('saveInvoice')->schemaComponent('form-actions', 'content'));
+
+        $row = $shipment->items()->first();
+        $this->assertSame(['کالا', 'Goods', 'CN', 'kg', $product->id], [$row->name, $row->english_name, $row->origin, $row->unit, $row->product_id]);
+        $this->assertSame('IR', ShipmentResource::loadInvoiceData($shipment)['origin_country']);
+    }
+
+    public function test_save_invoice_rejects_a_gross_weight_below_the_net_weight(): void
+    {
+        $this->actingAsUserWithPermissions(['shipment.view', 'shipment.edit']);
+        $ro = RegisteredOrder::factory()->create();
+        $shipment = Shipment::factory()->create(['registered_order_id' => $ro->id]);
+        $pi = ProformaInvoice::factory()->create();
+        $pi->registeredOrders()->attach($ro->id);
+
+        Livewire::test(EditShipment::class, ['record' => $shipment->getRouteKey()])
+            ->set('data._inv_pi_id', $pi->id)
+            ->set('data._inv_items', [['name' => 'کالا', 'net_weight' => 10, 'gross_weight' => 5]])
+            ->callAction(TestAction::make('saveInvoice')->schemaComponent('form-actions', 'content'))
+            ->assertHasErrors(['data._inv_items.0.gross_weight']);
+
+        $this->assertSame(0, $shipment->items()->count());
     }
 
     public function test_saving_with_an_unsaved_commercial_invoice_persists_it_alongside_the_record(): void
@@ -339,7 +448,7 @@ class ShipmentResourceTest extends TestCase
         $result = $reflection->invoke($page, [
             '_inv_pi_id' => 999,
             '_inv_invoice_no' => 'stale-unsaved-value',
-            '_inv_items' => [['description' => 'stale item']],
+            '_inv_items' => [['name' => 'stale item']],
         ]);
 
         $this->assertNull($result['_inv_pi_id']);

@@ -145,6 +145,8 @@ return [
     ],
     'table' => [
         'name' => 'Nom',
+        'problems' => 'Problèmes',
+        'needs_fixing' => 'À corriger',
         'subject' => 'Module',
         'type' => 'Type',
         'notification_type' => 'Canal',
@@ -170,6 +172,7 @@ return [
         'only_inactive' => 'Inactifs',
     ],
     'infolist' => [
+        'problems' => 'Cette règle ne peut pas être appliquée',
         'name' => 'Nom',
         'subject' => 'Module',
         'filters' => 'Conditions',
@@ -191,6 +194,11 @@ return [
         'updated_by' => 'Mis à jour par',
         'created_at' => 'Créé le',
         'updated_at' => 'Mis à jour le',
+    ],
+    'invalid' => [
+        'title' => 'La règle « :rule » doit être corrigée',
+        'body' => "Elle n'a pas pu être appliquée : :problems. Ouvrez la règle et corrigez ses conditions.",
+        'action_open' => 'Ouvrir la règle',
     ],
     'actions' => [
         'duplicate' => 'Dupliquer',
@@ -220,6 +228,15 @@ return [
         'active' => 'actif',
         'inactive' => 'inactif',
         'deleted' => 'supprimé',
+        'hints' => [
+            'matched' => "Correspondance — l'enregistrement correspond à cette règle.",
+            'cleared' => "Plus de correspondance — l'enregistrement ne répond plus à cette règle.",
+            'date_changed' => "Date déplacée — l'échéance de l'enregistrement a changé.",
+            'alert_sent' => "Alerte envoyée — une notification a été émise pour cet enregistrement.",
+            'rule_updated' => "Règle modifiée — quelqu'un a changé cette règle.",
+            'rule_invalid' => "Règle invalide — la règle n'a pas pu être appliquée.",
+            'seen' => "Vu — vous avez marqué l'alerte comme vue.",
+        ],
     ],
     'alerts' => [
         'title' => ':rule · :count',

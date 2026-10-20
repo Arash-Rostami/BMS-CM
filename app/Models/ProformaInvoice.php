@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasReliableCodeGeneration;
+use App\Models\Traits\General\LogsAudit;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\UserStamps;
 use App\Models\Traits\ProformaInvoice\HasFormattedName;
@@ -21,6 +22,7 @@ class ProformaInvoice extends Model
         HasFormattedName,
         HasReliableCodeGeneration,
         HasSearchableRelations,
+        LogsAudit,
         Relationships,
         SoftDeletes,
         UserStamps;
@@ -28,6 +30,15 @@ class ProformaInvoice extends Model
     public const SCANNABLE_TABLE = 'proforma_invoices';
 
     public const SCANNABLE_IDENTIFIER = 'invoice_no';
+
+    public static function auditColumns(): array
+    {
+        return [
+            'invoice_date', 'contract_no', 'seller_id', 'buyer_id', 'validity_date', 'delivery_terms', 'main_currency_id',
+            'secondary_currency_id', 'discount', 'freight_charges', 'other_charges', 'total_amount', 'transport_mode',
+            'origin_country', 'destination_country', 'port_of_loading', 'port_of_discharge',
+        ];
+    }
 
     protected $fillable = [
         'invoice_no',

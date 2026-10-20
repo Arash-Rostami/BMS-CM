@@ -76,6 +76,7 @@ trait Table
         return Action::make('seeOnCalendar')
             ->label(__('resources/calendarRule/strings.actions.see_on_calendar'))
             ->icon('heroicon-o-calendar-days')
+            ->visible(fn (CalendarRule $record): bool => $record->is_active && in_array($record->subject, CalendarModules::viewableBy(auth()->user()), true))
             ->url(fn (CalendarRule $record): string => Dashboard::getUrl(['cal_rule' => $record->id]));
     }
 
@@ -111,6 +112,17 @@ trait Table
             ->color(fn (CalendarRule $record): string => (string) ($record->color?->getColor() ?? 'gray'))
             ->searchable()
             ->sortable();
+    }
+
+    public static function showProblems(): TextColumn
+    {
+        return TextColumn::make('problems')
+            ->label(__('resources/calendarRule/strings.table.problems'))
+            ->badge()
+            ->color('danger')
+            ->icon('heroicon-m-exclamation-triangle')
+            ->state(fn (CalendarRule $record): ?string => static::problemsFor($record) === [] ? null : __('resources/calendarRule/strings.table.needs_fixing'))
+            ->tooltip(fn (CalendarRule $record): ?string => implode(', ', static::problemsFor($record)) ?: null);
     }
 
     public static function showSubject(): TextColumn

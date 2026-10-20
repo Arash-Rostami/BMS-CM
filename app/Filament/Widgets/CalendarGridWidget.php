@@ -14,16 +14,20 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Widgets\Widget;
-use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
+use Livewire\WithoutUrlPagination;
+use Livewire\WithPagination;
 use Morilog\Jalali\Jalalian;
 
 class CalendarGridWidget extends Widget implements HasActions, HasSchemas
 {
     use InteractsWithActions;
     use InteractsWithSchemas;
+    use WithoutUrlPagination;
+    use WithPagination;
 
     protected static bool $isLazy = false;
 
@@ -40,11 +44,9 @@ class CalendarGridWidget extends Widget implements HasActions, HasSchemas
     #[Url(as: 'cal_module')]
     public mixed $module = null;
 
+    public const LEGEND_PER_PAGE = 12;
+
     public string $anchor = '';
-
-    public mixed $jumpYear = null;
-
-    public mixed $jumpMonth = null;
 
     public function mount(): void
     {
@@ -76,19 +78,15 @@ class CalendarGridWidget extends Widget implements HasActions, HasSchemas
         $this->selectDate(today()->toDateString());
     }
 
-    public function jump(): void
+    public function jump(mixed $year, mixed $month): void
     {
-        $this->jumpTo($this->jumpYear ?? $this->miniMonth['currentYear'], $this->jumpMonth ?? $this->miniMonth['currentMonth']);
-    }
+        $mini = $this->presenter()->miniMonth($this->anchor, $this->jalali);
 
-    public function updatedJumpYear(): void
-    {
-        $this->jumpYear = is_numeric($this->jumpYear) ? (int) $this->jumpYear : null;
-    }
-
-    public function updatedJumpMonth(): void
-    {
-        $this->jumpMonth = is_numeric($this->jumpMonth) ? max(1, min(12, (int) $this->jumpMonth)) : null;
+        $this->jumpTo(
+            is_numeric($year) ? (int) $year : $mini['currentYear'],
+            is_numeric($month) ? (int) $month : $mini['currentMonth'],
+            $mini['years'],
+        );
     }
 
     public function updatedRuleId(): void
@@ -106,7 +104,8 @@ class CalendarGridWidget extends Widget implements HasActions, HasSchemas
 
     public function updatedModule(): void
     {
-        [$this->ruleId, $this->module] = CalendarBoard::sanitize($this->user(), $this->ruleId, $this->module);
+        [$this->ruleId, $this->module] = CalendarBoard::sanitize($this->user(), $this->ruleId, $this->module, moduleWins: true);
+        $this->resetPage('legendPage');
         $this->emitSelection();
     }
 
@@ -128,6 +127,9 @@ class CalendarGridWidget extends Widget implements HasActions, HasSchemas
     #[On('calendar-toggled')]
     public function calendarToggled(): void {}
 
+    #[On('calendar-read-changed')]
+    public function calendarReadChanged(): void {}
+
     #[Computed]
     public function jalali(): bool
     {
@@ -147,27 +149,40 @@ class CalendarGridWidget extends Widget implements HasActions, HasSchemas
     }
 
     #[Computed]
-    public function agendaRows(): Collection
+    public function legend(): LengthAwarePaginator
     {
-        return CalendarBoard::agendaHits($this->user(), $this->range, $this->ruleId, $this->module);
+        $page = max(1, min($this->getPage('legendPage'), (int) ceil($this->legendTotal / self::LEGEND_PER_PAGE)));
+
+        return CalendarBoard::legendPage($this->user(), $this->module, self::LEGEND_PER_PAGE, $page, $this->legendTotal, is_numeric($this->ruleId) ? (int) $this->ruleId : null);
     }
 
     #[Computed]
-    public function agenda(): array
+    public function legendTotal(): int
     {
-        return $this->presenter()->agendaDays($this->range, $this->agendaRows);
+        return CalendarBoard::legendCount($this->user(), $this->module);
     }
 
     #[Computed]
-    public function legend(): Collection
+    public function ruleDetails(): ?array
     {
-        return CalendarBoard::legendRules($this->user(), $this->module);
+        $details = CalendarBoard::ruleDetails($this->user(), is_numeric($this->ruleId) ? (int) $this->ruleId : null);
+
+        if ($details === null) {
+            return null;
+        }
+
+        $details['changes'] = $details['changes']->map(fn (array $row): array => CalendarActivityAction::describe($row))
+            ->filter(fn (array $row): bool => $row['text'] !== '')
+            ->values()
+            ->all();
+
+        return $details;
     }
 
     #[Computed]
     public function ruleOptions(): array
     {
-        return CalendarBoard::ruleOptions($this->user());
+        return CalendarBoard::ruleOptions($this->user(), is_numeric($this->ruleId) ? (int) $this->ruleId : null);
     }
 
     #[Computed]
@@ -195,12 +210,6 @@ class CalendarGridWidget extends Widget implements HasActions, HasSchemas
     }
 
     #[Computed]
-    public function agendaCapped(): bool
-    {
-        return $this->agendaRows->count() >= CalendarBoard::AGENDA_LIMIT;
-    }
-
-    #[Computed]
     public function offset(): int
     {
         return $this->range->weekdayOffset();
@@ -215,25 +224,22 @@ class CalendarGridWidget extends Widget implements HasActions, HasSchemas
     private function shiftMonth(int $delta): void
     {
         $this->anchor = CalendarRange::shiftMonths($this->anchor, $delta, $this->jalali);
-        $this->jumpYear = null;
-        $this->jumpMonth = null;
+        $this->emitSelection();
     }
 
-    private function jumpTo(int $year, int $month): void
+    private function jumpTo(int $year, int $month, array $years): void
     {
-        $years = $this->miniMonth['years'];
         $year = max((int) min($years), min((int) max($years), $year));
         $month = max(1, min(12, $month));
         $this->anchor = $this->jalali
             ? (new Jalalian($year, $month, 1))->toCarbon()->toDateString()
             : Carbon::createFromDate($year, $month, 1)->toDateString();
-        $this->jumpYear = null;
-        $this->jumpMonth = null;
+        $this->emitSelection();
     }
 
     private function emitSelection(): void
     {
-        $this->dispatch('calendar-day-selected', date: $this->selected, ruleId: $this->ruleId, module: $this->module);
+        $this->dispatch('calendar-day-selected', date: $this->selected, ruleId: $this->ruleId, module: $this->module, anchor: $this->anchor);
     }
 
     private function user(): User

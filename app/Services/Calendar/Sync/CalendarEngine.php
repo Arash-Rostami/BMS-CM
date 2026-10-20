@@ -5,6 +5,7 @@ namespace App\Services\Calendar\Sync;
 use App\Models\CalendarHit;
 use App\Models\CalendarRule;
 use App\Models\User;
+use App\Notifications\CalendarRuleInvalidNotification;
 use App\Services\Calendar\CalendarActivity;
 use App\Services\Calendar\CalendarModules;
 use App\Services\Calendar\CalendarPathResolver;
@@ -284,34 +285,6 @@ class CalendarEngine
         }
     }
 
-    /**
-     * Landing-page "Needs attention" rows: overdue Action-required hits first
-     * (oldest overdue first), then due today, then due within the next 7 days
-     * (soonest first) — ascending event_date already yields exactly that order.
-     * Heads-up hits past their date are excluded; nothing is cached.
-     *
-     * @return Collection<int, CalendarHit>
-     */
-    public function attention(User $user, int $limit = 10): Collection
-    {
-        if (CalendarModules::viewableBy($user) === []) {
-            return collect();
-        }
-
-        $today = today();
-
-        return CalendarHit::query()
-            ->visibleTo($user)
-            ->notPastHeadsUp()
-            ->with(['rule:id,name,color,type', 'subject'])
-            ->where(fn (Builder $query): Builder => $query
-                ->overdue()
-                ->orWhereBetween('event_date', [$today->toDateString(), $today->copy()->addDays(7)->toDateString()]))
-            ->orderBy('event_date')
-            ->limit($limit)
-            ->get(['id', 'calendar_rule_id', 'subject_type', 'subject_id', 'label', 'event_date']);
-    }
-
     private function ruleIsSyncable(CalendarRule $rule): bool
     {
         return $this->ruleIsActive($rule) && $this->filterProblems($rule) === [];
@@ -333,6 +306,7 @@ class CalendarEngine
 
         if ($deleted > 0 || $this->problemsChanged($rule, $problems)) {
             $this->activity->log('rule_invalid', $rule, $rule, ['problems' => implode(', ', $problems)]);
+            $rule->creator?->notify(new CalendarRuleInvalidNotification($rule, $problems));
         }
     }
 

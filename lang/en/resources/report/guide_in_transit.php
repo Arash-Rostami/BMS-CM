@@ -1,0 +1,358 @@
+<?php
+
+return [
+    "intro" => "This report lists the shipments that have not arrived yet, with their ETA, the days left or late, and their tracking stage. By default it shows only shipments that have not arrived; turn on Show arrived shipments to add the arrived ones to the table and the stage chart. Cancelled and rejected shipments (by Shipment Status) are left out everywhere in this report unless you turn on Include cancelled; while they are hidden, the first card shows how many were left out. A missing ETA or ETD is never guessed: it is shown as No ETA or left blank and flagged in the data issues. Many shipments have no ETA entered, so the No ETA lines matter. Use the filters to narrow the view, the cards and charts for totals, and the data issues at the bottom to find missing or contradictory dates.",
+    "sections" => [
+        "filters" => [
+            "title" => "Filters",
+            "intro" => "Filters narrow the cards, the charts, the table and the data issues together. Every dropdown lists all active records of its master list, whether or not they are used on a shipment. A date range entered in reverse order is swapped automatically. The Filters bar is collapsed by default; open it to change values. Show arrived shipments changes only the table and the tracking stage chart.",
+            "items" => [
+                "date_from" => [
+                    "title" => "From Date",
+                    "meaning" => "Keeps only shipments whose date, chosen in Filter dates by, is on or after this day.",
+                    "how" => "It is compared with the date chosen in Filter dates by, which is the ETA unless you change it. Shipments with no date in that field stay visible while Include undated is on.",
+                    "change" => "Clear it to include earlier dates.",
+                ],
+                "date_until" => [
+                    "title" => "Until Date",
+                    "meaning" => "Keeps only shipments whose date, chosen in Filter dates by, is on or before this day, including that whole day.",
+                    "how" => "Same rule as From Date: it applies to the date chosen in Filter dates by, and shipments with no date there stay visible while Include undated is on.",
+                    "change" => "Clear it to include later dates.",
+                ],
+                "date_basis" => [
+                    "title" => "Filter dates by",
+                    "meaning" => "Chooses which date the From Date and Until Date filters look at.",
+                    "how" => "Four options: ETA (the default), ETD, Exit Date and Warehouse Receipt Date, all taken from the shipment. It changes only which date the range is compared with.",
+                    "change" => "Switch it to look at shipments by the date that matters to you, for example the exit date to review what left in a month.",
+                ],
+                "include_undated" => [
+                    "title" => "Include undated",
+                    "meaning" => "Decides what happens to shipments that have no date in the field chosen in Filter dates by while a date range is set.",
+                    "how" => "On (the default): such shipments stay in the report, so nothing disappears silently. Off: only shipments whose date falls inside the range are kept. It has no effect while no From Date or Until Date is set.",
+                    "change" => "Turn it off to see strictly the shipments dated inside the range.",
+                ],
+                "seller_id" => [
+                    "title" => "Seller",
+                    "meaning" => "Shows only shipments whose registered order has this seller.",
+                    "how" => "The seller is read from the registered order of the shipment. The list contains the active sellers.",
+                    "change" => "Clear it to see all sellers.",
+                ],
+                "buyer_id" => [
+                    "title" => "Buyer",
+                    "meaning" => "Shows only shipments whose registered order has this buyer.",
+                    "how" => "The buyer is read from the registered order of the shipment. The list contains the active buyers.",
+                    "change" => "Clear it to see all buyers.",
+                ],
+                "registered_order_id" => [
+                    "title" => "Registered Order",
+                    "meaning" => "Shows only the shipments of one registered order.",
+                    "how" => "Matches the registered order of the shipment. The list contains every registered order, newest first.",
+                    "change" => "Clear it to see all orders.",
+                ],
+                "product_id" => [
+                    "title" => "Product",
+                    "meaning" => "Shows only shipments that contain this product.",
+                    "how" => "A shipment matches when the product is on its own invoice lines or on the items of its registered order, the same two sources the Products column uses.",
+                    "change" => "Clear it to see all products.",
+                ],
+                "category_id" => [
+                    "title" => "Category",
+                    "meaning" => "Shows only shipments that contain a product of this category or of one of its subcategories.",
+                    "how" => "Same matching as Product, on the invoice lines of the shipment or the items of its registered order, for every product of the chosen category and of the categories below it.",
+                    "change" => "Clear it, or choose a parent category to include more products.",
+                ],
+                "company_id" => [
+                    "title" => "Carrier",
+                    "meaning" => "Shows only shipments handled by this carrier.",
+                    "how" => "Matches the carrier saved on the shipment. The list contains all active companies. Shipments with no carrier disappear once one is chosen.",
+                    "change" => "Clear it to see all carriers.",
+                ],
+                "status_id" => [
+                    "title" => "Tracking status",
+                    "meaning" => "Shows only shipments whose current tracking status is one of the statuses you tick. You can tick several.",
+                    "how" => "Matches the tracking status saved on the shipment; the names come from the Status master. Ticking a stage at or after Arrived At Destination lists those arrived shipments even while Show arrived shipments is off, because an explicit choice wins over the default hiding.",
+                    "change" => "Clear the ticks to see all stages. Turn on Show arrived shipments to list arrived stages without ticking them.",
+                ],
+                "shipment_status_id" => [
+                    "title" => "Shipment status",
+                    "meaning" => "Shows only shipments with one of the shipment statuses you tick. You can tick several.",
+                    "how" => "Matches the Shipment Status saved on the shipment (not the tracking status); the names come from the Status master. Ticking Cancelled or Rejected while Include cancelled is off leaves the table empty.",
+                    "change" => "Clear the ticks to see all statuses.",
+                ],
+                "doc_status_id" => [
+                    "title" => "Documentation status",
+                    "meaning" => "Shows only shipments with this documentation status.",
+                    "how" => "Matches the documentation status saved on the shipment. Shipments with no documentation status disappear once a value is chosen.",
+                    "change" => "Clear it to see all shipments.",
+                ],
+                "show_arrived" => [
+                    "title" => "Show arrived shipments",
+                    "meaning" => "Adds the arrived shipments to the table and to the tracking stage chart. Off by default.",
+                    "how" => "Off: the table and the stage chart include only shipments that have not arrived. On: they also include arrived shipments, meaning shipments with a warehouse receipt date or a tracking status at or after Arrived At Destination. The cards, the ETA chart and the data issues do not change with this switch.",
+                    "change" => "Turn it on to review arrived shipments, off to focus on cargo still on its way.",
+                ],
+                "include_void" => [
+                    "title" => "Include cancelled",
+                    "meaning" => "Adds the shipments whose Shipment Status is Cancelled or Rejected. Off by default.",
+                    "how" => "Off: those shipments are left out of the cards, charts, table and data issues, and the first card shows how many shipments were left out (open ones, plus arrived ones when Show arrived is on). On: they are counted like any other shipment.",
+                    "change" => "Turn it on to review cancelled or rejected shipments, off to focus on live cargo.",
+                ],
+                "departure_basis" => [
+                    "title" => "Count as departed when",
+                    "meaning" => "Decides which shipments count as in transit and which as awaiting shipment.",
+                    "how" => "Three options. The default: the exit date is set or the tracking status is In Transit. Second: the exit date or the ETD is set, or the tracking status is In Transit (any ETD counts, even a future one). Third: only the tracking status In Transit. A shipment that has arrived is never in transit. It moves shipments between the Awaiting shipment and In transit cards, the table state, the ETA chart and the matching issues.",
+                    "change" => "Use the second option when ETDs are entered but exit dates are not, the third when the tracking status is the only reliable field.",
+                ],
+                "th_arrive_1" => [
+                    "title" => "First arrival (days)",
+                    "meaning" => "The length of the first arriving-soon window. Now :th_arrive_1 days (default 7).",
+                    "how" => "A whole number from 1 to 365. The Within :th_arrive_1 days line, the first ETA chart bar and the amber colour of the Days to ETA badge use it.",
+                    "change" => "Raise it to treat more distant ETAs as soon, lower it to be stricter.",
+                ],
+                "th_arrive_2" => [
+                    "title" => "Second arrival (days)",
+                    "meaning" => "The end of the second arriving-soon window. Now :th_arrive_2 days (default 14).",
+                    "how" => "A whole number from 1 to 365. The second arriving line and the second ETA chart bar run from the day after the first window up to this value; when it is not larger than the first window it is treated as the first window plus one day. Later ETAs fall in the Over bar.",
+                    "change" => "Raise it to widen the second window.",
+                ],
+                "th_late_error" => [
+                    "title" => "Late error (days)",
+                    "meaning" => "The number of days late after which a delayed shipment is counted on the long-late line. Now :th_late_error days (default 14).",
+                    "how" => "A whole number from 1 to 365. It drives the Over :th_late_error days late line of the Delayed card and its clickable filter. The Delayed line itself always counts every shipment whose ETA has passed.",
+                    "change" => "Lower it to flag lateness earlier, raise it to be more tolerant.",
+                ],
+                "stuck_days" => [
+                    "title" => "Stage days threshold",
+                    "meaning" => "The number of days after which a shipment counts as stuck in its current tracking stage. Now :th_stuck days (default 30).",
+                    "how" => "A whole number from 1 to 365; left empty or out of range it is 30. It drives only the data issue about shipments that stayed too long in their tracking status.",
+                    "change" => "Lower it to be stricter, raise it to be more tolerant.",
+                ],
+            ],
+        ],
+        "cards" => [
+            "title" => "Cards",
+            "intro" => "The cards count shipments under the filters above and ignore the Show arrived shipments switch. Click any line that has a number to filter the table below to exactly the shipments that line counts. The lines Average days late and Cancelled/rejected hidden are not clickable. A \"Table filtered by\" chip then appears above the table with a \"Show all rows\" button, and clicking the same line again clears the filter. The cards, the charts and the data issues do not change, and the CSV export follows the clicked filter. A shipment is decided as arrived when it has a warehouse receipt date or its tracking status is Arrived At Destination or later. It is in transit when it has not arrived and counts as departed under Count as departed when (by default: an exit date or the tracking status In Transit). Every other shipment that has not arrived is awaiting shipment.",
+            "items" => [
+                "awaiting" => [
+                    "title" => "Awaiting shipment",
+                    "meaning" => "Shipments that have not left yet, and how many of them have no ETA.",
+                    "how" => "Shipments: shipments that have not arrived and do not count as departed (by default: no exit date and not in the tracking status In Transit). Without ETA: among these, those with an empty ETA. Both lines are clickable. Cancelled/rejected hidden: how many shipments with a cancelled or rejected Shipment Status were left out (only those that have not arrived, unless Show arrived shipments is on, in which case arrived ones are counted too); it is not clickable and disappears when Include cancelled is on.",
+                    "change" => "Enter the exit date or the tracking status on the shipment once it leaves, and enter the missing ETA on the shipment (Logistics & Details tab).",
+                ],
+                "in_transit" => [
+                    "title" => "In transit",
+                    "meaning" => "Shipments on their way, those among them with no ETA, and shipments that look arrived by status only.",
+                    "how" => "Shipments: shipments that have not arrived and count as departed (by default: an exit date or the tracking status In Transit). Without ETA: among these, those with an empty ETA. Arrived but not received at warehouse: shipments whose tracking status is Arrived At Destination or later but whose warehouse receipt date is empty; they are arrived, not in transit, and clicking the line widens the table to those arrived rows even while Show arrived shipments is off.",
+                    "change" => "Enter the ETA on the shipment. To lower the last line, enter the warehouse receipt date on the shipment (Logistics & Details tab).",
+                ],
+                "arriving" => [
+                    "title" => "Arriving soon",
+                    "meaning" => "Shipments in transit whose ETA is close.",
+                    "how" => "Within :th_arrive_1 days: shipments in transit with an ETA from today up to :th_arrive_1 days ahead. The second line: shipments in transit with an ETA from the day after the first window up to the second window (now :th_arrive_2 days). Shipments awaiting shipment and shipments without an ETA are not counted.",
+                    "change" => "Correct wrong ETAs on the shipments. Change the arrival windows or use the filters to narrow the shipments counted.",
+                ],
+                "delayed" => [
+                    "title" => "Delayed",
+                    "meaning" => "Shipments that have not arrived although their ETA has passed.",
+                    "how" => "Shipments: shipments that have not arrived and whose ETA is before today; shipments awaiting shipment can be delayed too. Over :th_late_error days late: among these, those whose ETA is more than :th_late_error days ago. Average days late: the average number of days since the ETA over the delayed shipments, one decimal, a dash when there are none. This is not the same as the Overdue filter of the Shipments list, which means the exit date is empty and the ETA has passed.",
+                    "change" => "Enter the warehouse receipt date once the shipment arrived, or update the ETA when it really moved.",
+                ],
+            ],
+        ],
+        "charts" => [
+            "title" => "Charts",
+            "intro" => "Both charts follow the filters above, but each has its own rule about arrived shipments.",
+            "items" => [
+                "stages" => [
+                    "title" => "Shipments by tracking stage",
+                    "meaning" => "Number of shipments at each tracking stage.",
+                    "how" => "A doughnut with one slice per tracking status in the order of the Status master, followed by a No status slice. It counts exactly the rows of the table: only shipments that have not arrived, or also the arrived ones when Show arrived shipments is on. No status holds the shipments with an empty tracking status or one that is not a listed stage.",
+                    "change" => "Turn Show arrived shipments on to see arrived stages, or use the filters to narrow the shipments.",
+                ],
+                "eta_buckets" => [
+                    "title" => "Shipments by ETA",
+                    "meaning" => "How the shipments that have not arrived are spread over their ETA.",
+                    "how" => "Five groups by the days between today and the ETA: Delayed (ETA before today), 0 to :th_arrive_1 days, the second window up to :th_arrive_2 days, Over (later than the second window), and No ETA. The windows follow the arrival window filters. Each group is split in two stacked parts, in transit and awaiting shipment. It always counts shipments that have not arrived and ignores Show arrived shipments.",
+                    "change" => "Enter missing ETAs to move shipments out of No ETA. Use the filters to narrow the shipments.",
+                ],
+            ],
+        ],
+        "table" => [
+            "title" => "Table",
+            "intro" => "One row per shipment under the filters, sorted by ETA with the nearest first and shipments without an ETA last. Several columns are hidden by default: use the column selector of the table to show them. Visible by default: Shipment No., Part, Registered Order, Seller, Products, Weight, ETA, Days to ETA, Tracking status and Docs progress. Shipment No., Products and Days to ETA cannot be hidden. The table can be grouped by Carrier or by Seller from the grouping control above it, and Products, Weight, State and Seller can be sorted, with Products, State and Seller also searchable.",
+            "items" => [
+                "shipment_no" => [
+                    "title" => "Shipment No.",
+                    "meaning" => "The shipment number. Hover to see its B/L number.",
+                    "how" => "Taken from the shipment. It can be searched, sorted and copied.",
+                ],
+                "part" => [
+                    "title" => "Part No",
+                    "meaning" => "The part of the order carried by this shipment.",
+                    "how" => "Taken from the shipment. It can be sorted.",
+                ],
+                "registeredOrder.ro_number" => [
+                    "title" => "Registered Order",
+                    "meaning" => "The registered order of the shipment. Hover to see the contract number.",
+                    "how" => "Taken from the order linked to the shipment. It can be searched, sorted and copied.",
+                ],
+                "registeredOrder.sellerCompany.name" => [
+                    "title" => "Seller",
+                    "meaning" => "The seller of the registered order of the shipment.",
+                    "how" => "Taken from the order linked to the shipment, in Persian when the interface is Persian, otherwise in English. It can be searched, sorted and used to group the table.",
+                ],
+                "carrier.name" => [
+                    "title" => "Carrier",
+                    "meaning" => "The carrier or forwarder of the shipment. Hidden by default.",
+                    "how" => "Taken from the shipment. It can be searched, sorted and used to group the table.",
+                ],
+                "products_text" => [
+                    "title" => "Products",
+                    "meaning" => "The products of the shipment. When they are read from the order, the whole order is shown.",
+                    "how" => "The names of the distinct products on the invoice lines of the shipment, separated by commas; the column can be searched and sorted. If the shipment has no invoice lines, the products of the whole registered order are used instead and hovering says so. Names are in Persian when the interface is Persian, otherwise in English. The column is empty when neither source has items.",
+                    "change" => "Enter the invoice lines on the shipment (Commercial Invoice & Packing List tab) so that the products belong to this shipment alone.",
+                ],
+                "total_weight" => [
+                    "title" => "Weight",
+                    "meaning" => "Total gross weight of the products of the shipment.",
+                    "how" => "Sum of the gross weight of the invoice lines of the shipment; if there are none, the sum of the gross weight of the registered order items. When the order is used and it has several shipments, every shipment of that order shows the whole order weight, so rows must not be added together. Hovering shows the precise number. The column can be sorted.",
+                    "change" => "Enter the invoice lines on each shipment (Commercial Invoice & Packing List tab) to get a weight per shipment.",
+                ],
+                "etd" => [
+                    "title" => "ETD",
+                    "meaning" => "The planned departure date. Hidden by default.",
+                    "how" => "Taken from the shipment; blank when not entered. It can be sorted.",
+                    "change" => "Enter it on the shipment (Logistics & Details tab).",
+                ],
+                "exit_date" => [
+                    "title" => "Exit Date",
+                    "meaning" => "The date the shipment actually left. Hidden by default.",
+                    "how" => "Taken from the shipment; blank when not entered. A shipment with an exit date counts as in transit unless it has arrived. It can be sorted.",
+                    "change" => "Enter it on the shipment (Logistics & Details tab).",
+                ],
+                "eta" => [
+                    "title" => "ETA",
+                    "meaning" => "The expected arrival date of the shipment.",
+                    "how" => "Taken from the shipment; blank when not entered, never guessed. It can be sorted, and the date range filters work on it.",
+                    "change" => "Enter or correct it on the shipment (Logistics & Details tab).",
+                ],
+                "warehouse_date" => [
+                    "title" => "Warehouse Receipt Date",
+                    "meaning" => "The date the goods were received in the warehouse. Hidden by default.",
+                    "how" => "Taken from the shipment. A shipment with this date counts as arrived. It can be sorted.",
+                    "change" => "Enter it on the shipment (Logistics & Details tab) once the goods arrived.",
+                ],
+                "days_to_eta" => [
+                    "title" => "Days to ETA",
+                    "meaning" => "How many days are left until the ETA, or how many days late the shipment is.",
+                    "how" => "ETA minus today, in days. A shipment without an ETA shows a No ETA badge in amber. The badge is red when the ETA has passed (days late), amber from 0 to :th_arrive_1 days left (the first arrival window), green above that. It is calculated even for arrived shipments. The column can be sorted by ETA, and shipments without an ETA always go last.",
+                    "change" => "Enter or correct the ETA on the shipment.",
+                ],
+                "state" => [
+                    "title" => "State",
+                    "meaning" => "Whether the shipment is awaiting shipment, in transit or arrived. Hidden by default.",
+                    "how" => "Decided by the dates first, with the tracking status as a cross-check. Arrived: the warehouse receipt date is set or the tracking status is Arrived At Destination or later. In transit: not arrived and counts as departed under Count as departed when (by default the exit date is set or the tracking status is In Transit). Awaiting shipment: all the rest. Arrived shows only when Show arrived shipments is on or the arrived-but-not-received line is clicked. The column can be sorted and searched by the state name.",
+                    "change" => "Enter the exit date, the tracking status or the warehouse receipt date on the shipment.",
+                ],
+                "trackingStatus.name" => [
+                    "title" => "Tracking status",
+                    "meaning" => "The current tracking stage of the shipment.",
+                    "how" => "Taken from the shipment; the names come from the Status master.",
+                    "change" => "Edit the Tracking Status on the shipment (Logistics & Details tab).",
+                ],
+                "docStatus.name" => [
+                    "title" => "Doc Status",
+                    "meaning" => "The documentation status of the shipment. Hidden by default.",
+                    "how" => "Taken from the shipment.",
+                ],
+                "docs_progress" => [
+                    "title" => "Docs progress",
+                    "meaning" => "How many of the tracked documents of the shipment have been received.",
+                    "how" => "Shown as received/total when document tracking is enabled on the shipment, otherwise a dash. The badge is red when none is received, green when all are received, amber in between. The CSV export carries the same value.",
+                ],
+                "bl_number" => [
+                    "title" => "B/L Number",
+                    "meaning" => "The bill of lading number. Hidden by default.",
+                    "how" => "Taken from the shipment. It can be searched and copied.",
+                ],
+                "container_no" => [
+                    "title" => "Container No.",
+                    "meaning" => "The number of containers of the shipment. Hidden by default.",
+                    "how" => "Taken from the shipment.",
+                ],
+            ],
+        ],
+        "issues" => [
+            "title" => "Data issues",
+            "intro" => "This accordion at the bottom appears only when the filtered report has at least one open issue, headed by the number of issues. Each issue has a severity: Error means data that contradicts itself, Warning means data that is missing or late, Info means a minor gap. Above the log are chips with the count per severity; click a chip to list only that severity and click Show all to list everything again. The log respects the filters of the page, except Show arrived shipments. Shipments of a module the viewer cannot view are not listed. Results are refreshed about every 5 minutes and immediately when a record is saved. Issues never block saving. To clear one, edit the field named in its item and save.",
+            "items" => [
+                "shipment_in_transit_missing_eta" => [
+                    "title" => "The shipment is in transit but has no ETA",
+                    "meaning" => "Severity Warning. Its arrival cannot be planned or measured.",
+                    "how" => "Shipments in transit (not arrived, with an exit date or the tracking status In Transit) whose ETA is empty. Awaiting shipments are not listed.",
+                    "change" => "On the shipment, enter the ETA (Logistics & Details tab).",
+                ],
+                "shipment_in_transit_missing_etd" => [
+                    "title" => "The shipment is in transit but has no ETD",
+                    "meaning" => "Severity Info. The planned departure is unknown.",
+                    "how" => "Shipments in transit whose ETD is empty.",
+                    "change" => "On the shipment, enter the ETD (Logistics & Details tab).",
+                ],
+                "shipment_eta_before_etd" => [
+                    "title" => "The ETA is earlier than the ETD",
+                    "meaning" => "Severity Error. The shipment would arrive before it departs.",
+                    "how" => "Shipments that have not arrived, awaiting or in transit, with both dates filled and the ETA earlier than the ETD. Current value shows both dates.",
+                    "change" => "On the shipment, correct the ETA or the ETD (Logistics & Details tab).",
+                ],
+                "shipment_overdue_eta" => [
+                    "title" => "The ETA has passed and the shipment has not arrived",
+                    "meaning" => "Severity Warning. The shipment is late or its ETA is out of date.",
+                    "how" => "Shipments that have not arrived, awaiting or in transit, whose ETA is before today. Current value shows the days late. This is the same set as the Delayed card.",
+                    "change" => "On the shipment, enter the warehouse receipt date if it arrived, or update the ETA (Logistics & Details tab).",
+                ],
+                "shipment_arrived_without_warehouse_date" => [
+                    "title" => "The tracking status says arrived but there is no warehouse receipt date",
+                    "meaning" => "Severity Warning. The shipment looks arrived but its receipt is not recorded.",
+                    "how" => "Shipments whose tracking status is Arrived At Destination or later and whose warehouse receipt date is empty. Arrived shipments are included even when Show arrived shipments is off.",
+                    "change" => "On the shipment, enter the Warehouse Receipt Date (Logistics & Details tab).",
+                ],
+                "shipment_departed_without_exit_date" => [
+                    "title" => "The tracking status says in transit but there is no exit date and no ETD",
+                    "meaning" => "Severity Warning. The shipment is said to be on its way but no departure date is recorded.",
+                    "how" => "Shipments that have not arrived, whose tracking status is In Transit, with an empty exit date and an empty ETD. It always uses the tracking status, whatever Count as departed when is set to.",
+                    "change" => "On the shipment, enter the Exit Date or the ETD (Logistics & Details tab).",
+                ],
+                "shipment_no_invoice" => [
+                    "title" => "The shipment in transit has no commercial invoice items",
+                    "meaning" => "Severity Warning. Products and weight of the shipment come from the registered order instead.",
+                    "how" => "Shipments in transit that have no invoice lines.",
+                    "change" => "On the shipment, enter the lines in the Commercial Invoice & Packing List tab.",
+                ],
+                "shipment_stuck_in_stage" => [
+                    "title" => "The shipment has stayed too long in its current tracking status",
+                    "meaning" => "Severity Warning. The shipment has not changed tracking status for a long time.",
+                    "how" => "Shipments that have not arrived, have a tracking status, and whose days since the last status change are more than the threshold, now :th_stuck days (default 30; filter Stage days threshold). Awaiting shipments are included. The day count starts at the last recorded status change; when no change was recorded it starts at the last edit of the shipment, and a note says so. Expected shows the threshold used.",
+                    "change" => "Update the Tracking Status on the shipment (Logistics & Details tab) when it really moved on, or raise the threshold.",
+                ],
+                "shipment_warehouse_before_exit_date" => [
+                    "title" => "The warehouse receipt date is earlier than the exit date",
+                    "meaning" => "Severity Error. The goods would be received in the warehouse before they left.",
+                    "how" => "Shipments, arrived or not, where both the Warehouse Receipt Date and the Exit Date are filled and the warehouse receipt date is earlier. Current value shows both dates.",
+                    "change" => "On the shipment, correct the Warehouse Receipt Date or the Exit Date (Logistics & Details tab).",
+                ],
+                "shipment_missing_carrier" => [
+                    "title" => "The shipment in transit has no carrier",
+                    "meaning" => "Severity Warning. Nobody usable is recorded as responsible for moving the cargo.",
+                    "how" => "Shipments in transit whose Carrier is empty, or whose carrier company was deleted or deactivated (the Carrier column then shows a dash). Awaiting shipments are not listed.",
+                    "change" => "On the shipment, choose an active Carrier (General Info tab), or reactivate the company in Master Data.",
+                ],
+                "shipment_missing_bl_number" => [
+                    "title" => "The shipment in transit has no B/L number",
+                    "meaning" => "Severity Info. The cargo cannot be tracked by its bill of lading.",
+                    "how" => "Shipments in transit whose B/L Number is empty. Awaiting shipments are not listed.",
+                    "change" => "On the shipment, enter the B/L Number (Logistics & Details tab).",
+                ],
+            ],
+        ],
+    ],
+];

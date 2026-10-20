@@ -4,6 +4,28 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\CustomLogin;
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\Reports\Customs\CustomsAttentionWidget;
+use App\Filament\Pages\Reports\Customs\CustomsClearanceByMonthChart;
+use App\Filament\Pages\Reports\Customs\CustomsStageChart;
+use App\Filament\Pages\Reports\Executive\ExecutiveAttentionWidget;
+use App\Filament\Pages\Reports\Executive\ExecutiveEtaValueChart;
+use App\Filament\Pages\Reports\Executive\ExecutiveValueByCategoryChart;
+use App\Filament\Pages\Reports\FxSupply\FxSupplyAttentionWidget;
+use App\Filament\Pages\Reports\FxSupply\FxSupplyByBankChart;
+use App\Filament\Pages\Reports\FxSupply\FxSupplyFunnelChart;
+use App\Filament\Pages\Reports\InTransit\InTransitAttentionWidget;
+use App\Filament\Pages\Reports\InTransit\InTransitEtaChart;
+use App\Filament\Pages\Reports\InTransit\InTransitStageChart;
+use App\Filament\Pages\Reports\Requester\RequesterAttentionWidget;
+use App\Filament\Pages\Reports\Requester\RequesterLateByStageChart;
+use App\Filament\Pages\Reports\Requester\RequesterStageChart;
+use App\Filament\Pages\Reports\FxCommitments\FxCommitmentsAttentionWidget;
+use App\Filament\Pages\Reports\FxCommitments\FxCommitmentsByBankChart;
+use App\Filament\Pages\Reports\FxCommitments\FxCommitmentsByMonthChart;
+use App\Filament\Pages\Reports\Operations\OperationsActivityWidget;
+use App\Filament\Pages\Reports\Operations\OperationsAttentionWidget;
+use App\Filament\Pages\Reports\Operations\OperationsIdleByStageChart;
+use App\Filament\Pages\Reports\Operations\OperationsStageChart;
 use App\Filament\Resources\Master\UserResource\Enums\UserRole;
 use App\Filament\Widgets\AccountWidget;
 use App\Filament\Widgets\CalendarDayWidget;
@@ -64,6 +86,9 @@ class DashboardPanelProvider extends PanelProvider
                     ->label(fn () => __('resources/dashboard/strings.navigation_group.alerts'))
                     ->collapsed(),
                 NavigationGroup::make()
+                    ->label(fn () => __('resources/dashboard/strings.navigation_group.reports'))
+                    ->collapsed(),
+                NavigationGroup::make()
                     ->label(fn () => __('resources/dashboard/strings.navigation_group.base'))
                     ->collapsed(),
             ])
@@ -109,6 +134,28 @@ class DashboardPanelProvider extends PanelProvider
                 TradeCycleTimeWidget::class,
                 ExposureAgingWidget::class,
                 OpenCurrencyExposureWidget::class,
+                FxSupplyAttentionWidget::class,
+                FxSupplyByBankChart::class,
+                FxSupplyFunnelChart::class,
+                OperationsActivityWidget::class,
+                OperationsAttentionWidget::class,
+                OperationsIdleByStageChart::class,
+                OperationsStageChart::class,
+                CustomsAttentionWidget::class,
+                CustomsClearanceByMonthChart::class,
+                CustomsStageChart::class,
+                InTransitAttentionWidget::class,
+                InTransitEtaChart::class,
+                InTransitStageChart::class,
+                ExecutiveAttentionWidget::class,
+                ExecutiveEtaValueChart::class,
+                ExecutiveValueByCategoryChart::class,
+                RequesterAttentionWidget::class,
+                RequesterLateByStageChart::class,
+                RequesterStageChart::class,
+                FxCommitmentsAttentionWidget::class,
+                FxCommitmentsByBankChart::class,
+                FxCommitmentsByMonthChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,

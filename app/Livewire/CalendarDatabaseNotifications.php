@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Services\PermissionLabeler;
-use Filament\Notifications\Livewire\DatabaseNotifications;
+use Filament\Livewire\DatabaseNotifications;
 use Filament\Notifications\Notification;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Str;

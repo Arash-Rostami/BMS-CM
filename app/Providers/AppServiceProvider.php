@@ -25,9 +25,12 @@ use App\Models\Product;
 use App\Models\ProformaInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
+use App\Models\PurchaseRequestItem;
 use App\Models\RegisteredOrder;
+use App\Models\RegisteredOrderItem;
 use App\Models\Role;
 use App\Models\Shipment;
+use App\Models\ShipmentItem;
 use App\Models\Status;
 use App\Models\Target;
 use App\Models\User;
@@ -38,8 +41,12 @@ use App\Observers\CategoryObserver;
 use App\Observers\CodeGeneratingObserver;
 use App\Observers\EntityAttributeObserver;
 use App\Observers\PurchaseRequestObserver;
+use App\Observers\ReportCheckObserver;
 use App\Observers\StatusObserver;
 use App\Services\Calendar\CalendarPathResolver;
+use App\Services\Reports\Builders\ExecutiveReportService;
+use App\Services\Reports\Builders\FxCommitmentsReportService;
+use App\Services\Reports\Support\FxCommitmentLedger;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -76,6 +83,20 @@ class AppServiceProvider extends ServiceProvider
         User::class,
     ];
 
+    private const REPORT_CHECKED_MODELS = [
+        BankProfile::class,
+        RegisteredOrder::class,
+        RegisteredOrderItem::class,
+        Shipment::class,
+        ShipmentItem::class,
+        Custom::class,
+        Correspondence::class,
+        PurchaseRequest::class,
+        PurchaseRequestItem::class,
+        Payment::class,
+        PurchaseOrder::class,
+    ];
+
     public function boot(): void
     {
         $this->configureFilament();
@@ -85,6 +106,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(CalendarPathResolver::class);
+        $this->app->scoped(FxCommitmentLedger::class);
+        $this->app->scoped(ExecutiveReportService::class);
+        $this->app->scoped(FxCommitmentsReportService::class);
     }
 
     private function configureFilament(): void
@@ -109,6 +133,10 @@ class AppServiceProvider extends ServiceProvider
 
         foreach (CalendarTouchObserver::OBSERVED as $model) {
             $model::observe(CalendarTouchObserver::class);
+        }
+
+        foreach (self::REPORT_CHECKED_MODELS as $model) {
+            $model::observe(ReportCheckObserver::class);
         }
 
         foreach (self::CODE_GENERATED_MODELS as $model) {

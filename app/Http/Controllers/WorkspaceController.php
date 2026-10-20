@@ -16,7 +16,7 @@ class WorkspaceController extends Controller
      */
     public function records(Request $request, string $resource): JsonResponse
     {
-        $term = trim((string) $request->query('q', ''));
+        $term = is_string($request->query('q')) ? trim($request->query('q')) : '';
 
         return response()->json(['data' => $this->workspace->search($resource, $term)]);
     }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasReliableCodeGeneration;
+use App\Models\Traits\General\LogsAudit;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
@@ -22,6 +23,7 @@ class PurchaseRequest extends Model
         HasFormattedName,
         HasReliableCodeGeneration,
         HasSearchableRelations,
+        LogsAudit,
         Relationships,
         SoftDeletes,
         TracksStatusHistory,
@@ -32,6 +34,11 @@ class PurchaseRequest extends Model
     public const SCANNABLE_IDENTIFIER = 'pr_number';
 
     public const TYPE_PURCHASE_REQUEST = 'Purchase Request Status';
+
+    public static function auditColumns(): array
+    {
+        return ['requester_id', 'department_id', 'cost_center_id', 'required_by_date', 'total_estimated_cost', 'urgency_level', 'approver_id', 'approval_date'];
+    }
 
     protected $fillable = [
         'pr_number',

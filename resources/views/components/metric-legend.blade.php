@@ -1,6 +1,6 @@
-@props(['what', 'data', 'why', 'technical' => null])
+@props(['what', 'data', 'why', 'technical' => null, 'open' => false, 'generic' => true])
 
-<div x-data="{ open: false }" class="fi-wi-legend">
+<div {{ $attributes->merge(["class" => "fi-wi-legend"]) }} x-data="{ open: @js((bool) $open) }">
     <button
         type="button"
         x-on:click="open = !open"
@@ -11,12 +11,15 @@
     </button>
 
     <div x-show="open" x-cloak class="fi-wi-legend-body">
+        {{ $slot ?? '' }}
+        @if ($generic)
         <p><strong>{{ __('resources/dashboard/strings.widgets.legend.what_label') }}:</strong> {{ $what }}</p>
         <p><strong>{{ __('resources/dashboard/strings.widgets.legend.data_label') }}:</strong> {{ $data }}</p>
         <p><strong>{{ __('resources/dashboard/strings.widgets.legend.why_label') }}:</strong> {{ $why }}</p>
         @if ($technical)
             <div class="h-px w-full bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-neutral-700"></div>
             <p class="fi-wi-legend-technical"><strong>{{ __('resources/dashboard/strings.widgets.legend.technical_label') }}:</strong> <code>{{ $technical }}</code></p>
+        @endif
         @endif
     </div>
 </div>

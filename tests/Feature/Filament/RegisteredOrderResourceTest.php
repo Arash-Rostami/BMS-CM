@@ -1961,4 +1961,120 @@ class RegisteredOrderResourceTest extends TestCase
             'pageClass' => EditRegisteredOrder::class,
         ])->assertTableActionHidden('create');
     }
+
+    // ReturnForRevisionAction / ResubmitAction — wired on the edit page, dormant until an admin configures stages
+
+    private function configuredWorkflow(string $approvalPermission): array
+    {
+        Permission::firstOrCreate(['name' => $approvalPermission, 'guard_name' => 'web']);
+        $first = $this->roStatus('WorkflowStageOne', 1);
+        $second = $this->roStatus('WorkflowStageTwo', 2);
+        $second->update(['approval_permission' => $approvalPermission]);
+        SmartCacheManager::invalidate('Status');
+
+        return [$first, $second];
+    }
+
+    public function test_return_for_revision_is_hidden_while_the_current_status_has_no_approval_permission(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'registered_order.edit']);
+        $record = RegisteredOrder::factory()->create(['status_id' => $this->roStatus('PlainStatus')->id]);
+
+        Livewire::test(EditRegisteredOrder::class, ['record' => $record->getRouteKey()])
+            ->assertActionHidden('returnForRevision');
+    }
+
+    public function test_return_for_revision_requires_a_reason_and_keeps_the_status_when_it_is_missing(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'registered_order.edit', 'status.grant_registered_order_stage_two']);
+        [, $second] = $this->configuredWorkflow('status.grant_registered_order_stage_two');
+        $record = RegisteredOrder::factory()->create(['status_id' => $second->id]);
+
+        Livewire::test(EditRegisteredOrder::class, ['record' => $record->getRouteKey()])
+            ->callAction('returnForRevision', data: ['reason' => ''])
+            ->assertHasActionErrors(['reason' => 'required']);
+
+        $this->assertSame($second->id, $record->fresh()->status_id);
+        SmartCacheManager::invalidate('Status');
+    }
+
+    public function test_return_for_revision_resets_to_the_first_stage_and_persists_the_reason(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'registered_order.edit', 'status.grant_registered_order_stage_two']);
+        [$first, $second] = $this->configuredWorkflow('status.grant_registered_order_stage_two');
+        $record = RegisteredOrder::factory()->create(['status_id' => $second->id]);
+
+        Livewire::test(EditRegisteredOrder::class, ['record' => $record->getRouteKey()])
+            ->callAction('returnForRevision', data: ['reason' => 'Registration number is wrong'])
+            ->assertHasNoActionErrors();
+
+        $this->assertSame($first->id, $record->fresh()->status_id);
+        $this->assertSame('Registration number is wrong', $record->statusHistories()->latest('id')->first()->reason);
+        SmartCacheManager::invalidate('Status');
+    }
+
+    public function test_return_for_revision_is_hidden_without_the_approval_permission_of_the_current_status(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'registered_order.edit']);
+        [, $second] = $this->configuredWorkflow('status.grant_registered_order_stage_two');
+        $record = RegisteredOrder::factory()->create(['status_id' => $second->id]);
+
+        Livewire::test(EditRegisteredOrder::class, ['record' => $record->getRouteKey()])
+            ->assertActionHidden('returnForRevision');
+        SmartCacheManager::invalidate('Status');
+    }
+
+    public function test_return_for_revision_changes_nothing_when_no_first_stage_is_configured(): void
+    {
+        $this->actingAsUserWithPermissions(['registered_order.view', 'registered_order.edit', 'status.grant_registered_order_orphan']);
+        Permission::firstOrCreate(['name' => 'status.grant_registered_order_orphan', 'guard_name' => 'web']);
+        $status = $this->roStatus('OrphanApproval');
+        $status->update(['approval_permission' => 'status.grant_registered_order_orphan']);
+        SmartCacheManager::invalidate('Status');
+        $record = RegisteredOrder::factory()->create(['status_id' => $status->id]);
+
+        Livewire::test(EditRegisteredOrder::class, ['record' => $record->getRouteKey()])
+            ->callAction('returnForRevision', data: ['reason' => 'No stage to return to']);
+
+        $this->assertSame($status->id, $record->fresh()->status_id);
+        SmartCacheManager::invalidate('Status');
+    }
+
+    public function test_resubmit_resets_a_declined_order_to_the_first_stage_for_its_creator(): void
+    {
+        $creator = $this->actingAsUserWithPermissions(['registered_order.view', 'registered_order.edit']);
+        [$first] = $this->configuredWorkflow('status.grant_registered_order_stage_two');
+        $record = RegisteredOrder::factory()->create(['status_id' => $this->roStatus('Declined')->id, 'user_id' => $creator->id]);
+
+        Livewire::test(EditRegisteredOrder::class, ['record' => $record->getRouteKey()])
+            ->callAction('resubmit');
+
+        $this->assertSame($first->id, $record->fresh()->status_id);
+        SmartCacheManager::invalidate('Status');
+    }
+
+    public function test_resubmit_is_hidden_for_another_user_and_for_a_status_other_than_conditional_or_declined(): void
+    {
+        $other = User::factory()->create();
+        $this->actingAsUserWithPermissions(['registered_order.view', 'registered_order.edit']);
+        $declined = RegisteredOrder::factory()->create(['status_id' => $this->roStatus('Declined')->id]);
+        RegisteredOrder::whereKey($declined->id)->update(['user_id' => $other->id]);
+        $own = RegisteredOrder::factory()->create(['status_id' => $this->roStatus('Submitted')->id]);
+
+        Livewire::test(EditRegisteredOrder::class, ['record' => $declined->fresh()->getRouteKey()])->assertActionHidden('resubmit');
+        Livewire::test(EditRegisteredOrder::class, ['record' => $own->getRouteKey()])->assertActionHidden('resubmit');
+    }
+
+    public function test_resubmit_changes_nothing_while_no_first_stage_is_configured(): void
+    {
+        SmartCacheManager::invalidate('Status');
+        $creator = $this->actingAsUserWithPermissions(['registered_order.view', 'registered_order.edit']);
+        $declined = $this->roStatus('Declined');
+        $record = RegisteredOrder::factory()->create(['status_id' => $declined->id, 'user_id' => $creator->id]);
+
+        Livewire::test(EditRegisteredOrder::class, ['record' => $record->getRouteKey()])
+            ->callAction('resubmit');
+
+        $this->assertSame($declined->id, $record->fresh()->status_id);
+    }
 }

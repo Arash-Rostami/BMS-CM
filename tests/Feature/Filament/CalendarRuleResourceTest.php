@@ -77,6 +77,23 @@ class CalendarRuleResourceTest extends TestCase
         config(['database.default' => 'mysql']);
     }
 
+    public function test_an_invalid_rule_shows_the_needs_fixing_badge_and_a_valid_one_does_not(): void
+    {
+        $user = $this->actingAsUserWithPermissions(['calendar_rule.view', 'purchase_request.view']);
+        $valid = $this->createRuleAs($user, ['user_id' => $user->id]);
+        $invalid = $this->createRuleAs($user, ['user_id' => $user->id, 'filters' => ['rules' => [
+            ['type' => 'renamed_column', 'data' => ['operator' => 'equals', 'settings' => ['text' => 'X']]],
+        ]]]);
+
+        $this->assertSame([], CalendarRuleResource::problemsFor($valid));
+        $this->assertNotSame([], CalendarRuleResource::problemsFor($invalid));
+
+        Livewire::test(ManageCalendarRules::class)
+            ->assertCanSeeTableRecords([$valid, $invalid])
+            ->assertTableColumnStateSet('problems', __('resources/calendarRule/strings.table.needs_fixing'), $invalid)
+            ->assertTableColumnStateSet('problems', null, $valid);
+    }
+
     private function actingAsUserWithPermissions(array $permissionNames): User
     {
         $user = User::factory()->create();
@@ -903,6 +920,17 @@ class CalendarRuleResourceTest extends TestCase
 
         $action = CalendarRuleResource::getSeeOnCalendarAction()->record($rule);
         $this->assertSame(Dashboard::getUrl(['cal_rule' => $rule->id]), $action->getUrl());
+    }
+
+    public function test_the_see_on_calendar_action_is_hidden_for_a_paused_rule_and_for_a_module_the_user_cannot_open(): void
+    {
+        $user = $this->actingAsUserWithPermissions(['calendar_rule.view', 'purchase_request.view']);
+        $paused = CalendarRule::factory()->create(['user_id' => $user->id, 'is_active' => false]);
+        $foreignModule = CalendarRule::factory()->create(['user_id' => $user->id, 'subject' => Shipment::class]);
+
+        Livewire::test(ManageCalendarRules::class)
+            ->assertTableActionHidden('seeOnCalendar', $paused)
+            ->assertTableActionHidden('seeOnCalendar', $foreignModule);
     }
 
     public function test_create_stores_role_ids_and_normalised_outside_emails(): void

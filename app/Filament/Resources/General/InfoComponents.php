@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\General;
 
+use App\Filament\Resources\ActivityResource;
+use App\Services\AuditChanges;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -61,13 +63,25 @@ class InfoComponents
     {
         return Tab::make(__('resources/general/strings.status_history.tab_label'))
             ->icon('heroicon-o-clock')
-            ->badge(fn ($record) => $record?->statusHistories()->count() ?: null)
+            ->visible(fn ($record): bool => static::hasHistory($record) || static::canSeeAudit($record))
+            ->badge(fn ($record) => ((static::hasHistory($record) ? $record->statusHistories()->count() : 0) + (static::canSeeAudit($record) ? $record->activities()->inLog(AuditChanges::LOG_NAME)->count() : 0)) ?: null)
             ->badgeColor('info')
             ->schema([
-                Section::make()->schema([
-                    RepeatableEntry::make('statusHistories')
+                static::historySection(),
+                static::auditSection(),
+            ]);
+    }
+
+    protected static function historySection(): Section
+    {
+        return Section::make(__('resources/general/strings.status_history.section'))
+            ->icon('heroicon-o-clock')
+            ->extraAttributes(fn ($record): array => static::canSeeAudit($record) ? self::CSS : [])
+            ->visible(fn ($record): bool => static::hasHistory($record))
+            ->schema([
+                RepeatableEntry::make('statusHistories')
                         ->hiddenLabel()
-                        ->getStateUsing(fn ($record) => $record?->statusHistories()->with(['status', 'fromStatus', 'user'])->latest()->get())
+                        ->getStateUsing(fn ($record) => static::hasHistory($record) ? $record->statusHistories()->with(['status', 'fromStatus', 'user'])->latest()->get() : [])
                         ->schema([
                             TextEntry::make('fromStatus.localized_name')
                                 ->label(__('resources/general/strings.status_history.from'))
@@ -93,8 +107,66 @@ class InfoComponents
                                 ->columnSpanFull(),
                         ])
                         ->columns(4),
-                ]),
             ]);
+    }
+
+    protected static function auditSection(): Section
+    {
+        return Section::make(__('resources/general/strings.audit.section'))
+            ->icon('heroicon-o-clipboard-document-list')
+            ->visible(fn ($record): bool => static::canSeeAudit($record))
+            ->schema([
+                RepeatableEntry::make('audit')
+                        ->hiddenLabel()
+                        ->getStateUsing(fn ($record) => static::auditRows($record))
+                        ->schema([
+                            TextEntry::make('created_at')
+                                ->label(__('resources/general/strings.audit.when'))
+                                ->adaptiveDateTime()
+                                ->color('gray'),
+                            TextEntry::make('causer')
+                                ->label(__('resources/general/strings.audit.who'))
+                                ->icon('heroicon-m-user')
+                                ->placeholder(__('resources/general/strings.audit.system')),
+                            TextEntry::make('event')
+                                ->label(__('resources/general/strings.audit.event'))
+                                ->formatStateUsing(fn (?string $state): string => __('resources/general/strings.audit.events.'.$state))
+                                ->badge()
+                                ->color(fn (?string $state): string => ActivityResource::eventColor($state)),
+                            TextEntry::make('changes')
+                                ->label(__('resources/general/strings.audit.changes'))
+                                ->listWithLineBreaks()
+                                ->columnSpanFull(),
+                        ])
+                        ->columns(3),
+            ]);
+    }
+
+    protected static function hasHistory(?object $record): bool
+    {
+        return $record !== null && method_exists($record, 'statusHistories');
+    }
+
+    protected static function canSeeAudit(?object $record): bool
+    {
+        return $record !== null && method_exists($record, 'activities') && (auth()->user()?->can('activity.view') ?? false);
+    }
+
+    protected static function auditRows(?object $record): array
+    {
+        if (! static::canSeeAudit($record)) {
+            return [];
+        }
+
+        $activities = $record->activities()->inLog(AuditChanges::LOG_NAME)->with(['causer' => fn ($relation) => $relation->withTrashed()])->latest('id')->limit(50)->get();
+        $fields = app(AuditChanges::class)->fields($activities);
+
+        return $activities->map(fn ($activity): array => [
+            'created_at' => $activity->created_at,
+            'causer' => $activity->causer?->name,
+            'event' => $activity->event,
+            'changes' => array_map(fn (array $field): string => "{$field['label']}: {$field['old']} | {$field['new']}", $fields[$activity->id]),
+        ])->all();
     }
 
     protected static function relationNotEmpty(?object $record, string $relation): bool

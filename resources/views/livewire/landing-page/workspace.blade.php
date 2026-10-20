@@ -260,4 +260,22 @@
                         </div>
 
     </x-accordion-header>
+
+    @if (count($reports))
+        <div x-data="{ reportsOpen: false }">
+        <x-accordion-header open="reportsOpen" icon="heroicon-o-presentation-chart-bar"
+                             title="{{ __('dashboard/strings.workspace_reports') }}">
+            <div class="flex flex-wrap gap-1.5">
+                @foreach ($reports as $report)
+                    <a href="{{ $report['url'] }}" target="_blank" rel="noopener noreferrer" class="{{ $ui['chip'] }}" :class="{!! $ui['chipTone'] !!}">
+                        <span class="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 {{ $report['theme'] }}">
+                            <span class="w-3 h-3">{!! $report['icon'] !!}</span>
+                        </span>
+                        <span>{{ $report['label'] }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </x-accordion-header>
+        </div>
+    @endif
 </div>

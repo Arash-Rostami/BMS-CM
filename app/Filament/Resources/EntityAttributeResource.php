@@ -8,6 +8,7 @@ use App\Filament\Resources\Master\EntityAttributeResource\Traits\Filters as Enti
 use App\Filament\Resources\Master\EntityAttributeResource\Traits\Infolist as EntityAttributeInfolist;
 use App\Filament\Resources\Master\EntityAttributeResource\Traits\Table as EntityAttributeTable;
 use App\Models\EntityAttribute;
+use App\Models\Shipment;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -62,6 +63,7 @@ class EntityAttributeResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with(['creator', 'updater'])
+            ->whereNot(fn (Builder $query) => $query->where('entity_type', Shipment::class)->whereIn('key', (new Shipment)->reservedCustomAttributeKeys()))
             ->withoutGlobalScopes([SoftDeletingScope::class]);
     }
 

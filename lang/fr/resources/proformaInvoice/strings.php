@@ -61,7 +61,6 @@ return [
         'gross_weight' => 'Poids Brut',
         'add_notes' => 'Description',
         'item_description' => 'Description',
-        'item_english_description' => 'Description en anglais',
         'item_freight_charges' => 'Frais de transport de l’article',
         'item_total_amount' => 'Montant Total de l\'Article ⚡',
         'quantity' => 'Quantité',

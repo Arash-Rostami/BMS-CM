@@ -14,6 +14,7 @@ Co-located pattern files are the canonical, verified reference for their domains
 | Filament resources | `app/Filament/filamentPattern.md` | Trait-based schema composition, two-tab forms/infolists, EAV dual entry points, `HasResourcePermissions`, import/export, cross-resource creation |
 | Dashboard analytics widgets | `app/Filament/Widgets/widgetsPattern.md` | Tabbed `Dashboard` page, `AnalyticsService` caching contract, widget data lineage |
 | Services layer | `app/Services/servicesPattern.md` | All 15 services — public APIs, consumers, caching/locale gotchas; `SearchService` spotlight + chain contract |
+| Reports engine | `app/Services/Reports/reportsPattern.md` | Folder layout (`Builders/`, `Rules/`, `Checks/`, `Support/` + one `Pages/Reports/{Name}/` folder per report page with its widgets), the seven reports' contracts, shared filters/thresholds/date basis, check registry + cache invalidation, Euro `FxRateService`, `ShipmentCurrencyResolver`, `ReportStages` (single-source-of-truth rule: names/labels/order live from master data and the status enums) |
 | Shared import pipeline | `app/Services/Imports/importsPattern.md` | The Pipeline-driven bulk-import architecture shared by every module |
 | Calendar rules subsystem | `app/Services/Calendar/calendarPattern.md` | Rule → hits engine (`Sync/`), model-save routing, alerts, activity log, month presenter (`Display/`), permission rules, tracing guide |
 | Model layer / migrations | `app/Models/modelsPattern.md` | Model-trait composition, EAV model side, `Status`/`StatusFinder`, migration conventions |
@@ -24,9 +25,11 @@ Co-located pattern files are the canonical, verified reference for their domains
 | Views + Landing page | `resources/views/viewsPattern.md` | `components/`/`filament/`/`livewire/` conventions, shared component library, landing-page inventory |
 | Livewire topbar components | `app/Livewire/livewirePattern.md` | Session-backed topbar-toggle pattern, render-hook registration |
 | Jobs | `app/Jobs/jobsPattern.md` | Import/export job classes, queue-worker code/config-caching gotcha |
+| Console commands | `app/Console/consolePattern.md` | Command conventions (`--dry-run`/`--prune`), `shipments:backfill-invoice-items` |
 | Observers | `app/Observers/observersPattern.md` | Observer registration and side effects |
 | Tests | `tests/testPattern.md` | Three-layer mirrored convention, real dev-MySQL `useMysql()` + transaction rollback (no `RefreshDatabase` — no active migrations), `qa-checklist.html` + `qa-findings.json` |
 | Cross-cutting gotchas | `gotchasPattern.md` | Non-obvious lessons spanning domains + index of gotchas living in domain docs |
+| PorterrA reports (all 7 built: Executive, Operations, FX supply, In-Transit, Customs, FX commitments, Request tracking) | `reportsPlan.md`, `reportsBuildPlan.md` | `reportsPlan.md` = owner decisions, definitions, schema decisions, production findings, sync checklist, handoff; `reportsBuildPlan.md` = per-report decisions and shared architecture (where it disagrees with the code, `reportsPattern.md` wins) |
 
 ## Agent pipeline policy
 
@@ -93,7 +96,7 @@ app/Filament/Resources/
 ```
 
 - **Operational** resources (PurchaseRequest, ProformaInvoice, RegisteredOrder, BankProfile, PurchaseOrder, Payment, Shipment, Custom, Correspondence): List + Create + Edit pages (view via modal), Create header action.
-- **Master** resources (Bank, Category, Company, Currency, Department, EntityAttribute, NotificationSetting, Permission, Product, Role, Status, User, Target): single `ManageXxx` page, no form — view-only infolist, `getHeaderActions()` returns `[]`.
+- **Master** resources (Activity (view-only audit log), Bank, Category, Company, Currency, Department, EntityAttribute, NotificationSetting, Permission, Product, Role, Status, User, Target): single `ManageXxx` page, no form — view-only infolist, `getHeaderActions()` returns `[]`.
 - `DashboardPanelProvider` uses `discoverResources()` — only root-level classes register as resources.
 - `TargetResource` is Master-shaped but its folder lives under `Operational/` — a naming/location mismatch, not a bug. Check for hardcoded path references before "fixing" it.
 - Canonical root class: composes `Form`/`Table`/`Infolist`/`Filters` (+ optional `TotalXxxCalculation`) traits plus `HasResourcePermissions` + `HasExtraAttributesManagement`; defines `form()`/`infolist()`/`table()`/`getEloquentQuery()` (eager-loads + `withoutGlobalScopes`)/`getPages()`/`getRelations()`/`getNavigationGroup()`/`getNavigationBadge()` (via `SmartCacheManager`).

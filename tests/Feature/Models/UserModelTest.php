@@ -2,11 +2,13 @@
 
 namespace Tests\Feature\Models;
 
+use App\Models\DeskReference;
 use App\Models\PurchaseOrder;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -190,5 +192,21 @@ class UserModelTest extends TestCase
         event(new Logout('web', $user));
 
         $this->assertNotNull($user->fresh()->last_log_out, 'Dispatching the Logout event must stamp last_log_out on the user.');
+    }
+
+    // DeskReference (per-user acknowledgement of a desk-reference group version)
+
+    public function test_desk_references_belong_to_the_user_and_cast_the_acknowledgement_time(): void
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+        $mine = DeskReference::factory()->create(['user_id' => $user->id, 'group_key' => 'logistics', 'version' => 3, 'acknowledged_at' => '2026-10-01 09:30:00']);
+        DeskReference::factory()->create(['user_id' => $other->id]);
+
+        $this->assertSame([$mine->id], $user->deskReferences()->pluck('id')->all());
+        $this->assertTrue($mine->user->is($user));
+        $this->assertInstanceOf(Carbon::class, $mine->fresh()->acknowledged_at);
+        $this->assertSame('2026-10-01 09:30:00', $mine->fresh()->acknowledged_at->format('Y-m-d H:i:s'));
+        $this->assertSame(3, (int) $mine->fresh()->version);
     }
 }

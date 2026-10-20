@@ -3,6 +3,7 @@
 namespace App\Services\Calendar\Display;
 
 use App\Filament\Resources\Master\CalendarRuleResource\Enums\RuleType;
+use App\Models\CalendarHit;
 use App\Services\Calendar\CalendarModules;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -11,6 +12,53 @@ use Morilog\Jalali\Jalalian;
 
 class CalendarPresenter
 {
+    public const REASON_CONDITIONS = 2;
+
+    /**
+     * @var array<int, array{date: string, conditions: array<int, string>}>
+     */
+    private array $guides = [];
+
+    /**
+     * @return array{text: string, full: string}
+     */
+    public function reason(CalendarHit $hit): array
+    {
+        $rule = $hit->rule;
+
+        if ($rule === null) {
+            return ['text' => '', 'full' => ''];
+        }
+
+        $guide = $this->guides[$rule->id] ??= CalendarBoard::ruleReason($rule);
+        $conditions = $guide['conditions'];
+        $head = $guide['date'].': '.adaptiveDate($hit->event_date);
+
+        return [
+            'text' => $this->reasonLine($head, $this->because(array_slice($conditions, 0, self::REASON_CONDITIONS), max(0, count($conditions) - self::REASON_CONDITIONS), $rule->subject)),
+            'full' => $this->reasonLine($head, $this->because($conditions, 0, $rule->subject)),
+        ];
+    }
+
+    /**
+     * @param  array<int, string>  $shown
+     */
+    private function because(array $shown, int $more, string $subject): string
+    {
+        if ($shown === []) {
+            return __('resources/dashboard/strings.widgets.calendar.reason.all', ['module' => CalendarModules::label($subject)]);
+        }
+
+        return __('resources/dashboard/strings.widgets.calendar.reason.because', [
+            'conditions' => implode(' · ', $shown).($more > 0 ? ' +'.$more : ''),
+        ]);
+    }
+
+    private function reasonLine(string $head, string $because): string
+    {
+        return $head.' · '.$because;
+    }
+
     /**
      * @return array<int, array{iso: string, day: int, isToday: bool, isPast: bool, isSelected: bool, count: int, colors: array<int, string>, hasOverdue: bool}>
      */
@@ -36,23 +84,6 @@ class CalendarPresenter
 
         return collect($range->days())
             ->map(fn (Carbon $date): array => $this->groupedCell($range, $date, $selectedIso, $today, $byDay->get($date->toDateString(), collect())))
-            ->values()
-            ->all();
-    }
-
-    /**
-     * @return array<int, array{iso: string, label: string, hits: array<int, array<string, mixed>>}>
-     */
-    public function agendaDays(CalendarRange $range, Collection $hits): array
-    {
-        return $this->withRules($hits, ['rule', 'subject'])
-            ->groupBy(fn ($hit): string => $hit->event_date->toDateString())
-            ->sortKeys()
-            ->map(fn (Collection $dayHits, string $iso): array => [
-                'iso' => $iso,
-                'label' => $this->dayLabel($range, $iso),
-                'hits' => $this->overdueFirst($dayHits, $iso < today()->toDateString()),
-            ])
             ->values()
             ->all();
     }
@@ -125,38 +156,6 @@ class CalendarPresenter
             'colors' => $rows->pluck('rule_color')->filter()->unique()->take(3)->values()->all(),
             'hasOverdue' => $iso < $today && $rows->contains(fn ($row): bool => $row->rule_type === RuleType::ACTION->value),
         ];
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function overdueFirst(Collection $hits, bool $isPast): array
-    {
-        [$overdue, $upcoming] = $hits
-            ->sortBy([['label', 'asc']])
-            ->partition(fn ($hit): bool => $isPast && $hit->rule?->type === RuleType::ACTION);
-
-        return $overdue
-            ->concat($upcoming)
-            ->map(fn ($hit): array => [
-                'id' => $hit->getKey(),
-                'label' => $hit->label,
-                'rule' => $hit->rule?->name,
-                'color' => $hit->rule?->color?->value,
-                'overdue' => $isPast && $hit->rule?->type === RuleType::ACTION,
-                'url' => $hit->subject ? CalendarModules::url($hit->subject) : null,
-            ])
-            ->values()
-            ->all();
-    }
-
-    private function dayLabel(CalendarRange $range, string $iso): string
-    {
-        $date = Carbon::parse($iso);
-
-        return $range->jalali
-            ? Jalalian::fromCarbon($date)->format('l، d F Y')
-            : $date->locale(app()->getLocale())->translatedFormat('l, d F Y');
     }
 
     private function weekdayLabel(bool $jalali, Carbon $day): string

@@ -200,18 +200,19 @@ body { font-size: 9pt; color: #1F2937; margin: 0; padding: 0; }
 </table>
 </div>
 
+@php $countryNames = collect(app(\App\Services\Country::class)->all())->pluck('name_english', 'code'); $unitNames = trans('resources/general/strings.metrics', [], 'en'); @endphp
 {{-- ─── LINE ITEMS ─── --}}
 <div class="items-wrap">
 <table class="items">
 <thead>
 <tr>
     <th class="num">#</th>
-    <th style="width:22%">Description</th>
+    <th style="width:19%">Description</th>
     <th style="width:18%">Description (EN)</th>
     <th style="width:7%">HS Code</th>
     <th style="width:6%">Origin</th>
     <th style="width:6%">Qty</th>
-    <th style="width:5%">Unit</th>
+    <th style="width:8%">Unit</th>
     <th style="width:9%" class="td-right">Unit Price</th>
     <th style="width:10%" class="td-right">Total</th>
     <th style="width:8%" class="td-right">Net Wt.</th>
@@ -224,12 +225,12 @@ body { font-size: 9pt; color: #1F2937; margin: 0; padding: 0; }
 @php $rowNum++; @endphp
 <tr>
     <td class="td-center td-mono">{{ $rowNum }}</td>
-    <td>{{ $item['description'] ?? '' }}</td>
-    <td>{{ $item['english_description'] ?? '' }}</td>
+    <td>{{ $item['name'] ?? '' }}</td>
+    <td>{{ $item['english_name'] ?? '' }}</td>
     <td class="td-mono">{{ $item['hs_code'] ?? '' }}</td>
-    <td>{{ $item['origin'] ?? '' }}</td>
+    <td>{{ $countryNames[$item['origin'] ?? ''] ?? ($item['origin'] ?? '') }}</td>
     <td class="td-center">{{ number_format((float)($item['quantity'] ?? 0), 2) }}</td>
-    <td class="td-center">{{ $item['unit'] ?? '' }}</td>
+    <td class="td-center">{{ $unitNames[$item['unit'] ?? ''] ?? ($item['unit'] ?? '') }}</td>
     <td class="td-right td-mono">{{ number_format((float)($item['unit_price'] ?? 0), 2) }}</td>
     <td class="td-right td-mono"><strong>{{ number_format((float)($item['total_amount'] ?? 0), 2) }}</strong></td>
     <td class="td-right td-mono">{{ number_format((float)($item['net_weight'] ?? 0), 2) }}</td>
@@ -310,13 +311,13 @@ body { font-size: 9pt; color: #1F2937; margin: 0; padding: 0; }
     @if(!empty($invoice['origin_country']))
     <td class="terms-cell">
         <div class="terms-lbl">Country of Origin</div>
-        <div class="terms-val">{{ $invoice['origin_country'] }}</div>
+        <div class="terms-val">{{ $countryNames[$invoice['origin_country']] ?? $invoice['origin_country'] }}</div>
     </td>
     @endif
     @if(!empty($invoice['destination_country']))
     <td class="terms-cell">
         <div class="terms-lbl">Country of Destination</div>
-        <div class="terms-val">{{ $invoice['destination_country'] }}</div>
+        <div class="terms-val">{{ $countryNames[$invoice['destination_country']] ?? $invoice['destination_country'] }}</div>
     </td>
     @endif
 </tr>

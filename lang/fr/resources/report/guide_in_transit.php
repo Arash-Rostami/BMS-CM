@@ -1,0 +1,358 @@
+<?php
+
+return [
+    "intro" => "Ce rapport liste les expéditions qui ne sont pas encore arrivées, avec leur ETA, les jours restants ou de retard et leur étape de suivi. Par défaut, il n'affiche que les expéditions non arrivées ; activez Afficher les expéditions arrivées pour ajouter les expéditions arrivées au tableau et au graphique des étapes. Les expéditions annulées et rejetées (selon le Statut de l'expédition) sont exclues partout dans ce rapport, sauf si vous activez Inclure les annulés ; tant qu'elles sont masquées, la première carte indique combien ont été écartées. Une ETA ou une ETD manquante n'est jamais devinée : elle s'affiche comme Sans ETA ou reste vide, et elle est signalée dans les problèmes de données. Beaucoup d'expéditions n'ont pas d'ETA saisie, les lignes Sans ETA comptent donc. Utilisez les filtres pour affiner la vue, les cartes et les graphiques pour les totaux, et les problèmes de données en bas pour repérer les dates manquantes ou contradictoires.",
+    "sections" => [
+        "filters" => [
+            "title" => "Filtres",
+            "intro" => "Les filtres réduisent ensemble les cartes, les graphiques, le tableau et les problèmes de données. Chaque liste déroulante contient tous les enregistrements actifs de sa liste de référence, qu'ils soient utilisés ou non sur une expédition. Une plage de dates saisie à l'envers est inversée automatiquement. La barre de filtres est repliée par défaut ; ouvrez-la pour modifier les valeurs. Afficher les expéditions arrivées ne change que le tableau et le graphique des étapes de suivi.",
+            "items" => [
+                "date_from" => [
+                    "title" => "Date de début",
+                    "meaning" => "Ne garde que les expéditions dont la date, choisie dans Filtrer les dates selon, tombe ce jour-là ou après.",
+                    "how" => "Elle est comparée à la date choisie dans Filtrer les dates selon, qui est l'ETA tant que vous ne la changez pas. Les expéditions sans date dans ce champ restent visibles tant que Inclure sans date est activé.",
+                    "change" => "Effacez-la pour inclure les dates plus anciennes.",
+                ],
+                "date_until" => [
+                    "title" => "Date de fin",
+                    "meaning" => "Ne garde que les expéditions dont la date, choisie dans Filtrer les dates selon, tombe jusqu'à ce jour inclus, journée entière comprise.",
+                    "how" => "Même règle que Date de début : elle s'applique à la date choisie dans Filtrer les dates selon, et les expéditions sans date restent visibles tant que Inclure sans date est activé.",
+                    "change" => "Effacez-la pour inclure les dates plus récentes.",
+                ],
+                "date_basis" => [
+                    "title" => "Filtrer les dates selon",
+                    "meaning" => "Choisit la date sur laquelle portent Date de début et Date de fin.",
+                    "how" => "Quatre options : ETA (par défaut), ETD, Date de Sortie et Date du reçu d'entrepôt, toutes prises sur l'expédition. Seule la date comparée à la plage change.",
+                    "change" => "Changez-la pour examiner les expéditions selon la date qui vous importe, par exemple la date de sortie pour voir ce qui est parti dans un mois.",
+                ],
+                "include_undated" => [
+                    "title" => "Inclure sans date",
+                    "meaning" => "Décide ce que deviennent les expéditions sans date dans le champ choisi dans Filtrer les dates selon quand une plage de dates est définie.",
+                    "how" => "Activé (par défaut) : ces expéditions restent dans le rapport, rien ne disparaît en silence. Désactivé : seules les expéditions dont la date tombe dans la plage sont gardées. Sans effet tant qu'aucune Date de début ou Date de fin n'est définie.",
+                    "change" => "Désactivez-le pour ne voir que les expéditions datées dans la plage.",
+                ],
+                "seller_id" => [
+                    "title" => "Vendeur",
+                    "meaning" => "Affiche uniquement les expéditions dont la commande enregistrée a ce vendeur.",
+                    "how" => "Le vendeur est lu sur la commande enregistrée de l'expédition. La liste contient les vendeurs actifs.",
+                    "change" => "Effacez-le pour voir tous les vendeurs.",
+                ],
+                "buyer_id" => [
+                    "title" => "Acheteur",
+                    "meaning" => "Affiche uniquement les expéditions dont la commande enregistrée a cet acheteur.",
+                    "how" => "L'acheteur est lu sur la commande enregistrée de l'expédition. La liste contient les acheteurs actifs.",
+                    "change" => "Effacez-le pour voir tous les acheteurs.",
+                ],
+                "registered_order_id" => [
+                    "title" => "Commande Enregistrée",
+                    "meaning" => "Affiche uniquement les expéditions d'une commande enregistrée.",
+                    "how" => "Correspond à la commande enregistrée de l'expédition. La liste contient toutes les commandes enregistrées, les plus récentes d'abord.",
+                    "change" => "Effacez-la pour voir toutes les commandes.",
+                ],
+                "product_id" => [
+                    "title" => "Produit",
+                    "meaning" => "Affiche uniquement les expéditions qui contiennent ce produit.",
+                    "how" => "Une expédition correspond quand le produit figure sur ses propres lignes de facture ou sur les articles de sa commande enregistrée, les deux mêmes sources que la colonne Produits.",
+                    "change" => "Effacez-le pour voir tous les produits.",
+                ],
+                "category_id" => [
+                    "title" => "Catégorie",
+                    "meaning" => "Affiche uniquement les expéditions qui contiennent un produit de cette catégorie ou d'une de ses sous-catégories.",
+                    "how" => "Même correspondance que Produit, sur les lignes de facture de l'expédition ou les articles de sa commande enregistrée, pour chaque produit de la catégorie choisie et des catégories situées en dessous.",
+                    "change" => "Effacez-la, ou choisissez une catégorie parente pour inclure plus de produits.",
+                ],
+                "company_id" => [
+                    "title" => "Transporteur",
+                    "meaning" => "Affiche uniquement les expéditions prises en charge par ce transporteur.",
+                    "how" => "Correspond au transporteur enregistré sur l'expédition. La liste contient toutes les sociétés actives. Les expéditions sans transporteur disparaissent dès qu'un transporteur est choisi.",
+                    "change" => "Effacez-le pour voir tous les transporteurs.",
+                ],
+                "status_id" => [
+                    "title" => "Statut de suivi",
+                    "meaning" => "Affiche uniquement les expéditions dont le statut de suivi actuel est l'un des statuts cochés. Vous pouvez en cocher plusieurs.",
+                    "how" => "Correspond au statut de suivi enregistré sur l'expédition ; les noms viennent de la liste des statuts. Tant que Afficher les expéditions arrivées est désactivé, cocher une étape égale ou postérieure à Arrivée à destination liste ces expéditions arrivées même ainsi, car un choix explicite l'emporte sur le masquage par défaut.",
+                    "change" => "Décochez pour voir toutes les étapes. Activez Afficher les expéditions arrivées pour lister les étapes d'arrivée sans les cocher.",
+                ],
+                "shipment_status_id" => [
+                    "title" => "Statut de l'expédition",
+                    "meaning" => "Affiche uniquement les expéditions ayant l'un des statuts d'expédition cochés. Vous pouvez en cocher plusieurs.",
+                    "how" => "Correspond au Statut de l'expédition enregistré sur l'expédition (et non au statut de suivi) ; les noms viennent de la liste des statuts. Cocher Annulée ou Rejetée alors que Inclure les annulés est désactivé vide le tableau.",
+                    "change" => "Décochez pour voir tous les statuts.",
+                ],
+                "doc_status_id" => [
+                    "title" => "Statut de la documentation",
+                    "meaning" => "Affiche uniquement les expéditions ayant ce statut de documentation.",
+                    "how" => "Correspond au statut de documentation enregistré sur l'expédition. Les expéditions sans statut de documentation disparaissent dès qu'une valeur est choisie.",
+                    "change" => "Effacez-le pour voir toutes les expéditions.",
+                ],
+                "show_arrived" => [
+                    "title" => "Afficher les expéditions arrivées",
+                    "meaning" => "Ajoute les expéditions arrivées au tableau et au graphique des étapes de suivi. Désactivé par défaut.",
+                    "how" => "Désactivé : le tableau et le graphique des étapes ne contiennent que les expéditions non arrivées. Activé : ils contiennent aussi les expéditions arrivées, c'est-à-dire celles ayant une date de réception en entrepôt ou un statut de suivi égal ou postérieur à Arrivée à destination. Les cartes, le graphique des ETA et les problèmes de données ne changent pas avec ce bouton.",
+                    "change" => "Activez-le pour revoir les expéditions arrivées, désactivez-le pour vous concentrer sur la marchandise encore en route.",
+                ],
+                "include_void" => [
+                    "title" => "Inclure les annulés",
+                    "meaning" => "Ajoute les expéditions dont le Statut de l'expédition est Annulée ou Rejetée. Désactivé par défaut.",
+                    "how" => "Désactivé : ces expéditions sont écartées des cartes, graphiques, tableau et problèmes de données, et la première carte indique combien d'expéditions ont été écartées (les ouvertes, et aussi les arrivées quand Afficher les arrivées est activé). Activé : elles sont comptées comme les autres.",
+                    "change" => "Activez-le pour revoir les expéditions annulées ou rejetées, désactivez-le pour vous concentrer sur la marchandise active.",
+                ],
+                "departure_basis" => [
+                    "title" => "Considérer comme parti quand",
+                    "meaning" => "Décide quelles expéditions comptent comme en transit et lesquelles comme en attente d'expédition.",
+                    "how" => "Trois options. Par défaut : la date de sortie est saisie ou le statut de suivi est En transit. Deuxième : la date de sortie ou l'ETD est saisie, ou le statut de suivi est En transit (toute ETD compte, même future). Troisième : seulement le statut de suivi En transit. Une expédition arrivée n'est jamais en transit. Elle déplace les expéditions entre les cartes En attente d'expédition et En transit, l'état du tableau, le graphique des ETA et les problèmes concernés.",
+                    "change" => "Utilisez la deuxième option quand les ETD sont saisies mais pas les dates de sortie, la troisième quand le statut de suivi est le seul champ fiable.",
+                ],
+                "th_arrive_1" => [
+                    "title" => "Première arrivée (jours)",
+                    "meaning" => "La durée de la première fenêtre d'arrivée prochaine. Actuellement :th_arrive_1 jours (7 par défaut).",
+                    "how" => "Un nombre entier de 1 à 365. La ligne Sous :th_arrive_1 jours, la première barre du graphique des ETA et la couleur ambre du badge Jours avant l'ETA l'utilisent.",
+                    "change" => "Augmentez-la pour considérer des ETA plus lointaines comme proches, abaissez-la pour être plus strict.",
+                ],
+                "th_arrive_2" => [
+                    "title" => "Seconde arrivée (jours)",
+                    "meaning" => "La fin de la seconde fenêtre d'arrivée prochaine. Actuellement :th_arrive_2 jours (14 par défaut).",
+                    "how" => "Un nombre entier de 1 à 365. La seconde ligne d'arrivée et la seconde barre du graphique des ETA vont du lendemain de la première fenêtre jusqu'à cette valeur ; si elle n'est pas supérieure à la première fenêtre, elle vaut la première fenêtre plus un jour. Les ETA plus lointaines tombent dans la barre Plus de.",
+                    "change" => "Augmentez-la pour élargir la seconde fenêtre.",
+                ],
+                "th_late_error" => [
+                    "title" => "Erreur de retard (jours)",
+                    "meaning" => "Le nombre de jours de retard au-delà duquel une expédition en retard est comptée sur la ligne de long retard. Actuellement :th_late_error jours (14 par défaut).",
+                    "how" => "Un nombre entier de 1 à 365. Il pilote la ligne Plus de :th_late_error jours de retard de la carte En retard et son filtre cliquable. La ligne Expéditions compte toujours toutes les expéditions dont l'ETA est dépassée.",
+                    "change" => "Abaissez-le pour signaler plus tôt, augmentez-le pour être plus tolérant.",
+                ],
+                "stuck_days" => [
+                    "title" => "Seuil de jours par étape",
+                    "meaning" => "Le nombre de jours après lequel une expédition est considérée bloquée dans son étape de suivi actuelle. Actuellement :th_stuck jours (30 par défaut).",
+                    "how" => "Un nombre entier de 1 à 365 ; vide ou hors limites, il vaut 30. Il ne pilote que le problème de données sur les expéditions restées trop longtemps dans leur statut de suivi.",
+                    "change" => "Abaissez-le pour être plus strict, augmentez-le pour être plus tolérant.",
+                ],
+            ],
+        ],
+        "cards" => [
+            "title" => "Cartes",
+            "intro" => "Les cartes comptent les expéditions selon les filtres ci-dessus et ignorent le bouton Afficher les expéditions arrivées. Cliquez sur une ligne qui porte un nombre pour filtrer le tableau en dessous exactement sur les expéditions comptées par cette ligne. Une pastille « Tableau filtré par » apparaît alors au-dessus du tableau avec un bouton « Afficher toutes les lignes », et un nouveau clic sur la même ligne supprime le filtre. Les cartes, les graphiques et les problèmes de données ne changent pas, et l'export CSV suit le filtre cliqué. Les lignes Retard moyen en jours et Annulées/rejetées masquées ne sont pas cliquables. Une expédition est arrivée quand elle a une date de réception en entrepôt ou quand son statut de suivi est Arrivée à destination ou postérieur. Elle est en transit quand elle n'est pas arrivée et qu'elle compte comme partie selon Considérer comme parti quand (par défaut : une date de sortie ou le statut de suivi En transit). Toute autre expédition non arrivée est en attente d'expédition.",
+            "items" => [
+                "awaiting" => [
+                    "title" => "En attente d'expédition",
+                    "meaning" => "Les expéditions qui ne sont pas encore parties, et combien d'entre elles n'ont pas d'ETA.",
+                    "how" => "Expéditions : expéditions non arrivées qui ne comptent pas comme parties (par défaut : sans date de sortie et dont le statut de suivi n'est pas En transit). Sans ETA : parmi elles, celles dont l'ETA est vide. Les deux lignes sont cliquables. Annulées/rejetées masquées : le nombre d'expéditions dont le Statut de l'expédition est Annulée ou Rejetée et qui ont été écartées (seulement les non arrivées, sauf si Afficher les expéditions arrivées est activé : les arrivées sont alors comptées aussi) ; elle n'est pas cliquable et disparaît quand Inclure les annulés est activé.",
+                    "change" => "Saisissez la date de sortie ou le statut de suivi sur l'expédition dès son départ, et saisissez l'ETA manquante sur l'expédition (onglet Logistique & Détails).",
+                ],
+                "in_transit" => [
+                    "title" => "En transit",
+                    "meaning" => "Les expéditions en route, celles qui n'ont pas d'ETA, et les expéditions qui semblent arrivées d'après le statut seulement.",
+                    "how" => "Expéditions : expéditions non arrivées qui comptent comme parties (par défaut : une date de sortie ou le statut de suivi En transit). Sans ETA : parmi elles, celles dont l'ETA est vide. Arrivées mais non reçues à l'entrepôt : expéditions dont le statut de suivi est Arrivée à destination ou postérieur mais dont la date de réception en entrepôt est vide ; elles sont arrivées, pas en transit, et cliquer sur la ligne élargit le tableau à ces lignes arrivées même si Afficher les expéditions arrivées est désactivé.",
+                    "change" => "Saisissez l'ETA sur l'expédition. Pour réduire la dernière ligne, saisissez la date de réception en entrepôt sur l'expédition (onglet Logistique & Détails).",
+                ],
+                "arriving" => [
+                    "title" => "Arrivée prochaine",
+                    "meaning" => "Les expéditions en transit dont l'ETA est proche.",
+                    "how" => "Sous :th_arrive_1 jours : expéditions en transit dont l'ETA va d'aujourd'hui à :th_arrive_1 jours plus tard. La seconde ligne : expéditions en transit dont l'ETA va du lendemain de la première fenêtre jusqu'à la seconde fenêtre (actuellement :th_arrive_2 jours). Les expéditions en attente d'expédition et celles sans ETA ne sont pas comptées.",
+                    "change" => "Corrigez les ETA erronées sur les expéditions. Changez les fenêtres d'arrivée ou utilisez les filtres pour réduire les expéditions comptées.",
+                ],
+                "delayed" => [
+                    "title" => "En retard",
+                    "meaning" => "Les expéditions non arrivées alors que leur ETA est dépassée.",
+                    "how" => "Expéditions : expéditions non arrivées dont l'ETA est antérieure à aujourd'hui ; les expéditions en attente d'expédition peuvent aussi être en retard. Plus de :th_late_error jours de retard : parmi elles, celles dont l'ETA remonte à plus de :th_late_error jours. Retard moyen en jours : la moyenne des jours écoulés depuis l'ETA sur les expéditions en retard, avec une décimale, un tiret s'il n'y en a pas. Ce n'est pas le filtre En retard de la liste des expéditions, qui signifie date de sortie vide et ETA dépassée.",
+                    "change" => "Saisissez la date de réception en entrepôt une fois l'expédition arrivée, ou mettez l'ETA à jour si elle a réellement changé.",
+                ],
+            ],
+        ],
+        "charts" => [
+            "title" => "Graphiques",
+            "intro" => "Les deux graphiques suivent les filtres ci-dessus, mais chacun a sa propre règle sur les expéditions arrivées.",
+            "items" => [
+                "stages" => [
+                    "title" => "Expéditions par étape de suivi",
+                    "meaning" => "Le nombre d'expéditions à chaque étape de suivi.",
+                    "how" => "Un graphique en anneau avec une part par statut de suivi dans l'ordre de la liste des statuts, suivie d'une part Sans statut. Il compte exactement les lignes du tableau : seulement les expéditions non arrivées, ou aussi les arrivées quand Afficher les expéditions arrivées est activé. Sans statut regroupe les expéditions dont le statut de suivi est vide.",
+                    "change" => "Activez Afficher les expéditions arrivées pour voir les étapes d'arrivée, ou réduisez les expéditions avec les filtres.",
+                ],
+                "eta_buckets" => [
+                    "title" => "Expéditions par ETA",
+                    "meaning" => "La répartition des expéditions non arrivées selon leur ETA.",
+                    "how" => "Cinq groupes selon l'écart en jours entre aujourd'hui et l'ETA : En retard (ETA avant aujourd'hui), 0 à :th_arrive_1 jours, la seconde fenêtre jusqu'à :th_arrive_2 jours, Plus de (au-delà de la seconde fenêtre) et Sans ETA. Les fenêtres suivent les filtres de fenêtre d'arrivée. Chaque groupe est divisé en deux parties empilées, en transit et en attente d'expédition. Il compte toujours les expéditions non arrivées et ignore Afficher les expéditions arrivées.",
+                    "change" => "Saisissez les ETA manquantes pour sortir les expéditions de Sans ETA. Utilisez les filtres pour réduire les expéditions.",
+                ],
+            ],
+        ],
+        "table" => [
+            "title" => "Tableau",
+            "intro" => "Une ligne par expédition selon les filtres, triée par ETA, la plus proche d'abord et les expéditions sans ETA en dernier. Plusieurs colonnes sont masquées par défaut : utilisez le sélecteur de colonnes du tableau pour les afficher. Visibles par défaut : N° Expédition, Partie, Commande Enregistrée, Vendeur, Produits, Poids, ETA, Jours avant l'ETA, Suivi et Progression des documents. N° Expédition, Produits et Jours avant l'ETA ne peuvent pas être masquées. Le tableau peut être regroupé par Transporteur ou par Vendeur avec le contrôle de regroupement au-dessus ; Produits, Poids, État et Vendeur sont triables, et Produits, État et Vendeur sont aussi consultables par recherche.",
+            "items" => [
+                "shipment_no" => [
+                    "title" => "N° Expédition",
+                    "meaning" => "Le numéro de l'expédition. Survolez-le pour voir son numéro de BL.",
+                    "how" => "Pris sur l'expédition. Il peut être recherché, trié et copié.",
+                ],
+                "part" => [
+                    "title" => "Partie",
+                    "meaning" => "La partie de la commande transportée par cette expédition.",
+                    "how" => "Prise sur l'expédition. Elle peut être triée.",
+                ],
+                "registeredOrder.ro_number" => [
+                    "title" => "Commande Enregistrée",
+                    "meaning" => "La commande enregistrée de l'expédition. Survolez-la pour voir le numéro de contrat.",
+                    "how" => "Prise sur la commande liée à l'expédition. Elle peut être recherchée, triée et copiée.",
+                ],
+                "registeredOrder.sellerCompany.name" => [
+                    "title" => "Vendeur",
+                    "meaning" => "Le vendeur de la commande enregistrée de l'expédition.",
+                    "how" => "Pris sur la commande liée à l'expédition, en persan quand l'interface est en persan, sinon en anglais. Il peut être recherché, trié et servir au regroupement du tableau.",
+                ],
+                "carrier.name" => [
+                    "title" => "Transporteur",
+                    "meaning" => "Le transporteur de l'expédition. Masqué par défaut.",
+                    "how" => "Pris sur l'expédition. Il peut être recherché, trié et servir au regroupement du tableau.",
+                ],
+                "products_text" => [
+                    "title" => "Produits",
+                    "meaning" => "Les produits de l'expédition. Quand ils sont lus sur la commande, toute la commande est affichée.",
+                    "how" => "Les noms des produits distincts des lignes de facture de l'expédition, séparés par des virgules ; la colonne peut être recherchée et triée. Si l'expédition n'a pas de ligne de facture, les produits de toute la commande enregistrée sont utilisés à la place et le survol l'indique. Les noms sont en persan quand l'interface est en persan, sinon en anglais. La colonne est vide si aucune des deux sources n'a de lignes.",
+                    "change" => "Saisissez les lignes de facture sur l'expédition (onglet Facture commerciale & Liste de colisage) pour que les produits appartiennent à cette seule expédition.",
+                ],
+                "total_weight" => [
+                    "title" => "Poids",
+                    "meaning" => "Le poids brut total des produits de l'expédition.",
+                    "how" => "Somme du poids brut des lignes de facture de l'expédition ; s'il n'y en a pas, somme du poids brut des lignes de la commande enregistrée. Quand la commande est utilisée et qu'elle a plusieurs expéditions, chaque expédition de cette commande affiche le poids total de la commande : il ne faut donc pas additionner les lignes. Le survol affiche le nombre précis. La colonne peut être triée.",
+                    "change" => "Saisissez les lignes de facture sur chaque expédition (onglet Facture commerciale & Liste de colisage) pour obtenir un poids par expédition.",
+                ],
+                "etd" => [
+                    "title" => "ETD",
+                    "meaning" => "La date de départ prévue. Masquée par défaut.",
+                    "how" => "Prise sur l'expédition ; vide si non saisie. Elle peut être triée.",
+                    "change" => "Saisissez-la sur l'expédition (onglet Logistique & Détails).",
+                ],
+                "exit_date" => [
+                    "title" => "Date de Sortie",
+                    "meaning" => "La date à laquelle l'expédition est réellement partie. Masquée par défaut.",
+                    "how" => "Prise sur l'expédition ; vide si non saisie. Une expédition ayant une date de sortie est en transit tant qu'elle n'est pas arrivée. Elle peut être triée.",
+                    "change" => "Saisissez-la sur l'expédition (onglet Logistique & Détails).",
+                ],
+                "eta" => [
+                    "title" => "ETA",
+                    "meaning" => "La date d'arrivée prévue de l'expédition.",
+                    "how" => "Prise sur l'expédition ; vide si non saisie, jamais devinée. Elle peut être triée et la plage de dates s'applique sur elle.",
+                    "change" => "Saisissez-la ou corrigez-la sur l'expédition (onglet Logistique & Détails).",
+                ],
+                "warehouse_date" => [
+                    "title" => "Date du reçu d'entrepôt",
+                    "meaning" => "La date à laquelle la marchandise a été reçue à l'entrepôt. Masquée par défaut.",
+                    "how" => "Prise sur l'expédition. Une expédition ayant cette date est considérée arrivée. Elle peut être triée.",
+                    "change" => "Saisissez-la sur l'expédition (onglet Logistique & Détails) une fois la marchandise arrivée.",
+                ],
+                "days_to_eta" => [
+                    "title" => "Jours avant l'ETA",
+                    "meaning" => "Combien de jours restent avant l'ETA, ou combien de jours de retard a l'expédition.",
+                    "how" => "ETA moins aujourd'hui, en jours. Une expédition sans ETA affiche un badge Sans ETA de couleur ambre. Le badge est rouge quand l'ETA est dépassée (jours de retard), ambre de 0 à :th_arrive_1 jours restants (la première fenêtre d'arrivée), vert au-delà. Il est calculé même pour les expéditions arrivées. La colonne se trie par ETA et les expéditions sans ETA passent toujours en dernier.",
+                    "change" => "Saisissez ou corrigez l'ETA sur l'expédition.",
+                ],
+                "state" => [
+                    "title" => "État",
+                    "meaning" => "Si l'expédition est en attente d'expédition, en transit ou arrivée. Masqué par défaut.",
+                    "how" => "Décidé d'abord par les dates, le statut de suivi servant de recoupement. Arrivée : la date de réception en entrepôt est saisie ou le statut de suivi est Arrivée à destination ou postérieur. En transit : non arrivée et comptée comme partie selon Considérer comme parti quand (par défaut la date de sortie est saisie ou le statut de suivi est En transit). En attente d'expédition : tout le reste. Arrivée n'apparaît que si Afficher les expéditions arrivées est activé ou si la ligne des arrivées non reçues à l'entrepôt a été cliquée. La colonne peut être triée et recherchée par le nom de l'état.",
+                    "change" => "Saisissez la date de sortie, le statut de suivi ou la date de réception en entrepôt sur l'expédition.",
+                ],
+                "trackingStatus.name" => [
+                    "title" => "Suivi",
+                    "meaning" => "L'étape de suivi actuelle de l'expédition.",
+                    "how" => "Prise sur l'expédition ; les noms viennent de la liste des statuts.",
+                    "change" => "Modifiez le statut de suivi sur l'expédition (onglet Logistique & Détails).",
+                ],
+                "docStatus.name" => [
+                    "title" => "Statut Document",
+                    "meaning" => "Le statut de documentation de l'expédition. Masqué par défaut.",
+                    "how" => "Pris sur l'expédition.",
+                ],
+                "docs_progress" => [
+                    "title" => "Progression des documents",
+                    "meaning" => "Combien de documents suivis de l'expédition ont été reçus.",
+                    "how" => "Affichée sous la forme reçus/total quand le suivi des documents est activé sur l'expédition, sinon un tiret. Le badge est rouge si aucun document n'est reçu, vert si tous le sont, ambre entre les deux. L'export CSV porte la même valeur.",
+                ],
+                "bl_number" => [
+                    "title" => "N° BL",
+                    "meaning" => "Le numéro du connaissement. Masqué par défaut.",
+                    "how" => "Pris sur l'expédition. Il peut être recherché et copié.",
+                ],
+                "container_no" => [
+                    "title" => "Nombre de Conteneurs",
+                    "meaning" => "Le nombre de conteneurs de l'expédition. Masqué par défaut.",
+                    "how" => "Pris sur l'expédition.",
+                ],
+            ],
+        ],
+        "issues" => [
+            "title" => "Problèmes de données",
+            "intro" => "Cet accordéon en bas de page n'apparaît que si le rapport filtré contient au moins un problème ouvert, et son titre indique le nombre de problèmes. Chaque problème a une gravité : Erreur désigne des données qui se contredisent, Avertissement des données manquantes ou en retard, Info une lacune mineure. Au-dessus du journal, des pastilles donnent le nombre par gravité ; cliquez sur une pastille pour ne lister que cette gravité, et sur Tout afficher pour tout lister à nouveau. Le journal respecte les filtres de la page, sauf Afficher les expéditions arrivées. Les expéditions d'un module que le lecteur ne peut pas consulter ne sont pas listées. Les résultats sont rafraîchis environ toutes les 5 minutes et immédiatement à l'enregistrement d'une fiche. Les problèmes ne bloquent jamais l'enregistrement. Pour en résoudre un, modifiez le champ indiqué dans son élément et enregistrez.",
+            "items" => [
+                "shipment_in_transit_missing_eta" => [
+                    "title" => "L'expédition est en transit mais n'a pas d'ETA",
+                    "meaning" => "Gravité Avertissement. Son arrivée ne peut être ni planifiée ni mesurée.",
+                    "how" => "Expéditions en transit (non arrivées, avec une date de sortie ou le statut de suivi En transit) dont l'ETA est vide. Les expéditions en attente d'expédition ne sont pas listées.",
+                    "change" => "Sur l'expédition, saisissez l'ETA (onglet Logistique & Détails).",
+                ],
+                "shipment_in_transit_missing_etd" => [
+                    "title" => "L'expédition est en transit mais n'a pas d'ETD",
+                    "meaning" => "Gravité Info. Le départ prévu est inconnu.",
+                    "how" => "Expéditions en transit dont l'ETD est vide.",
+                    "change" => "Sur l'expédition, saisissez l'ETD (onglet Logistique & Détails).",
+                ],
+                "shipment_eta_before_etd" => [
+                    "title" => "L'ETA est antérieure à l'ETD",
+                    "meaning" => "Gravité Erreur. L'expédition arriverait avant de partir.",
+                    "how" => "Expéditions non arrivées, en attente d'expédition ou en transit, dont les deux dates sont saisies et dont l'ETA est antérieure à l'ETD. La valeur actuelle affiche les deux dates.",
+                    "change" => "Sur l'expédition, corrigez l'ETA ou l'ETD (onglet Logistique & Détails).",
+                ],
+                "shipment_overdue_eta" => [
+                    "title" => "L'ETA est dépassée et l'expédition n'est pas arrivée",
+                    "meaning" => "Gravité Avertissement. L'expédition est en retard ou son ETA n'est plus à jour.",
+                    "how" => "Expéditions non arrivées, en attente d'expédition ou en transit, dont l'ETA est antérieure à aujourd'hui. La valeur actuelle affiche les jours de retard. C'est le même ensemble que la carte En retard.",
+                    "change" => "Sur l'expédition, saisissez la date de réception en entrepôt si elle est arrivée, ou mettez l'ETA à jour (onglet Logistique & Détails).",
+                ],
+                "shipment_arrived_without_warehouse_date" => [
+                    "title" => "Le statut de suivi indique arrivée mais aucune date de réception en entrepôt n'est saisie",
+                    "meaning" => "Gravité Avertissement. L'expédition semble arrivée mais sa réception n'est pas enregistrée.",
+                    "how" => "Expéditions dont le statut de suivi est Arrivée à destination ou postérieur et dont la date de réception en entrepôt est vide. Les expéditions arrivées sont incluses même si Afficher les expéditions arrivées est désactivé.",
+                    "change" => "Sur l'expédition, saisissez la Date du reçu d'entrepôt (onglet Logistique & Détails).",
+                ],
+                "shipment_departed_without_exit_date" => [
+                    "title" => "Le statut de suivi indique en transit mais il n'y a ni date de sortie ni ETD",
+                    "meaning" => "Gravité Avertissement. L'expédition est dite en route mais aucune date de départ n'est enregistrée.",
+                    "how" => "Expéditions non arrivées dont le statut de suivi est En transit, avec une date de sortie vide et une ETD vide. Elle utilise toujours le statut de suivi, quelle que soit l'option de Considérer comme parti quand.",
+                    "change" => "Sur l'expédition, saisissez la Date de Sortie ou l'ETD (onglet Logistique & Détails).",
+                ],
+                "shipment_no_invoice" => [
+                    "title" => "L'expédition en transit n'a pas de lignes de facture commerciale",
+                    "meaning" => "Gravité Avertissement. Les produits et le poids de l'expédition viennent alors de la commande enregistrée.",
+                    "how" => "Expéditions en transit qui n'ont aucune ligne de facture.",
+                    "change" => "Sur l'expédition, saisissez les lignes dans l'onglet Facture commerciale & Liste de colisage.",
+                ],
+                "shipment_stuck_in_stage" => [
+                    "title" => "L'expédition est restée trop longtemps dans son statut de suivi actuel",
+                    "meaning" => "Gravité Avertissement. Le statut de suivi de l'expédition n'a pas changé depuis longtemps.",
+                    "how" => "Expéditions non arrivées, ayant un statut de suivi, dont le nombre de jours depuis le dernier changement de statut dépasse le seuil, actuellement :th_stuck jours (30 par défaut ; filtre Seuil de jours par étape). Les expéditions en attente d'expédition sont incluses. Le décompte part du dernier changement de statut enregistré ; si aucun changement n'est enregistré, il part de la dernière modification de l'expédition, et une note l'indique. Attendu affiche le seuil utilisé.",
+                    "change" => "Mettez à jour le statut de suivi sur l'expédition (onglet Logistique & Détails) quand elle a réellement avancé, ou augmentez le seuil.",
+                ],
+                "shipment_warehouse_before_exit_date" => [
+                    "title" => "La date du reçu d'entrepôt est antérieure à la date de sortie",
+                    "meaning" => "Gravité Erreur. La marchandise serait reçue à l'entrepôt avant d'être partie.",
+                    "how" => "Expéditions, arrivées ou non, dont la Date du reçu d'entrepôt et la Date de Sortie sont saisies et dont la date de réception en entrepôt est antérieure. La valeur actuelle affiche les deux dates.",
+                    "change" => "Sur l'expédition, corrigez la Date du reçu d'entrepôt ou la Date de Sortie (onglet Logistique & Détails).",
+                ],
+                "shipment_missing_carrier" => [
+                    "title" => "L'expédition en transit n'a pas de transporteur",
+                    "meaning" => "Gravité Avertissement. Aucun responsable utilisable du transport de la marchandise n'est enregistré.",
+                    "how" => "Expéditions en transit dont le Transporteur est vide, ou dont la société transporteur a été supprimée ou désactivée (la colonne Transporteur affiche alors un tiret). Les expéditions en attente d'expédition ne sont pas listées.",
+                    "change" => "Sur l'expédition, choisissez un Transporteur actif (onglet Informations générales), ou réactivez la société dans les données de référence.",
+                ],
+                "shipment_missing_bl_number" => [
+                    "title" => "L'expédition en transit n'a pas de numéro de connaissement (B/L)",
+                    "meaning" => "Gravité Info. La marchandise ne peut pas être suivie par son connaissement.",
+                    "how" => "Expéditions en transit dont le N° BL est vide. Les expéditions en attente d'expédition ne sont pas listées.",
+                    "change" => "Sur l'expédition, saisissez le N° BL (onglet Logistique & Détails).",
+                ],
+            ],
+        ],
+    ],
+];

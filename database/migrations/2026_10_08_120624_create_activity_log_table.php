@@ -20,6 +20,7 @@ return new class extends Migration
             $table->timestamps();
             $table->index('log_name');
             $table->index(['subject_type', 'subject_id', 'created_at'], 'idx_activity_log_subject_created');
+            $table->index(['log_name', 'subject_type'], 'idx_activity_log_log_subject');
         });
     }
 

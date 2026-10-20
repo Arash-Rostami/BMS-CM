@@ -8,6 +8,7 @@ use App\Models\Traits\Custom\HasSearchableRelations;
 use App\Models\Traits\Custom\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasReliableCodeGeneration;
+use App\Models\Traits\General\LogsAudit;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
@@ -24,6 +25,7 @@ class Custom extends Model
         HasFormattedName,
         HasReliableCodeGeneration,
         HasSearchableRelations,
+        LogsAudit,
         Relationships,
         SoftDeletes,
         TracksStatusHistory,
@@ -44,6 +46,11 @@ class Custom extends Model
     protected $appends = [
         'clearance_aging_days',
     ];
+
+    public static function auditColumns(): array
+    {
+        return ['custom_no', 'declaration_no', 'clearance_type', 'commitment_balance', 'clearance_date', 'doc_submission_date', 'ten_percent_exit_date', 'rial_return_date'];
+    }
 
     protected $fillable = [
         'custom_no',

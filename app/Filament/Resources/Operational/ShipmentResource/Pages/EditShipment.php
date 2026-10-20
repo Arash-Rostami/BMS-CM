@@ -7,7 +7,6 @@ use App\Filament\Resources\Operational\ShipmentResource\Traits\HandlesDocumentCh
 use App\Filament\Resources\Operational\ShipmentResource\Traits\SyncsDocumentChecklist;
 use App\Filament\Resources\ShipmentResource;
 use App\Models\BankProfile;
-use App\Models\EntityAttribute;
 use App\Models\Shipment;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -36,13 +35,7 @@ class EditShipment extends EditRecord
 
     protected function hydrateInvoiceData(array $data): array
     {
-        $attr = EntityAttribute::where('entity_type', Shipment::class)
-            ->where('entity_id', $this->record->id)
-            ->where('key', 'commercial_invoice')
-            ->first();
-
-        if ($attr && is_array($attr->value)) {
-            $inv = $attr->value;
+        if ($inv = ShipmentResource::loadInvoiceData($this->record)) {
             $data['_inv_pi_id'] = $inv['proforma_invoice_id'] ?? null;
             $data['_inv_invoice_no'] = $inv['invoice_no'] ?? null;
             $data['_inv_invoice_date'] = $inv['invoice_date'] ?? null;
@@ -131,12 +124,7 @@ class EditShipment extends EditRecord
             return false;
         }
 
-        $attr = EntityAttribute::where('entity_type', Shipment::class)
-            ->where('entity_id', $this->record->id)
-            ->where('key', 'commercial_invoice')
-            ->first();
-
-        $persisted = ($attr && is_array($attr->value)) ? $attr->value : [];
+        $persisted = ShipmentResource::loadInvoiceData($this->record) ?? [];
         $current = ShipmentResource::buildInvoiceEavData($this->data);
 
         return $persisted != $current;
@@ -145,7 +133,7 @@ class EditShipment extends EditRecord
     protected function beforeSave(): void
     {
         if ($this->commercialInvoiceIsDirty()) {
-            ShipmentResource::persistInvoiceToEav($this->data, $this->record);
+            ShipmentResource::persistInvoice($this->data, $this->record);
         }
     }
 
@@ -159,7 +147,7 @@ class EditShipment extends EditRecord
                 ->tooltip(__('resources/shipment/strings.invoice.action_save_tooltip'))
                 ->disabled(fn () => blank($this->data['_inv_pi_id'] ?? null))
                 ->action(function () {
-                    ShipmentResource::persistInvoiceToEav($this->data, $this->record);
+                    ShipmentResource::persistInvoice($this->data, $this->record);
                     Notification::make()
                         ->title(__('resources/shipment/strings.invoice.saved_notification'))
                         ->success()
@@ -173,7 +161,7 @@ class EditShipment extends EditRecord
                 ->tooltip(__('resources/shipment/strings.invoice.action_print_tooltip'))
                 ->disabled(fn () => blank($this->data['_inv_pi_id'] ?? null))
                 ->action(function () {
-                    ShipmentResource::persistInvoiceToEav($this->data, $this->record);
+                    ShipmentResource::persistInvoice($this->data, $this->record);
 
                     if ($this->record?->id) {
                         $this->js('window.open('.json_encode(route('shipments.invoice.pdf', ['shipment' => $this->record->id])).", '_blank')");

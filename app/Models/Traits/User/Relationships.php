@@ -3,6 +3,7 @@
 namespace App\Models\Traits\User;
 
 use App\Models\Attachment;
+use App\Models\CalendarRead;
 use App\Models\Correspondence;
 use App\Models\CorrespondenceRecipient;
 use App\Models\Department;
@@ -29,6 +30,11 @@ trait Relationships
     public function attachments(): HasMany
     {
         return $this->hasMany(Attachment::class, 'user_id');
+    }
+
+    public function calendarReads(): HasMany
+    {
+        return $this->hasMany(CalendarRead::class, 'user_id');
     }
 
     public function department(): BelongsTo

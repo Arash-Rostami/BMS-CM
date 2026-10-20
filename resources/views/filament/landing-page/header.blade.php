@@ -35,7 +35,7 @@
     ];
 
     if ($attentionVisible) {
-        array_splice($tabs, array_search('search', array_column($tabs, 'id'), true) + 1, 0, [[
+        array_splice($tabs, array_search('search', array_column($tabs, 'id'), true), 0, [[
             'id' => 'attention',
             'icon' => 'heroicon-o-bell-alert',
             'label' => __('resources/dashboard/strings.landing_page.attention.tab'),

@@ -1,0 +1,420 @@
+<?php
+
+return [
+    "intro" => "Ce rapport montre la cargaison en mer : les expéditions parties mais pas encore arrivées, leur valeur en euros, et si les devises nécessaires sont déjà sécurisées. Une expédition est en mer lorsqu'elle n'est pas arrivée et compte comme partie (par défaut : une date de sortie ou le statut de suivi En transit) ; les expéditions arrivées et, sauf si vous activez Inclure les annulés, les expéditions annulées et rejetées sont écartées partout dans ce rapport. La valeur d'une expédition est le total général de sa facture dans la devise de la facture ; sans total de facture, elle est estimée d'après sa commande enregistrée et clairement marquée comme estimée. Les montants en euros n'utilisent que les taux trouvés dans les profils bancaires achetés ou reçus ; les montants de devises différentes ne sont jamais additionnés et une devise sans taux apparaît sur une ligne Exclu, jamais devinée. Beaucoup d'expéditions n'ont encore ni facture, ni ETA, ni taux : lisez les lignes Exclu et Estimé avant de vous fier à un total. Le tableau affiche une ligne par expédition par défaut ; le bouton en haut le fait passer à une ligne par produit.",
+    "sections" => [
+        "filters" => [
+            "title" => "Filtres",
+            "intro" => "Les filtres restreignent ensemble les cartes, les graphiques, les deux vues du tableau et les anomalies de données. Chaque liste déroulante contient tous les enregistrements actifs de sa liste de référence. Une plage de dates saisie à l'envers est inversée automatiquement. Les filtres courants sont en haut ; la section Avancé contient les commutateurs de précision et les seuils, et est repliée par défaut.",
+            "items" => [
+                "date_from" => [
+                    "title" => "Date de début",
+                    "meaning" => "Ne garde que les expéditions dont la date, choisie dans Filtrer les dates par, est à ce jour ou après.",
+                    "how" => "Elle est comparée à la date choisie dans Filtrer les dates par (l'ETA par défaut). Les expéditions sans date dans ce champ restent visibles tant que Inclure sans date est activé.",
+                    "change" => "Effacez-la pour inclure des dates plus anciennes.",
+                ],
+                "date_until" => [
+                    "title" => "Date de fin",
+                    "meaning" => "Ne garde que les expéditions dont la date, choisie dans Filtrer les dates par, est à ce jour ou avant, ce jour entier compris.",
+                    "how" => "Même règle que la Date de début.",
+                    "change" => "Effacez-la pour inclure des dates plus récentes.",
+                ],
+                "seller_id" => [
+                    "title" => "Vendeur",
+                    "meaning" => "Affiche uniquement les expéditions dont la commande enregistrée a ce vendeur.",
+                    "how" => "Le vendeur est lu sur la commande enregistrée de l'expédition.",
+                    "change" => "Effacez-le pour voir tous les vendeurs.",
+                ],
+                "buyer_id" => [
+                    "title" => "Acheteur",
+                    "meaning" => "Affiche uniquement les expéditions dont la commande enregistrée a cet acheteur.",
+                    "how" => "L'acheteur est lu sur la commande enregistrée de l'expédition.",
+                    "change" => "Effacez-le pour voir tous les acheteurs.",
+                ],
+                "registered_order_id" => [
+                    "title" => "Commande enregistrée",
+                    "meaning" => "Affiche uniquement les expéditions d'une commande enregistrée.",
+                    "how" => "Correspond à la commande enregistrée de l'expédition.",
+                    "change" => "Effacez-la pour voir toutes les commandes.",
+                ],
+                "product_id" => [
+                    "title" => "Produit",
+                    "meaning" => "Affiche uniquement les expéditions qui contiennent ce produit.",
+                    "how" => "Une expédition correspond quand le produit figure sur ses propres lignes de facture ou sur les articles de sa commande enregistrée, les deux mêmes sources que la colonne Produits.",
+                    "change" => "Effacez-le pour voir tous les produits.",
+                ],
+                "category_id" => [
+                    "title" => "Catégorie",
+                    "meaning" => "Affiche uniquement les expéditions contenant un produit de cette catégorie ou de l'une de ses sous-catégories.",
+                    "how" => "Même correspondance que Produit, sur les lignes de facture de l'expédition ou les articles de sa commande enregistrée, pour chaque produit de la catégorie choisie et des catégories situées en dessous.",
+                    "change" => "Effacez-la, ou choisissez une catégorie parente pour inclure plus de produits.",
+                ],
+                "company_id" => [
+                    "title" => "Transporteur",
+                    "meaning" => "Affiche uniquement les expéditions prises en charge par ce transporteur.",
+                    "how" => "Correspond au transporteur enregistré sur l'expédition. Les expéditions sans transporteur disparaissent dès qu'on en choisit un.",
+                    "change" => "Effacez-le pour voir tous les transporteurs.",
+                ],
+                "status_id" => [
+                    "title" => "Statut de suivi",
+                    "meaning" => "Affiche uniquement les expéditions dont le statut de suivi actuel fait partie des statuts cochés.",
+                    "how" => "Correspond au statut de suivi enregistré sur l'expédition. Les expéditions arrivées ne font jamais partie de ce rapport : cocher une étape d'arrivée ne laisse rien.",
+                    "change" => "Décochez pour voir toutes les étapes.",
+                ],
+                "shipment_status_id" => [
+                    "title" => "Statut de l'expédition",
+                    "meaning" => "Affiche uniquement les expéditions ayant l'un des statuts d'expédition cochés.",
+                    "how" => "Correspond au statut d'expédition (et non au statut de suivi). Cocher Annulée ou Rejetée alors que Inclure les annulés est désactivé vide le rapport.",
+                    "change" => "Décochez pour voir tous les statuts.",
+                ],
+                "doc_status_id" => [
+                    "title" => "Statut des documents",
+                    "meaning" => "Affiche uniquement les expéditions ayant ce statut de documents.",
+                    "how" => "Correspond au statut des documents enregistré sur l'expédition.",
+                    "change" => "Effacez-le pour voir toutes les expéditions.",
+                ],
+                "date_basis" => [
+                    "title" => "Filtrer les dates par",
+                    "meaning" => "Choisit la date que regardent la Date de début et la Date de fin.",
+                    "how" => "Quatre options : ETA (par défaut), ETD, date de sortie et date de réception à l'entrepôt, toutes issues de l'expédition.",
+                    "change" => "Changez-la pour regarder les expéditions selon la date qui compte pour vous.",
+                ],
+                "include_undated" => [
+                    "title" => "Inclure sans date",
+                    "meaning" => "Décide du sort des expéditions sans date dans le champ choisi lorsqu'une plage de dates est définie.",
+                    "how" => "Activé (par défaut) : elles restent, pour que rien ne disparaisse en silence. Désactivé : seules les expéditions datées dans la plage sont gardées. Sans effet sans Date de début ni Date de fin.",
+                    "change" => "Désactivez-le pour ne voir que les expéditions datées dans la plage.",
+                ],
+                "include_flagged_invoices" => [
+                    "title" => "Inclure factures signalées",
+                    "meaning" => "Décide si une expédition dont la devise de facture diffère de celle de la commande compte dans le total en euros.",
+                    "how" => "Désactivé (par défaut) : ces expéditions sont exclues et comptées dans Exclues par les règles de données. Activé : le montant de la facture est converti avec la devise de la facture.",
+                    "change" => "Activez-le si vous faites plus confiance à la devise de la facture qu'à celle de la commande.",
+                ],
+                "include_outliers" => [
+                    "title" => "Inclure les aberrants",
+                    "meaning" => "Décide si une expédition dont le total général de facture dépasse de loin la somme de ses lignes compte dans le total en euros.",
+                    "how" => "Un total est aberrant lorsqu'il dépasse le facteur d'aberration multiplié par la somme des lignes de facture (testé seulement si cette somme est supérieure à zéro). Désactivé (par défaut) : exclu et compté dans Exclues par les règles de données. Activé : compté.",
+                    "change" => "Activez-le si les totaux élevés sont réels, par exemple de gros frais de transport.",
+                ],
+                "weight_basis" => [
+                    "title" => "Base du poids",
+                    "meaning" => "Choisit un poids brut ou net.",
+                    "how" => "Lu sur les lignes de facture de l'expédition ; sans poids sur les lignes de facture, sur les lignes de la commande au prorata de la part expédiée, et indiqué comme estimé. Brut par défaut.",
+                    "change" => "Choisissez le poids net pour exclure l'emballage.",
+                ],
+                "departure_basis" => [
+                    "title" => "Compter comme parti quand",
+                    "meaning" => "Décide quelles expéditions sont en mer.",
+                    "how" => "Par défaut, une expédition non arrivée compte comme partie quand elle a une date de sortie ou le statut de suivi En transit. Les autres options acceptent aussi une ETD, ou seulement le statut de suivi.",
+                    "change" => "Choisissez la règle qui correspond à la façon dont votre équipe renseigne l'expédition.",
+                ],
+                "include_void" => [
+                    "title" => "Inclure les annulés",
+                    "meaning" => "Ajoute les expéditions dont le statut d'expédition est Annulée ou Rejetée.",
+                    "how" => "Désactivé par défaut : elles sont écartées de tout ce rapport.",
+                    "change" => "Activez-le pour les voir avec les autres.",
+                ],
+                "th_arrive_1" => [
+                    "title" => "Première arrivée (jours)",
+                    "meaning" => "La longueur du premier groupe d'ETA du graphique.",
+                    "how" => "Expéditions dont l'ETA va d'aujourd'hui à ce nombre de jours. Actuellement :th_arrive_1 jours (par défaut 7).",
+                    "change" => "Saisissez un autre nombre de jours.",
+                ],
+                "th_arrive_2" => [
+                    "title" => "Seconde arrivée (jours)",
+                    "meaning" => "La fin du deuxième groupe d'ETA du graphique.",
+                    "how" => "Expéditions dont l'ETA va de la fin de la première fenêtre à ce nombre de jours. Actuellement :th_arrive_2 jours (par défaut 14).",
+                    "change" => "Saisissez un autre nombre de jours.",
+                ],
+                "th_outlier_factor" => [
+                    "title" => "Facteur d'aberration",
+                    "meaning" => "Combien de fois la somme des lignes de facture le total général peut atteindre avant d'être jugé aberrant.",
+                    "how" => "Actuellement :th_outlier_factor fois (par défaut 3).",
+                    "change" => "Augmentez-le pour accepter des totaux plus grands, diminuez-le pour être plus strict.",
+                ],
+                "th_supply_full" => [
+                    "title" => "Approvisionné au-dessus de (%)",
+                    "meaning" => "La part de la valeur de la commande que les profils bancaires achetés ou reçus doivent couvrir pour que la commande compte comme entièrement approvisionnée.",
+                    "how" => "Actuellement plus de :th_supply_full % (par défaut 99). Le montant approvisionné est converti dans la devise de la commande avec les mêmes taux que les totaux en euros.",
+                    "change" => "Saisissez 100 pour exiger plus que toute la valeur de la commande, ou un nombre plus bas pour être plus souple.",
+                ],
+                "th_top_n" => [
+                    "title" => "Nombre de principaux fournisseurs affichés",
+                    "meaning" => "Combien de vendeurs la carte Principaux fournisseurs liste avant de regrouper les autres sous Autres.",
+                    "how" => "Actuellement :th_top_n (par défaut 5).",
+                    "change" => "Saisissez un autre nombre entre 1 et 20.",
+                ],
+            ],
+        ],
+        "cards" => [
+            "title" => "Cartes",
+            "intro" => "Les cartes comptent les expéditions en mer selon les filtres ci-dessus. Cliquez sur une ligne qui a un nombre pour filtrer le tableau sur exactement les expéditions qu'elle compte : le tableau repasse alors en vue par expédition, une pastille Tableau filtré par apparaît avec un moyen de la retirer, et l'export CSV la suit. Les lignes de montants, le poids et les pourcentages ne sont pas cliquables. Cliquer ne modifie jamais les cartes, les graphiques ni les anomalies de données.",
+            "items" => [
+                "cargo" => [
+                    "title" => "Cargaison en mer",
+                    "meaning" => "Combien d'expéditions sont en mer, combien sont en retard ou sans ETA, et leur poids.",
+                    "how" => "Expéditions en transit : les expéditions non arrivées qui comptent comme parties. En retard : parmi elles, celles dont l'ETA est avant aujourd'hui (une ETA d'aujourd'hui n'est pas en retard) ; le lien ouvre le rapport Expéditions en transit avec les mêmes filtres si vous pouvez le voir. Sans ETA : celles dont l'ETA est vide. Le poids est en tonnes, d'après les lignes de facture ou, indiqué comme estimé, d'après les lignes de la commande. Poids inconnu : les expéditions dont le poids n'a été trouvé nulle part ; elles n'ajoutent rien aux tonnes ci-dessus, et la ligne ouvre exactement ces expéditions.",
+                    "change" => "Saisissez les ETA manquantes sur les expéditions et utilisez les filtres pour restreindre les expéditions.",
+                ],
+                "value" => [
+                    "title" => "Valeur en mer (EUR)",
+                    "meaning" => "Ce que vaut la cargaison en mer en euros, et la part qui est écartée ou seulement estimée.",
+                    "how" => "Total en euros n'additionne que les expéditions retenues. En dessous, une ligne par devise donne les montants retenus dans leur propre devise, et une ligne Exclu (sans taux) par devise donne les montants sans taux de change. Retenues, Exclues par les règles de données et Exclues : pas de taux de change égalent toujours les expéditions de la première carte. Exclues par les règles de données couvre les expéditions sans valeur, sans devise lisible, avec une devise incohérente ou un total aberrant (voir les filtres). La devise d'un montant de facture est celle de la facture ; si elle n'en a pas, la devise de la commande (puis celle de la proforma) est utilisée, l'expédition est quand même retenue et porte l'alerte Devise de la commande utilisée. Estimées compte les expéditions valorisées d'après leur commande faute de total de facture : la valeur de la commande multipliée par la part expédiée (quantité expédiée divisée par la quantité commandée, au plus 1) ; si cette part est inconnue, toute la valeur de la commande ne compte que si la commande n'a que cette expédition, sinon l'expédition n'a pas de valeur. La dernière ligne est la part estimée de la valeur retenue en euros.",
+                    "change" => "Saisissez la facture sur l'expédition, corrigez les anomalies de données et enregistrez des profils bancaires achetés pour créer des taux.",
+                ],
+                "cover" => [
+                    "title" => "Couverture de change",
+                    "meaning" => "Quelle part de la cargaison en mer a déjà sa devise achetée.",
+                    "how" => "Approvisionné est la valeur en euros des expéditions dont la commande est entièrement approvisionnée, divisée par la valeur retenue en euros ; les commandes partiellement approvisionnées n'y comptent pas. L'exposition non approvisionnée est la valeur en euros encore non couverte, chaque expédition au prorata de la part non approvisionnée de sa commande (seulement les commandes dont l'approvisionnement est calculable). Les lignes suivantes comptent chaque expédition en mer selon l'état d'approvisionnement de sa commande : Complet (les profils achetés et reçus couvrent plus que le seuil de la valeur de la commande), Partiel, Aucun, Alloué en attente d'achat (rien d'acheté mais un profil alloué existe) et Inconnu (la commande n'a ni devise ni valeur, ou une devise d'achat n'a pas de taux). Le lien de Inconnu ouvre le rapport Règlement des engagements de change sur les engagements échus si vous pouvez le voir.",
+                    "change" => "Créez et achetez des profils bancaires pour les commandes, corrigez les inconnues, ou changez le seuil d'approvisionnement.",
+                ],
+                "suppliers" => [
+                    "title" => "Principaux fournisseurs",
+                    "meaning" => "Quels vendeurs détiennent le plus de valeur retenue en mer.",
+                    "how" => "Le vendeur de la commande de chaque expédition retenue, classé par valeur en euros. Chaque ligne indique la part du total en euros et le nombre d'expéditions. Les vendeurs hors du haut du classement sont regroupés sous Autres, et les expéditions dont la commande n'a pas de vendeur sous Sans vendeur : les lignes égalent donc le total en euros de la carte Valeur.",
+                    "change" => "Changez le nombre de vendeurs listés dans les filtres avancés.",
+                ],
+            ],
+        ],
+        "charts" => [
+            "title" => "Graphiques",
+            "intro" => "Les deux graphiques suivent les filtres et ne montrent que les expéditions retenues : chacun égale donc le Total en euros de la carte Valeur.",
+            "items" => [
+                "by_category" => [
+                    "title" => "Valeur en mer par catégorie (EUR)",
+                    "meaning" => "À quelles catégories de produits appartient la valeur en euros en mer, et son niveau d'approvisionnement.",
+                    "how" => "Une barre par catégorie de premier niveau, empilée selon l'état d'approvisionnement de la commande : entièrement approvisionné, partiellement, non approvisionné (y compris simplement alloué) et inconnu. La valeur vient des lignes de facture de l'expédition, ou des lignes de la commande au prorata de la part expédiée pour les expéditions estimées, convertie au même taux que la carte. Les dernières barres contiennent ce qui ne peut pas être placé : Sans catégorie, les lignes sans produit, et Non attribué à un produit, soit les frais et remises de la facture (total général moins somme des lignes) ainsi que tout le total d'une facture sans lignes.",
+                    "change" => "Saisissez les lignes de facture avec leurs produits et affectez des catégories aux produits.",
+                ],
+                "by_eta" => [
+                    "title" => "Valeur en mer par ETA (EUR)",
+                    "meaning" => "Quand la valeur en euros en mer doit arriver, et la part qui n'est qu'estimée.",
+                    "how" => "Cinq groupes selon les jours entre aujourd'hui et l'ETA : En retard, la première fenêtre (:th_arrive_1 jours), la deuxième (jusqu'à :th_arrive_2 jours), plus tard, et Sans ETA. Un graphique en anneau avec une part par groupe ; les parts égalent le Total en euros de la carte Valeur, où se trouve la répartition entre valeur facturée et valeur estimée. Le texte au-dessus du graphique liste ce qui est écarté : les montants sans taux de change par devise et le nombre d'expéditions exclues par les règles de données.",
+                    "change" => "Saisissez les ETA et factures manquantes, ou changez les fenêtres d'arrivée.",
+                ],
+            ],
+        ],
+        "table" => [
+            "title" => "Tableau",
+            "intro" => "Par défaut une ligne par expédition en mer, triée par valeur en euros, la plus grande d'abord. Le bouton en haut passe à une ligne par produit et revient ; cliquer sur une ligne de carte ramène toujours à la vue par expédition. Plusieurs colonnes sont masquées par défaut : utilisez le sélecteur de colonnes pour les afficher. L'export CSV suit la vue affichée ainsi que les filtres et la ligne de carte cliquée ; il ne suit ni la recherche ni le tri du tableau.",
+            "items" => [
+                "shipment_no" => [
+                    "title" => "N° d'expédition",
+                    "meaning" => "Le numéro de l'expédition. Survolez pour voir son numéro de connaissement.",
+                    "how" => "Lu sur l'expédition. Peut être recherché, trié et copié.",
+                ],
+                "part" => [
+                    "title" => "N° de partie",
+                    "meaning" => "La partie de la commande transportée par cette expédition.",
+                    "how" => "Lu sur l'expédition. Peut être trié.",
+                ],
+                "registeredOrder.ro_number" => [
+                    "title" => "Commande enregistrée",
+                    "meaning" => "La commande enregistrée de l'expédition.",
+                    "how" => "Lu sur l'expédition. Peut être recherché, trié et copié.",
+                ],
+                "registeredOrder.sellerCompany.name" => [
+                    "title" => "Vendeur",
+                    "meaning" => "Le vendeur de la commande de l'expédition.",
+                    "how" => "Lu sur la commande enregistrée. Peut être recherché et trié.",
+                ],
+                "carrier.name" => [
+                    "title" => "Transporteur",
+                    "meaning" => "Le transporteur de l'expédition. Masqué par défaut.",
+                    "how" => "Lu sur l'expédition. Peut être recherché et trié.",
+                ],
+                "products_text" => [
+                    "title" => "Produits",
+                    "meaning" => "Les produits de l'expédition. Masqué par défaut.",
+                    "how" => "Lus sur les lignes de facture ; sans lignes, sur celles de la commande. Peut être recherché et trié.",
+                ],
+                "led_value" => [
+                    "title" => "Valeur (devise d'origine)",
+                    "meaning" => "La valeur de l'expédition dans la devise où elle est exprimée.",
+                    "how" => "Le total général de la facture dans la devise de la facture, ou l'estimation de la commande dans la devise de la commande. Affichée même si l'expédition est exclue du total en euros. Peut être triée.",
+                ],
+                "led_eur" => [
+                    "title" => "Valeur en euros",
+                    "meaning" => "La valeur en euros retenue pour l'expédition.",
+                    "how" => "Affichée seulement pour les expéditions retenues, convertie avec le taux des profils bancaires achetés ou reçus. Les expéditions exclues affichent un tiret. Peut être triée.",
+                ],
+                "source" => [
+                    "title" => "Source de la valeur",
+                    "meaning" => "Si la valeur vient d'une facture ou est estimée, ou pourquoi l'expédition est exclue.",
+                    "how" => "Facture, Estimée, ou Exclue suivie du motif principal : sans valeur, sans devise, devise de facture incohérente, total aberrant ou sans taux de change. Peut être triée.",
+                ],
+                "supply" => [
+                    "title" => "Approvisionnement",
+                    "meaning" => "Dans quelle mesure la commande de l'expédition est approvisionnée en devises.",
+                    "how" => "Complet, Partiel, Aucun, Alloué ou Inconnu, comme dans la carte Couverture de change. Dans la vue par produit, un produit réparti sur des expéditions d'états différents affiche Mixte. Peut être trié.",
+                ],
+                "supplied_percent" => [
+                    "title" => "% approvisionné",
+                    "meaning" => "La part de la valeur de la commande couverte par des profils bancaires achetés ou reçus.",
+                    "how" => "Montant approvisionné converti dans la devise de la commande, divisé par la valeur de la commande. Peut dépasser 100 %. Vide si l'approvisionnement est inconnu. Peut être trié.",
+                ],
+                "supplied_remaining" => [
+                    "title" => "Approvisionné / restant (devise de la commande)",
+                    "meaning" => "Le montant approvisionné et ce qui manque encore, dans la devise de la commande. Masqué par défaut.",
+                    "how" => "Montant approvisionné, puis valeur de la commande moins le montant approvisionné (jamais en dessous de zéro).",
+                ],
+                "led_weight" => [
+                    "title" => "Poids (kg)",
+                    "meaning" => "Le poids de l'expédition.",
+                    "how" => "Brut ou net selon la base du poids, d'après les lignes de facture ou, à défaut, estimé d'après les lignes de la commande. Peut être trié.",
+                ],
+                "etd" => [
+                    "title" => "ETD",
+                    "meaning" => "La date estimée de départ. Masquée par défaut.",
+                    "how" => "Lue sur l'expédition, dans le calendrier actif. Peut être triée.",
+                ],
+                "eta" => [
+                    "title" => "ETA",
+                    "meaning" => "La date estimée d'arrivée (la plus proche des expéditions dans la vue par produit).",
+                    "how" => "Lue sur l'expédition, dans le calendrier actif. Peut être triée.",
+                ],
+                "days_to_eta" => [
+                    "title" => "Jours avant l'ETA",
+                    "meaning" => "Combien de jours restent avant l'ETA, ou de combien l'expédition est en retard.",
+                    "how" => "L'ETA moins aujourd'hui. Le badge est rouge en retard, orange sans ETA ou dans la première fenêtre d'arrivée, vert sinon. Peut être trié.",
+                ],
+                "trackingStatus.name" => [
+                    "title" => "Statut de suivi",
+                    "meaning" => "L'étape de suivi actuelle de l'expédition.",
+                    "how" => "Lu sur l'expédition.",
+                ],
+                "flags" => [
+                    "title" => "Signalements",
+                    "meaning" => "Chaque condition de données trouvée sur l'expédition, même si elle n'a pas décidé de l'exclusion.",
+                    "how" => "Sans valeur, Sans devise, Devise incohérente, Total aberrant, Sans taux de change, Devise de la commande utilisée. Ils correspondent au journal des anomalies de données.",
+                ],
+                "category" => [
+                    "title" => "Catégorie",
+                    "meaning" => "Le chemin de catégorie du produit.",
+                    "how" => "Issu de la fiche produit. Peut être recherché et trié.",
+                ],
+                "product" => [
+                    "title" => "Produit",
+                    "meaning" => "Le produit, avec l'ensemble de ses lignes dans les expéditions retenues.",
+                    "how" => "Les lignes de facture servent pour les expéditions facturées et les lignes de commande, au prorata de la part expédiée, pour les estimées. Les lignes sans produit sont regroupées par nom et signalées. La dernière ligne, Non attribué à un produit, contient les frais et remises des factures pour que le tableau égale la carte Valeur. Peut être recherché et trié.",
+                ],
+                "quantity" => [
+                    "title" => "Quantité",
+                    "meaning" => "La quantité totale du produit avec son unité.",
+                    "how" => "Somme des quantités des lignes des expéditions retenues. Peut être triée.",
+                ],
+                "net_weight" => [
+                    "title" => "Poids net (kg)",
+                    "meaning" => "Le poids net total du produit. Masqué par défaut.",
+                    "how" => "Somme des poids nets des lignes. Peut être triée.",
+                ],
+                "gross_weight" => [
+                    "title" => "Poids brut (kg)",
+                    "meaning" => "Le poids brut total du produit.",
+                    "how" => "Somme des poids bruts des lignes. Peut être triée.",
+                ],
+                "eur" => [
+                    "title" => "Valeur en euros",
+                    "meaning" => "La valeur en euros du produit.",
+                    "how" => "Somme des valeurs des lignes converties au taux de leur expédition. Peut être triée.",
+                ],
+                "shipments" => [
+                    "title" => "Expéditions",
+                    "meaning" => "Combien d'expéditions retenues portent le produit.",
+                    "how" => "Expéditions distinctes. Peut être triée.",
+                ],
+            ],
+        ],
+        "issues" => [
+            "title" => "Anomalies de données",
+            "intro" => "Cet accordéon en bas de page n'apparaît que si le rapport filtré a au moins une anomalie ouverte. Chaque anomalie a une gravité : Erreur désigne une donnée qui se contredit ou empêche une valorisation, Avertissement une donnée manquante ou tardive, Info un petit manque. Les contrôles de valeur, de devise, d'incohérence et d'aberration listent chaque expédition qui présente le problème, même si un commutateur de filtre permet de la compter. Cliquez sur une pastille pour lister une gravité et sur Tout afficher pour tout lister. Les expéditions, commandes et profils bancaires d'un module que le lecteur ne peut pas voir ne sont pas listés. Les résultats sont rafraîchis environ toutes les 5 minutes et immédiatement à l'enregistrement d'une fiche. Les anomalies n'empêchent jamais d'enregistrer.",
+            "items" => [
+                "shipment_transit_value_unknown" => [
+                    "title" => "L'expédition en mer n'a aucune valeur",
+                    "meaning" => "Gravité Erreur. Elle ne peut pas être valorisée et est écartée du total en euros.",
+                    "how" => "Ni total général de facture, ni estimation exploitable : la commande n'a pas de valeurs de lignes, ou la part est inconnue et la commande a d'autres expéditions.",
+                    "change" => "Saisissez la facture commerciale sur l'expédition (onglet Facture) ou la quantité expédiée sur l'expédition.",
+                ],
+                "shipment_transit_currency_unknown" => [
+                    "title" => "La valeur n'a pas de devise lisible",
+                    "meaning" => "Gravité Erreur. Un montant sans devise connue ne peut pas être converti : l'expédition est écartée.",
+                    "how" => "La facture a un total général mais aucune devise n'est trouvée : la devise de l'en-tête de la facture est vide ou absente de la liste de référence, et la commande et la proforma n'en ont pas non plus (dans cet ordre de priorité).",
+                    "change" => "Sur l'expédition, renseignez la devise de la facture (onglet Facture).",
+                ],
+                "shipment_transit_currency_inferred" => [
+                    "title" => "La devise de la facture vient de la commande",
+                    "meaning" => "Gravité Info. La facture n'a pas de devise lisible ; la devise de la commande a été utilisée et le montant est retenu.",
+                    "how" => "La devise de l'en-tête de la facture est vide ou absente de la liste de référence alors que la commande (ou la proforma) a une devise. Le rapport Règlement des engagements de change applique la même règle.",
+                    "change" => "Sur l'expédition, renseignez la devise de la facture (onglet Facture).",
+                ],
+                "shipment_transit_shipped_above_order" => [
+                    "title" => "Les quantités expédiées dépassent la commande",
+                    "meaning" => "Gravité Info. La part de valeur de chaque expédition est plafonnée à la commande entière : la valeur de cette commande peut être sous-estimée.",
+                    "how" => "Les quantités expédiées des expéditions en mer de la commande, dans ce rapport, dépassent la quantité des lignes de la commande (contrôlé seulement si toutes les lignes ont la même unité).",
+                    "change" => "Sur les expéditions, corrigez la quantité expédiée (onglet Logistique et détails).",
+                ],
+                "shipment_transit_invoice_currency_mismatch" => [
+                    "title" => "La devise de la facture diffère de celle de la commande",
+                    "meaning" => "Gravité Erreur. L'une des deux devises est probablement fausse.",
+                    "how" => "La devise de l'en-tête de la facture est comparée à celle de la commande enregistrée. Par défaut ces expéditions sont exclues du total en euros.",
+                    "change" => "Corrigez la devise de la facture (onglet Facture) ou celle de la commande, ou activez Inclure factures signalées.",
+                ],
+                "shipment_transit_invoice_total_outlier" => [
+                    "title" => "Le total général de la facture dépasse de loin ses lignes",
+                    "meaning" => "Gravité Avertissement. Une faute de frappe dans un frais est probable.",
+                    "how" => "Le total général dépasse le facteur d'aberration multiplié par la somme des lignes de la facture. Par défaut ces expéditions sont exclues du total en euros.",
+                    "change" => "Corrigez le fret, les autres frais ou la remise de la facture, ou activez Inclure les aberrants.",
+                ],
+                "shipment_transit_value_estimated" => [
+                    "title" => "La valeur est estimée d'après la commande",
+                    "meaning" => "Gravité Info. L'expédition n'a pas de total de facture : sa valeur est celle de la commande multipliée par la part expédiée.",
+                    "how" => "Expéditions sans total général de facture valorisées d'après leur commande.",
+                    "change" => "Saisissez la facture commerciale sur l'expédition (onglet Facture).",
+                ],
+                "shipment_transit_fx_rate_missing" => [
+                    "title" => "Aucun taux de change vers l'euro",
+                    "meaning" => "Gravité Avertissement. La valeur ne peut pas être convertie et apparaît sur une ligne Exclu.",
+                    "how" => "Aucun profil bancaire acheté ou reçu ne relie la devise de la valeur de l'expédition à l'euro, dans un sens ou dans l'autre.",
+                    "change" => "Enregistrez un profil bancaire acheté entre les deux devises, ou corrigez la devise de la facture si elle est fausse.",
+                ],
+                "registered_order_transit_supply_unknown" => [
+                    "title" => "L'approvisionnement en devises de la commande n'est pas calculable",
+                    "meaning" => "Gravité Avertissement. La couverture de change de ses expéditions est comptée comme Inconnue.",
+                    "how" => "La commande n'a pas de devise, sa valeur est nulle, ou une devise d'achat n'a pas de taux vers la devise de la commande.",
+                    "change" => "Sur la commande, renseignez la devise et les lignes ; créez le taux manquant par un profil bancaire acheté.",
+                ],
+                "bank_profile_transit_supplied_without_equivalent" => [
+                    "title" => "Un profil acheté n'a pas de montant acheté exploitable",
+                    "meaning" => "Gravité Erreur. L'approvisionnement de sa commande est sous-estimé ou inconnu.",
+                    "how" => "Un profil bancaire acheté ou reçu d'une commande en mer n'a pas d'équivalent acheté (ou il est nul), ou pas de devise d'achat.",
+                    "change" => "Sur le profil bancaire, saisissez l'équivalent acheté et la devise d'achat (onglet Détails).",
+                ],
+                "shipment_in_transit_missing_eta" => [
+                    "title" => "L'expédition est en mer mais n'a pas d'ETA",
+                    "meaning" => "Gravité Avertissement. Son arrivée ne peut pas être planifiée et elle figure dans le groupe Sans ETA.",
+                    "how" => "Expéditions en mer dont l'ETA est vide.",
+                    "change" => "Sur l'expédition, saisissez l'ETA (onglet Logistique et détails).",
+                ],
+                "shipment_eta_before_etd" => [
+                    "title" => "L'ETA est antérieure à l'ETD",
+                    "meaning" => "Gravité Erreur. Les deux dates se contredisent.",
+                    "how" => "Expéditions non arrivées dont l'ETA est avant l'ETD.",
+                    "change" => "Corrigez l'ETA ou l'ETD sur l'expédition (onglet Logistique et détails).",
+                ],
+                "shipment_overdue_eta" => [
+                    "title" => "L'ETA est dépassée et l'expédition n'est pas arrivée",
+                    "meaning" => "Gravité Avertissement. L'expédition est en retard ou son statut n'est pas à jour.",
+                    "how" => "Expéditions non arrivées dont l'ETA est avant aujourd'hui.",
+                    "change" => "Mettez à jour l'ETA, le statut de suivi ou la date de réception à l'entrepôt sur l'expédition.",
+                ],
+                "shipment_no_invoice" => [
+                    "title" => "L'expédition en mer n'a pas de lignes de facture",
+                    "meaning" => "Gravité Avertissement. Sa valeur est estimée d'après la commande ou absente, et son poids est estimé.",
+                    "how" => "Expéditions en mer sans aucune ligne de facture commerciale.",
+                    "change" => "Saisissez les lignes de la facture commerciale sur l'expédition (onglet Facture).",
+                ],
+            ],
+        ],
+    ],
+];

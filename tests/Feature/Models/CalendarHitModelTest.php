@@ -5,6 +5,7 @@ namespace Tests\Feature\Models;
 use App\Filament\Resources\Master\CalendarRuleResource\Enums\RuleType;
 use App\Filament\Resources\Master\CalendarRuleResource\Enums\Visibility;
 use App\Models\CalendarHit;
+use App\Models\CalendarRead;
 use App\Models\CalendarRule;
 use App\Models\Permission;
 use App\Models\PurchaseRequest;
@@ -218,6 +219,20 @@ class CalendarHitModelTest extends TestCase
         $this->assertFalse($unpermittedView->contains($shared->id));
     }
 
+    public function test_visible_to_drops_the_hits_of_a_paused_rule_at_once(): void
+    {
+        $viewer = $this->userWithPermissions(['purchase_request.view']);
+        $record = $this->hit(['event_date' => '2026-10-15']);
+        $record->rule->update(['visibility' => Visibility::EVERYONE->value]);
+        CalendarHit::flushVisibleRuleIds();
+        $this->assertTrue(CalendarHit::visibleTo($viewer)->whereKey($record->id)->exists());
+
+        $record->rule->update(['is_active' => false]);
+        CalendarHit::flushVisibleRuleIds();
+
+        $this->assertFalse(CalendarHit::visibleTo($viewer)->whereKey($record->id)->exists());
+    }
+
     public function test_visible_to_shows_admin_hits_only_with_module_permission(): void
     {
         $admin = $this->admin();
@@ -244,5 +259,45 @@ class CalendarHitModelTest extends TestCase
         $record->rule->update(['visibility' => Visibility::USERS->value, 'shared_user_ids' => [$viewer->id]]);
 
         $this->assertTrue(CalendarHit::visibleTo($viewer)->whereKey($record->id)->exists());
+    }
+
+    public function test_a_read_belongs_to_one_user_and_one_hit_and_dies_with_either(): void
+    {
+        $viewer = $this->userWithPermissions(['purchase_request.view']);
+        $record = $this->hit(['event_date' => '2026-10-15']);
+        $read = CalendarRead::factory()->create(['user_id' => $viewer->id, 'calendar_hit_id' => $record->id, 'event_date' => '2026-10-15']);
+
+        $this->assertTrue($read->hit->is($record));
+        $this->assertTrue($read->user->is($viewer));
+        $this->assertSame([$read->id], $record->reads()->pluck('id')->all());
+        $this->assertSame([$read->id], $viewer->calendarReads()->pluck('id')->all());
+
+        $record->delete();
+
+        $this->assertDatabaseMissing('calendar_reads', ['id' => $read->id]);
+    }
+
+    public function test_read_by_and_with_read_at_follow_the_viewer_and_the_current_event_date(): void
+    {
+        $viewer = $this->userWithPermissions(['purchase_request.view']);
+        $other = $this->userWithPermissions(['purchase_request.view']);
+        $hidden = $this->hit(['event_date' => '2026-10-15']);
+        $open = $this->hit(['calendar_rule_id' => $hidden->calendar_rule_id, 'event_date' => '2026-10-16']);
+        CalendarRead::factory()->create(['user_id' => $viewer->id, 'calendar_hit_id' => $hidden->id, 'event_date' => '2026-10-15', 'read_at' => '2026-10-08 09:00:00']);
+        CalendarRead::factory()->create(['user_id' => $other->id, 'calendar_hit_id' => $open->id, 'event_date' => '2026-10-16']);
+
+        $mine = fn () => CalendarHit::query()->where('calendar_rule_id', $hidden->calendar_rule_id);
+
+        $this->assertSame([$hidden->id], $mine()->readBy($viewer)->pluck('id')->all());
+        $this->assertSame([$open->id], $mine()->readBy($viewer, false)->pluck('id')->all());
+
+        $stamps = $mine()->withReadAt($viewer)->orderBy('id')->get()->pluck('read_at', 'id');
+        $this->assertSame('2026-10-08 09:00:00', $stamps[$hidden->id]->toDateTimeString());
+        $this->assertNull($stamps[$open->id]);
+
+        $hidden->update(['event_date' => '2026-10-20']);
+
+        $this->assertSame([], $mine()->readBy($viewer)->pluck('id')->all());
+        $this->assertNull(CalendarHit::withReadAt($viewer)->find($hidden->id)->read_at);
     }
 }

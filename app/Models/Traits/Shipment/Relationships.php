@@ -10,6 +10,7 @@ use App\Models\Custom;
 use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrder;
 use App\Models\Shipment;
+use App\Models\ShipmentItem;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -80,5 +81,10 @@ trait Relationships
     {
         return $this->belongsTo(Status::class, 'shipment_status_id')
             ->where('english_type', Shipment::TYPE_TRACKING_STATUS);
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(ShipmentItem::class);
     }
 }

@@ -45,39 +45,28 @@ vite.config.mjs
 
 **Why `filament/*.js` isn't in `alpine/`:** organized by *where it runs* (inside the Filament panel itself, loaded via `FilamentAssets.php`'s `Js::make()`) not *what it is*. The `alpine/` folder is organized by the other axis — every file in it is a pure-function factory registered through `alpine/loader.js`, used only within the landing page's own Alpine scope. Mirrors the `resources/views/filament/` vs `resources/views/livewire/` split (see `resources/views/viewsPattern.md`).
 
-**Registration flow:** Vite bundles `app.js` + the five factory modules into one asset → `app.js` imports `./alpine/loader.js` → the loader listens for `alpine:init` and registers all five factories unconditionally with `Alpine.data(name, factory)` → `Alpine.start()` runs once, guarded by `window.__alpine_running`.
+**Registration flow:** Vite bundles `app.js` + the five factory modules into one asset → `app.js` imports `./alpine/loader.js` → the loader listens for `alpine:init` and registers all five factories unconditionally with `Alpine.data(name, factory)` → Livewire's own Alpine starts once (the loader never starts one).
 
 ## 1. The registration hub — `resources/js/alpine/loader.js`
 
 ```js
-import Alpine from 'alpinejs';
 import landingPage from './components/landing-page.js';
 import triWidget from './components/tri-widget.js';
 import search from './components/search.js';
 import workspace from './components/workspace.js';
 import workflow from './components/workflow.js';
 
-window.Alpine ??= Alpine;
-
 document.addEventListener('alpine:init', () => {
-    Alpine.data('landingPage', landingPage);
-    Alpine.data('triWidget', triWidget);
-    Alpine.data('workflow', workflow);
-    Alpine.data('search', search);
-    Alpine.data('workspace', workspace);
+    window.Alpine.data('landingPage', landingPage);
+    window.Alpine.data('triWidget', triWidget);
+    window.Alpine.data('workflow', workflow);
+    window.Alpine.data('search', search);
+    window.Alpine.data('workspace', workspace);
 });
-
-if (!window.__alpine_running) {
-    window.__alpine_running = true;
-    Alpine.start();
-}
-
-export default Alpine;
 ```
 
-- All five factories register unconditionally, regardless of whether a matching `x-data` element exists on the current page — simplified 2026-09-25 from an earlier version that gated `landingPage`/`triWidget`/`workflow` behind a `document.querySelector(...)` presence check. That gate bought nothing: `Alpine.data(name, factory)` only inserts a name→factory mapping into a registry, it never invokes the factory — the factory only ever actually runs later, when Alpine's own DOM walk finds a real `x-data="Name(...)"` element and instantiates it. A page with no `landingPage()` element on it registers the name for nothing, at negligible cost, exactly as before.
-- `window.Alpine ??= Alpine` exposes the instance globally exactly once (`??=` no-ops if something already set it), since the `filament/*.js` panel-wide toggle scripts (a separate Vite entry, loaded on panel pages only) read `window.Alpine` directly.
-- `window.__alpine_running` is checked before entering the block, and set to `true` BEFORE calling `Alpine.start()` (not after, contrary to an earlier draft of this doc) — prevents double-init if the bundle is evaluated twice.
+- All five factories register unconditionally on `alpine:init` (`Alpine.data()` only stores a name-to-factory mapping; the factory runs when Alpine's DOM walk finds a matching `x-data`).
+- **One Alpine only: Livewire's.** The loader never imports `alpinejs` and never calls `Alpine.start()`. `@livewireScripts` (classic script) sets `window.Alpine` and starts it on `DOMContentLoaded`, which fires `alpine:init` after this deferred module has registered its listener. A second, npm-imported Alpine started earlier stamps `_x_marker` on every element, so Livewire's Alpine then skips them and no `wire:click`/`wire:model` ever binds (landing-page Attention chips and pagination were dead until 2026-10-11). `LandingPageAttentionTest` asserts the loader has neither.
 
 ## 2. Factory signature rule (all five factories)
 

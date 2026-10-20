@@ -4,6 +4,7 @@ namespace Tests\Feature\Models;
 
 use App\Models\Company;
 use App\Models\Currency;
+use App\Models\Product;
 use App\Models\ProformaInvoice;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -181,5 +182,34 @@ class ProformaInvoiceModelTest extends TestCase
 
         $this->assertNull(ProformaInvoice::find($pi->id));
         $this->assertTrue(ProformaInvoice::withTrashed()->find($pi->id)->trashed());
+    }
+
+    // Repeater lines — ProformaInvoiceItem
+
+    public function test_repeater_items_belong_to_the_invoice_and_product_and_cast_amounts_to_five_decimals(): void
+    {
+        $pi = ProformaInvoice::factory()->create();
+        $product = Product::factory()->create();
+
+        $pi->items()->create(['product_id' => $product->id, 'quantity' => 12.5, 'unit' => 'kg', 'unit_price' => 3.25, 'freight_charges' => 1, 'total_amount' => 40.625]);
+
+        $item = $pi->fresh()->items->first();
+
+        $this->assertTrue($item->proformaInvoice->is($pi));
+        $this->assertTrue($item->product->is($product));
+        $this->assertSame(['12.50000', '3.25000', '1.00000', '40.62500'], [$item->quantity, $item->unit_price, $item->freight_charges, $item->total_amount]);
+    }
+
+    public function test_a_removed_repeater_item_is_soft_deleted_and_leaves_the_invoice_lines(): void
+    {
+        $pi = ProformaInvoice::factory()->create();
+        $product = Product::factory()->create();
+        $keep = $pi->items()->create(['product_id' => $product->id, 'quantity' => 1, 'unit' => 'pcs', 'unit_price' => 1, 'total_amount' => 1]);
+        $drop = $pi->items()->create(['product_id' => $product->id, 'quantity' => 2, 'unit' => 'pcs', 'unit_price' => 1, 'total_amount' => 2]);
+
+        $drop->delete();
+
+        $this->assertSame([$keep->id], $pi->fresh()->items->pluck('id')->all());
+        $this->assertTrue($pi->items()->withTrashed()->whereKey($drop->id)->first()->trashed());
     }
 }

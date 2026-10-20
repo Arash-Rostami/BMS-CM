@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Models;
 
+use App\Filament\Resources\ShipmentResource;
 use App\Models\Company;
+use App\Models\EntityAttribute;
+use App\Models\Product;
 use App\Models\PurchaseRequest;
 use App\Models\RegisteredOrder;
 use App\Models\Shipment;
@@ -90,6 +93,150 @@ class ShipmentModelTest extends TestCase
         $this->assertSame($fromContainer->id, $containerHistory->from_status_id);
         $this->assertSame($toContainer->id, $containerHistory->to_status_id);
         $this->assertSame($toDoc->id, $docHistory->to_status_id);
+    }
+
+    // Commercial invoice — header JSON + relational items
+
+    public function test_persist_invoice_stores_items_relationally_with_totals_and_load_reads_them_back(): void
+    {
+        $product = Product::factory()->create();
+        $shipment = Shipment::factory()->create();
+
+        ShipmentResource::persistInvoice([
+            '_inv_pi_id' => 7,
+            '_inv_invoice_no' => 'INV-ROUND',
+            '_inv_freight_charges' => 20,
+            '_inv_items' => [
+                ['product_id' => $product->id, 'english_name' => 'A', 'quantity' => 2, 'unit_price' => 50, 'total_amount' => 100, 'net_weight' => 4, 'gross_weight' => 5],
+                ['english_name' => 'B', 'quantity' => 1, 'unit_price' => 10, 'total_amount' => 10, 'net_weight' => 1, 'gross_weight' => 2],
+            ],
+        ], $shipment);
+
+        $shipment->refresh();
+        $this->assertCount(2, $shipment->items);
+        $this->assertSame($product->id, $shipment->items->first()->product_id);
+        $this->assertEquals(5, $shipment->total_net_weight);
+        $this->assertEquals(7, $shipment->total_gross_weight);
+        $this->assertEquals(130, $shipment->grand_total);
+
+        $header = EntityAttribute::where('entity_id', $shipment->id)->where('key', 'commercial_invoice')->first()->value;
+        $this->assertArrayNotHasKey('items', $header);
+
+        $loaded = ShipmentResource::loadInvoiceData($shipment);
+        $this->assertSame('INV-ROUND', $loaded['invoice_no']);
+        $this->assertCount(2, $loaded['items']);
+        $this->assertSame(130.0, $loaded['grand_total']);
+
+        ShipmentResource::persistInvoice(['_inv_pi_id' => 7, '_inv_items' => [['english_name' => 'C']]], $shipment);
+        $this->assertSame(1, $shipment->items()->count());
+    }
+
+    public function test_load_invoice_data_turns_legacy_free_text_into_option_keys(): void
+    {
+        $shipment = Shipment::factory()->create();
+        EntityAttribute::create([
+            'entity_type' => Shipment::class,
+            'entity_id' => $shipment->id,
+            'key' => 'commercial_invoice',
+            'value' => [
+                'incoterms' => 'cfr',
+                'origin_country' => 'Iran (Islamic Republic of)',
+                'destination_country' => 'ایران',
+                'items' => [
+                    ['english_name' => 'A', 'origin' => 'china', 'unit' => 'کیلوگرم'],
+                    ['english_name' => 'B', 'origin' => 'CN', 'unit' => 'kg'],
+                    ['english_name' => 'C', 'origin' => 'Atlantis', 'unit' => null],
+                ],
+            ],
+        ]);
+
+        $invoice = ShipmentResource::loadInvoiceData($shipment);
+
+        $this->assertSame(['CFR', 'IR', 'IR'], [$invoice['incoterms'], $invoice['origin_country'], $invoice['destination_country']]);
+        $this->assertSame(['CN', 'kg'], [$invoice['items'][0]['origin'], $invoice['items'][0]['unit']]);
+        $this->assertSame(['CN', 'kg'], [$invoice['items'][1]['origin'], $invoice['items'][1]['unit']]);
+        $this->assertSame(['Atlantis', null], [$invoice['items'][2]['origin'], $invoice['items'][2]['unit']], 'an unknown value is kept, never guessed');
+    }
+
+    public function test_load_invoice_data_ignores_a_malformed_legacy_item_instead_of_crashing(): void
+    {
+        $shipment = Shipment::factory()->create();
+        EntityAttribute::create([
+            'entity_type' => Shipment::class,
+            'entity_id' => $shipment->id,
+            'key' => 'commercial_invoice',
+            'value' => ['items' => ['not an array', ['english_name' => 'Real']]],
+        ]);
+
+        $items = ShipmentResource::loadInvoiceData($shipment)['items'];
+
+        $this->assertCount(1, $items);
+        $this->assertSame('Real', $items[0]['english_name']);
+    }
+
+    public function test_persist_invoice_keeps_the_product_link_of_a_soft_deleted_product(): void
+    {
+        $product = Product::factory()->create();
+        $product->delete();
+        $shipment = Shipment::factory()->create();
+
+        ShipmentResource::persistInvoice(['_inv_pi_id' => 7, '_inv_items' => [['product_id' => $product->id, 'english_name' => 'Trashed']]], $shipment);
+
+        $this->assertSame($product->id, $shipment->items()->first()->product_id);
+    }
+
+    public function test_an_unknown_current_value_stays_selectable_next_to_the_known_options(): void
+    {
+        $method = new \ReflectionMethod(ShipmentResource::class, 'optionsWithCurrent');
+
+        $this->assertSame(['kg' => 'Kilogram', 'box' => 'box'], $method->invoke(null, ['kg' => 'Kilogram'], 'box'));
+        $this->assertSame(['kg' => 'Kilogram'], $method->invoke(null, ['kg' => 'Kilogram'], 'kg'));
+        $this->assertSame(['kg' => 'Kilogram'], $method->invoke(null, ['kg' => 'Kilogram'], null));
+    }
+
+    public function test_extra_attributes_hide_the_commercial_invoice_row_while_custom_attributes_keep_it(): void
+    {
+        $shipment = Shipment::factory()->create();
+        $shipment->customAttributes()->create(['key' => 'commercial_invoice', 'value' => ['invoice_no' => 'X']]);
+        $shipment->customAttributes()->create(['key' => 'visible_key', 'value' => 'v']);
+
+        $this->assertSame(['visible_key'], $shipment->extraAttributes()->pluck('key')->all());
+        $this->assertEqualsCanonicalizing(['commercial_invoice', 'visible_key'], $shipment->customAttributes()->pluck('key')->all());
+    }
+
+    public function test_load_invoice_data_maps_legacy_json_item_keys_until_the_backfill_runs(): void
+    {
+        $shipment = Shipment::factory()->create();
+        EntityAttribute::create([
+            'entity_type' => Shipment::class,
+            'entity_id' => $shipment->id,
+            'key' => 'commercial_invoice',
+            'value' => ['items' => [['description' => 'کالا', 'english_description' => 'Goods']]],
+        ]);
+
+        $item = ShipmentResource::loadInvoiceData($shipment)['items'][0];
+
+        $this->assertSame('کالا', $item['name']);
+        $this->assertSame('Goods', $item['english_name']);
+        $this->assertArrayNotHasKey('english_description', $item);
+    }
+
+    public function test_persist_invoice_rejects_a_gross_weight_below_the_net_weight(): void
+    {
+        $shipment = Shipment::factory()->create();
+
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+
+        ShipmentResource::persistInvoice(['_inv_pi_id' => 7, '_inv_items' => [['english_name' => 'Bad', 'net_weight' => 10, 'gross_weight' => 5]]], $shipment);
+    }
+
+    public function test_persist_invoice_nulls_a_product_id_that_does_not_exist(): void
+    {
+        $shipment = Shipment::factory()->create();
+
+        ShipmentResource::persistInvoice(['_inv_pi_id' => 7, '_inv_items' => [['product_id' => 999999999, 'english_name' => 'Ghost']]], $shipment);
+
+        $this->assertNull($shipment->items()->first()->product_id);
     }
 
     // HasPartSelection

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasReliableCodeGeneration;
+use App\Models\Traits\General\LogsAudit;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
@@ -24,6 +25,7 @@ class Payment extends Model
         HasReliableCodeGeneration,
         HasSearchableRelations,
         HasTargetableDisplay,
+        LogsAudit,
         Relationships,
         SoftDeletes,
         TracksStatusHistory,
@@ -34,6 +36,14 @@ class Payment extends Model
     public const SCANNABLE_IDENTIFIER = 'payment_no';
 
     public const TYPE_PAYMENT = 'Payment Status';
+
+    public static function auditColumns(): array
+    {
+        return [
+            'payment_date', 'payment_deadline', 'payor_id', 'payee_id', 'currency_id', 'payable_amount', 'total_amount',
+            'exchange_rate', 'bank_charges', 'bank_id', 'account_no', 'iban',
+        ];
+    }
 
     protected $fillable = [
         'payment_no',

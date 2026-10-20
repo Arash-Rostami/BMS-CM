@@ -2,6 +2,9 @@
 
 namespace App\Livewire\LandingPage;
 
+use App\Filament\Pages\Reports\ReportPage;
+use BackedEnum;
+use BladeUI\Icons\Exceptions\SvgNotFound;
 use Livewire\Component;
 
 class Workspace extends Component
@@ -20,6 +23,15 @@ class Workspace extends Component
         'yellow' => 'bg-yellow-500 text-white',
         'red' => 'bg-red-500 text-white',
         'slate' => 'bg-slate-500 text-white',
+    ];
+
+    private const REPORT_ACCENT = [
+        'requester' => 'blue',
+        'operations' => 'green',
+        'fx_supply' => 'green',
+        'fx_commitments' => 'yellow',
+        'in_transit' => 'red',
+        'customs' => 'red',
     ];
 
     public array $workspaceConfig = [];
@@ -98,8 +110,34 @@ class Workspace extends Component
         ];
     }
 
+    private function reports(): array
+    {
+        return collect(ReportPage::registry())
+            ->filter(fn (string $page): bool => $page::canAccess())
+            ->sortBy(fn (string $page): int => $page::getNavigationSort() ?? 0)
+            ->map(fn (string $page): array => [
+                'label' => $page::getNavigationLabel(),
+                'url' => $page::getUrl(),
+                'icon' => $this->reportIcon($page::getNavigationIcon()),
+                'theme' => self::TONE[self::REPORT_ACCENT[$page::key()] ?? 'slate'],
+            ])
+            ->values()
+            ->all();
+    }
+
+    private function reportIcon(mixed $icon): string
+    {
+        $name = $icon instanceof BackedEnum ? 'heroicon-'.$icon->value : $icon;
+
+        try {
+            return svg(is_string($name) ? $name : 'heroicon-o-presentation-chart-bar', 'w-full h-full')->toHtml();
+        } catch (SvgNotFound) {
+            return svg('heroicon-o-presentation-chart-bar', 'w-full h-full')->toHtml();
+        }
+    }
+
     public function render()
     {
-        return view('livewire.landing-page.workspace');
+        return view('livewire.landing-page.workspace', ['reports' => $this->reports()]);
     }
 }

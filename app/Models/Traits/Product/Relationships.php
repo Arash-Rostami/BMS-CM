@@ -10,6 +10,7 @@ use App\Models\PurchaseOrderItem;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestItem;
 use App\Models\RegisteredOrderItem;
+use App\Models\ShipmentItem;
 use App\Models\Specification;
 use App\Models\Target;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -53,6 +54,11 @@ trait Relationships
     public function registeredOrderItems(): HasMany
     {
         return $this->hasMany(RegisteredOrderItem::class);
+    }
+
+    public function shipmentItems(): HasMany
+    {
+        return $this->hasMany(ShipmentItem::class);
     }
 
     public function specifications()

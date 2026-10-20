@@ -205,4 +205,36 @@ class ProductModelTest extends TestCase
         $this->assertSame([$roItem->id], $product->registeredOrderItems->pluck('id')->all());
         $this->assertSame([$profile->id], $product->bankProfiles->pluck('id')->all());
     }
+
+    // Specification (polymorphic child)
+
+    public function test_a_specification_morphs_to_its_product_and_casts_its_boolean_and_json_columns(): void
+    {
+        $product = Product::factory()->create();
+
+        $product->specifications()->create([
+            'hs_code' => '1234.56',
+            'vat_exempt' => 1,
+            'import_licenses' => ['LIC-1', 'LIC-2'],
+            'extra' => ['origin' => 'CN'],
+        ]);
+
+        $spec = $product->fresh()->specifications->first();
+
+        $this->assertTrue($spec->specifiable->is($product));
+        $this->assertTrue($spec->vat_exempt);
+        $this->assertSame(['LIC-1', 'LIC-2'], $spec->import_licenses);
+        $this->assertSame(['origin' => 'CN'], $spec->extra);
+    }
+
+    public function test_a_deleted_specification_is_soft_deleted_and_leaves_the_product(): void
+    {
+        $product = Product::factory()->create();
+        $spec = $product->specifications()->create(['hs_code' => '9999.99', 'vat_exempt' => 0]);
+
+        $spec->delete();
+
+        $this->assertCount(0, $product->fresh()->specifications);
+        $this->assertTrue($product->specifications()->withTrashed()->first()->trashed());
+    }
 }

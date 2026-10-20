@@ -4,9 +4,11 @@ namespace Tests\Feature\Models;
 
 use App\Models\Attachment;
 use App\Models\PurchaseRequest;
-use App\Observers\StatusObserver;
 use App\Models\PurchaseRequestItem;
 use App\Models\Status;
+use App\Models\StatusHistory;
+use App\Models\User;
+use App\Observers\StatusObserver;
 use App\Services\SmartCacheManager;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -187,5 +189,39 @@ class StatusModelTest extends TestCase
         (new StatusObserver)->restored($status);
 
         $this->assertSame('recomputed', SmartCacheManager::remember('Status', $probe, 10, fn () => 'recomputed'));
+    }
+
+    // StatusHistory (append-only transition log)
+
+    public function test_a_status_history_row_links_the_record_the_two_statuses_and_the_actor(): void
+    {
+        $from = Status::factory()->create();
+        $to = Status::factory()->create();
+        $actor = User::factory()->create();
+        $pr = PurchaseRequest::factory()->create();
+
+        $history = StatusHistory::factory()->create([
+            'statusable_type' => $pr->getMorphClass(),
+            'statusable_id' => $pr->id,
+            'from_status_id' => $from->id,
+            'to_status_id' => $to->id,
+            'user_id' => $actor->id,
+            'reason' => 'needs rework',
+        ]);
+
+        $this->assertTrue($history->statusable->is($pr));
+        $this->assertTrue($history->fromStatus->is($from));
+        $this->assertTrue($history->status->is($to));
+        $this->assertTrue($history->user->is($actor));
+        $this->assertSame('needs rework', $history->fresh()->reason);
+    }
+
+    public function test_status_history_is_append_only_with_no_updated_at_column_value(): void
+    {
+        $pr = PurchaseRequest::factory()->create();
+        $history = StatusHistory::factory()->create(['statusable_type' => $pr->getMorphClass(), 'statusable_id' => $pr->id, 'to_status_id' => Status::factory()->create()->id]);
+
+        $this->assertNotNull($history->created_at);
+        $this->assertArrayNotHasKey('updated_at', $history->fresh()->getAttributes());
     }
 }

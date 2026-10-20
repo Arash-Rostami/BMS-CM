@@ -9,17 +9,33 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Lang;
 
 class CalendarActivityAction
 {
     public const SEARCH_LIMIT = 25;
+
+    public const PER_PAGE = 6;
+
+    public const PAGE_NAME = 'activityPage';
+
+    private const EVENT_STYLE = [
+        'matched' => ['icon' => 'heroicon-m-check-circle', 'tone' => 'success'],
+        'cleared' => ['icon' => 'heroicon-m-x-circle', 'tone' => 'muted'],
+        'date_changed' => ['icon' => 'heroicon-m-arrow-path', 'tone' => 'warning'],
+        'alert_sent' => ['icon' => 'heroicon-m-bell', 'tone' => 'info'],
+        'rule_updated' => ['icon' => 'heroicon-m-pencil-square', 'tone' => 'muted'],
+        'rule_invalid' => ['icon' => 'heroicon-m-exclamation-triangle', 'tone' => 'danger'],
+        'seen' => ['icon' => 'heroicon-m-eye', 'tone' => 'muted'],
+    ];
 
     public static function make(): Action
     {
@@ -27,10 +43,14 @@ class CalendarActivityAction
             ->label(__('resources/calendarRule/strings.activity.label'))
             ->icon('heroicon-o-clock')
             ->color('gray')
+            ->link()
+            ->extraAttributes(['class' => 'cal-nav cal-nav-today'])
             ->modalHeading(__('resources/calendarRule/strings.activity.modal_heading'))
             ->schema([
-                static::getModuleField(),
-                static::getRecordField(),
+                Grid::make(['default' => 1, 'md' => 2])->schema([
+                    static::getModuleField(),
+                    static::getRecordField(),
+                ]),
                 static::getShowAllField(),
                 static::getHistoryField(),
             ])
@@ -47,7 +67,10 @@ class CalendarActivityAction
                 ->all())
             ->searchable()
             ->live()
-            ->afterStateUpdated(fn (Set $set): mixed => $set('record', null));
+            ->afterStateUpdated(function (Set $set, mixed $livewire): void {
+                $set('record', null);
+                static::resetPage($livewire);
+            });
     }
 
     public static function getRecordField(): Select
@@ -56,6 +79,7 @@ class CalendarActivityAction
             ->label(__('resources/calendarRule/strings.activity.record'))
             ->searchable()
             ->live()
+            ->afterStateUpdated(fn (mixed $livewire) => static::resetPage($livewire))
             ->getSearchResultsUsing(fn (string $search, Get $get): array => static::searchRecords(
                 auth()->user(),
                 $get('module'),
@@ -72,20 +96,43 @@ class CalendarActivityAction
     {
         return Toggle::make('show_all')
             ->label(__('resources/calendarRule/strings.activity.show_all'))
-            ->live();
+            ->live()
+            ->afterStateUpdated(fn (mixed $livewire) => static::resetPage($livewire));
     }
 
     public static function getHistoryField(): Placeholder
     {
         return Placeholder::make('history')
             ->hiddenLabel()
-            ->content(fn (Get $get) => view('filament.calendar.activity', static::history(
-                auth()->user(),
-                $get('module'),
-                $get('record'),
-                (bool) $get('show_all'),
-            )))
+            ->content(fn (Get $get, mixed $livewire) => static::historyView(
+                static::history(auth()->user(), $get('module'), $get('record'), (bool) $get('show_all')),
+                $livewire,
+            ))
             ->columnSpanFull();
+    }
+
+    /**
+     * @param  array{rows: array<int, array<string, string>>, empty: string}  $history
+     */
+    public static function historyView(array $history, mixed $livewire): mixed
+    {
+        $paginated = is_object($livewire) && method_exists($livewire, 'getPage');
+        $total = count($history['rows']);
+        $page = $paginated ? max(1, min($livewire->getPage(self::PAGE_NAME), (int) ceil($total / self::PER_PAGE) ?: 1)) : 1;
+        $rows = $paginated ? array_slice($history['rows'], ($page - 1) * self::PER_PAGE, self::PER_PAGE) : $history['rows'];
+
+        return view('filament.calendar.activity', [
+            'rows' => $rows,
+            'empty' => $history['empty'],
+            'paginator' => $paginated ? new LengthAwarePaginator($rows, $total, self::PER_PAGE, $page, ['pageName' => self::PAGE_NAME]) : null,
+        ]);
+    }
+
+    public static function resetPage(mixed $livewire): void
+    {
+        if (is_object($livewire) && method_exists($livewire, 'resetPage')) {
+            $livewire->resetPage(self::PAGE_NAME);
+        }
     }
 
     public static function searchRecords(?User $user, mixed $module, string $search): array
@@ -170,18 +217,20 @@ class CalendarActivityAction
 
     /**
      * @param  array<string, mixed>  $row
-     * @return array{text: string, when: string}
+     * @return array{text: string, when: string, hint: string, icon: string, tone: string}
      */
-    private static function describe(array $row): array
+    public static function describe(array $row): array
     {
         $props = is_array($row['properties'] ?? null) ? $row['properties'] : [];
         $event = $row['event'] ?? null;
         $key = is_string($event) ? 'resources/calendarRule/strings.activity.'.$event : '';
+        $hintKey = is_string($event) ? 'resources/calendarRule/strings.activity.hints.'.$event : '';
 
         return [
+            'hint' => $hintKey !== '' && Lang::has($hintKey) ? (string) __($hintKey) : '',
             'text' => $key !== '' && Lang::has($key) ? __($key, static::params($props)) : '',
             'when' => adaptiveDate($row['created_at'] ?? null, true),
-        ];
+        ] + (is_string($event) && isset(self::EVENT_STYLE[$event]) ? self::EVENT_STYLE[$event] : ['icon' => 'heroicon-m-clock', 'tone' => 'muted']);
     }
 
     /**

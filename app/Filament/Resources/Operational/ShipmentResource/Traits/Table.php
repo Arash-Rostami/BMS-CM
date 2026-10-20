@@ -10,6 +10,7 @@ use App\Models\Shipment;
 use Filament\Actions\BulkAction;
 use Filament\Notifications\Notification;
 use Filament\Support\Enums\IconPosition;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -64,6 +65,43 @@ trait Table
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
+    public static function showTotalNetWeight(): TextColumn
+    {
+        return TextColumn::make('total_net_weight')
+            ->label(__('resources/shipment/strings.table.total_net_weight'))
+            ->numeric(2)
+            ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function showTotalGrossWeight(): TextColumn
+    {
+        return TextColumn::make('total_gross_weight')
+            ->label(__('resources/shipment/strings.table.total_gross_weight'))
+            ->numeric(2)
+            ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function showGrandTotal(): TextColumn
+    {
+        return TextColumn::make('grand_total')
+            ->label(__('resources/shipment/strings.table.grand_total'))
+            ->numeric(2)
+            ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    public static function showCommercialInvoice(): IconColumn
+    {
+        return IconColumn::make('has_commercial_invoice')
+            ->label(__('resources/shipment/strings.table.commercial_invoice'))
+            ->boolean()
+            ->alignCenter()
+            ->toggleable()
+            ->sortable();
+    }
+
     public static function showContainerStatus(): TextColumn
     {
         return TextColumn::make('containerStatus.name')
@@ -92,7 +130,7 @@ trait Table
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
-    private static function docsProgressStats(Shipment $record): ?array
+    public static function docsProgressStats(Shipment $record): ?array
     {
         if (! $record->isDocumentTrackingEnabled()) {
             return null;

@@ -16,12 +16,14 @@ use App\Notifications\CalendarAlertNotification;
 use App\Services\Calendar\CalendarActivity;
 use Closure;
 use Filament\Facades\Filament;
+use Filament\Schemas\Components\Grid;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use ReflectionMethod;
+use ReflectionProperty;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
@@ -114,6 +116,21 @@ class CalendarActivityActionTest extends TestCase
     private function texts(array $history): array
     {
         return array_column($history['rows'], 'text');
+    }
+
+    public function test_each_event_row_carries_an_icon_and_a_tone_with_a_neutral_fallback(): void
+    {
+        $user = $this->actingAsUserWithPermissions(['purchase_request.view']);
+        $rule = $this->rule($user, ['name' => 'styled rule']);
+        $record = PurchaseRequest::factory()->create();
+        $activity = app(CalendarActivity::class);
+        $activity->log('matched', $record, $rule, ['label' => 'pr label', 'event_date' => '2026-10-15']);
+        $activity->log('date_changed', $record, $rule, ['label' => 'pr label', 'event_date' => '2026-10-16', 'old_date' => '2026-10-15']);
+
+        $tones = array_column(CalendarActivityAction::history($user, PurchaseRequest::class, $record->id, false)['rows'], 'tone', 'icon');
+
+        $this->assertSame(['heroicon-m-arrow-path' => 'warning', 'heroicon-m-check-circle' => 'success'], $tones);
+        $this->assertSame('muted', CalendarActivityAction::describe(['event' => 'matched_unknown', 'created_at' => now()])['tone']);
     }
 
     public function test_default_tier_lists_subject_events_newest_first_and_show_all_adds_rule_and_seen_rows(): void
@@ -452,5 +469,155 @@ class CalendarActivityActionTest extends TestCase
 
         $empty = view('filament.calendar.activity', CalendarActivityAction::history($user, PurchaseRequest::class, null, false))->render();
         $this->assertStringContainsString(__('resources/calendarRule/strings.activity.empty'), $empty);
+    }
+
+    public function test_the_history_view_sets_the_date_direction_by_calendar_and_shows_pagination_only_when_paged(): void
+    {
+        $rows = array_map(fn (int $n): array => ['text' => 'event '.$n, 'when' => '2026 October 1'.$n, 'hint' => '', 'icon' => 'heroicon-m-clock', 'tone' => 'muted'], range(1, 3));
+
+        session(['calendar_type' => 'jalali']);
+        $this->assertStringContainsString('cal-act-when" dir="rtl"', view('filament.calendar.activity', ['rows' => $rows, 'empty' => ''])->render());
+
+        session(['calendar_type' => 'gregorian']);
+        $gregorian = view('filament.calendar.activity', ['rows' => $rows, 'empty' => ''])->render();
+        $this->assertStringContainsString('cal-act-when" dir="ltr"', $gregorian);
+        $this->assertStringNotContainsString('fi-pagination', $gregorian);
+        $this->assertStringNotContainsString('cal-pager', $gregorian);
+    }
+
+    public function test_the_activity_modal_pages_six_events_at_a_time_and_every_input_change_returns_to_page_one(): void
+    {
+        $user = $this->actingAsUserWithPermissions(['purchase_request.view']);
+        $rule = $this->rule($user, ['name' => 'paging rule']);
+        $record = PurchaseRequest::factory()->create();
+        $other = PurchaseRequest::factory()->create();
+
+        foreach (range(1, 8) as $n) {
+            app(CalendarActivity::class)->log('matched', $record, $rule, ['label' => 'event '.$n, 'event_date' => '2026-10-'.sprintf('%02d', $n)]);
+        }
+        $this->assertSame(6, CalendarActivityAction::PER_PAGE);
+
+        $component = Livewire::test(CalendarGridWidget::class)
+            ->mountAction('calendarActivity')
+            ->fillForm(['module' => PurchaseRequest::class, 'record' => $record->id]);
+        $component->assertMountedActionModalSee('event 8')->assertMountedActionModalSee('event 3')->assertMountedActionModalDontSee('event 2')
+            ->assertMountedActionModalSee('fi-pagination');
+
+        $component->call('setPage', 2, CalendarActivityAction::PAGE_NAME);
+        $this->assertSame(2, $component->instance()->getPage(CalendarActivityAction::PAGE_NAME));
+        $component->assertMountedActionModalSee('event 2')->assertMountedActionModalSee('event 1')->assertMountedActionModalDontSee('event 8');
+
+        foreach (['mountedActions.0.data.show_all' => true, 'mountedActions.0.data.record' => $other->id, 'mountedActions.0.data.module' => PurchaseRequest::class] as $path => $value) {
+            $component->call('setPage', 2, CalendarActivityAction::PAGE_NAME)->set($path, $value);
+            $this->assertSame(1, $component->instance()->getPage(CalendarActivityAction::PAGE_NAME), $path);
+        }
+    }
+
+    public function test_a_forged_activity_page_is_clamped_to_the_last_page(): void
+    {
+        $user = $this->actingAsUserWithPermissions(['purchase_request.view']);
+        $rule = $this->rule($user, ['name' => 'clamp rule']);
+        $record = PurchaseRequest::factory()->create();
+
+        foreach (range(1, 7) as $n) {
+            app(CalendarActivity::class)->log('matched', $record, $rule, ['label' => 'event '.$n, 'event_date' => '2026-10-0'.$n]);
+        }
+
+        $component = Livewire::test(CalendarGridWidget::class)
+            ->mountAction('calendarActivity')
+            ->fillForm(['module' => PurchaseRequest::class, 'record' => $record->id])
+            ->call('setPage', 99, CalendarActivityAction::PAGE_NAME);
+
+        $component->assertMountedActionModalSee('event 1')->assertMountedActionModalDontSee('event 7');
+    }
+
+    public function test_the_timeline_renders_hover_hints_and_the_pagination_only_beyond_six_rows(): void
+    {
+        $user = $this->actingAsUserWithPermissions(['purchase_request.view']);
+        $rule = $this->rule($user, ['name' => 'hover rule']);
+        $record = PurchaseRequest::factory()->create();
+        $make = fn (int $count): array => array_map(fn (int $n): array => ['text' => 'event '.$n, 'when' => 'day '.$n, 'hint' => 'hint '.$n, 'icon' => 'heroicon-m-clock', 'tone' => 'info'], range(1, $count));
+
+        $six = CalendarActivityAction::historyView(['rows' => $make(6), 'empty' => ''], null)->render();
+        $this->assertStringNotContainsString('fi-pagination', $six);
+        $this->assertStringContainsString('x-tooltip.raw="hint 3"', $six);
+        $this->assertStringContainsString('aria-label="hint 3"', $six);
+        $this->assertStringContainsString('cal-act-info', $six);
+
+        foreach (range(1, 6) as $n) {
+            app(CalendarActivity::class)->log('matched', $record, $rule, ['label' => 'event '.$n, 'event_date' => '2026-10-0'.$n]);
+        }
+        foreach (['en', 'fa', 'fr'] as $locale) {
+            app()->setLocale($locale);
+            Livewire::test(CalendarGridWidget::class)
+                ->mountAction('calendarActivity')
+                ->fillForm(['module' => PurchaseRequest::class, 'record' => $record->id])
+                ->assertMountedActionModalDontSee('fi-pagination');
+        }
+
+        app(CalendarActivity::class)->log('matched', $record, $rule, ['label' => 'event 7', 'event_date' => '2026-10-07']);
+        foreach (['en', 'fa', 'fr'] as $locale) {
+            app()->setLocale($locale);
+            Livewire::test(CalendarGridWidget::class)
+                ->mountAction('calendarActivity')
+                ->fillForm(['module' => PurchaseRequest::class, 'record' => $record->id])
+                ->assertMountedActionModalSee('fi-pagination');
+        }
+    }
+
+    public function test_the_history_date_direction_follows_the_viewers_calendar_type_in_the_rendered_modal_view(): void
+    {
+        $user = $this->actingAsUserWithPermissions(['purchase_request.view']);
+        $rule = $this->rule($user, ['name' => 'dir rule']);
+        $record = PurchaseRequest::factory()->create();
+        app(CalendarActivity::class)->log('matched', $record, $rule, ['label' => 'pr label', 'event_date' => '2026-10-15']);
+        $history = CalendarActivityAction::history($user, PurchaseRequest::class, $record->id, false);
+
+        session(['calendar_type' => 'jalali']);
+        $this->assertStringContainsString('cal-act-when" dir="rtl"', view('filament.calendar.activity', $history)->render());
+
+        session(['calendar_type' => 'gregorian']);
+        $this->assertStringContainsString('cal-act-when" dir="ltr"', view('filament.calendar.activity', $history)->render());
+    }
+
+    public function test_the_action_is_a_link_with_the_toolbar_classes_and_the_module_and_record_selects_share_one_grid_row(): void
+    {
+        $this->actingAsUserWithPermissions(['purchase_request.view']);
+        $action = CalendarActivityAction::make();
+
+        $this->assertTrue($action->isLink());
+        $this->assertStringContainsString('cal-nav cal-nav-today', $action->getExtraAttributes()['class']);
+
+        $schema = (new ReflectionProperty($action, 'schema'))->getValue($action);
+        $this->assertInstanceOf(Grid::class, $schema[0]);
+        $children = (new ReflectionProperty($schema[0], 'childComponents'))->getValue($schema[0]);
+        $names = array_map(fn ($component): string => $component->getName(), $children['default']);
+        $this->assertSame(['module', 'record'], $names);
+        $this->assertSame(['show_all', 'history'], array_map(fn ($component): string => $component->getName(), array_slice($schema, 1)));
+    }
+
+    public function test_every_event_has_a_hover_hint_in_every_locale_and_the_history_rows_carry_it(): void
+    {
+        $events = ['matched', 'cleared', 'date_changed', 'alert_sent', 'rule_updated', 'rule_invalid', 'seen'];
+
+        foreach (['en', 'fa', 'fr'] as $locale) {
+            app()->setLocale($locale);
+            foreach ($events as $event) {
+                $key = 'resources/calendarRule/strings.activity.hints.'.$event;
+                $this->assertNotSame($key, __($key), "Missing [{$key}] in [{$locale}].");
+                $this->assertSame(__($key), CalendarActivityAction::describe(['event' => $event, 'created_at' => now()])['hint']);
+            }
+        }
+
+        app()->setLocale('en');
+        $this->assertSame('', CalendarActivityAction::describe(['event' => 'mystery', 'created_at' => now()])['hint']);
+
+        $user = $this->actingAsUserWithPermissions(['purchase_request.view']);
+        $rule = $this->rule($user, ['name' => 'hint rule']);
+        $record = PurchaseRequest::factory()->create();
+        app(CalendarActivity::class)->log('matched', $record, $rule, ['label' => 'pr label', 'event_date' => '2026-10-15']);
+
+        $row = CalendarActivityAction::history($user, PurchaseRequest::class, $record->id, false)['rows'][0];
+        $this->assertSame(__('resources/calendarRule/strings.activity.hints.matched'), $row['hint']);
     }
 }

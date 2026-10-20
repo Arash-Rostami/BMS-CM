@@ -184,7 +184,10 @@ class StatusResourceTest extends TestCase
     {
         $this->actingAsUserWithPermissions(['status.view', 'status.edit']);
 
-        $status = Status::factory()->create(['name' => 'وضعیت آزمایشی '.random_int(1000, 9999)]);
+        $status = Status::factory()->create([
+            'name' => 'وضعیت آزمایشی '.random_int(1000, 9999),
+            'english_name' => 'Approval Test '.uniqid(),
+        ]);
         $grantee = User::factory()->create();
 
         Livewire::test(ManageStatuses::class)

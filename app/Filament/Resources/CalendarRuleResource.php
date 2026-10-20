@@ -13,6 +13,7 @@ use App\Filament\Traits\HasGlobalSearchConvention;
 use App\Filament\Traits\HasResourcePermissions;
 use App\Models\CalendarRule;
 use App\Services\Calendar\CalendarModules;
+use App\Services\Calendar\Sync\CalendarEngine;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -112,6 +113,18 @@ class CalendarRuleResource extends Resource
         return static::findDuplicate($data, $ignoreId) !== null;
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public static function problemsFor(CalendarRule $record): array
+    {
+        static $memo = [];
+
+        return $memo[$record->id.':'.$record->updated_at?->timestamp] ??= CalendarModules::has((string) $record->subject)
+            ? app(CalendarEngine::class)->filterProblems($record)
+            : ['unknown_subject'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -203,6 +216,7 @@ class CalendarRuleResource extends Resource
             ->components([
                 Section::make()
                     ->schema([
+                        static::viewProblems(),
                         static::viewName(),
                         static::viewSubject(),
                         static::viewFilters(),
@@ -234,6 +248,7 @@ class CalendarRuleResource extends Resource
         return TableComponents::emptyState($table
             ->columns([
                 static::showName(),
+                static::showProblems(),
                 static::showSubject(),
                 static::showWatches(),
                 static::showType(),

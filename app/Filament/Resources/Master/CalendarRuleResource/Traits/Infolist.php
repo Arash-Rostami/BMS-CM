@@ -13,6 +13,18 @@ use Filament\Infolists\Components\TextEntry;
 
 trait Infolist
 {
+    public static function viewProblems(): TextEntry
+    {
+        return TextEntry::make('problems')
+            ->label(__('resources/calendarRule/strings.infolist.problems'))
+            ->getStateUsing(fn (CalendarRule $record): array => static::problemsFor($record))
+            ->badge()
+            ->color('danger')
+            ->listWithLineBreaks()
+            ->visible(fn (CalendarRule $record): bool => static::problemsFor($record) !== [])
+            ->columnSpanFull();
+    }
+
     public static function viewName(): TextEntry
     {
         return TextEntry::make('name')

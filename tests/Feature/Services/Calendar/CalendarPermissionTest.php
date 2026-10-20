@@ -11,7 +11,9 @@ use App\Models\PurchaseRequest;
 use App\Models\Role;
 use App\Models\Shipment;
 use App\Models\User;
+use App\Services\Calendar\CalendarSeen;
 use App\Services\Calendar\Display\CalendarBoard;
+use App\Services\Calendar\Display\CalendarRange;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -31,12 +33,14 @@ class CalendarPermissionTest extends TestCase
 
         Carbon::setTestNow(Carbon::parse('2026-10-08'));
         CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
         Queue::fake(); // observers are live: never let a dispatch run inline under QUEUE_CONNECTION=sync
     }
 
     protected function tearDown(): void
     {
         CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
         Carbon::setTestNow();
         DB::rollBack();
         parent::tearDown();
@@ -105,7 +109,7 @@ class CalendarPermissionTest extends TestCase
         return collect($cells)->firstWhere('iso', $iso);
     }
 
-    public function test_a_user_without_the_module_view_permission_sees_none_of_it_in_grid_agenda_or_day(): void
+    public function test_a_user_without_the_module_view_permission_sees_none_of_it_in_grid_month_list_or_day(): void
     {
         $rule = $this->sharedRule();
         $this->hit($rule, '2026-10-15', PurchaseRequest::class, 'permitted request');
@@ -119,7 +123,8 @@ class CalendarPermissionTest extends TestCase
 
         $this->assertSame(1, $this->cell($cells, '2026-10-15')['count']);
         $this->assertSame(0, $this->cell($cells, '2026-10-16')['count']);
-        $component->assertSee('permitted request')->assertDontSee('forbidden shipment');
+        $month = CalendarBoard::monthQuery($user, CalendarRange::forMonth('2026-10-15', false), null, null)->pluck('label')->all();
+        $this->assertSame(['permitted request'], $month);
 
         $dayRows = CalendarBoard::dayQuery($user, Carbon::parse('2026-10-16'), null, null)->get();
         $this->assertSame(0, $dayRows->count());
@@ -130,7 +135,11 @@ class CalendarPermissionTest extends TestCase
 
         $component = Livewire::test(CalendarGridWidget::class);
         $this->assertSame(1, $this->cell($component->instance()->cells, '2026-10-16')['count']);
-        $component->assertSee('forbidden shipment');
+        $this->assertEqualsCanonicalizing(
+            ['permitted request', 'forbidden shipment'],
+            CalendarBoard::monthQuery($user, CalendarRange::forMonth('2026-10-15', false), null, null)->pluck('label')->all()
+        );
+        $this->assertSame(['forbidden shipment'], CalendarBoard::dayQuery($user, Carbon::parse('2026-10-16'), null, null)->pluck('label')->all());
 
         $this->assertSame(1, CalendarBoard::dayQuery($user, Carbon::parse('2026-10-16'), null, null)->count());
     }
@@ -174,14 +183,15 @@ class CalendarPermissionTest extends TestCase
 
         $this->assertSame([], \App\Filament\Actions\CalendarActivityAction::searchRecords($user, Shipment::class, (string) $shipment->shipment_no));
         $this->assertSame([], \App\Filament\Actions\CalendarActivityAction::history($user, Shipment::class, $shipment->id, true)['rows']);
-        $this->assertSame(0, app(\App\Services\Calendar\Sync\CalendarEngine::class)->attention($user)->count());
+        $this->assertSame(0, \App\Services\Calendar\Display\CalendarBoard::attentionCount($user));
         $this->assertFalse($rule->recipients()->contains('id', $user->id));
 
         $user->roles->first()->givePermissionTo(Permission::firstOrCreate(['name' => 'shipment.view', 'guard_name' => 'web']));
         app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
         CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
 
-        $this->assertSame(1, app(\App\Services\Calendar\Sync\CalendarEngine::class)->attention($user->fresh())->count());
+        $this->assertSame(1, \App\Services\Calendar\Display\CalendarBoard::attentionCount($user->fresh()));
         $this->assertTrue($rule->recipients()->contains('id', $user->id));
     }
 
@@ -217,5 +227,23 @@ class CalendarPermissionTest extends TestCase
         $this->assertNull($day->get('ruleId'));
         $this->assertNull($day->get('module'));
         $day->assertSee('linked request')->assertSuccessful();
+    }
+
+    public function test_a_user_cannot_mark_or_list_hits_of_modules_or_rules_they_cannot_view(): void
+    {
+        $rule = $this->sharedRule();
+        $request = $this->hit($rule, '2026-10-15', PurchaseRequest::class, 'visible request');
+        $shipment = $this->hit($rule, '2026-10-15', Shipment::class, 'hidden shipment');
+        $private = CalendarRule::factory()->create(['user_id' => $rule->user_id, 'visibility' => 'me']);
+        $secret = $this->hit($private, '2026-10-15', PurchaseRequest::class, 'secret request');
+        CalendarHit::flushVisibleRuleIds();
+        CalendarSeen::flush();
+        $user = $this->userWithPermissions(['purchase_request.view']);
+        $this->actingAs($user);
+
+        app(CalendarSeen::class)->mark($user, [$request, $shipment, $secret]);
+
+        $this->assertSame([$request->id], app(CalendarSeen::class)->readIds($user));
+        $this->assertSame([$request->id], \Illuminate\Support\Facades\DB::table('calendar_reads')->where('user_id', $user->id)->pluck('calendar_hit_id')->map(fn (mixed $id): int => (int) $id)->all());
     }
 }

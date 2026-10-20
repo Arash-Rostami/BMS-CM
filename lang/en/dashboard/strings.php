@@ -104,6 +104,7 @@ return [
                         ['title' => 'Supplier & Currency Concentration Score', 'description' => 'Calculates how dependent the business is on one supplier or currency, color-coded so no finance background is needed to read it.'],
                         ['title' => 'Aging & Exposure Reports', 'description' => 'Unpaid invoices are automatically bucketed into 30/60/90+ day windows, with open currency exposure refreshed automatically per deal.'],
                         ['title' => 'Deal Speed X-Ray', 'description' => 'Shows typical vs. slowest-10% turnaround time for every pipeline stage, so a slow deal is obvious before it becomes a crisis.'],
+                        ['title' => 'Seven Live Reports in One Menu', 'description' => 'Operations & Reports opens seven live reports: executive summary, operations, FX supply, FX commitments, in-transit, customs and request tracking — each only for users granted it.'],
                     ],
                 ],
                 [
@@ -114,6 +115,7 @@ return [
                         ['title' => '"Explain This Number" on Every Chart', 'description' => 'Every dashboard metric has a plain-language explanation built in — what it measures and why it matters — with a technical drill-down for anyone who wants it.'],
                         ['title' => 'Date Reminders That Watch For You', 'description' => 'Define a rule once — say, an order\'s delivery date minus 7 days — and the system keeps a live list of every matching record. Alerts arrive in-app or by email before the date, and a date that needs action keeps reminding you if it passes; only people allowed to see that module receive them. Share each rule with everyone, specific people, or specific roles — and every match and change is logged per record.'],
                         ['title' => 'A Calendar Built Into the Dashboard', 'description' => 'The dashboard\'s calendar tab lays matching records out as a month grid, Gregorian or Jalali — days carry color-coded badges per rule, overdue days stand out, and clicking a day lists its records with one click through to each. Filter by rule or module, export any day to Excel, and the home page keeps its own shortlist of what is overdue or due within seven days.'],
+                        ['title' => 'A Data-Issues Log That Never Blocks You', 'description' => 'Each report lists the bad records with the wrong and expected value, who changed it and when, and a link straight to the field to fix — checks never block saving.'],
                     ],
                 ],
                 [
@@ -122,6 +124,7 @@ return [
                     'items' => [
                         ['title' => 'Add Your Own Fields, No Code', 'description' => 'Any pipeline document — requests, orders, invoices, payments, shipments — can carry custom fields a user defines on the spot, like adding a column to a spreadsheet, with no IT ticket required.'],
                         ['title' => 'Status-Driven Approval Workflows', 'description' => 'Turn any pipeline stage into a gated approval step — set the order it must happen in and pick exactly who can grant it, right from the status screen, changeable anytime with no code.'],
+                        ['title' => 'Redefine the Report Rules Yourself', 'description' => 'Every threshold, date basis, "show finished/closed" switch and rate basis is a filter with a default, so users change what counts as late, finished or open without a developer.'],
                         ['title' => 'Role-Shaped Experience', 'description' => 'Every user sees and can do only what their role allows — approvers, clerks, and admins each get a workspace matched to their job.'],
                         ['title' => 'Link Records Anytime, Not Just at Creation', 'description' => 'A request, order, or invoice can connect to multiple related documents, and those links can be added, changed, or removed at any point in the workflow — before or after the record was first created.'],
                     ],
@@ -131,7 +134,8 @@ return [
                     'title' => 'Three languages, two calendars, one system',
                     'items' => [
                         ['title' => 'True Right-to-Left, Not Bolted On', 'description' => 'English, Persian, and French are all first-class — Persian renders in genuine right-to-left layout, not translated text forced into a left-to-right template.'],
-                        ['title' => 'Dual Calendar, One Toggle', 'description' => 'Every date switches instantly between Gregorian and Persian (Jalali) calendars, correctly anchored to the real Persian new year.'],
+                        ['title' => 'Dual Calendar, One Toggle', 'description' => 'Every date switches instantly between Gregorian and Persian (Jalali) calendars, correctly anchored to the real Persian new year — reports follow the switch too, from dates and month buckets to exports.'],
+                        ['title' => 'Strict, Honest Euro Totals', 'description' => 'Euro figures come only from the implied rates of Purchased or Received bank profiles and never add different currencies together; anything without a rate sits on an "Excluded (no rate)" line.'],
                         ['title' => 'Invoices That Read Correctly Everywhere', 'description' => 'Generated PDFs automatically flip to right-to-left Persian formatting with the correct font.'],
                     ],
                 ],
@@ -141,6 +145,7 @@ return [
                     'items' => [
                         ['title' => 'Pin What You Actually Use', 'description' => 'Save frequent modules and specific records to a personal shortcut panel instead of navigating the same menu path every day. The workspace shows only the modules your role may open, each pinned record carries its current status chip, and recently opened records are offered as one-click pin candidates.'],
                         ['title' => 'In-Context Help, Not a Manual', 'description' => 'A tailored reference panel per module, with an unread flag that clears once you have seen it — and reappears automatically if the guidance itself is later updated.'],
+                        ['title' => '"How to Read This Report" Built In', 'description' => 'Every report opens with a guide in Persian, English and French that explains each filter, card, chart and column: what it means, how it is calculated, and what to change.'],
                         ['title' => 'Sidebar, Your Way', 'description' => 'Switch the navigation menu between a side panel and a bottom dock with one click, and the app remembers your choice.'],
                     ],
                 ],
@@ -151,6 +156,7 @@ return [
                         ['title' => 'A Greeting That Knows the Time of Day', 'description' => 'The welcome message on the dashboard changes with the time of day — a small human touch, built right in.'],
                         ['title' => 'A Toolkit That Follows You', 'description' => 'A floating clock, a Pomodoro-style countdown timer to help you concentrate, and calming background music to ease tension — all one click away anywhere in the workspace, with your music picks and volume remembered between visits.'],
                         ['title' => 'A Topbar That Works For You', 'description' => 'A quick-create button that lists only the documents your role may actually create, grouped by pipeline stage — plus a recent-records menu that remembers the last documents you opened, one click away from anywhere.'],
+                        ['title' => 'Click a Number, Filter the Table', 'description' => 'Every count line on a report\'s stat cards is clickable and filters the table below it, shown as a native removable badge, and one "Reset filters" click brings the full list back.'],
                     ],
                 ],
             ],
@@ -185,6 +191,7 @@ return [
                     'items' => [
                         ['title' => 'Excel/CSV Export Everywhere', 'description' => 'Almost every list in the system can be exported to a spreadsheet for offline reporting or sharing.'],
                         ['title' => 'Professional PDF Documents', 'description' => 'Commercial invoices generate as properly formatted, print-ready PDF files, including right-to-left Persian layout.'],
+                        ['title' => 'One-Click Report Export', 'description' => 'Each report exports its table to CSV in one click, queued in the background, with the same columns as the table and opening cleanly in Excel.'],
                         ['title' => 'Search & Filter on Every List', 'description' => 'Every table supports searching and filtering, so large lists never mean endless scrolling.'],
                     ],
                 ],
@@ -250,6 +257,7 @@ return [
     'workspace_records_hint' => 'Pin specific records for one-click access',
     'switchers_toggle' => 'Quick buttons',
     'pinned_suffix' => 'pinned',
+    'workspace_reports' => 'Reports',
     'section_pinned' => 'Pinned',
     'section_add' => 'Add',
     'pin_modules' => 'Pin modules',

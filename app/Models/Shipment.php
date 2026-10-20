@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\HasDocumentChecklist;
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasReliableCodeGeneration;
+use App\Models\Traits\General\LogsAudit;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\TracksStatusHistory;
 use App\Models\Traits\General\UserStamps;
@@ -25,6 +26,7 @@ class Shipment extends Model implements HasDocumentChecklist
         HasPartSelection,
         HasReliableCodeGeneration,
         HasSearchableRelations,
+        LogsAudit,
         Relationships,
         SoftDeletes,
         TracksStatusHistory,
@@ -49,6 +51,15 @@ class Shipment extends Model implements HasDocumentChecklist
         return ['commercial_invoice'];
     }
 
+    public static function auditColumns(): array
+    {
+        return [
+            'contract_no', 'company_id', 'remittance_amount', 'shipped_quantity', 'customs_quantity', 'bl_number',
+            'booking_no', 'container_no', 'warehouse_date', 'exit_date', 'etd', 'eta',
+            'total_net_weight', 'total_gross_weight', 'grand_total',
+        ];
+    }
+
     protected $fillable = [
         'registered_order_id',
         'shipment_no',
@@ -60,6 +71,9 @@ class Shipment extends Model implements HasDocumentChecklist
         'remittance_amount',
         'customs_quantity',
         'shipped_quantity',
+        'total_net_weight',
+        'total_gross_weight',
+        'grand_total',
         'bl_number',
         'booking_no',
         'eta',
@@ -85,6 +99,9 @@ class Shipment extends Model implements HasDocumentChecklist
         'remittance_amount' => 'decimal:5',
         'customs_quantity' => 'decimal:5',
         'shipped_quantity' => 'decimal:5',
+        'total_net_weight' => 'decimal:5',
+        'total_gross_weight' => 'decimal:5',
+        'grand_total' => 'decimal:5',
         'docs' => 'array',
     ];
 

@@ -97,7 +97,7 @@ trait Table
     public static function isValidityLapsed($record): bool
     {
         return $record?->validity_date
-            && $record->validity_date->isPast()
+            && $record->validity_date->lt(today())
             && (int) ($record->payments_count ?? 0) === 0;
     }
 

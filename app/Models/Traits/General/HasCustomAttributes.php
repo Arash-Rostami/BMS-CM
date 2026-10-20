@@ -14,7 +14,7 @@ trait HasCustomAttributes
 
     public function extraAttributes(): MorphMany
     {
-        return $this->morphMany(EntityAttribute::class, 'entity');
+        return $this->morphMany(EntityAttribute::class, 'entity')->whereNotIn('key', $this->reservedCustomAttributeKeys());
     }
 
     public function reservedCustomAttributeKeys(): array

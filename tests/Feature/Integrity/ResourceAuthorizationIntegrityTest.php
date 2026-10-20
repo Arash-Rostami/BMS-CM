@@ -95,6 +95,13 @@ class ResourceAuthorizationIntegrityTest extends TestCase
         'App\\Filament\\Resources\\UserResource' => [
             'canDelete', 'canDeleteAny', 'getDeleteAuthorizationResponse', 'getDeleteAnyAuthorizationResponse',
         ],
+        'App\\Filament\\Resources\\ActivityResource' => [
+            'canCreate', 'canEdit', 'canDelete', 'canDeleteAny', 'canForceDelete', 'canForceDeleteAny', 'canRestore', 'canRestoreAny',
+            'getCreateAuthorizationResponse', 'getEditAuthorizationResponse', 'getUpdateAuthorizationResponse',
+            'getDeleteAuthorizationResponse', 'getDeleteAnyAuthorizationResponse',
+            'getForceDeleteAuthorizationResponse', 'getForceDeleteAnyAuthorizationResponse',
+            'getRestoreAuthorizationResponse', 'getRestoreAnyAuthorizationResponse',
+        ],
         'App\\Filament\\Resources\\CalendarRuleResource' => [
             'canEdit', 'canDelete', 'canRestore',
             'getEditAuthorizationResponse', 'getUpdateAuthorizationResponse',

@@ -3,9 +3,14 @@
 namespace App\Filament\Resources\Operational\ShipmentResource\Traits;
 
 use App\Models\EntityAttribute;
+use App\Models\Product;
 use App\Models\ProformaInvoice;
 use App\Models\Shipment;
+use App\Models\ShipmentItem;
+use App\Services\Country;
+use Closure;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -15,6 +20,9 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 trait InvoiceForm
 {
@@ -79,8 +87,9 @@ trait InvoiceForm
 
                                         $items = $pi->items->map(fn ($item, $i) => [
                                             'row_num' => $i + 1,
-                                            'description' => $item->description,
-                                            'english_description' => $item->english_description ?? $item->product?->english_name,
+                                            'product_id' => $item->product_id,
+                                            'name' => $item->product?->name,
+                                            'english_name' => $item->product?->english_name,
                                             'hs_code' => $item->hs_code,
                                             'origin' => $item->origin,
                                             'quantity' => (float) $item->quantity,
@@ -151,17 +160,16 @@ trait InvoiceForm
                                     ->hiddenLabel()
                                     ->dehydrated(false)
                                     ->schema([
-                                        TextInput::make('description')
-                                            ->label(__('resources/shipment/strings.invoice.item_description'))
-                                            ->columnSpan(3),
-                                        TextInput::make('english_description')
-                                            ->label(__('resources/shipment/strings.invoice.item_english_description'))
-                                            ->columnSpan(3),
+                                        Hidden::make('product_id'),
+                                        ...static::invoiceItemNameFields(),
                                         TextInput::make('hs_code')
                                             ->label(__('resources/shipment/strings.invoice.item_hs_code'))
                                             ->columnSpan(2),
-                                        TextInput::make('origin')
+                                        Select::make('origin')
                                             ->label(__('resources/shipment/strings.invoice.item_origin'))
+                                            ->options(fn (Get $get) => static::optionsWithCurrent((new Country)->getCountriesList(), $get('origin')))
+                                            ->placeholder('')
+                                            ->searchable()
                                             ->columnSpan(2),
                                         TextInput::make('quantity')
                                             ->label(__('resources/shipment/strings.invoice.item_qty'))
@@ -175,9 +183,11 @@ trait InvoiceForm
                                                 $set('total_amount', round((float) ($get('quantity') ?? 0) * (float) ($get('unit_price') ?? 0), 5));
                                             })
                                             ->columnSpan(2),
-                                        TextInput::make('unit')
+                                        Select::make('unit')
                                             ->label(__('resources/shipment/strings.invoice.item_unit'))
-                                            ->columnSpan(1),
+                                            ->options(fn (Get $get) => static::optionsWithCurrent(__('resources/general/strings.metrics'), $get('unit')))
+                                            ->placeholder('')
+                                            ->columnSpan(2),
                                         TextInput::make('unit_price')
                                             ->label(__('resources/shipment/strings.invoice.item_unit_price'))
                                             ->numeric()
@@ -189,15 +199,6 @@ trait InvoiceForm
                                             ->afterStateUpdated(function (Get $get, Set $set) {
                                                 $set('total_amount', round((float) ($get('quantity') ?? 0) * (float) ($get('unit_price') ?? 0), 5));
                                             })
-                                            ->columnSpan(2),
-                                        TextInput::make('total_amount')
-                                            ->label(__('resources/shipment/strings.invoice.item_total'))
-                                            ->numeric()
-                                            ->validationMessages([
-                                                'numeric' => __('resources/shipment/strings.form.validation.numeric'),
-                                            ])
-                                            ->validationAttribute(__('resources/shipment/strings.invoice.item_total'))
-                                            ->readOnly()
                                             ->columnSpan(2),
                                         TextInput::make('net_weight')
                                             ->label(__('resources/shipment/strings.invoice.item_net_weight'))
@@ -214,14 +215,30 @@ trait InvoiceForm
                                                 'numeric' => __('resources/shipment/strings.form.validation.numeric'),
                                             ])
                                             ->validationAttribute(__('resources/shipment/strings.invoice.item_gross_weight'))
+                                            ->rules([
+                                                fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                                    if (filled($value) && filled($get('net_weight')) && (float) $value < (float) $get('net_weight')) {
+                                                        $fail(__('resources/shipment/strings.form.validation.gross_below_net'));
+                                                    }
+                                                },
+                                            ])
                                             ->columnSpan(2),
+                                        TextInput::make('total_amount')
+                                            ->label(__('resources/shipment/strings.invoice.item_total'))
+                                            ->numeric()
+                                            ->validationMessages([
+                                                'numeric' => __('resources/shipment/strings.form.validation.numeric'),
+                                            ])
+                                            ->validationAttribute(__('resources/shipment/strings.invoice.item_total'))
+                                            ->readOnly()
+                                            ->columnSpan(4),
                                     ])
                                     ->addActionLabel(__('resources/shipment/strings.invoice.add_item'))
-                                    ->columns(12)
+                                    ->columns(10)
                                     ->columnSpanFull()
                                     ->reorderable()
                                     ->collapsible()
-                                    ->itemLabel(fn (array $state): ?string => ($state['english_description'] ?? $state['description'] ?? null)),
+                                    ->itemLabel(fn (array $state): ?string => ($state['english_name'] ?? $state['name'] ?? null)),
                             ]),
 
                         Section::make(__('resources/shipment/strings.invoice.section_notes'))
@@ -258,11 +275,15 @@ trait InvoiceForm
                                 TextInput::make('_inv_port_of_discharge')
                                     ->label(__('resources/shipment/strings.invoice.port_of_discharge'))
                                     ->dehydrated(false),
-                                TextInput::make('_inv_origin_country')
+                                Select::make('_inv_origin_country')
                                     ->label(__('resources/shipment/strings.invoice.origin_country'))
+                                    ->options(fn (Get $get) => static::optionsWithCurrent((new Country)->getCountriesList(), $get('_inv_origin_country')))
+                                    ->searchable()
                                     ->dehydrated(false),
-                                TextInput::make('_inv_destination_country')
+                                Select::make('_inv_destination_country')
                                     ->label(__('resources/shipment/strings.invoice.destination_country'))
+                                    ->options(fn (Get $get) => static::optionsWithCurrent((new Country)->getCountriesList(), $get('_inv_destination_country')))
+                                    ->searchable()
                                     ->dehydrated(false),
                                 TextInput::make('_inv_bl_number')
                                     ->label(__('resources/shipment/strings.invoice.bl_number'))
@@ -348,6 +369,7 @@ trait InvoiceForm
                                         'numeric' => __('resources/shipment/strings.form.validation.numeric'),
                                     ])
                                     ->validationAttribute(__('resources/shipment/strings.invoice.total_net_weight'))
+                                    ->readOnly()
                                     ->dehydrated(false),
                                 TextInput::make('_inv_total_gross_weight')
                                     ->label(__('resources/shipment/strings.invoice.total_gross_weight'))
@@ -356,17 +378,33 @@ trait InvoiceForm
                                         'numeric' => __('resources/shipment/strings.form.validation.numeric'),
                                     ])
                                     ->validationAttribute(__('resources/shipment/strings.invoice.total_gross_weight'))
+                                    ->readOnly()
                                     ->dehydrated(false),
                             ])->columns(1),
                     ])->columnSpan(['lg' => 1]),
             ])->columns(3);
     }
 
+    protected static function invoiceItemNameFields(): array
+    {
+        $farsi = app()->getLocale() === 'fa';
+
+        return [
+            Hidden::make($farsi ? 'english_name' : 'name'),
+            TextInput::make($farsi ? 'name' : 'english_name')
+                ->label(__($farsi ? 'resources/shipment/strings.invoice.item_name' : 'resources/shipment/strings.invoice.item_english_name'))
+                ->columnSpan(6),
+        ];
+    }
+
     public static function buildInvoiceEavData(array $formData): array
     {
+        $productIds = Product::withTrashed()->whereIn('id', collect($formData['_inv_items'] ?? [])->pluck('product_id')->filter()->all())->pluck('id')->all();
+
         $items = collect($formData['_inv_items'] ?? [])->map(fn ($item) => [
-            'description' => $item['description'] ?? null,
-            'english_description' => $item['english_description'] ?? null,
+            'product_id' => in_array((int) ($item['product_id'] ?? 0), $productIds, true) ? (int) $item['product_id'] : null,
+            'name' => $item['name'] ?? null,
+            'english_name' => $item['english_name'] ?? null,
             'hs_code' => $item['hs_code'] ?? null,
             'origin' => $item['origin'] ?? null,
             'quantity' => (float) ($item['quantity'] ?? 0),
@@ -408,32 +446,136 @@ trait InvoiceForm
             'freight_charges' => $freight,
             'other_charges' => $other,
             'grand_total' => round($subtotal - $discount + $freight + $other, 5),
-            'total_net_weight' => (float) ($formData['_inv_total_net_weight'] ?? 0),
-            'total_gross_weight' => (float) ($formData['_inv_total_gross_weight'] ?? 0),
+            'total_net_weight' => round(array_sum(array_column($items, 'net_weight')), 5),
+            'total_gross_weight' => round(array_sum(array_column($items, 'gross_weight')), 5),
             'notes' => $formData['_inv_notes'] ?? null,
         ];
     }
 
-    public static function persistInvoiceToEav(array $formData, $record): void
+    public static function persistInvoice(array $formData, Shipment $record): void
     {
+        foreach (array_values($formData['_inv_items'] ?? []) as $index => $item) {
+            if (filled($item['gross_weight'] ?? null) && filled($item['net_weight'] ?? null) && (float) $item['gross_weight'] < (float) $item['net_weight']) {
+                throw ValidationException::withMessages(["data._inv_items.{$index}.gross_weight" => __('resources/shipment/strings.form.validation.gross_below_net')]);
+            }
+        }
+
         $data = static::buildInvoiceEavData($formData);
 
-        $attr = EntityAttribute::where('entity_type', Shipment::class)
-            ->where('entity_id', $record->id)
-            ->where('key', 'commercial_invoice')
-            ->first();
+        DB::transaction(function () use ($data, $record) {
+            $attr = EntityAttribute::withTrashed()
+                ->where('entity_type', Shipment::class)
+                ->where('entity_id', $record->id)
+                ->where('key', 'commercial_invoice')
+                ->first();
 
-        if ($attr) {
-            $attr->update(['value' => $data, 'updated_by_id' => auth()->id()]);
-        } else {
-            EntityAttribute::create([
-                'entity_type' => Shipment::class,
-                'entity_id' => $record->id,
-                'key' => 'commercial_invoice',
-                'value' => $data,
-                'user_id' => auth()->id(),
-                'updated_by_id' => auth()->id(),
-            ]);
+            $header = Arr::except($data, ['items']);
+
+            if ($attr) {
+                $attr->trashed() && $attr->restore();
+                $attr->update(['value' => $header, 'updated_by_id' => auth()->id()]);
+            } else {
+                EntityAttribute::create([
+                    'entity_type' => Shipment::class,
+                    'entity_id' => $record->id,
+                    'key' => 'commercial_invoice',
+                    'value' => $header,
+                    'user_id' => auth()->id(),
+                    'updated_by_id' => auth()->id(),
+                ]);
+            }
+
+            $record->items()->delete();
+            $record->items()->createMany($data['items']);
+            $record->update(Arr::only($data, ['total_net_weight', 'total_gross_weight', 'grand_total']));
+        });
+    }
+
+    public static function loadInvoiceData(Shipment $shipment): ?array
+    {
+        $header = EntityAttribute::where('entity_type', Shipment::class)
+            ->where('entity_id', $shipment->id)
+            ->where('key', 'commercial_invoice')
+            ->value('value');
+
+        $header = is_string($header) ? json_decode($header, true) : $header;
+
+        if (! is_array($header)) {
+            return null;
         }
+
+        $rows = $shipment->items()->orderBy('id')->get();
+
+        $header['items'] = $rows->isEmpty()
+            ? collect($header['items'] ?? [])->filter(fn ($line) => is_array($line))->values()->map(fn ($line) => Arr::except($line, ['description', 'english_description']) + [
+                'name' => $line['name'] ?? $line['description'] ?? null,
+                'english_name' => $line['english_name'] ?? $line['english_description'] ?? null,
+            ])->all()
+            : $rows->map(fn (ShipmentItem $item) => [
+                'product_id' => $item->product_id,
+                'name' => $item->name,
+                'english_name' => $item->english_name,
+                'hs_code' => $item->hs_code,
+                'origin' => $item->origin,
+                'quantity' => (float) $item->quantity,
+                'unit' => $item->unit,
+                'unit_price' => (float) $item->unit_price,
+                'total_amount' => (float) $item->total_amount,
+                'net_weight' => (float) $item->net_weight,
+                'gross_weight' => (float) $item->gross_weight,
+            ])->all();
+
+        foreach (['total_net_weight', 'total_gross_weight', 'grand_total'] as $column) {
+            $header[$column] = $shipment->{$column} !== null ? (float) $shipment->{$column} : ($header[$column] ?? 0);
+        }
+
+        return static::normalizeInvoiceKeys($header);
+    }
+
+    public static function normalizeInvoiceKeys(array $invoice): array
+    {
+        $countries = collect((new Country)->all())->mapWithKeys(fn (array $country) => [$country['code'] => [$country['name'], $country['name_english']]])->all();
+        $units = [];
+
+        foreach (['en', 'fa', 'fr'] as $locale) {
+            foreach (trans('resources/general/strings.metrics', [], $locale) as $key => $label) {
+                $units[$key][] = $label;
+            }
+        }
+
+        foreach (['origin_country', 'destination_country'] as $field) {
+            $invoice[$field] = static::matchOptionKey($invoice[$field] ?? null, $countries);
+        }
+
+        $invoice['incoterms'] = is_string($invoice['incoterms'] ?? null) ? strtoupper($invoice['incoterms']) : ($invoice['incoterms'] ?? null);
+        $invoice['items'] = array_map(fn (array $item) => [
+            ...$item,
+            'origin' => static::matchOptionKey($item['origin'] ?? null, $countries),
+            'unit' => static::matchOptionKey($item['unit'] ?? null, $units),
+        ], $invoice['items'] ?? []);
+
+        return $invoice;
+    }
+
+    protected static function optionsWithCurrent(array $options, mixed $current): array
+    {
+        return is_string($current) && $current !== '' && ! isset($options[$current]) ? $options + [$current => $current] : $options;
+    }
+
+    protected static function matchOptionKey(mixed $value, array $candidates): mixed
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return $value;
+        }
+
+        $needle = mb_strtolower(trim($value));
+
+        foreach ($candidates as $key => $labels) {
+            if (mb_strtolower((string) $key) === $needle || in_array($needle, array_map('mb_strtolower', $labels), true)) {
+                return $key;
+            }
+        }
+
+        return $value;
     }
 }

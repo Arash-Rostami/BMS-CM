@@ -8,6 +8,7 @@ use App\Models\Traits\BankProfile\Relationships as ExclusiveRelationships;
 use App\Models\Traits\General\HasCustomAttributes;
 use App\Models\Traits\General\HasProductCategoryFormatting;
 use App\Models\Traits\General\HasReliableCodeGeneration;
+use App\Models\Traits\General\LogsAudit;
 use App\Models\Traits\General\Relationships;
 use App\Models\Traits\General\SearchTargetable;
 use App\Models\Traits\General\TracksStatusHistory;
@@ -25,6 +26,7 @@ class BankProfile extends Model
         HasProductCategoryFormatting,
         HasReliableCodeGeneration,
         HasSearchableRelations,
+        LogsAudit,
         Relationships,
         searchTargetable,
         SoftDeletes,
@@ -36,6 +38,15 @@ class BankProfile extends Model
     public const SCANNABLE_TABLE = 'bank_profiles';
 
     public const SCANNABLE_IDENTIFIER = 'bp_number';
+
+    public static function auditColumns(): array
+    {
+        return [
+            'bank_id', 'supply_source', 'company_id', 'requested_amount', 'requested_currency_id', 'purchased_equivalent',
+            'purchased_currency_id', 'commission_rate', 'exchange_rate', 'documents_amount', 'creation_date', 'allocation_date',
+            'purchase_date', 'delivery_date', 'payment_due_date', 'commitment_payment_date',
+        ];
+    }
 
     protected $fillable = [
         'bp_number',

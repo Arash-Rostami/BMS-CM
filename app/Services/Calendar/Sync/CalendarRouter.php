@@ -10,6 +10,7 @@ use App\Services\Calendar\CalendarPathResolver;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Facades\Cache;
@@ -27,7 +28,7 @@ class CalendarRouter
     private static bool $suspended = false;
 
     /**
-     * @var array<string, array{subject: bool, rules: array<int, string>, columns: array<int, string>}>|null
+     * @var array<string, array{subject: bool, pivot: bool, rules: array<int, string>, columns: array<int, string>}>|null
      */
     private static ?array $routes = null;
 
@@ -72,7 +73,13 @@ class CalendarRouter
 
         $entry = $this->routes()[$model::class] ?? null;
 
-        if ($entry === null || ! $this->eventTouches($event, $model, $entry)) {
+        if ($entry === null) {
+            return;
+        }
+
+        $touched = $this->eventTouches($event, $model, $entry);
+
+        if (! $touched && ! ($event === 'saved' && $entry['pivot'])) {
             return;
         }
 
@@ -80,7 +87,17 @@ class CalendarRouter
             SyncCalendarSubject::dispatch($model::class, $model->getKey())->delay(30);
         }
 
-        foreach ($entry['rules'] as $ruleId => $subjectClass) {
+        if ($touched) {
+            $this->routeRelatedRules($model, $entry['rules']);
+        }
+    }
+
+    /**
+     * @param  array<int, string>  $rules
+     */
+    private function routeRelatedRules(Model $model, array $rules): void
+    {
+        foreach ($rules as $ruleId => $subjectClass) {
             if ($subjectClass !== $model::class) {
                 $this->routeRelated($ruleId, $model::class, $subjectClass, $model->getKey());
             }
@@ -114,7 +131,7 @@ class CalendarRouter
     }
 
     /**
-     * @return array<string, array{subject: bool, rules: array<int, string>, columns: array<int, string>}>
+     * @return array<string, array{subject: bool, pivot: bool, rules: array<int, string>, columns: array<int, string>}>
      */
     private function routes(): array
     {
@@ -135,17 +152,41 @@ class CalendarRouter
 
         foreach (CalendarRule::query()->where('is_active', true)->get() as $rule) {
             foreach ($rule->watched_columns ?? [] as $class => $columns) {
-                $map[$class] ??= ['subject' => false, 'rules' => [], 'columns' => []];
+                $map[$class] ??= ['subject' => false, 'pivot' => false, 'rules' => [], 'columns' => []];
                 $map[$class]['rules'][$rule->id] = $rule->subject;
-                $map[$class]['columns'] = array_values(array_unique([...$map[$class]['columns'], ...$columns]));
+                $map[$class]['columns'] = array_values(array_unique([...$map[$class]['columns'], ...$columns, ...$this->labelColumns($rule, $class)]));
 
                 if ($rule->subject === $class) {
                     $map[$class]['subject'] = true;
+                    $map[$class]['pivot'] = $map[$class]['pivot'] || $this->linksThroughPivot($rule);
                 }
             }
         }
 
         return $map;
+    }
+
+    private function linksThroughPivot(CalendarRule $rule): bool
+    {
+        foreach ($this->rulePaths($rule) as $path) {
+            $first = explode('.', $path)[0];
+
+            if (isset($this->resolver->relations($rule->subject)[$first]) && (new $rule->subject)->{$first}() instanceof BelongsToMany) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function labelColumns(CalendarRule $rule, string $class): array
+    {
+        $constant = $class.'::SCANNABLE_IDENTIFIER';
+
+        return $rule->subject === $class && defined($constant) ? [constant($constant)] : [];
     }
 
     private function routeRelated(int $ruleId, string $touchedClass, string $subjectClass, int $id): void

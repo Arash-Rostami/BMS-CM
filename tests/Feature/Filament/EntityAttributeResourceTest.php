@@ -141,6 +141,28 @@ class EntityAttributeResourceTest extends TestCase
             ->assertCanNotSeeTableRecords([$other]);
     }
 
+    public function test_the_commercial_invoice_row_is_not_listed(): void
+    {
+        $this->actingAsUserWithPermissions(['entity_attribute.view']);
+
+        $shipment = Shipment::factory()->create();
+        $invoice = $this->createEntityAttribute(['key' => 'commercial_invoice', 'entity_type' => Shipment::class, 'entity_id' => $shipment->id, 'value' => ['invoice_no' => 'X']]);
+        $normal = $this->createEntityAttribute(['key' => 'LISTED-KEY']);
+
+        Livewire::test(ManageEntityAttributes::class)
+            ->assertCanSeeTableRecords([$normal])
+            ->assertCanNotSeeTableRecords([$invoice]);
+    }
+
+    public function test_a_commercial_invoice_key_on_another_entity_type_stays_listed(): void
+    {
+        $this->actingAsUserWithPermissions(['entity_attribute.view']);
+
+        $foreign = $this->createEntityAttribute(['key' => 'commercial_invoice']);
+
+        Livewire::test(ManageEntityAttributes::class)->assertCanSeeTableRecords([$foreign]);
+    }
+
     // Filters
 
     public function test_key_filter_narrows_the_table(): void
@@ -275,34 +297,12 @@ class EntityAttributeResourceTest extends TestCase
         $this->assertArrayHasKey('CACHE-KEY-TWO', $fresh);
     }
 
-    public function test_infolist_renders_a_complex_value_as_labelled_key_value_rows(): void
+    public function test_infolist_shows_a_string_as_is_and_a_structured_value_as_unescaped_json(): void
     {
-        $record = $this->createEntityAttribute([
-            'value' => [
-                'currency' => 'Euro',
-                'seller_name' => 'Solsun',
-                'eta' => null,
-                'items' => [
-                    ['unit' => 'kg', 'description' => null],
-                ],
-            ],
-        ]);
+        $entry = EntityAttributeResource::viewValue()->model(EntityAttribute::class);
 
-        $rendered = (string) EntityAttributeResource::viewValue()->model(EntityAttribute::class)->formatState($record->value);
-
-        // Humanized labels, LTR-forced (keys are always technical English)
-        $this->assertStringContainsString('dir="ltr"', $rendered);
-        $this->assertStringContainsString('Currency', $rendered);
-        $this->assertStringContainsString('Euro', $rendered);
-        $this->assertStringContainsString('Seller Name', $rendered);
-        $this->assertStringContainsString('Solsun', $rendered);
-
-        // Null entries are dropped entirely, at any depth
-        $this->assertStringNotContainsString('Eta', $rendered);
-        $this->assertStringNotContainsString('Description', $rendered);
-
-        // List items never get a numeric index label
-        $this->assertStringNotContainsString('>0<', $rendered);
-        $this->assertStringContainsString('Unit', $rendered);
+        $this->assertSame('plain text', (string) $entry->formatState('plain text'));
+        $this->assertSame('', (string) $entry->formatState(null));
+        $this->assertSame('{"seller":"سولسان","items":[{"unit":"kg"}]}', (string) $entry->formatState(['seller' => 'سولسان', 'items' => [['unit' => 'kg']]]));
     }
 }
