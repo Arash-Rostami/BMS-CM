@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('slug')->nullable();
             $table->json('attributes')->nullable();
             $table->text('description')->nullable()->comment('Description of the product');
+            $table->text('notes')->nullable();
             $table->string('code')->comment('Unique product code');
 
             $table->boolean('in_stock')->default(true);

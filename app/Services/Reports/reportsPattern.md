@@ -1,4 +1,4 @@
-Verified against source on branch `master`. Home of the reporting engine's services. The build plan and owner decisions are in `reportsBuildPlan.md` / `reportsPlan.md` (repo root); this doc records what exists and its contracts.
+Verified against source on branch `master`. Home of the reporting engine's services. This doc records what exists and its contracts; the original build plan and owner decisions were retired once all seven reports shipped.
 
 # Reports services
 

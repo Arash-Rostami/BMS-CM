@@ -25,8 +25,7 @@ app/Models/
     EntityAttribute.php                        ← the EAV table (NOT a consumer of HasCustomAttributes)
     Status.php                                 ← composes Status\StatusFinder + the General kit
 database/migrations/
-    {active migrations}                         ← recent
-    migrated/                                   ← archived operational schemas
+    migrated/                                   ← the whole schema, one create file per table (no patch files)
 ```
 
 ## 1. Canonical model skeleton
@@ -291,7 +290,7 @@ Rules for every operational table:
 - `->comment('...')` on every non-obvious column.
 - `down()` is always `Schema::dropIfExists('table_name')`.
 
-**Plain (non-unique) indexes added 2026-09-22** on all 9 `CodeGenerator`-mapped business-identifier columns (`purchase_requests.pr_number`, `proforma_invoices.invoice_no`, `registered_orders.ro_number` + `.contract_no`, `purchase_orders.po_number`, `bank_profiles.bp_number`, `payments.payment_no`, `shipments.shipment_no`, `customs.custom_no`) via `database/migrations/2026_09_22_092707_add_business_identifier_indexes.php` — a plain `$table->index($column)`, deliberately **not** `->unique()` (see the bullet above; a unique constraint on these was already removed once for the exact soft-delete collision this would reopen). Turns `CodeGenerator::generate()`'s `WHERE {field} LIKE '...%' ... FOR UPDATE` from a full-table exclusive-lock scan into an index-range lock — load-bearing for bulk-import chunk concurrency (`filamentPattern.md` §1.8a), but speeds up every `generate()` call.
+**Plain (non-unique) indexes added 2026-09-22** on all 9 `CodeGenerator`-mapped business-identifier columns (`purchase_requests.pr_number`, `proforma_invoices.invoice_no`, `registered_orders.ro_number` + `.contract_no`, `purchase_orders.po_number`, `bank_profiles.bp_number`, `payments.payment_no`, `shipments.shipment_no`, `customs.custom_no`) inside each table's original create migration (folded in 2026-10-22; no separate patch file) — a plain `$table->index($column)`, deliberately **not** `->unique()` (see the bullet above; a unique constraint on these was already removed once for the exact soft-delete collision this would reopen). Turns `CodeGenerator::generate()`'s `WHERE {field} LIKE '...%' ... FOR UPDATE` from a full-table exclusive-lock scan into an index-range lock — load-bearing for bulk-import chunk concurrency (`filamentPattern.md` §1.8a), but speeds up every `generate()` call.
 
 ## 10. Pivot conventions
 
@@ -377,7 +376,7 @@ Only Shape C pivots (`registered_order_purchase_request`, `registered_order_purc
 - **Accessors**: `getFormattedNameAttribute` / `getFormattedNameWithoutDateAttribute` (`HasFormattedName`), `getLocalizedNameAttribute` (`Localization`), `getTargetableFormatted(string)` (`HasProductCategoryFormatting`).
 - **Boot methods**: `bootUserStamps` (`UserStamps`), `bootHasSlug` (`HasSlug`) — the only two.
 - **Constants**: `SCANNABLE_TABLE` (table name, marker for auto-observer), `SCANNABLE_IDENTIFIER` (human id column), `TYPE_{NAME}` (Status `english_type` value, on the owning model).
-- **Migrations**: `database/migrations/{timestamp}_create_{snake_plural}_table.php`; `down()` → `Schema::dropIfExists('{snake_plural}')`. Active migrations live in `migrations/`, archived operational schemas in `migrations/migrated/`.
+- **Migrations**: `database/migrations/{timestamp}_create_{snake_plural}_table.php`; `down()` → `Schema::dropIfExists('{snake_plural}')`. Every schema, new tables included, lives in `migrations/migrated/`; `migrations/` stays empty. A change to an existing table is folded into its original create file (columns and indexes together), never added as a separate `add_*`/`extend_*` patch — production is changed by a hand-written SQL file instead.
 - **Pivots**: `{modelA}_{modelB}` snake_case table; Shape C with index name `{a}_{b}_unique`.
 
 ## 11. `PredefinedOptions` — columns that must be picked, never typed

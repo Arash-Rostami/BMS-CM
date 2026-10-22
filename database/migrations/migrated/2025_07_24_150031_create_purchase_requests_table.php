@@ -27,6 +27,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index('pr_number');
             $table->index(['department_id', 'deleted_at']);
             $table->index(['status_id', 'deleted_at']);
             $table->index(['requester_id', 'deleted_at']);

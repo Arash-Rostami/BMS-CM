@@ -3394,27 +3394,6 @@ class CalendarSubsystemTest extends TestCase
         $this->assertSame([$keep->id], array_keys($this->storedReads($user)));
     }
 
-    public function test_the_legacy_settings_marks_are_copied_to_the_table_once_in_both_shapes(): void
-    {
-        $user = $this->userWithPermissions(['purchase_request.view']);
-        $old = $this->seenHit('2026-10-15');
-        $compact = $this->seenHit('2026-10-16');
-        $user->forceFill(['settings' => ['theme' => 'dark', 'calendar_seen' => [
-            (string) $old->id => ['seen_at' => '2026-10-07T09:30:00+00:00', 'event_date' => '2026-10-15'],
-            (string) $compact->id => [strtotime('2026-10-07 10:00:00'), '2026-10-16'],
-            '999999999' => [strtotime('2026-10-07 10:00:00'), '2026-10-16'],
-        ]]])->saveQuietly();
-
-        $migration = require base_path('database/migrations/2026_10_12_100000_create_calendar_reads_table.php');
-        $copy = new \ReflectionMethod($migration, 'copyLegacyMarks');
-
-        $copy->invoke($migration);
-        $copy->invoke($migration);
-
-        $this->assertEqualsCanonicalizing([$old->id, $compact->id], array_keys($this->storedReads($user)));
-        $this->assertSame(['theme' => 'dark'], $user->fresh()->settings);
-    }
-
     public function test_seen_memoises_reads_per_request_until_flushed(): void
     {
         $user = $this->userWithPermissions(['purchase_request.view']);

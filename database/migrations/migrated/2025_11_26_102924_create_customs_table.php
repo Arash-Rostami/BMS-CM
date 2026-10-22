@@ -40,10 +40,12 @@ return new class extends Migration
 
             $table->index(['shipment_id', 'deleted_at']);
             $table->index(['registered_order_id', 'deleted_at']);
+            $table->index('custom_no');
             $table->index('declaration_no');
             $table->index('shipment_no');
             $table->index('contract_no');
             $table->index(['deleted_at', 'created_at'], 'idx_customs_deleted_created');
+            $table->index(['clearance_status_id', 'deleted_at'], 'idx_customs_clearance_deleted');
         });
     }
 

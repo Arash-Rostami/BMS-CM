@@ -36,6 +36,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index('invoice_no');
             $table->index('contract_no');
             $table->index(['buyer_id', 'deleted_at']);
             $table->index(['seller_id', 'deleted_at']);

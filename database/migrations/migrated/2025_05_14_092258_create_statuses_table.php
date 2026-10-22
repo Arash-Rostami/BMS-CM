@@ -14,6 +14,8 @@ return new class extends Migration
             $table->string('english_type');
             $table->string('name');
             $table->string('english_name')->nullable();
+            $table->unsignedSmallInteger('stage_order')->nullable()->comment('Position within english_type; NULL = unordered/free status');
+            $table->string('approval_permission', 255)->nullable()->comment('Spatie permission name gating who can set this status; NULL = ungated');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('updated_by_id')->nullable();
             $table->softDeletes();

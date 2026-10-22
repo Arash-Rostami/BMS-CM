@@ -29,7 +29,6 @@ Co-located pattern files are the canonical, verified reference for their domains
 | Observers | `app/Observers/observersPattern.md` | Observer registration and side effects |
 | Tests | `tests/testPattern.md` | Three-layer mirrored convention, real dev-MySQL `useMysql()` + transaction rollback (no `RefreshDatabase` — no active migrations), `qa-checklist.html` + `qa-findings.json` |
 | Cross-cutting gotchas | `gotchasPattern.md` | Non-obvious lessons spanning domains + index of gotchas living in domain docs |
-| PorterrA reports (all 7 built: Executive, Operations, FX supply, In-Transit, Customs, FX commitments, Request tracking) | `reportsPlan.md`, `reportsBuildPlan.md` | `reportsPlan.md` = owner decisions, definitions, schema decisions, production findings, sync checklist, handoff; `reportsBuildPlan.md` = per-report decisions and shared architecture (where it disagrees with the code, `reportsPattern.md` wins) |
 
 ## Agent pipeline policy
 

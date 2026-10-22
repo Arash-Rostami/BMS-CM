@@ -27,6 +27,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index('po_number');
             $table->index(['buyer_id', 'deleted_at']);
             $table->index(['status_id', 'deleted_at']);
             $table->index(['deleted_at', 'created_at'], 'idx_purchase_orders_deleted_created');

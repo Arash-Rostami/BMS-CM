@@ -31,6 +31,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index('ro_number');
+            $table->index('contract_no');
             $table->index(['status_id', 'deleted_at']);
             $table->index('expected_delivery_date', 'idx_registered_orders_expected_delivery_date');
             $table->index(['currency_id', 'deleted_at'], 'idx_registered_orders_currency_deleted');

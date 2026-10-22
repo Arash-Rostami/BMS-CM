@@ -46,8 +46,11 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index('bp_number');
             $table->index(['registered_order_id', 'deleted_at']);
             $table->index(['deleted_at', 'created_at'], 'idx_bank_profiles_deleted_created');
+            $table->index(['status_id', 'deleted_at'], 'idx_bank_profiles_status_deleted');
+            $table->index('commitment_payment_date', 'idx_bank_profiles_commitment_date');
         });
     }
 

@@ -18,6 +18,9 @@ return new class extends Migration
             $table->decimal('remittance_amount', 65, 5)->nullable();
             $table->decimal('customs_quantity', 65, 5)->nullable();
             $table->decimal('shipped_quantity', 65, 5)->nullable();
+            $table->decimal('total_net_weight', 65, 5)->nullable()->comment('Sum of commercial invoice item net weights');
+            $table->decimal('total_gross_weight', 65, 5)->nullable()->comment('Sum of commercial invoice item gross weights');
+            $table->decimal('grand_total', 65, 5)->nullable()->comment('Commercial invoice grand total in the invoice currency');
 
             $table->string('bl_number')->nullable();
             $table->string('booking_no')->nullable();
@@ -46,12 +49,14 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index('shipment_no');
             $table->index('contract_no');
             $table->index('bl_number');
             $table->index('container_no');
             $table->index(['registered_order_id', 'deleted_at']);
             $table->index(['deleted_at', 'eta', 'exit_date'], 'idx_shipments_deleted_eta_exit');
             $table->index(['deleted_at', 'created_at'], 'idx_shipments_deleted_created');
+            $table->index(['shipment_status_id', 'deleted_at'], 'idx_shipments_tracking_deleted');
         });
     }
 

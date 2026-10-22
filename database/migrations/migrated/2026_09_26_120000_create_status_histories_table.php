@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('from_status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->foreignId('to_status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->text('reason')->nullable()->comment('Populated only by Return-for-Revision/reject-style actions');
             $table->timestamp('created_at')->nullable();
         });
     }

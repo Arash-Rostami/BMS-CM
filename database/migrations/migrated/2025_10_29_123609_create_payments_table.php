@@ -40,6 +40,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index('payment_no');
             $table->index(['targetable_type', 'targetable_id', 'deleted_at'], 'idx_payments_targetable_deleted');
             $table->index(['status_id', 'deleted_at']);
             $table->index(['payment_date', 'payment_deadline'], 'idx_payments_date_deadline');
